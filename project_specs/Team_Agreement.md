@@ -19,8 +19,10 @@ This agreement serves to outline the roles, responsibilities, and expectations o
 
 | **Team Member** | **Role Title** | **Responsibilities** |
 | --------------- | -------------- | -------------------- |
-| [Name]          | Coordination Lead | Will organize a team plan to meet project milestones. Will set up team meetings, track status of goals, and help facilitate effective communication among team members.  |
+
+| Aman Dhruva Thamminana          | Coordination Lead | Will organize a team plan to meet project milestones. Will set up team meetings, track status of goals, and help facilitate effective communication among team members.  |
 | Rajmeet Singh Chandok          | Integration Lead       | Will take point on collaborating with other teams on the project's overall API design; will handle inter-team code reviews and assist with merge requests; will address questions or issues from other teams.  |
+
 | [Name]          | Quality Assurance Lead | Will oversee the creation, execution, and maintenance of test suites; will track code quality, including functionality, performance, and security issues, and prioritize fixes.  |
 | [Name]          | Documentation Lead     | Will ensure the team produces clear, concise, and comprehensive documentation for end-users and other developers, as well as code that meets all style standards. Will represent the team in developing the overall project's README, contributing guidelines, and any user manuals or guides.  |
 
@@ -44,7 +46,8 @@ We, the undersigned, have mutually agreed upon the roles and responsibilities as
 
 | **Name**       | **Signature** | **Date** |
 | -------------- | ------------- | -------- |
-| Aman Dhruva Thamminana         | ...             | ...      |
+
+| Aman Dhruva Thamminana         | ADT            | ...      |
 | Rajmeet Singh Chandok          | Rajmeet Singh Chandok            | 12th September 2023      |
 | Simon Situ                     | ...             | ...      |
 | Jason Seguin                   | ...             | ...      |  
