@@ -24,7 +24,7 @@ This agreement serves to outline the roles, responsibilities, and expectations o
 | Rajmeet Singh Chandok          | Integration Lead       | Will take point on collaborating with other teams on the project's overall API design; will handle inter-team code reviews and assist with merge requests; will address questions or issues from other teams.  |
 
 | [Name]          | Quality Assurance Lead | Will oversee the creation, execution, and maintenance of test suites; will track code quality, including functionality, performance, and security issues, and prioritize fixes.  |
-| [Name]          | Documentation Lead     | Will ensure the team produces clear, concise, and comprehensive documentation for end-users and other developers, as well as code that meets all style standards. Will represent the team in developing the overall project's README, contributing guidelines, and any user manuals or guides.  |
+| Simon Situ          | Documentation Lead     | Will ensure the team produces clear, concise, and comprehensive documentation for end-users and other developers, as well as code that meets all style standards. Will represent the team in developing the overall project's README, contributing guidelines, and any user manuals or guides.  |
 
 ## Team Expectations:
 
@@ -44,10 +44,9 @@ This agreement serves to outline the roles, responsibilities, and expectations o
 
 We, the undersigned, have mutually agreed upon the roles and responsibilities as stated above. We commit to upholding this agreement for the duration of the project and understand that any failure to do so may have consequences on our project's success and our individual assessments.
 
-| **Name**       | **Signature** | **Date** |
-| -------------- | ------------- | -------- |
-
-| Aman Dhruva Thamminana         | ADT            | ...      |
-| Rajmeet Singh Chandok          | Rajmeet Singh Chandok            | 12th September 2023      |
-| Simon Situ                     | ...             | ...      |
-| Jason Seguin                   | ...             | ...      |  
+| **Name**               | **Signature**         | **Date**            |
+|------------------------|-----------------------|---------------------|
+| Aman Dhruva Thamminana | ADT                   | ...                 |
+| Rajmeet Singh Chandok  | Rajmeet Singh Chandok | 12th September 2023 |
+| Simon Situ             | Simon Situ            | 12th September 2023 |
+| Jason Seguin           | ...                   | ...                 |
