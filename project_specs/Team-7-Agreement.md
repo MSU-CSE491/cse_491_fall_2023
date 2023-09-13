@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# Team Agreement for [Project Name]
+# Team Agreement for Group 7 (cowboys)
 
 **Date**: 12th September 2023
 
