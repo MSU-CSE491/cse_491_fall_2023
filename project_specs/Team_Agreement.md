@@ -44,7 +44,7 @@ We, the undersigned, have mutually agreed upon the roles and responsibilities as
 
 | **Name**               | **Signature**         | **Date**            |
 |------------------------|-----------------------|---------------------|
-| Aman Dhruva Thamminana | ADT                   | ...                 |
+| Aman Dhruva Thamminana | ADT                   | 12th September 2023 |
 | Rajmeet Singh Chandok  | Rajmeet Singh Chandok | 12th September 2023 |
 | Simon Situ             | Simon Situ            | 12th September 2023 |
 | Jason Seguin           | ...                   | ...                 |
