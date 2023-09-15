@@ -51,29 +51,32 @@ namespace cse491 {
     }
 
     /// Return an action ID *if* that action exists, otherwise return zero.
-    size_t GetActionID(const std::string & action_name) const {
+    [[nodiscard]] size_t GetActionID(const std::string & action_name) const {
       auto it = action_map.find(action_name);
       if (it == action_map.end()) return 0;
       return it->second;
     }
 
     /// Provide a new action that this agent can take.
-    virtual void AddAction(const std::string & action_name, size_t action_id) {
+    virtual AgentBase & AddAction(const std::string & action_name, size_t action_id) {
       assert(!HasAction(action_name)); // Cannot add existing action name.
       action_map[action_name] = action_id;
+      return *this;
     }
 
     /// @brief Decide the next action for this agent to perform; should be overridden!
     /// @param grid The agent is provided with the current WorldGrid
     /// @return ID associated with the action to perform; (zero is always "no action")
-    virtual size_t SelectAction([[maybe_unused]] const WorldGrid & grid,
-                                [[maybe_unused]] const type_options_t & type_options,
-                                [[maybe_unused]] const entity_set_t & entity_set,
-                                [[maybe_unused]] const agent_set_t & agent_set)
+    [[nodiscard]] virtual size_t SelectAction(
+        [[maybe_unused]] const WorldGrid & grid,
+        [[maybe_unused]] const type_options_t & type_options,
+        [[maybe_unused]] const item_set_t & item_set,
+        [[maybe_unused]] const agent_set_t & agent_set
+      )
     { return 0; }
 
     /// Retrieve the result of the most recent action.
-    int GetActionResult() const { return action_result; }
+    [[nodiscard]] int GetActionResult() const { return action_result; }
 
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }

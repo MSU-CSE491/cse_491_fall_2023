@@ -33,7 +33,7 @@ namespace cse491 {
 
     // -- Helper Functions --
     void DrawGrid(const WorldGrid & grid, const type_options_t & type_options,
-                  const entity_set_t & entity_set, const agent_set_t & agent_set)
+                  const item_set_t & item_set, const agent_set_t & agent_set)
     {
       SetupSymbols(type_options);
 
@@ -48,7 +48,7 @@ namespace cse491 {
       }
 
       // Add in the agents / entities
-      for (const auto & entity_ptr : entity_set) {
+      for (const auto & entity_ptr : item_set) {
         GridPosition pos = entity_ptr->GetPosition();
         symbol_grid[pos.CellY()][pos.CellX()] = '+';
       }
@@ -85,11 +85,11 @@ namespace cse491 {
 
     size_t SelectAction(const WorldGrid & grid,
                         const type_options_t & type_options,
-                        const entity_set_t & entity_set,
+                        const item_set_t & item_set,
                         const agent_set_t & agent_set) override
     {
       // Update the current state of the world.
-      DrawGrid(grid, type_options, entity_set, agent_set);
+      DrawGrid(grid, type_options, item_set, agent_set);
 
       // See if there are any keys waiting in standard input (wait if needed)
       char input;

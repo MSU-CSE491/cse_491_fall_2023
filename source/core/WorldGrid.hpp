@@ -33,6 +33,10 @@ namespace cse491 {
   public:
     WorldGrid(size_t width=0, size_t height=0, size_t default_type=0)
       : width(width), height(height), cells(width*height, default_type) { }
+    WorldGrid(const WorldGrid &) = default;
+    WorldGrid(WorldGrid &&) = default;
+    
+    WorldGrid & operator=(WorldGrid &&) = default;
 
     // -- Accessors --
     [[nodiscard]] size_t GetWidth() const { return width; }

@@ -26,7 +26,7 @@ namespace cse491 {
   using type_options_t = std::vector<CellType>;
 
   class Entity;
-  using entity_set_t = std::vector<std::unique_ptr<Entity>>;
+  using item_set_t = std::vector<std::unique_ptr<Entity>>;
 
   class AgentBase;
   using agent_set_t = std::vector<std::unique_ptr<AgentBase>>;

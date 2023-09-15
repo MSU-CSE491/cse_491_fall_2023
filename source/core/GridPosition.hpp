@@ -21,6 +21,7 @@ namespace cse491 {
   public:
     GridPosition() = default;
     GridPosition(double x, double y) : x(x), y(y) { }
+    GridPosition(const GridPosition &) = default;
 
     GridPosition & operator=(const GridPosition &) = default;
 

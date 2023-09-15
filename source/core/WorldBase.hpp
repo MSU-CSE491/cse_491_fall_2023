@@ -25,7 +25,7 @@ namespace cse491 {
     WorldGrid main_grid;
     type_options_t type_options; ///< Vector of types of cells in grids for this world.
 
-    entity_set_t entity_set; ///< Vector of pointers to non-agent entities
+    item_set_t item_set; ///< Vector of pointers to non-agent entities
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
     bool run_over = false;   ///< Should the run end?
@@ -49,15 +49,15 @@ namespace cse491 {
     // -- Accessors --
 
     /// Get the total number of NON-agent entities
-    [[nodiscard]] size_t GetNumEntities() const { return entity_set.size(); }
+    [[nodiscard]] size_t GetNumEntities() const { return item_set.size(); }
 
     /// Get the total number of AGENT entities
     [[nodiscard]] size_t GetNumAgents() const { return agent_set.size(); }
 
     /// Return a reference to an agent with a given ID.
     [[nodiscard]] Entity & GetEntity(size_t id) {
-      assert(id < entity_set.size());
-      return *entity_set[id];
+      assert(id < item_set.size());
+      return *item_set[id];
     }
 
     /// Return a reference to an agent with a given ID.
@@ -97,7 +97,7 @@ namespace cse491 {
     virtual void RunAgents() {
       for (const auto & agent_ptr : agent_set) {
         size_t action_id =
-          agent_ptr->SelectAction(main_grid, type_options, entity_set, agent_set);
+          agent_ptr->SelectAction(main_grid, type_options, item_set, agent_set);
         int result = DoAction(*agent_ptr, action_id);
         agent_ptr->SetActionResult(result);
       }
