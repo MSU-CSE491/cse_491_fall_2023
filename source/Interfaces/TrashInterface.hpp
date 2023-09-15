@@ -79,7 +79,7 @@ namespace cse491 {
 
     // -- AgentBase overrides --
 
-    bool Initialize() {
+    bool Initialize() override {
       return true;
     }
 
