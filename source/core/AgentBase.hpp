@@ -47,7 +47,7 @@ namespace cse491 {
 
     /// Test if agent already has a specified action.
     [[nodiscard]] bool HasAction(const std::string & action_name) const {
-      return action_map.count(name);
+      return action_map.count(action_name);
     }
 
     /// Return an action ID *if* that action exists, otherwise return zero.
