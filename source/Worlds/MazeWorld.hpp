@@ -50,11 +50,11 @@ namespace cse491 {
       // Determine where the agent is trying to move.
       GridPosition new_position;
       switch (action_id) {
-        REMAIN_STILL: new_position = agent.GetPosition(); break;
-        MOVE_UP:      new_position = agent.GetPosition().Above(); break;
-        MOVE_DOWN:    new_position = agent.GetPosition().Below(); break;
-        MOVE_LEFT:    new_position = agent.GetPosition().ToLeft(); break;
-        MOVE_RIGHT:   new_position = agent.GetPosition().ToRight(); break;
+      case REMAIN_STILL: new_position = agent.GetPosition(); break;
+      case MOVE_UP:      new_position = agent.GetPosition().Above(); break;
+      case MOVE_DOWN:    new_position = agent.GetPosition().Below(); break;
+      case MOVE_LEFT:    new_position = agent.GetPosition().ToLeft(); break;
+      case MOVE_RIGHT:   new_position = agent.GetPosition().ToRight(); break;
       }
 
       // Don't let the agent move off the world or into a wall.
