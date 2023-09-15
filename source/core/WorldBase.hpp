@@ -34,8 +34,9 @@ namespace cse491 {
     /// @note Override this function to provide agents with actions or other setup.
     virtual void ConfigAgent(AgentBase & /* agent */) { }
 
-    CellType & AddCellType(const std::string & name, const std::string & desc="") {
-      type_options.push_back(CellType{name, desc, type_options.size()});
+    CellType & AddCellType(const std::string & name, const std::string & desc="",
+                           char symbol='\0') {
+      type_options.push_back(CellType{name, desc, type_options.size(), symbol});
       return type_options.back();
     }
 
@@ -131,6 +132,11 @@ namespace cse491 {
     [[nodiscard]] const std::string & GetCellTypeName(size_t id) const {
       if (id >= type_options.size()) return type_options[0].name;
       return type_options[id].name;
+    }
+
+    [[nodiscard]] char GetCellTypeSymbol(size_t id) const {
+      if (id >= type_options.size()) return type_options[0].symbol;
+      return type_options[id].symbol;
     }
   };
 

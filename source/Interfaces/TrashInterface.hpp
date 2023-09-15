@@ -17,33 +17,18 @@ namespace cse491 {
   class TrashInterface : public InterfaceBase {
   protected:
     bool wait_for_input = true;  ///< Should we pause and wait for the user to hit a key?
-    std::vector<char> symbols;   ///< Which symbol should we use for each id?
-
-    void SetupSymbols(const type_options_t & type_options) {
-      // If we have already setup the symbols, we don't need to do so again.
-      // @CAO: We should change this if symbols can change AFTER the game starts.
-      if (symbols.size()) return;
-
-      symbols.resize(type_options.size(), '?');
-      for (size_t i = 1; i < type_options.size(); ++i) {
-        if (type_options[i].name == "wall")       symbols[i] = '#';
-        else if (type_options[i].name == "floor") symbols[i] = ' ';
-      }
-    }
 
     // -- Helper Functions --
     void DrawGrid(const WorldGrid & grid, const type_options_t & type_options,
                   const item_set_t & item_set, const agent_set_t & agent_set)
     {
-      SetupSymbols(type_options);
-
       std::vector<std::string> symbol_grid(grid.GetHeight());
 
       // Load the world into the symbol_grid;
       for (size_t y=0; y < grid.GetHeight(); ++y) {
         symbol_grid[y].resize(grid.GetWidth());
         for (size_t x=0; x < grid.GetWidth(); ++x) {
-          symbol_grid[y][x] = symbols[ grid.At(x,y) ];
+          symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
         }
       }
 

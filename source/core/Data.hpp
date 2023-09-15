@@ -21,6 +21,7 @@ namespace cse491 {
     std::string name;
     std::string desc;
     size_t id;           ///< Unique identifier; should match position in type_options
+    char symbol;         ///< Symbol for text representations (files or interface)
   };
 
   using type_options_t = std::vector<CellType>;
