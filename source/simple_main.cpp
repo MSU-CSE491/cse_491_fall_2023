@@ -12,8 +12,8 @@
 int main()
 {
   cse491::MazeWorld world;
-  world.AddAgent<cse491::PacingAgent>("Pacer 1");
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(2,1);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(4,1);
-  world.AddAgent<cse491::TrashInterface>("Interface");
+  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
   world.Run();
 }

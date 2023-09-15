@@ -56,10 +56,10 @@ namespace cse491 {
     [[nodiscard]] GridPosition GetOffset(double x_offset, double y_offset) const {
       return GridPosition{x+x_offset,y+y_offset};
     }
-    [[nodiscard]] GridPosition Above(size_t dist=1.0) const { return GetOffset(0.0, -dist); }
-    [[nodiscard]] GridPosition Below(size_t dist=1.0) const { return GetOffset(0.0, dist); }
-    [[nodiscard]] GridPosition ToLeft(size_t dist=1.0) const { return GetOffset(-dist, 0.0); }
-    [[nodiscard]] GridPosition ToRight(size_t dist=1.0) const { return GetOffset(dist, 0.0); }
+    [[nodiscard]] GridPosition Above(double dist=1.0) const { return GetOffset(0.0, -dist); }
+    [[nodiscard]] GridPosition Below(double dist=1.0) const { return GetOffset(0.0, dist); }
+    [[nodiscard]] GridPosition ToLeft(double dist=1.0) const { return GetOffset(-dist, 0.0); }
+    [[nodiscard]] GridPosition ToRight(double dist=1.0) const { return GetOffset(dist, 0.0); }
   };
 
 } // End of namespace cse491

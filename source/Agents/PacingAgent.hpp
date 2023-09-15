@@ -14,7 +14,7 @@ namespace cse491 {
 
   class PacingAgent : public AgentBase {
   protected:
-    bool vertical=false; ///< Is this agent moving down&up?  False = right&left.
+    bool vertical=true; ///< Is this agent moving down&up?  False = right&left.
     bool reverse=false;  ///< Is this agent on their way back? (up/left?)
 
   public:
