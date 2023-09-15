@@ -8,6 +8,8 @@
 #pragma once
 
 #include <cassert>
+#include <fstream>
+#include <iostream>
 #include <vector>
 
 #include "GridPosition.hpp"
@@ -99,6 +101,37 @@ namespace cse491 {
       std::swap(cells, new_cells);
       width = new_width;
       height = new_height;
+    }
+
+    // -- Save and Load functions --
+    // Mechanisms to efficiently save and load the exact state of the file.
+    // File format is width and height followed by all
+    // values in the grid on each line thereafter.
+
+    /// Write the current state of this grid into the provided stream.
+    void Save(std::ostream & os) const {
+      os << width << " " << height;
+      for (size_t state : cells) os << ' ' << state;
+      os << std::endl;
+    }
+
+    /// Helper function to specify a file name to write the grid state to.
+    void Save(std::string filename) const {
+      std::ofstream os(filename);
+      Save(os);
+    }
+
+    /// Read the state of the grid out of the provided stream. 
+    void Load(std::istream & is) {
+      is >> width >> height;
+      cells.resize(width * height);
+      for (size_t & state : cells) is >> state;
+    }
+
+    /// Helper function to specify a file name to load the grid state from.
+    void Load(std::string filename) {
+      std::ifstream is(filename);
+      Load(is);
     }
 
   };
