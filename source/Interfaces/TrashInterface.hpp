@@ -55,7 +55,11 @@ namespace cse491 {
 
       for (const auto & agent_ptr : agent_set) {
         GridPosition pos = agent_ptr->GetPosition();
-        symbol_grid[pos.CellY()][pos.CellX()] = '*';
+        char c = '*';
+        if(agent_ptr->HasProperty("char")){
+          c = static_cast<char>(agent_ptr->GetProperty("char"));
+        }
+        symbol_grid[pos.CellY()][pos.CellX()] = c;
       }
 
       // Print out the symbol_grid
