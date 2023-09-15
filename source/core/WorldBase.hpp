@@ -32,7 +32,7 @@ namespace cse491 {
 
     /// Helper function that is run whenever a new agent is created.
     /// @note Override this function to provide agents with actions or other setup.
-    virtual void ConfigAgent(AgentBase & agent) { }
+    virtual void ConfigAgent(AgentBase & /* agent */) { }
 
     CellType & AddCellType(const std::string & name, const std::string & desc="") {
       type_options.push_back(CellType{name, desc, type_options.size()});
