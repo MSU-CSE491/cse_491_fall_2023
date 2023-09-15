@@ -28,10 +28,10 @@ namespace cse491 {
     }
 
     /// Choose the action to take a step in the appropriate direction.
-    size_t SelectAction(const WorldGrid & grid,
-                        const type_options_t & type_options,
-                        const entity_set_t & entity_set,
-                        const agent_set_t & agent_set) override
+    size_t SelectAction(const WorldGrid & /* grid*/,
+                        const type_options_t & /* type_options*/,
+                        const entity_set_t & /* entity_set*/,
+                        const agent_set_t & /* agent_set*/) override
     {
       // If the last step failed, try going in the other direction.
       if (action_result == 0) {
