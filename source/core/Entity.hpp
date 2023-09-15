@@ -33,9 +33,9 @@ namespace cse491 {
     [[nodiscard]] const std::string & GetName() const { return name; }
     [[nodiscard]] GridPosition GetPosition() const { return position; }
 
-    void SetName(const std::string in_name) { name = in_name; }
-    void SetPosition(GridPosition in_pos) { position = in_pos; }
-    void SetPosition(double x, double y) { position = GridPosition{x,y}; }
+    Entity & SetName(const std::string in_name) { name = in_name; return *this; }
+    Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
+    Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
 
     virtual bool IsAgent() const { return false; }
     virtual bool IsInterface() const { return false; }
@@ -55,9 +55,10 @@ namespace cse491 {
     }
 
     /// Change the value of the specified property (will create if needed)
-    void SetProperty(const std::string & name, double value=0.0) {
+    Entity & SetProperty(const std::string & name, double value=0.0) {
       property_map[name] = value;
-    }    
+      return *this;
+    }
   };
 
 } // End of namespace cse491
