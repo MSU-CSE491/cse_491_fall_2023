@@ -37,13 +37,36 @@ namespace cse491 {
     {
       SetupSymbols(type_options);
 
+      std::vector<std::string> symbol_grid(grid.GetHeight());
+
+      // Load the world into the symbol_grid;
       for (size_t y=0; y < grid.GetHeight(); ++y) {
+        symbol_grid[y].resize(grid.GetWidth());
         for (size_t x=0; x < grid.GetWidth(); ++x) {
-          std::cout << ' ' << symbols[ grid.At(x,y) ];
+          symbol_grid[y][x] = symbols[ grid.At(x,y) ];
+        }
+      }
+
+      // Add in the agents / entities
+      for (const auto & entity_ptr : entity_set) {
+        GridPosition pos = entity_ptr->GetPosition();
+        symbol_grid[pos.CellY()][pos.CellX()] = '+';
+      }
+
+      for (const auto & agent_ptr : agent_set) {
+        GridPosition pos = agent_ptr->GetPosition();
+        symbol_grid[pos.CellY()][pos.CellX()] = '*';
+      }
+
+      // Print out the symbol_grid
+      for (const auto & row : symbol_grid) {
+        for (char cell : row) {
+          std::cout << ' ' << cell;
         }
         std::cout << '\n';
       }
-      std::cout << std::endl;
+      std::cout << "\nYour move? ";
+      std::cout.flush();
     }
 
   public:
