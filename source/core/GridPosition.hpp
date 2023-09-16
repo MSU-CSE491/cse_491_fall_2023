@@ -13,14 +13,21 @@
 
 namespace cse491 {
 
+  /// @class GridPosition
+  /// @brief Represents a position within a 2D grid of cells.
+  /// This class provides utilities to manage a position in 2D space.
+  /// The position is stored as floating-point values (to allow for smooth motion through
+  /// a grid), but is easily converted to size_t for grid-cell identification.
   class GridPosition {
   private:
     double x = 0.0;
     double y = 0.0;
 
+    /// A simple helper function to make sure values are in legal range.
+    [[nodiscard]] bool IsValid() const { return x >= 0.0 && y >= 0.0; }
   public:
     GridPosition() = default;
-    GridPosition(double x, double y) : x(x), y(y) { }
+    GridPosition(double x, double y) : x(x), y(y) { assert(IsValid()); }
     GridPosition(const GridPosition &) = default;
 
     GridPosition & operator=(const GridPosition &) = default;
@@ -38,12 +45,13 @@ namespace cse491 {
     // -- Modifiers --
 
     GridPosition & Set(double in_x, double in_y) {
-      assert(in_x > 0 && in_y > 0);
       x=in_x; y=in_y;
+      assert(IsValid());
       return *this;
     }
-    GridPosition & Shift(double x_shift, double y_shift) {
-      x += x_shift; y += y_shift;
+    GridPosition & Shift(double shift_x, double shift_y) {
+      x += shift_x; y += shift_y;
+      assert(IsValid());
       return *this;
     }
 
@@ -52,15 +60,28 @@ namespace cse491 {
 
 
     // -- Const Operations --
-    [[nodiscard]] GridPosition operator+(GridPosition in) const { return in.Shift(x,y); }
 
-    [[nodiscard]] GridPosition GetOffset(double x_offset, double y_offset) const {
-      return GridPosition{x+x_offset,y+y_offset};
+    /// Return a the GridPosition at the requested offset.
+    [[nodiscard]] GridPosition GetOffset(double offset_x, double offset_y) const {
+      return GridPosition{x+offset_x,y+offset_y};
     }
+
+    /// Return a grid position above this one (by default, directly above)
     [[nodiscard]] GridPosition Above(double dist=1.0) const { return GetOffset(0.0, -dist); }
+
+    /// Return a grid position below this one (by default, directly below)
     [[nodiscard]] GridPosition Below(double dist=1.0) const { return GetOffset(0.0, dist); }
+
+    /// Return a grid position to the left of this one (by default, directly left)
     [[nodiscard]] GridPosition ToLeft(double dist=1.0) const { return GetOffset(-dist, 0.0); }
+
+    /// Return a grid position to the right of this one (by default, directly right)
     [[nodiscard]] GridPosition ToRight(double dist=1.0) const { return GetOffset(dist, 0.0); }
+
+    /// Add together two grid positions and return the result.
+    [[nodiscard]] GridPosition operator+(GridPosition in) const {
+      return GetOffset(in.x, in.y);
+    }
   };
 
 } // End of namespace cse491

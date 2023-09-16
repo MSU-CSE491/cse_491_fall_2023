@@ -2,10 +2,6 @@
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief Set of types used throughout the codebase
  * @note Status: PROPOSAL
- * 
- * @CAO: It may be that Interfaces aren't much more than a special type of Agent.
- *       we should decide if we even need a special category, but even just listing
- *       the base class is informative.
  **/
 
 #pragma once
@@ -16,20 +12,22 @@
 
 namespace cse491 {
   
-  /// @brief Simple structure to hold information about a type of cell in the world.
+  /// @brief Simple data structure to hold info about a TYPE of cell in the world.
   struct CellType {
-    std::string name;
-    std::string desc;
-    size_t id;           ///< Unique identifier; should match position in type_options
-    char symbol;         ///< Symbol for text representations (files or interface)
+    std::string name;  ///< Unique name for this type of cell (e.g., "wall", "tree", "moon")
+    std::string desc;  ///< Full description of what this type of cell is
+    char symbol;       ///< Symbol for text representations (files or interface)
   };
 
+  /// @brief Available CellTypes will be passed around as a vector of options.
   using type_options_t = std::vector<CellType>;
 
   class Entity;
+  /// @brief Sets of items will be represented as vectors of pointers to the base class
   using item_set_t = std::vector<std::unique_ptr<Entity>>;
 
   class AgentBase;
+  /// @brief Sets of agents will be represented as vectors of pointers to the base class
   using agent_set_t = std::vector<std::unique_ptr<AgentBase>>;
 
 }
