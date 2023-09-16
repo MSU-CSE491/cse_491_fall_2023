@@ -67,6 +67,12 @@ namespace cse491 {
       return *agent_set[id];
     }
 
+    /// Return an editable version of the current grid for this world (main_grid by default) 
+    virtual WorldGrid & GetGrid() { return main_grid; }
+
+    /// Return the current grid for this world (main_grid by default) 
+    virtual const WorldGrid & GetGrid() const { return main_grid; }
+
 
     // -- Agent Management --
 
@@ -118,6 +124,10 @@ namespace cse491 {
     }
 
     // CellType management.
+
+    // Return a const vector of all of the possible cell types.
+    [[nodiscard]] const type_options_t & GetCellTypes() const { return type_options; }
+
 
     /// @brief Return the ID associated with the cell type name.
     /// @param name The unique name of the cell type
