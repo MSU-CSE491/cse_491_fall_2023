@@ -89,6 +89,7 @@ namespace cse491 {
         case 'a': case 'A': action_id = GetActionID("left");  break;
         case 's': case 'S': action_id = GetActionID("down");  break;
         case 'd': case 'D': action_id = GetActionID("right"); break;
+        case 'q': case 'Q': exit(0); // Quit!
       }
 
       // If we waited for input, but don't understand it, notify the user.
