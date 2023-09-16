@@ -134,6 +134,54 @@ namespace cse491 {
       Load(is);
     }
 
+    // -- Read and Write functions --
+    // These are the same idea as Save and Load, but they are human readable, but they
+    // also require that each state has been assigned a unique character symbol.
+
+    /// @brief Write out a human-readable version of the current WorldGrid
+    /// @param os Stream to write to
+    /// @param types A vector of CellTypes for symbol identification
+    void Write(std::ostream & os, const type_options_t & types) const {
+      os << width << ' ' << height << '\n';
+      size_t cell_id = 0;
+      for (size_t y=0; y < height; ++y) {
+        for (size_t x=0; x < width; ++x) {
+          if (x) os << ' ';  // Skip a space for symbols after first.
+          os << types[ cells[cell_id++] ].symbol;
+        }
+        os << '\n';
+      }
+      os.flush();
+    }
+
+    /// Helper function to specify a file name to write the grid state to.
+    void Write(std::string filename, const type_options_t & types) const {
+      std::ofstream os(filename);
+      Write(os, types);
+    }
+
+    void Read(std::istream & is, const type_options_t & types) {
+      // Build a symbol chart for conversions back.
+      std::vector<size_t> symbol_chart(256, 0);
+      for (const auto & type : types) symbol_chart[type.symbol] = type.id;
+
+      is >> width >> height;
+      cells.resize(width * height);
+
+      // Convert each symbol to the appropriate value.
+      char cur_symbol;
+      for (size_t & state : cells) {
+        is >> cur_symbol >> cur_symbol;  // Twice to skip whitespace separators.
+        state = symbol_chart[cur_symbol];
+      }
+    }
+
+    /// Helper function to specify a file name to read the grid state from.
+    void Read(std::string filename, const type_options_t & types) {
+      std::ifstream is(filename);
+      Read(is, types);
+    }
+
   };
 
 } // End of namespace cse491
