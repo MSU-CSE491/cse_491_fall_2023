@@ -10,20 +10,22 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 
+#include "CoreObject.hpp"
 #include "GridPosition.hpp"
 
 namespace cse491 {
 
-  class WorldGrid {
+  /// @class WorldGrid
+  /// @brief Represents a 2D grid of cells.
+  /// This class provides utilities to manage, access, and modify cells within a grid.
+  class WorldGrid : public CoreObject {
   protected:
-    size_t width;
-    size_t height;
+    size_t width = 0;           ///< Number of cells in each row of the grid.
+    size_t height = 0;          ///< Number of rows of cells in the grid.
     std::vector<size_t> cells;  ///< All cells, grouped by full rows, top to bottom
-
-    // @CAO Question: Should we add an 'offset' or other mechanism for a grid to
-    //                more explicitly represent a portion of a larger grid?
 
     // -- Helper functions --
 
@@ -32,8 +34,30 @@ namespace cse491 {
       return x + y * width;
     }
 
+    // -- Serialize and Deserialize functions --
+    // Mechanisms to efficiently save and load the exact state of the grid.
+    // File format is width and height followed by all
+    // values in the grid on each line thereafter.
+
+    std::string GetTypeName_impl() const override { return "cse491::WorldGrid"; }
+
+    /// Write the current state of this grid into the provided stream.
+    void Serialize_impl(std::ostream & os) const override {
+      os << width << " " << height;
+      for (size_t state : cells) os << ' ' << state;
+      os << std::endl;
+    }
+
+    /// Read the state of the grid out of the provided stream. 
+    void Deserialize_impl(std::istream & is) override {
+      is >> width >> height;
+      cells.resize(width * height);
+      for (size_t & state : cells) is >> state;
+    }
+
   public:
-    WorldGrid(size_t width=0, size_t height=0, size_t default_type=0)
+    WorldGrid() = default;
+    WorldGrid(size_t width, size_t height, size_t default_type=0)
       : width(width), height(height), cells(width*height, default_type) { }
     WorldGrid(const WorldGrid &) = default;
     WorldGrid(WorldGrid &&) = default;
@@ -68,19 +92,13 @@ namespace cse491 {
     }
 
     /// @return The state at a given GridPosition.
-    [[nodiscard]] size_t At(GridPosition pos) const {
-      assert(IsValid(pos));
-      return At(pos.CellX(), pos.CellY());
-    }
+    [[nodiscard]] size_t At(GridPosition p) const { return At(p.CellX(), p.CellY()); }
 
     /// @return A reference to the state at a given GridPosition.
-    [[nodiscard]] size_t & At(GridPosition pos) {
-      assert(IsValid(pos));
-      return At(pos.CellX(), pos.CellY());
-    }
+    [[nodiscard]] size_t & At(GridPosition p) { return At(p.CellX(), p.CellY()); }
 
-    [[nodiscard]] size_t operator[](GridPosition pos) const { return At(pos); }
-    [[nodiscard]] size_t & operator[](GridPosition pos) { return At(pos); }
+    [[nodiscard]] size_t operator[](GridPosition p) const { return At(p); }
+    [[nodiscard]] size_t & operator[](GridPosition p) { return At(p); }
 
 
     // Size adjustments.
@@ -103,46 +121,6 @@ namespace cse491 {
       height = new_height;
     }
 
-    // -- Save and Load functions --
-    // Mechanisms to efficiently save and load the exact state of the file.
-    // File format is width and height followed by all
-    // values in the grid on each line thereafter.
-
-    /// Write the current state of this grid into the provided stream.
-    void Save(std::ostream & os) const {
-      os << width << " " << height;
-      for (size_t state : cells) os << ' ' << state;
-      os << std::endl;
-    }
-
-    /// Helper function to specify a file name to write the grid state to.
-    bool Save(std::string filename) const {
-      std::ofstream os(filename);
-      if (!os.is_open()) {
-        std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;
-        return false;
-      }
-      Save(os);
-      return true;
-    }
-
-    /// Read the state of the grid out of the provided stream. 
-    void Load(std::istream & is) {
-      is >> width >> height;
-      cells.resize(width * height);
-      for (size_t & state : cells) is >> state;
-    }
-
-    /// Helper function to specify a file name to load the grid state from.
-    bool Load(std::string filename) {
-      std::ifstream is(filename);
-      if (!is.is_open()) {
-        std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;
-        return false;
-      }
-      Load(is);
-      return true;
-    }
 
     // -- Read and Write functions --
     // These are the same idea as Save and Load, but they are human readable, but they
@@ -175,8 +153,10 @@ namespace cse491 {
 
     void Read(std::istream & is, const type_options_t & types) {
       // Build a symbol chart for conversions back.
-      std::vector<size_t> symbol_chart(256, 0);
-      for (const auto & type : types) symbol_chart[type.symbol] = type.id;
+      std::unordered_map<char, size_t> symbol_map;
+      for (size_t i=0; i < types.size(); ++i) {
+        symbol_map[types[i].symbol] = i;
+      }
 
       // Load the file into memory.
       std::vector<std::string> char_grid;
@@ -193,8 +173,9 @@ namespace cse491 {
       size_t cell_id = 0;
       for (size_t y = 0; y < height; ++y) {
         for (size_t x = 0; x < width; ++x) {
+          // Use the cell values provided, or zero if a cell position is missing.
           cells[cell_id++] =
-            (x < char_grid[y].size()) ? symbol_chart[char_grid[y][x]] : 0;
+            (x < char_grid[y].size()) ? symbol_map[char_grid[y][x]] : 0;
         }
       }
     }
