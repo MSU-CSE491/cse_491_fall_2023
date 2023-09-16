@@ -31,17 +31,7 @@ namespace cse491 {
     MazeWorld() {
       floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ').id;
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#').id;
-
-      // @CAO We should load in different mazes.  For now, we will build a simple one.
-      main_grid.Resize(5, 5, floor_id);
-      main_grid.At(1,0) = wall_id;
-      main_grid.At(1,1) = wall_id;
-      main_grid.At(1,2) = wall_id;
-      main_grid.At(1,3) = wall_id;
-      main_grid.At(3,1) = wall_id;
-      main_grid.At(3,2) = wall_id;
-      main_grid.At(3,3) = wall_id;
-      main_grid.At(3,4) = wall_id;
+      main_grid.Read("../assets/grids/default_maze.grid", type_options);
     }
     ~MazeWorld() = default;
 
