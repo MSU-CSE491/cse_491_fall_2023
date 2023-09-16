@@ -21,12 +21,16 @@ namespace cse491 {
     GridPosition position;  ///< Where on the grid is this entity?
 
     /// Every entity can have a simple set of properties (with values) associated with it.
-    // @CAO Question: Should this be a more complicated structure to hold properties?
     std::unordered_map<std::string, double> property_map;
 
   public:
     Entity(size_t id, const std::string & name) : id(id), name(name) { }
+    Entity(const Entity &) = default;
+    Entity(Entity &&) = default;
     virtual ~Entity() = default;
+
+    Entity & operator=(const Entity &) = default;
+    Entity & operator=(Entity &&) = default;
 
     // -- Accessors --
     [[nodiscard]] size_t GetID() const { return id; }
@@ -37,7 +41,11 @@ namespace cse491 {
     Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
     Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
 
+    /// Is this Entity actually an autonomous agent? (Overridden in AgentBase to return true)
     virtual bool IsAgent() const { return false; }
+
+    /// Is this Entity actually a specialty Agent that's an Interface for a human player?
+    /// (Overridden in InterfaceBase to return true)
     virtual bool IsInterface() const { return false; }
 
 

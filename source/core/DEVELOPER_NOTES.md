@@ -31,3 +31,12 @@ only on files above it in the core.
 
 - Should we add functionality to extract a portion of the grid?
 - Should we allow a WorldGrid representing only a section of grid, but with an offset and possibly a pointer back to the main grid it's part of?
+
+## `Entity.hpp`
+
+- Should we use a better/different structure for properties?  Right now properties can only have a `double` value, but we could use `std::variant` to allow for a set of allowed values, or even `std::any`.
+
+## `AgentBase.hpp`
+
+- Should Agents keep a link back to the world they're from?
+- Should Agents all have a facing?  (Or should all entities even?)

@@ -2,10 +2,6 @@
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A base class interface for all agent types.
  * @note Status: PROPOSAL
- * 
- * @CAO Questions
- * - Should Agents keep a link back to the world they're from?
- * - Should all Agents have a facing?  (Or should all entities even?)
  **/
 
 #pragma once

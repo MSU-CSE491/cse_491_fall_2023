@@ -2,10 +2,6 @@
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A base class for all player-interface types.
  * @note Status: PROPOSAL
- * 
- * @CAO: It may be that Interfaces aren't much more than a special type of Agent.
- *       we should decide if we even need a special category, but even just listing
- *       the base class is informative.
  **/
 
 #pragma once

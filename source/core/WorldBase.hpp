@@ -34,10 +34,15 @@ namespace cse491 {
     /// @note Override this function to provide agents with actions or other setup.
     virtual void ConfigAgent(AgentBase & /* agent */) { }
 
-    CellType & AddCellType(const std::string & name, const std::string & desc="",
+    /// @brief  Add a new type of cell to this world.
+    /// @param name A unique name for this cell type
+    /// @param desc A longer description of the cell type
+    /// @param symbol An (optional) unique symbol for text IO (files, command line)
+    /// @return A unique ID associated with this cell type (position in type_options vector)
+    size_t AddCellType(const std::string & name, const std::string & desc="",
                            char symbol='\0') {
-      type_options.push_back(CellType{name, desc, type_options.size(), symbol});
-      return type_options.back();
+      type_options.push_back(CellType{name, desc, symbol});
+      return type_options.size() - 1;
     }
 
   public:
@@ -133,8 +138,8 @@ namespace cse491 {
     /// @param name The unique name of the cell type
     /// @return The unique ID of the cell type (or 0 if it doesn't exist.)
     [[nodiscard]] size_t GetCellTypeID(const std::string & name) const { 
-      for (const auto & type : type_options) {
-        if (type.name == name) return type.id;
+      for (size_t i=1; i < type_options.size(); ++i) {
+        if (type_options[i].name == name) return i;
       }
       return 0;
     }
