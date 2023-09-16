@@ -116,9 +116,14 @@ namespace cse491 {
     }
 
     /// Helper function to specify a file name to write the grid state to.
-    void Save(std::string filename) const {
+    bool Save(std::string filename) const {
       std::ofstream os(filename);
+      if (!os.is_open()) {
+        std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;
+        return false;
+      }
       Save(os);
+      return true;
     }
 
     /// Read the state of the grid out of the provided stream. 
@@ -129,9 +134,14 @@ namespace cse491 {
     }
 
     /// Helper function to specify a file name to load the grid state from.
-    void Load(std::string filename) {
+    bool Load(std::string filename) {
       std::ifstream is(filename);
+      if (!is.is_open()) {
+        std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;
+        return false;
+      }
       Load(is);
+      return true;
     }
 
     // -- Read and Write functions --
@@ -142,11 +152,9 @@ namespace cse491 {
     /// @param os Stream to write to
     /// @param types A vector of CellTypes for symbol identification
     void Write(std::ostream & os, const type_options_t & types) const {
-      os << width << ' ' << height << '\n';
       size_t cell_id = 0;
       for (size_t y=0; y < height; ++y) {
         for (size_t x=0; x < width; ++x) {
-          if (x) os << ' ';  // Skip a space for symbols after first.
           os << types[ cells[cell_id++] ].symbol;
         }
         os << '\n';
@@ -155,9 +163,14 @@ namespace cse491 {
     }
 
     /// Helper function to specify a file name to write the grid state to.
-    void Write(std::string filename, const type_options_t & types) const {
+    bool Write(std::string filename, const type_options_t & types) const {
       std::ofstream os(filename);
+      if (!os.is_open()) {
+        std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;
+        return false;
+      }
       Write(os, types);
+      return true;
     }
 
     void Read(std::istream & is, const type_options_t & types) {
@@ -165,21 +178,36 @@ namespace cse491 {
       std::vector<size_t> symbol_chart(256, 0);
       for (const auto & type : types) symbol_chart[type.symbol] = type.id;
 
-      is >> width >> height;
-      cells.resize(width * height);
+      // Load the file into memory.
+      std::vector<std::string> char_grid;
+      std::string line;
+      width = 0;
+      while (std::getline(is, line)) {
+        char_grid.push_back(line);
+        if (line.size() > width) width = line.size();
+      }
+      height = char_grid.size();
 
       // Convert each symbol to the appropriate value.
-      char cur_symbol;
-      for (size_t & state : cells) {
-        is >> cur_symbol >> cur_symbol;  // Twice to skip whitespace separators.
-        state = symbol_chart[cur_symbol];
+      cells.resize(width * height);
+      size_t cell_id = 0;
+      for (size_t y = 0; y < height; ++y) {
+        for (size_t x = 0; x < width; ++x) {
+          cells[cell_id++] =
+            (x < char_grid[y].size()) ? symbol_chart[char_grid[y][x]] : 0;
+        }
       }
     }
 
     /// Helper function to specify a file name to read the grid state from.
-    void Read(std::string filename, const type_options_t & types) {
+    bool Read(std::string filename, const type_options_t & types) {
       std::ifstream is(filename);
+      if (!is.is_open()) {
+        std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;
+        return false;
+      }
       Read(is, types);
+      return true;
     }
 
   };
