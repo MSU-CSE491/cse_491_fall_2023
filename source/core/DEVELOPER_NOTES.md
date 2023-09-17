@@ -24,7 +24,7 @@ only on files above it in the core.
 
 ## `GridPosition.hpp`
 
-- Should we allow negative grid positions?  They can't map to `WorldGrid` coordinates, but may be meaningful in some worlds.  At the moment they trigger an assert.
+- Should we disallow negative grid positions?  They can't map to `WorldGrid` coordinates, but may be meaningful in some worlds.  At the moment we are using them to represent invalid positions.
 - Should we track a pointer back to the `WorldGrid` that this position is from?  It will take a little more space, but it might make it easier to have multiple grids co-exist without confusion.
 
 ## `WorldGrid.hpp`
