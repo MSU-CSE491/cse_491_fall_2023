@@ -21,6 +21,7 @@ only on files above it in the core.
 - The current files use 100-character max line width.  Many standards limit line width to 80 characters, but I find that modern IDEs make 100 or even 120 very readable.  We need to decide on this (and many other) style guidelines.
 - We need to lock in a style.  Currently we have functions and types in CamelCase, variables in snake_case, and constants (including enum values) in ALL_CAPS.  Is everyone good with this?
 - We currently do not separate private/protected class variables or functions from public ones.  One common technique is to end private ones in an underscore ('_').  Is this a convention we want to add?  It is informative, but can be ugly.
+- We should make more objects derived from `CoreObject` to simplify saving and loading.
 
 ## `GridPosition.hpp`
 
@@ -35,6 +36,7 @@ only on files above it in the core.
 ## `Entity.hpp`
 
 - Should we use a better/different structure for properties?  Right now properties can only have a `double` value, but we could use `std::variant` to allow for a set of allowed values, or even `std::any`.
+- If we have Entity derive from `CoreObject`, we have to think about how to keep requirements for serialize functions on subsequent derived classes.  One option is to simply provide tools (like a `SerializeEntity()` function), but don't build the required virtual functions yet.  Still, it would be nice to be able to require correctness (or at least detect common errors, like forgetting to run `SerializeEntity()`)
 
 ## `AgentBase.hpp`
 
