@@ -23,11 +23,9 @@ namespace cse491 {
     double x = 0.0;
     double y = 0.0;
 
-    /// A simple helper function to make sure values are in legal range.
-    [[nodiscard]] bool IsValid() const { return x >= 0.0 && y >= 0.0; }
   public:
     GridPosition() = default;
-    GridPosition(double x, double y) : x(x), y(y) { assert(IsValid()); }
+    GridPosition(double x, double y) : x(x), y(y) { }
     GridPosition(const GridPosition &) = default;
 
     GridPosition & operator=(const GridPosition &) = default;
@@ -46,12 +44,10 @@ namespace cse491 {
 
     GridPosition & Set(double in_x, double in_y) {
       x=in_x; y=in_y;
-      assert(IsValid());
       return *this;
     }
     GridPosition & Shift(double shift_x, double shift_y) {
       x += shift_x; y += shift_y;
-      assert(IsValid());
       return *this;
     }
 
