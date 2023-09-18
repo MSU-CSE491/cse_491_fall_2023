@@ -55,13 +55,13 @@ namespace cse491 {
     // -- Accessors --
 
     /// Get the total number of NON-agent entities
-    [[nodiscard]] size_t GetNumEntities() const { return item_set.size(); }
+    [[nodiscard]] size_t GetNumItems() const { return item_set.size(); }
 
     /// Get the total number of AGENT entities
     [[nodiscard]] size_t GetNumAgents() const { return agent_set.size(); }
 
     /// Return a reference to an agent with a given ID.
-    [[nodiscard]] Entity & GetEntity(size_t id) {
+    [[nodiscard]] Entity GetItem(size_t id) {
       assert(id < item_set.size());
       return *item_set[id];
     }
@@ -81,15 +81,20 @@ namespace cse491 {
 
     // -- Agent Management --
 
-    /// @brief Build a new agent of the specified type.
-    /// @tparam AGENT_T The type of agent to build.
-    /// @param agent_name The name of this agent.
-    /// @return A reference to the newly created agent.
-    template <typename AGENT_T>
-    AgentBase & AddAgent(std::string agent_name="None") {
+    /// @brief Build a new agent of the specified type
+    /// @tparam AGENT_T The type of agent to build
+    /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
+    /// @param agent_name The name of this agent
+    /// @param properties Name/value pairs for any properties set at creation
+    /// @return A reference to the newly created agent
+    template <typename AGENT_T, typename... PROPERTY_Ts>
+    AgentBase & AddAgent(std::string agent_name="None", PROPERTY_Ts... properties) {
       auto agent_ptr = std::make_unique<AGENT_T>(agent_set.size(), agent_name);
+      agent_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
       ConfigAgent(*agent_ptr);
-      agent_ptr->Initialize();
+      if (agent_ptr->Initialize() == false) {
+        std::cerr << "Failed to initialize agent '" << agent_name << "'." << std::endl;
+      }
       agent_set.emplace_back(std::move(agent_ptr));
       return *agent_set.back();
     }
