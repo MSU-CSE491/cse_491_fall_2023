@@ -47,13 +47,17 @@ namespace cse491 {
         symbol_grid[pos.CellY()][pos.CellX()] = c;
       }
 
-      // Print out the symbol_grid
+      // Print out the symbol_grid with a box around it.
+      std::cout << '+' << std::string(grid.GetWidth(),'-') << "+\n";
       for (const auto & row : symbol_grid) {
+        std::cout << "|";
         for (char cell : row) {
-          std::cout << ' ' << cell;
+          // std::cout << ' ' << cell;
+          std::cout << cell;
         }
-        std::cout << '\n';
+        std::cout << "|\n";
       }
+      std::cout << '+' << std::string(grid.GetWidth(),'-') << "+\n";
       std::cout << "\nYour move? ";
       std::cout.flush();
     }
