@@ -62,6 +62,7 @@ namespace cse491 {
     WorldGrid(const WorldGrid &) = default;
     WorldGrid(WorldGrid &&) = default;
     
+    WorldGrid & operator=(const WorldGrid &) = default;
     WorldGrid & operator=(WorldGrid &&) = default;
 
     // -- Accessors --
