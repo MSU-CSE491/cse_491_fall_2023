@@ -35,7 +35,6 @@ namespace cse491 {
     {
       // If the last step failed, try going in the other direction.
       if (action_result == 0) {
-        action_result = 1;
         reverse = !reverse;
       }
       // Take as tep in the direction we are trying to go in.
