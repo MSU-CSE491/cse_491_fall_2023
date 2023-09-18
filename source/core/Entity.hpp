@@ -67,6 +67,15 @@ namespace cse491 {
       property_map[name] = value;
       return *this;
     }
+
+    /// Allow for setting multiple properties at once.
+    Entity & SetProperties() { return *this; }
+
+    template <typename... EXTRA_Ts>
+    Entity & SetProperties(const std::string & name, double value, EXTRA_Ts... extras) {
+      SetProperty(name, value);        // Set the first property...
+      return SetProperties(std::forward<EXTRA_Ts>(extras)...); // And any additional properties...
+    }
   };
 
 } // End of namespace cse491
