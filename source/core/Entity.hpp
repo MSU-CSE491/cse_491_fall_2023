@@ -76,6 +76,12 @@ namespace cse491 {
       SetProperty(name, value);        // Set the first property...
       return SetProperties(std::forward<EXTRA_Ts>(extras)...); // And any additional properties...
     }
+
+    /// Completely remove a property from an Entity.
+    Entity & RemoveProperty(const std::string & name) {
+      property_map.erase(name);
+      return *this;
+    }    
   };
 
 } // End of namespace cse491
