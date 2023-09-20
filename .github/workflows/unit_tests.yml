@@ -38,5 +38,5 @@ jobs:
           cmake --build .
         working-directory: tests/build
       - name: Run tests
-        run: ./tests-unit-core-Data
-        working-directory: tests/build/unit/core
+        run: ./run_tests.sh
+        working-directory: tests/build
