@@ -78,6 +78,8 @@ namespace cse491 {
     /// Return the current grid for this world (main_grid by default) 
     virtual const WorldGrid & GetGrid() const { return main_grid; }
 
+    /// Determine if the run has ended.
+    virtual bool GetRunOver() const { return run_over; }
 
     // -- Agent Management --
 
