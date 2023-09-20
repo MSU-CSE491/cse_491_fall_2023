@@ -8,7 +8,7 @@ When building your own agent, the first steps are boilerplate:
 
 3. Build your agent class, making sure to derive it from `AgentBase`.  Something like `class MYAgent : public AgentBase {`, but of course use your agent name instead of "MYAgent".
 
-In the private (or protected, if you prefer) section of the class, you may create any member variables that your world might use.  Remember that you also have the option of using agent properties (see below) instead of private variables if you want the values to be accessible to other modules.
+In the private (or protected, if you prefer) section of the class, you may create any member variables that your agent might use.  Remember that you also have the option of using agent properties (see below) instead of private variables if you want the values to be accessible to other modules.
 
 In the public section, you should create:
 
@@ -16,7 +16,7 @@ In the public section, you should create:
 
 5. An Initialize function that gets run _after_ the agent has been configured by the world.  This will allow an agent to set itself up based on the actions that were provided by the world.  This function has the format `bool Initialize() override {...}` and should return `false` if it detected a problem during initialization (such as a required action name is not available).
 
-6. A `SelectAction` function that identifies the action that the organism will take. The format for Selection action is:
+6. A `SelectAction` function that identifies the action that the organism will take. The format for `SelectionAction` is:
 ```
     size_t SelectAction(const WorldGrid & grid,
                         const type_options_t & type_options,
