@@ -1,0 +1,6 @@
+# Vim swap files
+*.swp
+*.swo
+
+# CMake files and directories
+CMakeFiles
