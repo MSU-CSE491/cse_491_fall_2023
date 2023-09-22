@@ -38,31 +38,78 @@ namespace cse491_team8 {
     }
     ~NewWorld() = default;
 
+   
+    inline bool CheckAround(cse491::GridPosition new_position)
+    {
+        for (auto& other_agent : agent_set)
+        {
+            if (other_agent->GetPosition() == new_position.Above() ||
+                other_agent->GetPosition() == new_position.Below() ||
+                other_agent->GetPosition() == new_position.ToLeft() ||
+                other_agent->GetPosition() == new_position.ToRight())
+            {
+                std::cout << "someone is next to you lol" << std::endl;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void HandleNeighbors()
+    {
+        for (const auto& agent : agent_set)
+        {
+            std::cout << agent->GetPosition().GetX() << " " << agent->GetPosition().GetY() << "\n";
+            if (agent->IsInterface())
+            {
+                CheckAround(agent->GetPosition());
+                break;
+            }
+        }
+        std::cout << std::endl;
+
+    }
+
+    void Run() override
+    {
+        run_over = false;
+        while (!run_over) {
+            RunAgents();
+            UpdateWorld();
+            HandleNeighbors();
+        }
+    }
+
     /// Allow the agents to move around the maze.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
       // Determine where the agent is trying to move.
       cse491::GridPosition new_position;
+
       switch (action_id) {
       case REMAIN_STILL:
       {
-        agent_set;
-        new_position = agent.GetPosition(); break;
+          new_position = agent.GetPosition();
+          break;
       }
       case MOVE_UP:      
       {
-        new_position = agent.GetPosition().Above(); break;
+        new_position = agent.GetPosition().Above();
+        break;
       }
       case MOVE_DOWN:    
       {
-        new_position = agent.GetPosition().Below(); break;
+        new_position = agent.GetPosition().Below();
+        break;
       }
       case MOVE_LEFT:    
       {
-        new_position = agent.GetPosition().ToLeft(); break;
+        new_position = agent.GetPosition().ToLeft();
+        break;
       }
       case MOVE_RIGHT:   
       {
-        new_position = agent.GetPosition().ToRight(); break;
+        new_position = agent.GetPosition().ToRight();
+        break;
       }
       }
 
