@@ -1,0 +1,11 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja -S /Users/terra/Desktop/CSE491 -B /Users/terra/Desktop/CSE491/cmake-build-debug
+-- Found SFML 2.6.0 in /opt/homebrew/lib/cmake/SFML
+-- Found SFML 2.6.0 in /opt/homebrew/lib/cmake/SFML
+CMake Error at CMakeLists.txt:25 (file):
+  file COPY cannot find "/Users/terra/Desktop/CSE491assets": No such file or
+  directory.
+
+
+-- Configuring incomplete, errors occurred!
+See also "/Users/terra/Desktop/CSE491/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "/Users/terra/Desktop/CSE491/cmake-build-debug/CMakeFiles/CMakeError.log".

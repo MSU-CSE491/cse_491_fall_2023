@@ -1,0 +1,15 @@
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/CMakeFiles/source.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Agents/CMakeFiles/Agents.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Agents/CMakeFiles/edit_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Agents/CMakeFiles/rebuild_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/core/CMakeFiles/Core.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/core/CMakeFiles/edit_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/core/CMakeFiles/rebuild_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Interfaces/CMakeFiles/Interfaces.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Interfaces/CMakeFiles/edit_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Interfaces/CMakeFiles/rebuild_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Worlds/CMakeFiles/Worlds.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Worlds/CMakeFiles/edit_cache.dir
+/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/Source/cmake-build-debug/Worlds/CMakeFiles/rebuild_cache.dir

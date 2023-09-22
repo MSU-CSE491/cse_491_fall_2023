@@ -1,0 +1,5 @@
+# ninja log v5
+0	564	1695412708550230088	CMakeFiles/source.dir/simple_main.cpp.o	63effd80f0b750f
+566	600	1695412708589064104	source.app/Contents/MacOS/source	1d9becedb0e65050
+6	670	1695413439446352235	CMakeFiles/source.dir/simple_main.cpp.o	b86a5083164174ae
+671	705	1695413439483723697	source.app/Contents/MacOS/source	1d9becedb0e65050
