@@ -38,46 +38,53 @@ namespace cse491_team8 {
     }
     ~NewWorld() = default;
 
+    void StrengthCheck(const std::unique_ptr<cse491::AgentBase> & other_agent, 
+                     const std::unique_ptr<cse491::AgentBase> & agent) {
+      if (other_agent->GetProperty("Strength") > agent->GetProperty("Strength")) {
+        std::cout << other_agent->GetName() << " has beat " << agent->GetName() << "\n";
+      }
+      else {
+        std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
+      }
+    }
    
-    inline bool CheckAround(cse491::GridPosition new_position)
+    inline bool CheckAround(const std::unique_ptr<cse491::AgentBase> & agent)
     {
-        for (auto& other_agent : agent_set)
+      auto new_position = agent->GetPosition();
+      for (auto& other_agent : agent_set)
+      {
+        if (other_agent->GetPosition() == new_position.Above() ||
+            other_agent->GetPosition() == new_position.Below() ||
+            other_agent->GetPosition() == new_position.ToLeft() ||
+            other_agent->GetPosition() == new_position.ToRight())
         {
-            if (other_agent->GetPosition() == new_position.Above() ||
-                other_agent->GetPosition() == new_position.Below() ||
-                other_agent->GetPosition() == new_position.ToLeft() ||
-                other_agent->GetPosition() == new_position.ToRight())
-            {
-                std::cout << "someone is next to you lol" << std::endl;
-                return true;
-            }
+          StrengthCheck(other_agent, agent);
+          return true;
         }
-        return false;
+      }
+      return false;
     }
 
     void HandleNeighbors()
     {
-        for (const auto& agent : agent_set)
+      for (const auto& agent : agent_set)
+      {
+        if (agent->IsInterface())
         {
-            std::cout << agent->GetPosition().GetX() << " " << agent->GetPosition().GetY() << "\n";
-            if (agent->IsInterface())
-            {
-                CheckAround(agent->GetPosition());
-                break;
-            }
+          CheckAround(agent);
+          break;
         }
-        std::cout << std::endl;
-
+      }
     }
 
     void Run() override
     {
-        run_over = false;
-        while (!run_over) {
-            RunAgents();
-            UpdateWorld();
-            HandleNeighbors();
-        }
+      run_over = false;
+      while (!run_over) {
+        RunAgents();
+        UpdateWorld();
+        HandleNeighbors();
+      }
     }
 
     /// Allow the agents to move around the maze.
