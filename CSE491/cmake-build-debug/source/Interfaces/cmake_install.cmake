@@ -1,4 +1,4 @@
-# Install script for directory: /Users/terra/Desktop/CSE491/source/Interfaces
+# Install script for directory: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Interfaces
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

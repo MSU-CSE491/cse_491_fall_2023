@@ -1,4 +1,4 @@
-# Install script for directory: /Users/terra/Desktop/CSE491/source
+# Install script for directory: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,21 +39,21 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/terra/Desktop/CSE491/cmake-build-debug/source/Agents/cmake_install.cmake")
+  include("/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/Agents/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/terra/Desktop/CSE491/cmake-build-debug/source/core/cmake_install.cmake")
+  include("/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/core/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/terra/Desktop/CSE491/cmake-build-debug/source/Interfaces/cmake_install.cmake")
+  include("/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/Interfaces/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/terra/Desktop/CSE491/cmake-build-debug/source/Worlds/cmake_install.cmake")
+  include("/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/Worlds/cmake_install.cmake")
 endif()
 

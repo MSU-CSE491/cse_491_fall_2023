@@ -11,7 +11,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug/source/Agents"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/Agents"
 		},
 		{
 			"name" : "Agents_IS_TOP_LEVEL",
@@ -35,7 +35,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/source/Agents"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Agents"
 		},
 		{
 			"name" : "CMAKE_ADDR2LINE",
@@ -91,7 +91,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -551,7 +551,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/Users/terra/Desktop/CSE491"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491"
 		},
 		{
 			"name" : "CMAKE_INSTALL_NAME_TOOL",
@@ -1123,7 +1123,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug"
 		},
 		{
 			"name" : "CSE491_IS_TOP_LEVEL",
@@ -1147,7 +1147,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491"
 		},
 		{
 			"name" : "Core_BINARY_DIR",
@@ -1159,7 +1159,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug/source/core"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/core"
 		},
 		{
 			"name" : "Core_IS_TOP_LEVEL",
@@ -1183,7 +1183,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/source/core"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/core"
 		},
 		{
 			"name" : "Interfaces_BINARY_DIR",
@@ -1195,7 +1195,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug/source/Interfaces"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/Interfaces"
 		},
 		{
 			"name" : "Interfaces_IS_TOP_LEVEL",
@@ -1219,7 +1219,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/source/Interfaces"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Interfaces"
 		},
 		{
 			"name" : "SFML_DIR",
@@ -1255,7 +1255,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug/source/Worlds"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source/Worlds"
 		},
 		{
 			"name" : "Worlds_IS_TOP_LEVEL",
@@ -1279,7 +1279,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/source/Worlds"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Worlds"
 		},
 		{
 			"name" : "source_BINARY_DIR",
@@ -1291,7 +1291,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/cmake-build-debug/source"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/cmake-build-debug/source"
 		},
 		{
 			"name" : "source_IS_TOP_LEVEL",
@@ -1315,7 +1315,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/terra/Desktop/CSE491/source"
+			"value" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source"
 		}
 	],
 	"kind" : "cache",
