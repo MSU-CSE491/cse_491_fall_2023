@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(APPLICATION_LIBRARY Agents core Interfaces Worlds)
 
 # Find SFML
-find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Include the necessary subdirectories
 foreach(lib ${APPLICATION_LIBRARY})
@@ -21,4 +21,6 @@ set(SOURCE_FILES simple_main.cpp)
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${SOURCE_FILES})
 
 # Link your main executable with SFML libraries and other libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+# Link your main executable with SFML libraries
+target_include_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/opt/sfml/include)
+target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)

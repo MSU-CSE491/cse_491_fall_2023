@@ -76,6 +76,16 @@ rule CXX_STATIC_LIBRARY_LINKER__Core_Debug
 
 
 #############################################
+# Rule for compiling CXX files.
+
+rule CXX_COMPILER__Interfaces_Debug
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building CXX object $out
+
+
+#############################################
 # Rule for linking CXX static library.
 
 rule CXX_STATIC_LIBRARY_LINKER__Interfaces_Debug

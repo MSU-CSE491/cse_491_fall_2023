@@ -12,17 +12,12 @@
 		[
 			"add_executable",
 			"target_link_libraries",
-			"set_target_properties",
-			"include",
-			"find_package",
-			"include_directories"
+			"include_directories",
+			"target_include_directories"
 		],
 		"files" : 
 		[
-			"source/CMakeLists.txt",
-			"/opt/homebrew/lib/cmake/SFML/SFMLSharedTargets.cmake",
-			"/opt/homebrew/lib/cmake/SFML/SFMLConfig.cmake",
-			"CMakeLists.txt"
+			"source/CMakeLists.txt"
 		],
 		"nodes" : 
 		[
@@ -38,66 +33,37 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 24,
+				"line" : 26,
 				"parent" : 0
 			},
 			{
-				"file" : 3
+				"command" : 2,
+				"file" : 0,
+				"line" : 14,
+				"parent" : 0
 			},
 			{
-				"command" : 4,
-				"file" : 3,
-				"line" : 9,
-				"parent" : 3
+				"command" : 2,
+				"file" : 0,
+				"line" : 14,
+				"parent" : 0
 			},
 			{
-				"file" : 2,
-				"parent" : 4
+				"command" : 2,
+				"file" : 0,
+				"line" : 14,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 14,
+				"parent" : 0
 			},
 			{
 				"command" : 3,
-				"file" : 2,
-				"line" : 116,
-				"parent" : 5
-			},
-			{
-				"file" : 1,
-				"parent" : 6
-			},
-			{
-				"command" : 2,
-				"file" : 1,
-				"line" : 87,
-				"parent" : 7
-			},
-			{
-				"command" : 2,
-				"file" : 1,
-				"line" : 68,
-				"parent" : 7
-			},
-			{
-				"command" : 5,
 				"file" : 0,
-				"line" : 14,
-				"parent" : 0
-			},
-			{
-				"command" : 5,
-				"file" : 0,
-				"line" : 14,
-				"parent" : 0
-			},
-			{
-				"command" : 5,
-				"file" : 0,
-				"line" : 14,
-				"parent" : 0
-			},
-			{
-				"command" : 5,
-				"file" : 0,
-				"line" : 14,
+				"line" : 25,
 				"parent" : 0
 			}
 		]
@@ -117,20 +83,24 @@
 			"includes" : 
 			[
 				{
-					"backtrace" : 10,
+					"backtrace" : 3,
 					"path" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Agents"
 				},
 				{
-					"backtrace" : 11,
+					"backtrace" : 4,
 					"path" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/core"
 				},
 				{
-					"backtrace" : 12,
+					"backtrace" : 5,
 					"path" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Interfaces"
 				},
 				{
-					"backtrace" : 13,
+					"backtrace" : 6,
 					"path" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CSE491/source/Worlds"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/opt/homebrew/opt/sfml/include"
 				},
 				{
 					"backtrace" : 2,
@@ -176,12 +146,12 @@
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 8,
+				"backtrace" : 2,
 				"fragment" : "/opt/homebrew/lib/libsfml-window.2.6.0.dylib",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 9,
+				"backtrace" : 2,
 				"fragment" : "/opt/homebrew/lib/libsfml-system.2.6.0.dylib",
 				"role" : "libraries"
 			}
