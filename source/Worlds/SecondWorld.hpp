@@ -13,15 +13,6 @@ namespace group4 {
      */
     class SecondWorld : public cse491::MazeWorld {
     protected:
-        enum class ActionType {
-            REMAIN_STILL = 0,
-            MOVE_UP,
-            MOVE_DOWN,
-            MOVE_LEFT,
-            MOVE_RIGHT,
-            TOUCH_GOAL
-        };
-
         /// Easy access to flag CellType ID.
         size_t flag_id;
 
