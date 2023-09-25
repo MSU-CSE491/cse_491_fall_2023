@@ -3,9 +3,9 @@
 #include <utility>
 
 // Include the class definitions (DataReceiver, Entity, and GridPosition)
-#include "DataReceiver.h"
-#include "Entity.h"
-#include "GridPosition.h"
+#include "DataCollection/DateReceiver.hpp"
+#include "Core/Entity.hpp"
+#include "Core/GridPosition.hpp"
 
 // Define your test cases
 TEST_F(DataReceiverTest, DisplayPosition) {

@@ -14,6 +14,8 @@ EXECUTABLES = simple
 
 default: simple
 
+add_subdirectory(test)
+
 # Generic rule to build default version of any executable
 $(EXECUTABLES): %:
 	$(CXX) $@_main.cpp $(FLAGS_all) -o $@

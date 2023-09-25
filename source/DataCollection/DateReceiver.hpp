@@ -1,25 +1,24 @@
-
-#include <iostream>
-#include "core/Entity.hpp"
 #include <vector>
 
 namespace GroupTwo{
 
-    class  cse491::Entity;
-
     class DataReceiver {
 
     public:
+    std::vector<cse491::GridPosition> storage;
+    cse491::GridPosition positions;
+
         
-        void DisplayPosition() {
-            
-            // storage.push_back(positions);
-          
+        DataReceiver() {
+            storage.push_back(positions);     
         }
 
-    private:
-        // std::vector<cse491::GridPosition> storage;
-        // cse491::GridPosition positions;
-        // cse491::Entity x;
+        friend std::ostream& operator<<(std::ostream& os, const DataReceiver& obj) {
+        os << "MyClass data: " << obj.storage[0].GetX();
+        return os;
+    }
+
+    protected:
+
     };
 }

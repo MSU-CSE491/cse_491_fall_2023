@@ -8,6 +8,7 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
+#include "DataCollection/DateReceiver.hpp"
 
 int main()
 {
@@ -16,5 +17,9 @@ int main()
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
   world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
 
+
   world.Run();
+
+  GroupTwo::DataReceiver test;
+  std::cout << test << std::endl;
 }
