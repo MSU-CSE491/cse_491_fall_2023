@@ -16,7 +16,7 @@
 #include "../core/InterfaceBase.hpp"
 
 namespace cse491 {
-    namespace i_2D { // Define the namespace as 2D
+    namespace i_2D {
 
         class MainInterface : public InterfaceBase { // Rename to mainInterface
 
@@ -28,7 +28,7 @@ namespace cse491 {
             sf::Clock clock;
             sf::Vector2i characterPosition; // Add character position variable
 
-            // ... (other members)
+
         public:
             MainInterface(size_t id, const std::string & name): InterfaceBase(id, name) {
                 window.create(sf::VideoMode(800, 600), "Maze Window");
@@ -41,6 +41,7 @@ namespace cse491 {
                 consoleText.setPosition(10, 10); // Adjust the position as needed
                 characterPosition.x = 0; // X-coordinate
                 characterPosition.y = 0; // Y-coordinate
+
             }
 
             ~MainInterface() = default;
@@ -80,27 +81,19 @@ namespace cse491 {
                             sf::Color brown(139, 69, 19);
                             cellRect.setFillColor(brown);
 
-
                         }
                             // Draw agents/entities
                         else if (symbol == '+' || symbol == '*') {
                             cellRect.setFillColor(sf::Color::Red);
                         }
-                        // For other symbols (empty cells), you can set a different color or leave them empty
-
                         // Draw the cell
                       window.draw(cellRect);
 
                     }
 
-
                 }
-
-                // Draw the consoleText in the window
-                window.draw(consoleText);
-                // Create the character text
                 sf::Text characterText("*", font, 36); // Increase the font size to 36 (adjust as needed)
-                // Calculate the position of the character text within the grid cell
+
                 // Calculate the position of the character text within the grid cell
                 float characterX = gridX + characterPosition.x * cellSize + (cellSize - characterText.getLocalBounds().width) / 2;
                 float characterY = gridY + characterPosition.y * cellSize + (cellSize - characterText.getLocalBounds().height) / 2;
@@ -129,12 +122,12 @@ namespace cse491 {
                                 const agent_set_t & agent_set) override {
 
                 while (window.isOpen()) {
+
                     sf::Event event;
                     while (window.pollEvent(event)) {
                         if (event.type == sf::Event::Closed)
                             window.close();
                     }
-                    // Update the current state of the world.
                     DrawGrid(grid, type_options, item_set, agent_set);
 
                     // See if there are any keys waiting in standard input (wait if needed)
@@ -143,34 +136,34 @@ namespace cse491 {
                         std::cin >> input;
                     } while (!std::cin && wait_for_input);
 
-                    // Respond to the user input...
+//                    // Respond to the user input...
                     size_t action_id = 0;
-                    switch (input) {
-                        case 'w':
-                        case 'W':
-                            characterPosition.y = std::max(0, characterPosition.y - 1); // Move up
-                            break;
-                        case 'a':
-                        case 'A':
-                            characterPosition.x = std::max(0, characterPosition.x - 1); // Move left
-                            break;
-                        case 's':
-                        case 'S':
-                            characterPosition.y = std::min(static_cast<int>(grid.GetHeight()) - 1, characterPosition.y + 1); // Move down
-                            break;
-                        case 'd':
-                        case 'D':
-                            characterPosition.x = std::min(static_cast<int>(grid.GetWidth()) - 1, characterPosition.x + 1); // Move right
-                            break;
-                        case 'q':
-                        case 'Q':
-                            exit(0); // Quit!
-                    }
-
-                    // If we waited for input, but don't understand it, notify the user.
-                    if (wait_for_input && action_id == 0) {
-                        std::cout << "Unknown key '" << input << "'." << std::endl;
-                    }
+//                    switch (input) {
+//                        case 'w':
+//                        case 'W':
+//                            characterPosition.y = std::max(0, characterPosition.y - 1); // Move up
+//                            break;
+//                        case 'a':
+//                        case 'A':
+//                            characterPosition.x = std::max(0, characterPosition.x - 1); // Move left
+//                            break;
+//                        case 's':
+//                        case 'S':
+//                            characterPosition.y = std::min(static_cast<int>(grid.GetHeight()) - 1, characterPosition.y + 1); // Move down
+//                            break;
+//                        case 'd':
+//                        case 'D':
+//                            characterPosition.x = std::min(static_cast<int>(grid.GetWidth()) - 1, characterPosition.x + 1); // Move right
+//                            break;
+//                        case 'q':
+//                        case 'Q':
+//                            exit(0); // Quit!
+//                    }
+//
+//                    // If we waited for input, but don't understand it, notify the user.
+//                    if (wait_for_input && action_id == 0) {
+//                        std::cout << "Unknown key '" << input << "'." << std::endl;
+//                    }
 
                     // Do the action!
                     return action_id;
