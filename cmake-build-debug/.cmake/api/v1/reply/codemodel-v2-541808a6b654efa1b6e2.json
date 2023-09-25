@@ -1,0 +1,252 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.23"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "source",
+					"childIndexes" : 
+					[
+						2,
+						3,
+						4,
+						5
+					],
+					"jsonFile" : "directory-source-Debug-5b5a50b02d94cdb5eb2c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.23"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "source",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "source/Agents",
+					"jsonFile" : "directory-source.Agents-Debug-a5cf33bb6bb3f0699e9a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.23"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 2,
+					"source" : "source/Agents",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "source/core",
+					"jsonFile" : "directory-source.core-Debug-0663489ddf9b6053ee59.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.23"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 3,
+					"source" : "source/core",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "source/Interfaces",
+					"jsonFile" : "directory-source.Interfaces-Debug-e36d3a1725164f79037e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.23"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 4,
+					"source" : "source/Interfaces",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "source/Worlds",
+					"jsonFile" : "directory-source.Worlds-Debug-6a6c4015f10aa8086a22.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.23"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 5,
+					"source" : "source/Worlds",
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "cse_491_fall_2023",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "source",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "Agents",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						3
+					],
+					"name" : "Core",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4
+					],
+					"name" : "Interfaces",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						5
+					],
+					"name" : "Worlds",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "Agents::@742a608ed0c108572cbe",
+					"jsonFile" : "target-Agents-Debug-82799ba21631bd2716af.json",
+					"name" : "Agents",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "Core::@78f8d56e64358c0e66d0",
+					"jsonFile" : "target-Core-Debug-6314d813506cd5330751.json",
+					"name" : "Core",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "Interfaces::@5b61d0bfdc92af50d2b5",
+					"jsonFile" : "target-Interfaces-Debug-cdfde7435908c15217ca.json",
+					"name" : "Interfaces",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "Worlds::@a86c2507e1c277adf58d",
+					"jsonFile" : "target-Worlds-Debug-0be47e31b4d9b75259a0.json",
+					"name" : "Worlds",
+					"projectIndex" : 5
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cse_491_fall_2023::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cse_491_fall_2023-Debug-e51fd3c39972a135f894.json",
+					"name" : "cse_491_fall_2023",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "source::@411ffd8adc737496fe19",
+					"jsonFile" : "target-source-Debug-f346cb4f30a20a171e50.json",
+					"name" : "source",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug",
+		"source" : "/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

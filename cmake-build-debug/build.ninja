@@ -1,0 +1,480 @@
+## This file contains all the build statements describing the
+# compilation DAG.
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# 
+# Which is the root file.
+# =============================================================================
+
+# =============================================================================
+# Project: cse_491_fall_2023
+# Configurations: Debug
+# =============================================================================
+
+#############################################
+# Minimal version of Ninja required by this file
+
+ninja_required_version = 1.5
+
+
+#############################################
+# Set configuration variable for custom commands.
+
+CONFIGURATION = Debug
+# =============================================================================
+# Include auxiliary files.
+
+
+#############################################
+# Include rules file.
+
+include CMakeFiles/rules.ninja
+
+# =============================================================================
+
+#############################################
+# Logical path to working directory; prefix for absolute paths.
+
+cmake_ninja_workdir = /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/
+# =============================================================================
+# Object build statements for EXECUTABLE target cse_491_fall_2023
+
+
+#############################################
+# Order-only phony target for cse_491_fall_2023
+
+build cmake_object_order_depends_target_cse_491_fall_2023: phony || CMakeFiles/cse_491_fall_2023.dir
+
+build CMakeFiles/cse_491_fall_2023.dir/main.cpp.o: CXX_COMPILER__cse_491_fall_2023_Debug /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/main.cpp || cmake_object_order_depends_target_cse_491_fall_2023
+  DEP_FILE = CMakeFiles/cse_491_fall_2023.dir/main.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -std=gnu++20
+  INCLUDES = -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source -I/opt/homebrew/opt/sfml/include -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/cse_491_fall_2023.dir
+  OBJECT_FILE_DIR = CMakeFiles/cse_491_fall_2023.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target cse_491_fall_2023
+
+
+#############################################
+# Link the executable cse_491_fall_2023.app/Contents/MacOS/cse_491_fall_2023
+
+build cse_491_fall_2023.app/Contents/MacOS/cse_491_fall_2023: CXX_EXECUTABLE_LINKER__cse_491_fall_2023_Debug CMakeFiles/cse_491_fall_2023.dir/main.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+  FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5
+  LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/lib  /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib  /opt/homebrew/lib/libsfml-window.2.6.0.dylib  /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+  OBJECT_DIR = CMakeFiles/cse_491_fall_2023.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = cse_491_fall_2023.app/Contents/MacOS/cse_491_fall_2023
+  TARGET_PDB = cse_491_fall_2023.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build edit_cache: phony CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023 -B/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build rebuild_cache: phony CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for EXECUTABLE target source
+
+
+#############################################
+# Order-only phony target for source
+
+build cmake_object_order_depends_target_source: phony || source/CMakeFiles/source.dir
+
+build source/CMakeFiles/source.dir/simple_main.cpp.o: CXX_COMPILER__source_Debug /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/simple_main.cpp || cmake_object_order_depends_target_source
+  DEP_FILE = source/CMakeFiles/source.dir/simple_main.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -std=gnu++20
+  INCLUDES = -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/Agents -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/core -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/Interfaces -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/Worlds -I/opt/homebrew/opt/sfml/include -isystem /opt/homebrew/include
+  OBJECT_DIR = source/CMakeFiles/source.dir
+  OBJECT_FILE_DIR = source/CMakeFiles/source.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target source
+
+
+#############################################
+# Link the executable source/source.app/Contents/MacOS/source
+
+build source/source.app/Contents/MacOS/source: CXX_EXECUTABLE_LINKER__source_Debug source/CMakeFiles/source.dir/simple_main.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+  FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5
+  LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/lib  /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib  /opt/homebrew/lib/libsfml-window.2.6.0.dylib  /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+  OBJECT_DIR = source/CMakeFiles/source.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = source/source.app/Contents/MacOS/source
+  TARGET_PDB = source.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build source/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build source/edit_cache: phony source/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build source/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023 -B/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build source/rebuild_cache: phony source/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target Agents
+
+
+#############################################
+# Order-only phony target for Agents
+
+build cmake_object_order_depends_target_Agents: phony || source/Agents/CMakeFiles/Agents.dir
+
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target Agents
+
+
+#############################################
+# Link the static library source/Agents/libAgents.a
+
+build source/Agents/libAgents.a: CXX_STATIC_LIBRARY_LINKER__Agents_Debug
+  ARCH_FLAGS = -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = source/Agents/CMakeFiles/Agents.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = source/Agents/libAgents.a
+  TARGET_PDB = Agents.a.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build source/Agents/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Agents && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build source/Agents/edit_cache: phony source/Agents/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build source/Agents/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Agents && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023 -B/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build source/Agents/rebuild_cache: phony source/Agents/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target Core
+
+
+#############################################
+# Order-only phony target for Core
+
+build cmake_object_order_depends_target_Core: phony || source/core/CMakeFiles/Core.dir
+
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target Core
+
+
+#############################################
+# Link the static library source/core/libCore.a
+
+build source/core/libCore.a: CXX_STATIC_LIBRARY_LINKER__Core_Debug
+  ARCH_FLAGS = -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = source/core/CMakeFiles/Core.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = source/core/libCore.a
+  TARGET_PDB = Core.a.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build source/core/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/core && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build source/core/edit_cache: phony source/core/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build source/core/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/core && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023 -B/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build source/core/rebuild_cache: phony source/core/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target Interfaces
+
+
+#############################################
+# Order-only phony target for Interfaces
+
+build cmake_object_order_depends_target_Interfaces: phony || source/Interfaces/CMakeFiles/Interfaces.dir
+
+build source/Interfaces/CMakeFiles/Interfaces.dir/MainInterface.cpp.o: CXX_COMPILER__Interfaces_Debug /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/Interfaces/MainInterface.cpp || cmake_object_order_depends_target_Interfaces
+  DEP_FILE = source/Interfaces/CMakeFiles/Interfaces.dir/MainInterface.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -std=gnu++20
+  INCLUDES = -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/Agents -I/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/core -I/opt/homebrew/opt/sfml/include -isystem /opt/homebrew/include
+  OBJECT_DIR = source/Interfaces/CMakeFiles/Interfaces.dir
+  OBJECT_FILE_DIR = source/Interfaces/CMakeFiles/Interfaces.dir
+
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target Interfaces
+
+
+#############################################
+# Link the static library source/Interfaces/libInterfaces.a
+
+build source/Interfaces/libInterfaces.a: CXX_STATIC_LIBRARY_LINKER__Interfaces_Debug source/Interfaces/CMakeFiles/Interfaces.dir/MainInterface.cpp.o || /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+  ARCH_FLAGS = -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = source/Interfaces/CMakeFiles/Interfaces.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = source/Interfaces/libInterfaces.a
+  TARGET_PDB = Interfaces.a.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build source/Interfaces/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Interfaces && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build source/Interfaces/edit_cache: phony source/Interfaces/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build source/Interfaces/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Interfaces && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023 -B/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build source/Interfaces/rebuild_cache: phony source/Interfaces/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/source/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target Worlds
+
+
+#############################################
+# Order-only phony target for Worlds
+
+build cmake_object_order_depends_target_Worlds: phony || source/Worlds/CMakeFiles/Worlds.dir
+
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target Worlds
+
+
+#############################################
+# Link the static library source/Worlds/libWorlds.a
+
+build source/Worlds/libWorlds.a: CXX_STATIC_LIBRARY_LINKER__Worlds_Debug
+  ARCH_FLAGS = -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = source/Worlds/CMakeFiles/Worlds.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = source/Worlds/libWorlds.a
+  TARGET_PDB = Worlds.a.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build source/Worlds/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Worlds && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build source/Worlds/edit_cache: phony source/Worlds/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build source/Worlds/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Worlds && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023 -B/Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build source/Worlds/rebuild_cache: phony source/Worlds/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Target aliases.
+
+build Agents: phony source/Agents/libAgents.a
+
+build Core: phony source/core/libCore.a
+
+build Interfaces: phony source/Interfaces/libInterfaces.a
+
+build Worlds: phony source/Worlds/libWorlds.a
+
+build cse_491_fall_2023: phony cse_491_fall_2023.app/Contents/MacOS/cse_491_fall_2023
+
+build libAgents.a: phony source/Agents/libAgents.a
+
+build libCore.a: phony source/core/libCore.a
+
+build libInterfaces.a: phony source/Interfaces/libInterfaces.a
+
+build libWorlds.a: phony source/Worlds/libWorlds.a
+
+build source: phony source/source.app/Contents/MacOS/source
+
+# =============================================================================
+# Folder targets.
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug
+
+build all: phony cse_491_fall_2023.app/Contents/MacOS/cse_491_fall_2023 source/all
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source
+
+build source/all: phony source/source.app/Contents/MacOS/source source/Agents/all source/core/all source/Interfaces/all source/Worlds/all
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Agents
+
+build source/Agents/all: phony source/Agents/libAgents.a
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Interfaces
+
+build source/Interfaces/all: phony source/Interfaces/libInterfaces.a
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/Worlds
+
+build source/Worlds/all: phony source/Worlds/libWorlds.a
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/terra/Desktop/Fall2023/CSE491/cse_491_fall_2023/cmake-build-debug/source/core
+
+build source/core/all: phony source/core/libCore.a
+
+# =============================================================================
+# Built-in targets
+
+
+#############################################
+# Re-run CMake if any of its inputs changed.
+
+build build.ninja: RERUN_CMAKE | ../CMakeLists.txt ../source/Agents/CMakeLists.txt ../source/CMakeLists.txt ../source/Interfaces/CMakeLists.txt ../source/Worlds/CMakeLists.txt ../source/core/CMakeLists.txt /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/MacOSXBundleInfo.plist.in /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/UnixPaths.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfig.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigDependencies.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigVersion.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets-release.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets.cmake CMakeCache.txt CMakeFiles/3.23.2/CMakeCCompiler.cmake CMakeFiles/3.23.2/CMakeCXXCompiler.cmake CMakeFiles/3.23.2/CMakeSystem.cmake
+  pool = console
+
+
+#############################################
+# A missing CMake input file is not an error.
+
+build ../CMakeLists.txt ../source/Agents/CMakeLists.txt ../source/CMakeLists.txt ../source/Interfaces/CMakeLists.txt ../source/Worlds/CMakeLists.txt ../source/core/CMakeLists.txt /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/MacOSXBundleInfo.plist.in /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/UnixPaths.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfig.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigDependencies.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigVersion.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets-release.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets.cmake CMakeCache.txt CMakeFiles/3.23.2/CMakeCCompiler.cmake CMakeFiles/3.23.2/CMakeCXXCompiler.cmake CMakeFiles/3.23.2/CMakeSystem.cmake: phony
+
+
+#############################################
+# Clean all the built files.
+
+build clean: CLEAN
+
+
+#############################################
+# Print all primary targets available.
+
+build help: HELP
+
+
+#############################################
+# Make the all target the default.
+
+default all
