@@ -10,7 +10,9 @@
 #include "../core/AgentBase.hpp"
 #include "../core/GridPosition.hpp"
 
-namespace cse491 {
+using namespace cse491;
+
+namespace walle {
 
     class FollowingAgent : public AgentBase {
 
