@@ -5,6 +5,7 @@
  **/
 
 #pragma once
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
@@ -27,24 +28,25 @@ namespace cse491 {
             sf::Text consoleText;
             sf::Clock clock;
             sf::Vector2i characterPosition; // Add character position variable
-
+            WorldGrid wGrid;
 
         public:
-            MainInterface(size_t id, const std::string & name): InterfaceBase(id, name) {
+            MainInterface(size_t id, const std::string &name) : InterfaceBase(id, name) {
                 window.create(sf::VideoMode(1000, 800), "Maze Window");
                 if (!font.loadFromFile("/System/Library/Fonts/HelveticaNeue.ttc")) {
                     std::cerr << "Failed to load system default font!" << std::endl;
                     // Handle the error or continue without custom font
                 }
                 consoleText.setFont(font);
-                consoleText.setCharacterSize(24);
-                consoleText.setPosition(10, 10); // Adjust the position as needed
-                characterPosition.x = 0; // X-coordinate
-                characterPosition.y = 0; // Y-coordinate
+//                window.display();
 
             }
 
             ~MainInterface() = default;
+
+            void SetGrid(WorldGrid wg){
+                wGrid= wg;
+            }
 
             void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                           const item_set_t &item_set, const agent_set_t &agent_set) {
@@ -52,23 +54,23 @@ namespace cse491 {
                 window.clear();
                 std::vector<std::string> symbol_grid(grid.GetHeight());
                 // Load the world into the symbol_grid;
-                for (size_t y=0; y < grid.GetHeight(); ++y) {
+                for (size_t y = 0; y < grid.GetHeight(); ++y) {
                     symbol_grid[y].resize(grid.GetWidth());
-                    for (size_t x=0; x < grid.GetWidth(); ++x) {
-                        symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
+                    for (size_t x = 0; x < grid.GetWidth(); ++x) {
+                        symbol_grid[y][x] = type_options[grid.At(x, y)].symbol;
                     }
                 }
 
                 // Add in the agents / entities
-                for (const auto & entity_ptr : item_set) {
+                for (const auto &entity_ptr: item_set) {
                     GridPosition pos = entity_ptr->GetPosition();
                     symbol_grid[pos.CellY()][pos.CellX()] = '+';
                 }
 
-                for (const auto & agent_ptr : agent_set) {
+                for (const auto &agent_ptr: agent_set) {
                     GridPosition pos = agent_ptr->GetPosition();
                     char c = '*';
-                    if(agent_ptr->HasProperty("char")){
+                    if (agent_ptr->HasProperty("char")) {
                         c = static_cast<char>(agent_ptr->GetProperty("char"));
                     }
                     symbol_grid[pos.CellY()][pos.CellX()] = c;
@@ -93,7 +95,7 @@ namespace cse491 {
 
                         // Check the symbol in the symbol_grid
                         char symbol = symbol_grid[y][x];
-                        std::cout << symbol << std::endl;
+
 
 
                         // Create a rectangle for each cell
@@ -113,7 +115,7 @@ namespace cse491 {
 
                         }
                             // Draw agents/entities
-                        else if ( symbol == '*') {
+                        else if (symbol == '*') {
 //                            // Set the fill color of the rectangle to magenta.
                             cellRect.setFillColor(sf::Color(205, 204, 207));
 
@@ -133,8 +135,7 @@ namespace cse491 {
                             // Draw the rectangle and the text object.
                             window.draw(cellRect);
                             window.draw(characterText);
-                        }
-                        else{
+                        } else {
                             cellRect.setFillColor(sf::Color(205, 204, 207));
                             // Create a text object for the `*` character.
                             sf::Text characterText("@", font, 26); // Increase the font size to 36 (adjust as needed)
@@ -158,65 +159,72 @@ namespace cse491 {
                 // Display everything
                 window.display();
             }
+            void updateGrid(const WorldGrid &grid,
+                            const type_options_t &type_options,
+                            const item_set_t &item_set,
+                            const agent_set_t &agent_set)
+            {
+                sf::Event event;
+                while (window.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed)
+                        window.close();
+                }
 
+                    DrawGrid(grid, type_options, item_set, agent_set);
+            }
             bool Initialize() override {
                 return true;
             }
 
-            size_t SelectAction(const WorldGrid & grid,
-                                const type_options_t & type_options,
-                                const item_set_t & item_set,
-                                const agent_set_t & agent_set) override {
+            size_t SelectAction(const WorldGrid &grid,
+                                const type_options_t &type_options,
+                                const item_set_t &item_set,
+                                const agent_set_t &agent_set) override {
 
                 while (window.isOpen()) {
-
                     sf::Event event;
                     while (window.pollEvent(event)) {
-                        if (event.type == sf::Event::Closed)
+                        if (event.type == sf::Event::Closed) {
                             window.close();
+                        } else if (event.type == sf::Event::KeyPressed) {
+                            // Handle keypress events here
+                            size_t action_id = 0;
+                            switch (event.key.code) {
+                                case sf::Keyboard::W:
+                                    action_id = GetActionID("up");
+                                    break;
+                                case sf::Keyboard::A:
+                                    action_id = GetActionID("left");
+                                    break;
+                                case sf::Keyboard::S:
+                                    action_id = GetActionID("down");
+                                    break;
+                                case sf::Keyboard::D:
+                                    action_id = GetActionID("right");
+                                    break;
+                                case sf::Keyboard::Q:
+                                    exit(0);
+                                default:
+                                    // The user pressed an unknown key.
+                                    break;
+                            }
+
+                            // If we waited for input, but don't understand it, notify the user.
+                            if (action_id == 0) {
+                                std::cout << "Unknown key." << std::endl;
+                            }
+
+                            // Do the action!
+                            return action_id;
+                        }
                     }
-                    DrawGrid(grid, type_options, item_set, agent_set);
 
-                    // See if there are any keys waiting in standard input (wait if needed)
-                    char input;
-                    do {
-                        std::cin >> input;
-                    } while (!std::cin && wait_for_input);
-
-//                    // Respond to the user input...
-                    size_t action_id = 0;
-//                    switch (input) {
-//                        case 'w':
-//                        case 'W':
-//                            characterPosition.y = std::max(0, characterPosition.y - 1); // Move up
-//                            break;
-//                        case 'a':
-//                        case 'A':
-//                            characterPosition.x = std::max(0, characterPosition.x - 1); // Move left
-//                            break;
-//                        case 's':
-//                        case 'S':
-//                            characterPosition.y = std::min(static_cast<int>(grid.GetHeight()) - 1, characterPosition.y + 1); // Move down
-//                            break;
-//                        case 'd':
-//                        case 'D':
-//                            characterPosition.x = std::min(static_cast<int>(grid.GetWidth()) - 1, characterPosition.x + 1); // Move right
-//                            break;
-//                        case 'q':
-//                        case 'Q':
-//                            exit(0); // Quit!
-//                    }
-//
-//                    // If we waited for input, but don't understand it, notify the user.
-//                    if (wait_for_input && action_id == 0) {
-//                        std::cout << "Unknown key '" << input << "'." << std::endl;
-//                    }
-
-                    // Do the action!
-                    return action_id;
+                    updateGrid(grid, type_options, item_set, agent_set);
                 }
+
                 return 0;
             }
+
 
         };
 
