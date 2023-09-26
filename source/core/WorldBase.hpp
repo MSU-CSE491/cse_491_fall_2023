@@ -25,7 +25,7 @@ namespace cse491 {
     WorldGrid main_grid;
     type_options_t type_options; ///< Vector of types of cells in grids for this world.
 
-    item_set_t item_set; ///< Vector of pointers to non-agent entities
+    item_set_t item_set;     ///< Vector of pointers to non-agent entities
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
     bool run_over = false;   ///< Should the run end?
@@ -61,7 +61,7 @@ namespace cse491 {
     [[nodiscard]] size_t GetNumAgents() const { return agent_set.size(); }
 
     /// Return a reference to an agent with a given ID.
-    [[nodiscard]] Entity GetItem(size_t id) {
+    [[nodiscard]] Entity & GetItem(size_t id) {
       assert(id < item_set.size());
       return *item_set[id];
     }
@@ -78,6 +78,8 @@ namespace cse491 {
     /// Return the current grid for this world (main_grid by default) 
     virtual const WorldGrid & GetGrid() const { return main_grid; }
 
+    /// Determine if the run has ended.
+    virtual bool GetRunOver() const { return run_over; }
 
     // -- Agent Management --
 
@@ -125,7 +127,7 @@ namespace cse491 {
     virtual void UpdateWorld() { }
 
     /// @brief Run all agents repeatedly until an end condition is met.
-    void Run() {
+    virtual void Run() {
       run_over = false;
       while (!run_over) {
         RunAgents();

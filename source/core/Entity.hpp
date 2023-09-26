@@ -25,12 +25,12 @@ namespace cse491 {
 
   public:
     Entity(size_t id, const std::string & name) : id(id), name(name) { }
-    Entity(const Entity &) = default;
+    Entity(const Entity &) = delete; // Entities must be unique and shouldn't be copied.
     Entity(Entity &&) = default;
     virtual ~Entity() = default;
 
-    Entity & operator=(const Entity &) = default;
-    Entity & operator=(Entity &&) = default;
+    Entity & operator=(const Entity &) = delete; // Entities must be unique and shouldn't be copied.
+    Entity & operator=(Entity &&) = delete;      // Entities should never have IDs change.
 
     // -- Accessors --
     [[nodiscard]] size_t GetID() const { return id; }
@@ -76,6 +76,12 @@ namespace cse491 {
       SetProperty(name, value);        // Set the first property...
       return SetProperties(std::forward<EXTRA_Ts>(extras)...); // And any additional properties...
     }
+
+    /// Completely remove a property from an Entity.
+    Entity & RemoveProperty(const std::string & name) {
+      property_map.erase(name);
+      return *this;
+    }    
   };
 
 } // End of namespace cse491
