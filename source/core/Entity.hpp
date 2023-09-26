@@ -25,11 +25,11 @@ namespace cse491 {
 
   public:
     Entity(size_t id, const std::string & name) : id(id), name(name) { }
-    Entity(const Entity &) = default;
+    Entity(const Entity &) = delete; // Entities must be unique and shouldn't be copied.
     Entity(Entity &&) = default;
     virtual ~Entity() = default;
 
-    Entity & operator=(const Entity &) = default;
+    Entity & operator=(const Entity &) = delete; // Entities must be unique and shouldn't be copied.
     Entity & operator=(Entity &&) = default;
 
     // -- Accessors --
