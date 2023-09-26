@@ -7,18 +7,17 @@ namespace GroupTwo{
     class DataReceiver {
 
     public:
-    std::vector<cse491::GridPosition> storage;
-        
-        DataReceiver(const cse491::Entity& entity) {
-      storage.push_back(entity.GetPosition().CellX);
-    }
+    DataReceiver() = default;
+    
+    // Function that takes in uniq pointer and stores it into the vector
 
-        friend std::ostream& operator<<(std::ostream& os, const DataReceiver& obj) {
-        os << "MyClass data: " << obj.storage[0].GetX();
-        return os;
-    }
+    
 
-    protected:
+
+
+
+    private:
+    std::vector<std::unique_ptr> storage;
 
     };
 }
