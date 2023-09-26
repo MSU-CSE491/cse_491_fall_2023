@@ -1,6 +1,6 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
- * @brief A World that consists only of walls and open cells.
+ * @brief A World that consists of trees, water, and grass cells.
  * @note Status: PROPOSAL
  **/
 
@@ -12,7 +12,7 @@
 
 namespace cse491_team8 {
 
-  class NewWorld : public cse491::WorldBase {
+  class ManualWorld : public cse491::WorldBase {
   protected:
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK };
 
@@ -30,13 +30,13 @@ namespace cse491_team8 {
     }
 
   public:
-    NewWorld() {
-      floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
+    ManualWorld() {
+      floor_id = AddCellType("grass", "Grass that you can easily walk over.", ' ');
       tree_id = AddCellType("tree", "Tree that you cannot pass without an axe.", '^');
       water_id = AddCellType("water", "Water that cannot be crossed without a boat.", '~');
-      main_grid.Read("../assets/grids/new_grid.grid", type_options);
+      main_grid.Read("../assets/grids/team8_grid.grid", type_options);
     }
-    ~NewWorld() = default;
+    ~ManualWorld() = default;
 
     void StrengthCheck(const std::unique_ptr<cse491::AgentBase> & other_agent, 
                      const std::unique_ptr<cse491::AgentBase> & agent) {
