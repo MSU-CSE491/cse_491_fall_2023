@@ -122,6 +122,13 @@ namespace cse491 {
       }
     }
 
+    void CollectData(){
+      for (auto & agent_ptr : agent_set){
+          std::cout << agent_ptr->GetPosition().GetX() << '\n';
+      }
+
+    }
+
     /// @brief UpdateWorld() is run after every agent has a turn.
     /// Override this function to manage background events for a world.
     virtual void UpdateWorld() { }
@@ -131,7 +138,11 @@ namespace cse491 {
       run_over = false;
       while (!run_over) {
         RunAgents();
+
+        CollectData();
+
         UpdateWorld();
+
       }
     }
 
