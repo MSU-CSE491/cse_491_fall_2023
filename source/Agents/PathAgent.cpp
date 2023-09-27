@@ -24,7 +24,7 @@ namespace walle {
  * @param offsets collection of offsets to move the agent
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
-                     std::vector<cse491::GridPosition> && offsets = {}) : cse491::AgentBase(id, name), offsets_(offsets) {}
+                     std::vector<cse491::GridPosition> && offsets) : cse491::AgentBase(id, name), offsets_(offsets) {}
 
 /**
  * Constructor (string)
@@ -41,24 +41,24 @@ PathAgent::PathAgent(size_t id, std::string const& name,
  * @return true if so; false otherwise
  */
 bool PathAgent::Initialize() {
-  return HasAction("move_self") && index_ >= 0 && index_ < offsets_.size();
+  return HasAction("move_self") && index_ >= 0 && static_cast<size_t>(index_) < offsets_.size();
 }
 
 /**
  * Moves the agent by applying the current offset
  * @return
  */
-size_t PathAgent::SelectAction(const WorldGrid & /* grid*/,
-                               const type_options_t & /* type_options*/,
-                               const item_set_t & /* item_set*/,
-                               const agent_set_t & /* agent_set*/)
+size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
+                               cse491::type_options_t const& /* type_options*/,
+                               cse491::item_set_t const& /* item_set*/,
+                               cse491::agent_set_t const& /* agent_set*/)
 {
   cse491::GridPosition pos_offset = offsets_[index_];
   SetPosition(position.CellX() + pos_offset.CellX(), position.CellY() + pos_offset.CellY());
 
   // Restart cycling through offsets
   ++index_;
-  if (index_ >= offsets_.size()) {
+  if (static_cast<size_t>(index_ ) >= offsets_.size()) {
     index_ = 0;
   }
 
@@ -72,11 +72,11 @@ size_t PathAgent::SelectAction(const WorldGrid & /* grid*/,
  * @return self
  * @attention throws an `std::invalid_argument` when an invalid start index is provided
  */
-PathAgent& PathAgent::SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0) {
+PathAgent& PathAgent::SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index) {
   offsets_ = offsets;
   index_ = start_index;
-  if (index_ >= offsets_.size()) {
-    ostringstream what;
+  if (static_cast<size_t>(index_) >= offsets_.size()) {
+    std::ostringstream what;
     what << "Out of bounds offset index to begin from: " << index_ << ", number of offsets: " << offsets_.size();
     throw std::invalid_argument(what.str());
   }
@@ -90,8 +90,8 @@ PathAgent& PathAgent::SetProperties(std::vector<cse491::GridPosition> && offsets
  * @return self
  * @attention throws an `std::invalid_argument` when mis-formatted commands an invalid index is provided
  */
-PathAgent& PathAgent::SetProperties(std::string_view commands, size_t start_index = 0) {
-  offsets_.clear()
+PathAgent& PathAgent::SetProperties(std::string_view commands, size_t start_index) {
+  offsets_.clear();
   return SetProperties(str_to_offsets(commands), start_index);
 }
 
@@ -99,7 +99,7 @@ PathAgent& PathAgent::SetProperties(std::string_view commands, size_t start_inde
  * Converts a string to a sequence of offsets
  *
  * This convenience method takes a string with a special formatting that allows one to specify
- * a sequence of inputs in linear directions.
+ * a sequence of whitespace-separated inputs in linear directions.
  * The format is [steps[*]]<direction> where
  * `steps` is a positive integer and optional (assumed to be 1 by default)
  * star `*` represents scaling the movement by `steps`. Optional, but cannot be used if `steps` is not provided
@@ -110,7 +110,7 @@ PathAgent& PathAgent::SetProperties(std::string_view commands, size_t start_inde
  * @note throws an `std::invalid_argument` when input string is poorly formatted
  * @note this includes when a negative integer is passed as `steps`. If a zero is used, treated as the default (one)
  */
-static std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands) {
+std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands) {
   std::vector<cse491::GridPosition> positions;
 
   // Regex capturing groups logically mean the following:
@@ -119,100 +119,96 @@ static std::vector<cse491::GridPosition> str_to_offsets(std::string_view command
   // Group 2: `steps` (optional)
   // Group 3: `*` (optional, only matches when Group 2 matches)
   // Group 4: direction
-  std::regex pattern (R"(([1-9]\d*)(\*?))?([nswex])");
-  std::smatch pattern_match;
+  std::cout << "Bruh" << std::endl;
+  std::regex pattern ("(([1-9]\\d*)(\\*?))?([nswex])");
+  std::cout << "Moment" << std::endl;
 
-  std::istringstream iss(commands);
+  std::istringstream iss{std::string(commands)};
   iss >> std::skipws;
 
   std::string single_command;
-  while(iss >> single_command) {
-    if (std::regex_match(single_command, pattern_match, pattern)) {
-      int steps = 1;
+    while (iss >> single_command) {
+      std::smatch pattern_match;
+      if (std::regex_match(single_command, pattern_match, pattern)) {
+        int steps = 1;
 
-      if (pattern_match[2].length() > 0) {
-        std::istringstream step_val(pattern_match[1].str());
-        step_val >> steps;
+        if (pattern_match[2].length() > 0) {
+          std::istringstream step_val(pattern_match[1].str());
+          step_val >> steps;
+        }
+
+        bool multiply = pattern_match[3].length() > 0;
+
+        char direction = pattern_match[4].str()[0];
+
+        cse491::GridPosition base_pos;
+        switch (direction) {
+          // Move up
+          case 'n': {
+            if (multiply) {
+              positions.push_back(base_pos.Above(steps));
+            } else {
+              for (int i = 0; i < steps; ++i) {
+                positions.push_back(base_pos.Above());
+              }
+            }
+            break;
+          }
+
+            // Move down
+          case 's': {
+            if (multiply) {
+              positions.push_back(base_pos.Below(steps));
+            } else {
+              for (int i = 0; i < steps; ++i) {
+                positions.push_back(base_pos.Below());
+              }
+            }
+            break;
+          }
+
+            // Move left
+          case 'e': {
+            if (multiply) {
+              positions.push_back(base_pos.ToLeft(steps));
+            } else {
+              for (int i = 0; i < steps; ++i) {
+                positions.push_back(base_pos.ToLeft());
+              }
+            }
+            break;
+          }
+
+            // Move right
+          case 'w': {
+            if (multiply) {
+              positions.push_back(base_pos.ToRight(steps));
+            } else {
+              for (int i = 0; i < steps; ++i) {
+                positions.push_back(base_pos.ToRight());
+              }
+            }
+            break;
+          }
+
+            // Stay
+          case 'x': {
+            // Using the `*` does nothing to scale the offset since it's scaling {0, 0}
+            steps = multiply ? 1 : steps;
+
+            for (int i = 0; i < steps; ++i) {
+              positions.push_back(base_pos);
+            }
+          }
+        }
+      } else {
+        std::ostringstream what;
+        what << "Incorrectly formatted argument: " << single_command;
+        throw std::invalid_argument(what.str());
       }
 
-      bool multiply = pattern_match[3].length() > 0;
-
-      char direction = pattern_match[4].str()[0];
-
-      cse491::GridPosition base_pos;
-      switch (direction) {
-        // Move up
-        case 'n': {
-          if (multiply) {
-            positions.push_back(base_pos.Above(steps));
-          }
-          else {
-            for (int i = 0; i < steps; ++i) {
-              positions.push_back(base_pos.Above());
-            }
-          }
-          break;
-        }
-
-          // Move down
-        case 's': {
-          if (multiply) {
-            positions.push_back(base_pos.Below(steps));
-          }
-          else {
-            for (int i = 0; i < steps; ++i) {
-              positions.push_back(base_pos.Below());
-            }
-          }
-          break;
-        }
-
-          // Move left
-        case 'e': {
-          if (multiply) {
-            positions.push_back(base_pos.ToLeft(steps));
-          }
-          else {
-            for (int i = 0; i < steps; ++i) {
-              positions.push_back(base_pos.ToLeft());
-            }
-          }
-          break;
-        }
-
-          // Move right
-        case 'w': {
-          if (multiply) {
-            positions.push_back(base_pos.ToRight(steps));
-          }
-          else {
-            for (int i = 0; i < steps; ++i) {
-              positions.push_back(base_pos.ToRight());
-            }
-          }
-          break;
-        }
-
-          // Stay
-        case 'x': {
-          // Using the `*` does nothing to scale the offset since it's scaling {0, 0}
-          steps = multiply ? 1 : steps;
-
-          for (int i = 0; i < steps; ++i) {
-            positions.push_back(base_pos);
-          }
-        }
-      }
+      iss >> std::skipws;
     }
-
-    else {
-      ostringstream what;
-      what << "Incorrectly formatted argument: " << single_command;
-      throw std::invalid_argument(what.str());
-    }
-
-    iss >> std::skipws;
-  }
   return positions;
 }
 

@@ -22,7 +22,7 @@ namespace walle {
  * Passed a sequence of to be sequentially applied as the agent is updated
  */
 class PathAgent : public cse491::AgentBase {
- private:
+ protected:
   /// Collection of ways to offset the Agent's position
   /// @attention This is a *not* a sequence of direct coordinates on the WorldGrid, but a series of offsets
   std::vector<cse491::GridPosition> offsets_;
@@ -31,19 +31,20 @@ class PathAgent : public cse491::AgentBase {
   int index_ = -1;
 
  public:
-  PathAgent() = default;
+  PathAgent() = delete;
   PathAgent(size_t id, std::string const& name, std::vector<cse491::GridPosition> && offsets = {});
   PathAgent(size_t id, std::string const& name, std::string_view commands);
   ~PathAgent() = default;
 
   bool Initialize() override;
-  size_t SelectAction(const WorldGrid &, const type_options_t &, const item_set_t &, const agent_set_t &) override;
+  size_t SelectAction(cse491::WorldGrid const&, cse491::type_options_t const&, cse491::item_set_t const&, cse491::agent_set_t const&) override;
 
   PathAgent& SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0);
   PathAgent& SetProperties(std::string_view commands, size_t start_index = 0);
 
-  static std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands);
 };
+
+std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands);
 
 } // namespace walle
 

@@ -10,6 +10,9 @@
 #include "Agents/PathAgent.hpp"
 
 TEST_CASE("Path Agent", "[Agents]"){
-  walle::PathAgent pa{0, "agent_1", "nswe"};
+  SECTION("Basic") {
+    walle::PathAgent pa{0, "agent_1", "nswex"};
+
+  }
 
 }
