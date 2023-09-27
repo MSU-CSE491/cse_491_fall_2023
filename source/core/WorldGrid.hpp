@@ -15,6 +15,7 @@
 
 #include "CoreObject.hpp"
 #include "GridPosition.hpp"
+#include "Data.hpp"
 
 namespace cse491 {
 
