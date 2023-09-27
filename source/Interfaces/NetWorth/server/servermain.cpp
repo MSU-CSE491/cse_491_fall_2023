@@ -6,6 +6,10 @@
 
 // Include the modules that we will be using.
 #include <sstream>
+#include<string>
+#include<vector>
+#include "../../../core/Data.hpp"
+// #include "../core/InterfaceBase.hpp"
 #include "../../TrashInterface.hpp"
 #include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"
@@ -15,20 +19,20 @@
 Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t & type_options,
                   const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
     {
-    std::vector<std::string> symbol_grid(grid.GetHeight());
+    std::vector<std::string> packet_grid(grid.GetHeight());
 
     // Load the world into the symbol_grid;
     for (size_t y=0; y < grid.GetHeight(); ++y) {
-    symbol_grid[y].resize(grid.GetWidth());
-    for (size_t x=0; x < grid.GetWidth(); ++x) {
-        symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
-    }
+    packet_grid[y].resize(grid.GetWidth());
+        for (size_t x=0; x < grid.GetWidth(); ++x) {
+            packet_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
+        }
     }
 
     // Add in the agents / entities
     for (const auto & entity_ptr : item_set) {
     cse491::GridPosition pos = entity_ptr->GetPosition();
-    symbol_grid[pos.CellY()][pos.CellX()] = '+';
+    packet_grid[pos.CellY()][pos.CellX()] = '+';
     }
 
     for (const auto & agent_ptr : agent_set) {
@@ -37,14 +41,14 @@ Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t
     if(agent_ptr->HasProperty("char")){
         c = static_cast<char>(agent_ptr->GetProperty("char"));
     }
-    symbol_grid[pos.CellY()][pos.CellX()] = c;
+    packet_grid[pos.CellY()][pos.CellX()] = c;
     }
 
 
     // Print out the symbol_grid with a box around it.
     std::ostringstream oss;
     oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
-    for (const auto & row : symbol_grid) {
+    for (const auto & row : packet_grid) {
     oss << "|";
     for (char cell : row) {
         // std::cout << ' ' << cell;
@@ -71,7 +75,7 @@ int main()
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
     world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
-    
+
     UdpSocket serverSocket;
     serverSocket.bind(55002);
 
@@ -84,10 +88,12 @@ int main()
     std::cout << sender.toString() << " said: " << buffer << std::endl;
     
     if(received){
-        std::string message = "Pong, my boy!";
+        std::string message = "Pong";
         serverSocket.send(message.c_str(), message.size() + 1, sender, port);
         world.Run();
-        Packet gridPacket = GridToPacket(world.GetGrid(), world.GetCellTypes(), world.GetItems(), world.GetAgents());
+        cse491::item_set_t item_set;
+        cse491::agent_set_t agent_set;
+        Packet gridPacket = GridToPacket(world.GetGrid(), world.GetCellTypes(), item_set, agent_set);
         serverSocket.send(gridPacket, sender, port);
     }
     
