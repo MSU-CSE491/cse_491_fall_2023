@@ -134,6 +134,10 @@ namespace cse491 {
       for (auto & agent_ptr : agent_set){
 
           std::cout << agent_ptr<< '\n';
+
+          //store data
+          DataReceiver receiver;
+          receiver.store_position(agent_ptr)
       }
 
     }
