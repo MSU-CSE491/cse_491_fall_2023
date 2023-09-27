@@ -1,0 +1,70 @@
+/**
+ * @file MazeGeneration.cpp
+ * @author Milan Mihailovic, ChatGPT
+ *
+ *
+ */
+
+#include "mazegeneration.h"
+#include <fstream>
+#include <random>
+#include <stack>
+
+MazeGeneration::MazeGeneration(int width, int height)
+        : width(width), height(height), grid(height, std::vector<char>(width, '#')) {
+    for (int i = 0; i < width; ++i) {
+        grid[0][i] = ' ';
+        grid[height-1][i] = ' ';
+    }
+}
+
+void MazeGeneration::generate() {
+    std::stack<std::pair<int, int>> stack;
+    int x = 2 * (rand() % (width / 2 - 1)) + 1;
+    int y = 2 * (rand() % (height / 2 - 1)) + 1;
+    stack.push({x, y});
+
+    while (!stack.empty()) {
+        x = stack.top().first;
+        y = stack.top().second;
+        grid[y][x] = ' ';
+
+        std::vector<std::pair<int, int>> directions = {
+                {0, -2}, {-2, 0}, {0, 2}, {2, 0}
+        };
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(directions.begin(), directions.end(), g);
+
+        bool moved = false;
+        for (const auto &dir : directions) {
+            int nx = x + dir.first;
+            int ny = y + dir.second;
+
+            if (isValid(nx, ny) && grid[ny][nx] == '#') {
+                stack.push({nx, ny});
+                grid[ny - dir.second/2][nx - dir.first/2] = ' ';
+                moved = true;
+                break;
+            }
+        }
+
+        if (!moved) stack.pop();
+    }
+}
+
+bool MazeGeneration::isValid(int x, int y) {
+    return x > 0 && x < width-1 && y > 0 && y < height-1;
+}
+
+void MazeGeneration::saveToFile(const std::string &filename) {
+    std::ofstream out(filename);
+    for (const auto &row : grid) {
+        for (const auto &cell : row) {
+            out << cell;
+        }
+        out << "\n";
+    }
+    out.close();
+}

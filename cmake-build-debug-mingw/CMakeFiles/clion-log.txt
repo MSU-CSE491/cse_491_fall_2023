@@ -1,0 +1,4 @@
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2022.2.1/bin/ninja/win/ninja.exe" -G Ninja -S "C:\Users\mihai\Desktop\CSE 491\GROUP6" -B "C:\Users\mihai\Desktop\CSE 491\GROUP6\cmake-build-debug-mingw"
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw
