@@ -35,6 +35,13 @@ class NetworkMazeWorld : public WorldBase {
     }
     ~NetworkMazeWorld() = default;
 
+    item_set_t GetItems(){
+        return item_set;
+    }
+    agent_set_t GetAgents(){
+        return agent_set;
+    }
+
     /// Allow the agents to move around the maze.
     int DoAction(AgentBase & agent, size_t action_id) override {
       // Determine where the agent is trying to move.
