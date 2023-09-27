@@ -61,7 +61,7 @@ namespace cse491 {
     [[nodiscard]] size_t GetNumAgents() const { return agent_set.size(); }
 
     /// Return a reference to an agent with a given ID.
-    [[nodiscard]] Entity GetItem(size_t id) {
+    [[nodiscard]] Entity & GetItem(size_t id) {
       assert(id < item_set.size());
       return *item_set[id];
     }
