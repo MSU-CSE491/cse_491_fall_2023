@@ -41,4 +41,45 @@ int main(int argc, char *argv[])
       return 1;
   }
   std::cout << data << std::endl;
+
+  char input;
+  bool valid_input = false;
+  bool wait_for_input = true;
+  sf::Packet recv_pkt;
+  while (input != 'q')
+  {
+    do {
+      std::cin >> input;
+    } while (!std::cin && wait_for_input);
+
+    switch (input) {
+      case 'w': case 'W': valid_input = true;   break;
+      case 'a': case 'A': valid_input = true;   break;
+      case 's': case 'S': valid_input = true;   break;
+      case 'd': case 'D': valid_input = true;   break;
+      case 'q': case 'Q': valid_input = true;   break;
+    }
+
+    // If we waited for input, but don't understand it, notify the user.
+    if (wait_for_input && !valid_input) {
+      std::cout << "Unknown key '" << input << "'." << std::endl;
+    } else {
+      if (socket.send(&input, 1, serverIP, port) != Socket::Status::Done) {
+        std::cout << "Could not connect to " << IPstring << " at port " << port << std::endl;
+        return 1;
+      }
+
+      if (socket.receive(recv_pkt, serverIP, port) != sf::Socket::Done)
+      {
+        std::cout << "Failure to receive" << std::endl;
+        return 1;
+      }
+
+      std::cout << recv_pkt << std::endl;
+    }
+
+    valid_input = false;
+  }
+
+  return 0;
 }
