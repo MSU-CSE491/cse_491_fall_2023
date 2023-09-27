@@ -34,6 +34,9 @@ namespace cse491 {
             NetworkingInterface(size_t id, const std::string & name) : InterfaceBase(id, name) { }
             ~NetworkingInterface() = default;
 
+            bool isInactive(){
+                return mClients.empty();
+            }
 
             Packet CreateAPacket(std::string action){
                 //Creating packet to send to server of actions
