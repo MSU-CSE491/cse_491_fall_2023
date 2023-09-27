@@ -9,3 +9,5 @@ Below are a set of guides for how to develop your own modules and joining them t
 - [How to Build an Interface](HowToBuildAnInterface.md) - How to build an interface that allows a human user to control an agent.
 
 - [How to Assemble a `main()` function](HowToAssembleAMain.md) - A guide to selecting worlds, agents, and interfaces and turning them into a custom executable (including how to collect data about the resulting system.)
+
+- [How to build, run, and create unit tests](HowToTest.md) - Walks through how to build and run existing unit tests, as well as create new unit test files. 
