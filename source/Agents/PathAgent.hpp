@@ -23,22 +23,26 @@ namespace walle {
  */
 class PathAgent : public cse491::AgentBase {
  private:
-  /// The current index into the path that the agent is on
-  size_t index_ = 0;
-
-  /// The directions that the agent should move in
-  /// @attention This is a *not* sequence of coordinates on the WorldGrid, but a series of offsets to move the agent in
+  /// Collection of ways to offset the Agent's position
+  /// @attention This is a *not* a sequence of direct coordinates on the WorldGrid, but a series of offsets
   std::vector<cse491::GridPosition> offsets_;
 
+  /// Current index into offsets_
+  int index_ = -1;
+
  public:
-  PathAgent() = delete;
-  PathAgent(size_t id, std::string const& name, std::vector<cse491::GridPosition> && offsets);
+  PathAgent() = default;
+  PathAgent(size_t id, std::string const& name, std::vector<cse491::GridPosition> && offsets = {});
   PathAgent(size_t id, std::string const& name, std::string_view commands);
   ~PathAgent() = default;
 
   bool Initialize() override;
   size_t SelectAction(const WorldGrid &, const type_options_t &, const item_set_t &, const agent_set_t &) override;
 
+  PathAgent& SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0);
+  PathAgent& SetProperties(std::string_view commands, size_t start_index = 0);
+
+  static std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands);
 };
 
 } // namespace walle

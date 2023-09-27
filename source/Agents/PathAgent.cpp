@@ -3,7 +3,7 @@
  * @author David Rackerby
  */
 
-#include "PathAgent.h"
+#include "PathAgent.hpp"
 
 #include <regex>
 #include <stdexcept>
@@ -18,40 +18,108 @@
 namespace walle {
 
 /**
- * Constructor
+ * Constructor (vector)
  * @param id unique agent id
  * @param name name of path agent
  * @param offsets collection of offsets to move the agent
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
-                     std::vector<cse491::GridPosition> && offsets) : cse491::AgentBase(id, name), offsets_(offsets) {}
+                     std::vector<cse491::GridPosition> && offsets = {}) : cse491::AgentBase(id, name), offsets_(offsets) {}
 
 /**
- * Constructor that takes a string for convenience
- *
- * This convenience constructor takes a string with a special formatting that allows one to specify
- * a sequence of inputs in linear directions.
- * The format is as follows [steps[*]]<direction> where
- * `steps` is a positive integer and optional (assumed to be 1 by default)
- * the star `*` represents scaling the movement by `steps` and should not be used without `steps`
- * if the star is not present, there are instead `steps` separate steps are taken in the direction `direction`
- * Example: "n w 3e 10*s 5*w" should create the sequence of offsets
- * {-1, 0}, {0, 1}, {0, -1}, {0, -1}, {0, -1}, {10, 0}, {0, 5}
+ * Constructor (string)
  * @param id unique agent id
  * @param name name of path agent
- * @param directions string in a format of sequential directions
+ * @param commands sequence of commands to be interpreted as offsets
+ */
+PathAgent::PathAgent(size_t id, std::string const& name,
+                     std::string_view commands) : cse491::AgentBase(id, name), offsets_(str_to_offsets(commands)) {}
+
+/**
+ * Checks that the agent is able to freely change its own grid location
+ * Verifies that it can currently index into a valid offset
+ * @return true if so; false otherwise
+ */
+bool PathAgent::Initialize() {
+  return HasAction("move_self") && index_ >= 0 && index_ < offsets_.size();
+}
+
+/**
+ * Moves the agent by applying the current offset
+ * @return
+ */
+size_t PathAgent::SelectAction(const WorldGrid & /* grid*/,
+                               const type_options_t & /* type_options*/,
+                               const item_set_t & /* item_set*/,
+                               const agent_set_t & /* agent_set*/)
+{
+  cse491::GridPosition pos_offset = offsets_[index_];
+  SetPosition(position.CellX() + pos_offset.CellX(), position.CellY() + pos_offset.CellY());
+
+  // Restart cycling through offsets
+  ++index_;
+  if (index_ >= offsets_.size()) {
+    index_ = 0;
+  }
+
+  return action_map["move_self"];
+}
+
+/**
+ * Assigns the offsets_member to a new series of offsets
+ * @param offsets collection of grid positions used as the new offsets
+ * @param start_index which offset to start indexing into (beginning by default)
+ * @return self
+ * @attention throws an `std::invalid_argument` when an invalid start index is provided
+ */
+PathAgent& PathAgent::SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0) {
+  offsets_ = offsets;
+  index_ = start_index;
+  if (index_ >= offsets_.size()) {
+    ostringstream what;
+    what << "Out of bounds offset index to begin from: " << index_ << ", number of offsets: " << offsets_.size();
+    throw std::invalid_argument(what.str());
+  }
+  return *this;
+}
+
+/**
+ * Assigns the offsets_ member to a new series of offsets, taking a command string
+ * @param commands formatted string of commands used as offsets
+ * @param start_index which command to begin indexing into (first command by default)
+ * @return self
+ * @attention throws an `std::invalid_argument` when mis-formatted commands an invalid index is provided
+ */
+PathAgent& PathAgent::SetProperties(std::string_view commands, size_t start_index = 0) {
+  offsets_.clear()
+  return SetProperties(str_to_offsets(commands), start_index);
+}
+
+/**
+ * Converts a string to a sequence of offsets
  *
+ * This convenience method takes a string with a special formatting that allows one to specify
+ * a sequence of inputs in linear directions.
+ * The format is [steps[*]]<direction> where
+ * `steps` is a positive integer and optional (assumed to be 1 by default)
+ * star `*` represents scaling the movement by `steps`. Optional, but cannot be used if `steps` is not provided
+ * if the star is not present, then `steps` individual offsets are created in the direction `direction`
+ * Example: "n w 3e 10*s 5*w x" should create the sequence of offsets
+ * {-1, 0}, {0, 1}, {0, -1}, {0, -1}, {0, -1}, {10, 0}, {0, 5}, {0, 0}
+ * @param commands string in a format of sequential directions
  * @note throws an `std::invalid_argument` when input string is poorly formatted
  * @note this includes when a negative integer is passed as `steps`. If a zero is used, treated as the default (one)
  */
-PathAgent::PathAgent(size_t id, std::string const& name, std::string_view commands) : cse491::AgentBase(id, name) {
+static std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands) {
+  std::vector<cse491::GridPosition> positions;
+
   // Regex capturing groups logically mean the following:
   // Group 0: whole regex
-  // Group 1: `steps` and multiplicity pair (optional)
+  // Group 1: `steps` and `*` pair (optional)(unused)
   // Group 2: `steps` (optional)
   // Group 3: `*` (optional, only matches when Group 2 matches)
   // Group 4: direction
-  std::regex pattern (R"(([1-9]\d*)(\*?))?([nswe])");
+  std::regex pattern (R"(([1-9]\d*)(\*?))?([nswex])");
   std::smatch pattern_match;
 
   std::istringstream iss(commands);
@@ -73,83 +141,79 @@ PathAgent::PathAgent(size_t id, std::string const& name, std::string_view comman
 
       cse491::GridPosition base_pos;
       switch (direction) {
+        // Move up
         case 'n': {
           if (multiply) {
-            offsets_.push_back(base_pos.Above(steps));
+            positions.push_back(base_pos.Above(steps));
           }
           else {
             for (int i = 0; i < steps; ++i) {
-              offsets_.push_back(base_pos.Above());
+              positions.push_back(base_pos.Above());
             }
           }
           break;
         }
 
+          // Move down
         case 's': {
           if (multiply) {
-            offsets_.push_back(base_pos.Below(steps));
+            positions.push_back(base_pos.Below(steps));
           }
           else {
             for (int i = 0; i < steps; ++i) {
-              offsets_.push_back(base_pos.Below());
+              positions.push_back(base_pos.Below());
             }
           }
           break;
         }
 
+          // Move left
         case 'e': {
           if (multiply) {
-            offsets_.push_back(base_pos.ToLeft(steps));
+            positions.push_back(base_pos.ToLeft(steps));
           }
           else {
             for (int i = 0; i < steps; ++i) {
-              offsets_.push_back(base_pos.ToLeft());
+              positions.push_back(base_pos.ToLeft());
             }
           }
           break;
         }
 
+          // Move right
         case 'w': {
           if (multiply) {
-            offsets_.push_back(base_pos.ToRight(steps));
+            positions.push_back(base_pos.ToRight(steps));
           }
           else {
             for (int i = 0; i < steps; ++i) {
-              offsets_.push_back(base_pos.ToRight());
+              positions.push_back(base_pos.ToRight());
             }
           }
           break;
+        }
+
+          // Stay
+        case 'x': {
+          // Using the `*` does nothing to scale the offset since it's scaling {0, 0}
+          steps = multiply ? 1 : steps;
+
+          for (int i = 0; i < steps; ++i) {
+            positions.push_back(base_pos);
+          }
         }
       }
     }
 
     else {
-      throw std::invalid_argument("Incorrectly formatted argument string to PathAgent constructor");
+      ostringstream what;
+      what << "Incorrectly formatted argument: " << single_command;
+      throw std::invalid_argument(what.str());
     }
 
     iss >> std::skipws;
   }
-}
-
-bool PathAgent::Initialize() {
-  return HasAction("move_self");
-}
-
-size_t PathAgent::SelectAction(const WorldGrid & /* grid*/,
-                               const type_options_t & /* type_options*/,
-                               const item_set_t & /* item_set*/,
-                               const agent_set_t & /* agent_set*/)
-{
-  cse491::GridPosition offset = offsets_[index_];
-  SetPosition(position.CellX() + offset.CellX(), position.CellY() + offset.CellY());
-
-  // Restart cycling through offsets
-  ++index_;
-  if (index_ >= offsets_.size()) {
-    index_ = 0;
-  }
-
-  return action_map["move_self"];
+  return positions;
 }
 
 } // namespace walle
