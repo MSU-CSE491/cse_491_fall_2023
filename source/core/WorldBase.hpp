@@ -160,6 +160,17 @@ namespace cse491 {
       if (id >= type_options.size()) return type_options[0].symbol;
       return type_options[id].symbol;
     }
+
+    /// @brief Determine if this tile is able to be walked on, defaults to every tile is walkable
+    /// @param pos The grid position we are checking
+    /// @return If an agent should be allowed on this square
+    virtual bool is_walkable (cse491::GridPosition /*pos*/) {return true;}
+
+    /// @brief Uses A* to return a  list of grid positions
+    /// @param start Starting position for search
+    /// @param end Ending position for the search
+    /// @return vector of A* path from start to end, empty vector if no path exist
+    std::vector<cse491::GridPosition> shortest_path(cse491::GridPosition start, cse491::GridPosition end);
   };
 
 } // End of namespace cse491

@@ -53,10 +53,11 @@ namespace cse491 {
 
       // Set the agent to its new postion.
       agent.SetPosition(new_position);
-
       return true;
     }
 
+    /// Can walk on all tiles except for walls
+    bool is_walkable (cse491::GridPosition pos) override {return main_grid.At(pos) != wall_id;}
   };
 
 } // End of namespace cse491
