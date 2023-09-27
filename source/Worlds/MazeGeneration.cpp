@@ -9,6 +9,7 @@
 #include <fstream>
 #include <random>
 #include <stack>
+#include <algorithm>
 
 MazeGeneration::MazeGeneration(int width, int height)
         : width(width), height(height), grid(height, std::vector<char>(width, '#')) {
@@ -52,6 +53,8 @@ void MazeGeneration::generate() {
 
         if (!moved) stack.pop();
     }
+
+    placeSpikeTiles(0.05);
 }
 
 bool MazeGeneration::isValid(int x, int y) {
@@ -67,4 +70,25 @@ void MazeGeneration::saveToFile(const std::string &filename) {
         out << "\n";
     }
     out.close();
+}
+
+void MazeGeneration::placeSpikeTiles(double percentage) {
+    std::vector<std::pair<int, int>> floorPositions;
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (grid[i][j] == ' ') {  
+                floorPositions.push_back({j, i});
+            }
+        }
+    }
+
+    int numSpikes = floorPositions.size() * percentage;
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(floorPositions.begin(), floorPositions.end(), g);
+
+    // Convert some floor tiles to spike tiles
+    for (int i = 0; i < numSpikes; ++i) {
+        grid[floorPositions[i].second][floorPositions[i].first] = 'X';
+    }
 }
