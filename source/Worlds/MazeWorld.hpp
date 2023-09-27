@@ -19,6 +19,9 @@ namespace cse491 {
     size_t floor_id; ///< Easy access to floor CellType ID.
     size_t wall_id;  ///< Easy access to wall CellType ID.
 
+    size_t spike_id;  ///< Easy access to spike CellType ID.
+
+
     /// Provide the agent with movement actions.
     void ConfigAgent(AgentBase & agent) override {
       agent.AddAction("up", MOVE_UP);
@@ -31,6 +34,9 @@ namespace cse491 {
     MazeWorld() {
       floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
+
+      spike_id = AddCellType("spike", "Dangerous spike that resets the game.", 'X');
+
       main_grid.Read("../assets/grids/default_maze.grid", type_options);
     }
     ~MazeWorld() = default;
@@ -50,6 +56,14 @@ namespace cse491 {
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
       if (main_grid.At(new_position) == wall_id) { return false; }
+
+      // Check if the agent is trying to move onto a spike.
+      if (main_grid.At(new_position) == spike_id) {
+
+
+      return false;
+      }
+
 
       // Set the agent to its new postion.
       agent.SetPosition(new_position);

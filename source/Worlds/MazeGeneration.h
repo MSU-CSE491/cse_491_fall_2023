@@ -16,6 +16,8 @@ public:
     void generate();
     void saveToFile(const std::string &filename);
 
+    void placeSpikeTiles(double percentage);
+
 private:
     int width;
     int height;
