@@ -15,7 +15,7 @@
 #include "Data.hpp"
 #include "Entity.hpp"
 #include "WorldGrid.hpp"
-#include "DataCollection/DateReceiver.hpp"
+#include "../DataCollection/DateReceiver.hpp"
 
 namespace cse491 {
 
@@ -123,21 +123,13 @@ namespace cse491 {
       }
     }
 
-    void CollectData(){
+    void CollectData() {
       // calling the collectdata class + the function and store the data (agent_ptr) into it
 
-
-
-
-
-
-      for (auto & agent_ptr : agent_set){
-
-          std::cout << agent_ptr<< '\n';
-
+      for (auto & agent_ptr : agent_set) {
           //store data
-          DataReceiver receiver;
-          receiver.store_position(agent_ptr)
+          GroupTwo::DataReceiver receiver;
+          receiver.store_agent(agent_ptr->GetPosition());
       }
 
     }
@@ -151,11 +143,8 @@ namespace cse491 {
       run_over = false;
       while (!run_over) {
         RunAgents();
-
         CollectData();
-
         UpdateWorld();
-
       }
     }
 

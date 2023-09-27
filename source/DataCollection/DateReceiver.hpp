@@ -1,6 +1,6 @@
 #include <vector>
 
-namespace GroupTwo{
+namespace GroupTwo {
 
     class Entity;
 
@@ -8,16 +8,14 @@ namespace GroupTwo{
 
     public:
     DataReceiver() = default;
-    
-    // Function that takes in uniq pointer and stores it into the vector
 
-    
-
-
-
+    inline void store_agent(cse491::GridPosition pos) {
+        std::cout << "Adding: (" << pos.GetX() << ", " << pos.GetY() << ")" << std::endl;
+        storage.push_back(pos); 
+    }
 
     private:
-    std::vector<std::unique_ptr> storage;
+    std::vector<cse491::GridPosition> storage;
 
     };
 }
