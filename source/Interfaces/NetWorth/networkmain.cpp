@@ -14,7 +14,8 @@ int main(){
 
     // Send a message to the server on port 55002
     std::string message = "Hi, I am " + sf::IpAddress::getLocalAddress().toString();
-    socket.send(message.c_str(), message.size() + 1, "35.12.211.81", 55002); 
+    socket.send(message.c_str(), message.size() + 1, "35.9.39.37", 55002); 
+    // socket.send(message.c_str(), message.size() + 1, "172.31.20.79", 55002); 
 
     // Receive an answer (most likely from the server)
     char buffer[1024];
