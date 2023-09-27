@@ -171,6 +171,88 @@ namespace cse491 {
     /// @param end Ending position for the search
     /// @return vector of A* path from start to end, empty vector if no path exist
     std::vector<cse491::GridPosition> shortest_path(cse491::GridPosition start, cse491::GridPosition end);
+  
+    /// @brief Determine if this tile is able to be walked on, defaults to every
+    /// tile is walkable
+    /// @author @mdkdoc15
+    /// @param pos The grid position we are checking
+    /// @return If an agent should be allowed on this square
+    virtual bool is_walkable(GridPosition /*pos*/) { return true; }
+
+    /// @brief Uses A* to return a  list of grid positions
+    /// @author @mdkdoc15
+    /// @param start Starting position for search
+    /// @param end Ending position for the search
+    /// @return vector of A* path from start to end, empty vector if no path
+    /// exist
+    std::vector<GridPosition> shortest_path(GridPosition start, GridPosition end)
+    {
+      // TODO remove the use of new and this
+
+      // Generated with the help of chat.openai.com
+      const int rows = this->main_grid.GetWidth();
+      const int cols = this->main_grid.GetHeight();
+      std::vector<GridPosition> path;
+      // If the start or end is not valid then return empty list
+      if (!(this->main_grid.IsValid(start) && this->main_grid.IsValid(end)))
+        return path;
+
+      // Define possible movements (up, down, left, right)
+      const int dx[] = {-1, 1, 0, 0};
+      const int dy[] = {0, 0, -1, 1};
+
+      // Create a 2D vector to store the cost to reach each cell
+      std::vector<std::vector<int>> cost(rows, std::vector<int>(cols, INT_MAX));
+
+      // Create an open list as a priority queue
+      std::priority_queue<std::shared_ptr<walle::Node>, std::vector<std::shared_ptr<walle::Node>>, walle::CompareNodes> openList;
+
+      // Create the start and end nodes
+      auto startNode = std::make_shared<walle::Node>(start, 0, 0, nullptr);
+      auto endNode = std::make_shared<walle::Node>(end, 0, 0, nullptr);
+
+      openList.push(startNode);
+      cost[start.GetX()][start.GetY()] = 0;
+
+      while (!openList.empty())
+      {
+        auto current = openList.top();
+        openList.pop();
+
+        if (current->position == endNode->position)
+        {
+
+          // Reached the goal, reconstruct the path
+          while (current != nullptr)
+          {
+            path.push_back(current->position);
+            current = current->parent;
+          }
+          break;
+        }
+
+        // Explore the neighbors
+        for (int i = 0; i < 4; ++i)
+        {
+          GridPosition newPos(current->position.GetX() + dx[i], current->position.GetY() + dy[i]);
+          // Check if the neighbor is within bounds and is a valid move
+          if (this->main_grid.IsValid(newPos) && this->is_walkable(newPos))
+          {
+            int newG = current->g + 1;                                                                                          // Assuming a cost of 1 to move to a neighbor
+            int newH = std::abs(newPos.GetX() - endNode->position.GetX()) + std::abs(newPos.GetY() - endNode->position.GetY()); // Manhattan distance
+
+            if (newG + newH < cost[newPos.GetX()][newPos.GetY()])
+            {
+              auto neighbor = std::make_shared<walle::Node>(newPos, newG, newH, current);
+              openList.push(neighbor);
+              cost[newPos.GetX()][newPos.GetY()] = newG + newH;
+            }
+          }
+        }
+      }
+
+      return path;
+    }
   };
 
 } // End of namespace cse491
