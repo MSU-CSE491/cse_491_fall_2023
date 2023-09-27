@@ -15,7 +15,7 @@
 #include "Data.hpp"
 #include "Entity.hpp"
 #include "WorldGrid.hpp"
-#include "../DataCollection/DateReceiver.hpp"
+#include "../DataCollection/GridPositionReceiver.hpp"
 
 namespace cse491 {
 
@@ -28,6 +28,8 @@ namespace cse491 {
 
     item_set_t item_set;     ///< Vector of pointers to non-agent entities
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
+
+    std::shared_ptr<DataCollection::GridPositionReceiver> grid_receiver;
 
     bool run_over = false;   ///< Should the run end?
 
@@ -102,6 +104,9 @@ namespace cse491 {
       return *agent_set.back();
     }
 
+    void SetGridReceiver(DataCollection::GridPositionReceiver r) {
+      grid_receiver = std::make_shared<DataCollection::GridPositionReceiver>(r);
+    }
 
     // -- Action Management --
 
@@ -124,14 +129,8 @@ namespace cse491 {
     }
 
     void CollectData() {
-      // calling the collectdata class + the function and store the data (agent_ptr) into it
-
-      for (auto & agent_ptr : agent_set) {
-          //store data
-          GroupTwo::DataReceiver receiver;
-          receiver.store_agent(agent_ptr->GetPosition());
-      }
-
+      auto & agent = agent_set.at(2);
+      grid_receiver->store_data(agent->GetPosition());
     }
 
     /// @brief UpdateWorld() is run after every agent has a turn.
