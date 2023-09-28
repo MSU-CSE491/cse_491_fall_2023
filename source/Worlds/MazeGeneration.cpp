@@ -5,7 +5,7 @@
  *
  */
 
-#include "mazegeneration.h"
+#include "Mazegeneration.h"
 #include <fstream>
 #include <random>
 #include <stack>
@@ -55,6 +55,7 @@ void MazeGeneration::generate() {
     }
 
     placeSpikeTiles(0.05);
+    placeTarTiles(.05);
 }
 
 bool MazeGeneration::isValid(int x, int y) {
@@ -90,5 +91,26 @@ void MazeGeneration::placeSpikeTiles(double percentage) {
     // Convert some floor tiles to spike tiles
     for (int i = 0; i < numSpikes; ++i) {
         grid[floorPositions[i].second][floorPositions[i].first] = 'X';
+    }
+}
+
+void MazeGeneration::placeTarTiles(double percentage) {
+    std::vector<std::pair<int, int>> floorPositions;
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (grid[i][j] == ' ') {
+                floorPositions.push_back({j, i});
+            }
+        }
+    }
+
+    int numTars = floorPositions.size() * percentage;
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(floorPositions.begin(), floorPositions.end(), g);
+
+    // Convert some floor tiles to tar tiles
+    for (int i = 0; i < numTars; ++i) {
+        grid[floorPositions[i].second][floorPositions[i].first] = 'O';
     }
 }

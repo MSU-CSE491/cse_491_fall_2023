@@ -17,6 +17,7 @@ public:
     void saveToFile(const std::string &filename);
 
     void placeSpikeTiles(double percentage);
+    void placeTarTiles(double percentage);
 
 private:
     int width;

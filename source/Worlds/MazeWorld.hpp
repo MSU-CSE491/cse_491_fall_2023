@@ -14,12 +14,13 @@ namespace cse491 {
 
   class MazeWorld : public WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, REMOVE_TAR };
 
     size_t floor_id; ///< Easy access to floor CellType ID.
     size_t wall_id;  ///< Easy access to wall CellType ID.
 
     size_t spike_id;  ///< Easy access to spike CellType ID.
+    size_t tar_id; ///< Easy access to tar CellTypeID
 
 
     /// Provide the agent with movement actions.
@@ -28,6 +29,7 @@ namespace cse491 {
       agent.AddAction("down", MOVE_DOWN);
       agent.AddAction("left", MOVE_LEFT);
       agent.AddAction("right", MOVE_RIGHT);
+      agent.AddAction("tar", REMOVE_TAR);
     }
 
   public:
@@ -36,6 +38,7 @@ namespace cse491 {
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
 
       spike_id = AddCellType("spike", "Dangerous spike that resets the game.", 'X');
+      tar_id = AddCellType("tar", "Slow tile that makes you take two steps to get through it", 'O');
 
       main_grid.Read("../assets/grids/default_maze.grid", type_options);
     }
@@ -51,6 +54,7 @@ namespace cse491 {
       case MOVE_DOWN:    new_position = agent.GetPosition().Below(); break;
       case MOVE_LEFT:    new_position = agent.GetPosition().ToLeft(); break;
       case MOVE_RIGHT:   new_position = agent.GetPosition().ToRight(); break;
+      case REMOVE_TAR:   new_position = agent.GetPosition(); break;
       }
 
       // Don't let the agent move off the world or into a wall.
