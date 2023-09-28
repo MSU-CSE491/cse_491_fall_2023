@@ -2,9 +2,10 @@
 
 Below is a set of classes and functions designed to create multiple different Agents with various functionalities.
 
-## Path Agent - Derived from ```cse491::AgentBase```
-Agent that has a user-defined custom movement pattern
-Passed a sequence to be sequentially applied as the agent is updated
+<details>
+
+<summary> Path Agent </summary>
+Agent that has a user-defined custom movement pattern passed a sequence to be sequentially applied as the agent is updated
 
 - Constructor with ```std::vector```
     - param ```id```: unique agent id
@@ -61,4 +62,7 @@ Passed a sequence to be sequentially applied as the agent is updated
     - **note:** this includes when a negative integer is passed as `steps`. If a zero is used, treated as the default (one)
 
     ```static std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands)```
-    
+
+  </details>
+
+  More agents to be documented...
