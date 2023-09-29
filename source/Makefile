@@ -36,7 +36,7 @@ quick-%:
 
 
 FILES_backup	= *~ *.dSYM
-FILES_generated = *.o $(EXECUTABLES)
+FILES_generated = *.o $(EXECUTABLES) gpagent
 
 clean:
 	rm -rf $(FILES_backup) $(FILES_generated)
