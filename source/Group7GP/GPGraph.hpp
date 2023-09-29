@@ -10,12 +10,11 @@
 
 namespace cowboys
 {
-    using std::vector, std::string, std::map, std::shared_ptr, std::unique_ptr, std::make_shared, std::make_unique;
     class GraphNode
     {
     protected:
-        vector<shared_ptr<GraphNode>> inputs;
-        vector<size_t> inputs_indices;
+        std::vector<std::shared_ptr<GraphNode>> inputs;
+        std::vector<size_t> inputs_indices;
 
         /// The output of this node.
         double output = 0.;
@@ -29,14 +28,14 @@ namespace cowboys
 
         /// @brief Constructor for input indices
         /// @param input_indices
-        GraphNode(vector<size_t> input_indices) : inputs_indices{input_indices} {}
+        GraphNode(std::vector<size_t> input_indices) : inputs_indices{input_indices} {}
 
-        string name;
+        std::string name;
 
         /// TODO: Cache outputs
         virtual double GetOutput() const { return output; }
 
-        shared_ptr<GraphNode> GetInput(size_t input_idx) const
+        std::shared_ptr<GraphNode> GetInput(size_t input_idx) const
         {
             if (input_idx >= inputs.size())
                 // Return last input if out of bounds
@@ -45,9 +44,9 @@ namespace cowboys
                 return inputs.at(input_idx);
         }
 
-        void AddInput(shared_ptr<GraphNode> node) { inputs.push_back(node); }
-        void AddInputs(const vector<shared_ptr<GraphNode>> &nodes) { inputs.insert(inputs.end(), nodes.begin(), nodes.end()); }
-        void SetInputs(const vector<shared_ptr<GraphNode>> &nodes) { inputs = nodes; }
+        void AddInput(std::shared_ptr<GraphNode> node) { inputs.push_back(node); }
+        void AddInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) { inputs.insert(inputs.end(), nodes.begin(), nodes.end()); }
+        void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) { inputs = nodes; }
         void SetOutput(double value) { output = value; }
     };
 
@@ -144,16 +143,16 @@ namespace cowboys
     {
     protected:
         /// Actions that can be taken.
-        vector<size_t> actions;
+        std::vector<size_t> actions;
 
         /// Layers of nodes in the graph.
-        vector<vector<shared_ptr<GraphNode>>> layers;
+        std::vector<std::vector<std::shared_ptr<GraphNode>>> layers;
 
     public:
-        Graph(const vector<size_t> &action_vec) : actions{action_vec} { assert(actions.size() > 0); }
+        Graph(const std::vector<size_t> &action_vec) : actions{action_vec} { assert(actions.size() > 0); }
         ~Graph() = default;
 
-        size_t MakeDecision(const vector<double> &inputs)
+        size_t MakeDecision(const std::vector<double> &inputs)
         {
             if (layers.size() == 0)
                 return actions.at(0);
@@ -170,7 +169,7 @@ namespace cowboys
             }
 
             // Get output of last layer
-            vector<double> outputs;
+            std::vector<double> outputs;
             for (auto &node : layers.back())
             {
                 outputs.push_back(node->GetOutput());
@@ -197,6 +196,6 @@ namespace cowboys
             return action;
         }
 
-        void AddLayer(const vector<shared_ptr<GraphNode>> &layer) { layers.push_back(layer); }
+        void AddLayer(const std::vector<std::shared_ptr<GraphNode>> &layer) { layers.push_back(layer); }
     };
 }
