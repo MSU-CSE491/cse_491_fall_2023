@@ -1,15 +1,18 @@
 
 #pragma once
 
-#include <cassert>
-#include <map>
-#include <string>
-#include <algorithm>
 #include <iostream>
+#include <string>
 #include <vector>
+#include <memory>
+#include <algorithm>
+#include <unordered_map>
+
+#include "../core/AgentBase.hpp"
 
 namespace cowboys
 {
+    class GPAgent; ///< Forward declaration of GPAgent.
     class GraphNode
     {
     protected:
@@ -199,24 +202,36 @@ namespace cowboys
         void AddLayer(const std::vector<std::shared_ptr<GraphNode>> &layer) { layers.push_back(layer); }
     };
 
+    /// @brief Encodes the actions from an agent's action map into a vector of size_t, representing action IDs.
+    /// @param action_map The action map from the agent.
+    /// @return A vector of size_t, representing action IDs.
+    std::vector<size_t> EncodeActions(const std::unordered_map<std::string, size_t> &action_map);
+
+    /// @brief Translates state into nodes for the decision graph.
+    /// @return A vector of doubles for the decision graph.
+    std::vector<double> EncodeState(const cse491::WorldGrid &grid,
+                                    const cse491::type_options_t &type_options,
+                                    const cse491::item_set_t &item_set,
+                                    const cse491::agent_set_t &agent_set,
+                                    const GPAgent *agent);
+
     class GraphBuilder
     {
     protected:
-        /// Actions that can be taken.
-        std::vector<size_t> action_vec;
+        /// Action map from the agent
+        const std::unordered_map<std::string, size_t> action_map;
 
     public:
-        GraphBuilder(const std::vector<size_t> &action_vec) : action_vec{action_vec} {}
+        GraphBuilder(const std::unordered_map<std::string, size_t> &action_map) : action_map{action_map} {}
         ~GraphBuilder() = default;
 
         /// @brief Creates a decision graph for pacing up and down in a MazeWorld.
         /// Assumes that the inputs are in the format: prev_action, current_state, above_state, below_state, left_state, right_state
-        /// And assumes that the action outputs are in the format: up, down, left, right
-        /// @param action_vec
+        /// @param action_vec Assumes that the action outputs are in the format: up, down, left, right
         /// @return
         std::unique_ptr<Graph> VerticalPacer()
         {
-            auto decision_graph = std::make_unique<Graph>(action_vec);
+            auto decision_graph = std::make_unique<Graph>(EncodeActions(action_map));
 
             std::vector<std::shared_ptr<GraphNode>> input_layer;
             std::shared_ptr<GraphNode> prev_action = std::make_shared<GraphNode>(0);
