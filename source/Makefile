@@ -18,6 +18,10 @@ default: simple
 $(EXECUTABLES): %:
 	$(CXX) $@_main.cpp $(FLAGS_all) -o $@
 
+# Rule for simple GPAgent executable
+gpagent: simple_gp_main.cpp
+	$(CXX) simple_gp_main.cpp ./Group7GP/GPGraph.cpp $(FLAGS_all) -o gpagent
+
 # Generic rule to build debug version of any executable
 debug-%: 
 	$(CXX) $*_main.cpp $(FLAGS_debug) -o $*
