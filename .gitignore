@@ -1,3 +1,10 @@
+# CMake build directories
+cmake-build-*/
+
+# CLion-specific files
+.cmake/
+.idea/
+*.iml
 
 assets/grids/default_maze.grid
 assets/grids/default_maze.grid
