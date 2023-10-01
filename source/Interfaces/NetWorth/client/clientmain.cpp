@@ -12,30 +12,28 @@
 
 int main(int argc, char *argv[])
 {
-  /**Connect to server using arguments provided (argc/argv)
-   * Once connection is established, the server will create an agent
-   * for the client to control, returning it through the initial response
-   * **/
   if (argc != 3) {
     std::cout << "Must have an argument for server IP and port\nUsage: ./client [IP] [port]" << std::endl;
     return 1;
   }
 
-  std::string IPstring(argv[1]);
-  sf::IpAddress serverIP(IPstring);
+  // create socket, get IP and port from args
   sf::UdpSocket socket;
+  std::string ip_string(argv[1]);
+  sf::IpAddress server_ip(ip_string);
   unsigned short port = stoi(std::string(argv[2]));
 
+  // send ping to server
   std::string message = "ping!";
-  if (socket.send(message.c_str(), message.size() + 1, serverIP, port) != Socket::Status::Done) {
-    std::cout << "Could not connect to " << IPstring << " at port " << port << std::endl;
+  if (socket.send(message.c_str(), message.size() + 1, server_ip, port) != Socket::Status::Done) {
+    std::cout << "Could not connect to " << ip_string << " at port " << port << std::endl;
     return 1;
   } 
   
-  sf::IpAddress sender;
+  // receive pong from server
   size_t received;
   char data[100];
-  if (socket.receive(data, 100, received, serverIP, port) != sf::Socket::Done)
+  if (socket.receive(data, 100, received, server_ip, port) != sf::Socket::Done)
   {
       std::cout << "Failure to receive" << std::endl;
       return 1;
@@ -46,6 +44,18 @@ int main(int argc, char *argv[])
   bool valid_input = false;
   bool wait_for_input = true;
   sf::Packet recv_pkt;
+  std::string recv_str;
+
+  // receive initial map
+  if (socket.receive(recv_pkt, server_ip, port) != sf::Socket::Done)
+  {
+    std::cout << "Failure to receive" << std::endl;
+    return 1;
+  }
+
+  recv_pkt >> recv_str;
+  std::cout << recv_str;
+
   while (input != 'q')
   {
     do {
@@ -58,24 +68,26 @@ int main(int argc, char *argv[])
       case 's': case 'S': valid_input = true;   break;
       case 'd': case 'D': valid_input = true;   break;
       case 'q': case 'Q': valid_input = true;   break;
+      default: valid_input = false;
     }
 
     // If we waited for input, but don't understand it, notify the user.
     if (wait_for_input && !valid_input) {
       std::cout << "Unknown key '" << input << "'." << std::endl;
     } else {
-      if (socket.send(&input, 1, serverIP, port) != Socket::Status::Done) {
-        std::cout << "Could not connect to " << IPstring << " at port " << port << std::endl;
+      if (socket.send(&input, 1, server_ip, port) != Socket::Status::Done) {
+        std::cout << "Could not connect to " << ip_string << " at port " << port << std::endl;
         return 1;
       }
 
-      if (socket.receive(recv_pkt, serverIP, port) != sf::Socket::Done)
+      if (socket.receive(recv_pkt, server_ip, port) != sf::Socket::Done)
       {
         std::cout << "Failure to receive" << std::endl;
         return 1;
       }
 
-      std::cout << recv_pkt << std::endl;
+      recv_pkt >> recv_str;
+      std::cout << recv_str;
     }
 
     valid_input = false;

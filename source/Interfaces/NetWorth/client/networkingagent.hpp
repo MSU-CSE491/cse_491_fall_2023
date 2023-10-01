@@ -8,8 +8,7 @@
 
 #include <cassert>
 #include <string>
-#include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/Packet.hpp>
+#include <SFML/Network.hpp>
 #include "../../../Agents/PacingAgent.hpp"
 
 using namespace sf;
