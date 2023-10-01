@@ -90,9 +90,9 @@ int main()
     std::cout << sender.toString() << " said: " << buffer << std::endl;
     
     if(received){
-        //std::string message = "Pong";
-        //serverSocket.send(message.c_str(), message.size() + 1, sender, port);
-        // world.NetworkRun(&serverSocket, sender, port);
+        std::string message = "Pong!";
+        serverSocket.send(message.c_str(), message.size() + 1, sender, port);
+        //world.NetworkRun(&serverSocket, sender, port);
         cse491::item_set_t item_set;
         cse491::agent_set_t agent_set;
         sf::Packet gridPacket = GridToPacket(world.GetGrid(), world.GetCellTypes(), item_set, agent_set);

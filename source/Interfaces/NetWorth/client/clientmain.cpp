@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   unsigned short port = stoi(std::string(argv[2]));
 
   // send ping to server
-  std::string message = "ping!";
+  std::string message = "Ping!";
   if (socket.send(message.c_str(), message.size() + 1, server_ip, port) != Socket::Status::Done) {
     std::cout << "Could not connect to " << ip_string << " at port " << port << std::endl;
     return 1;
