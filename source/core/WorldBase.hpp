@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "AgentBase.hpp"
 #include "Data.hpp"
@@ -101,6 +102,20 @@ namespace cse491 {
       return *agent_set.back();
     }
 
+    /// @brief Remove an agent from the agent set
+    /// @param agent_name The name of this agent
+    /// @return None
+    void RemoveAgent(std::string agent_name="None") {
+        if (agent_name == "Interface")
+        {
+            return;
+        }
+        agent_set_t ::iterator agent_pointer =
+                std::find_if(agent_set.begin(), agent_set.end(),
+                        [&](std::unique_ptr<AgentBase> & agent){ return agent->GetName() == agent_name;}
+                );
+        agent_set.erase(std::remove(agent_set.begin(), agent_set.end(), *agent_pointer));
+    }
 
     // -- Action Management --
 

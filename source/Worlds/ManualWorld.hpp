@@ -42,9 +42,11 @@ namespace cse491_team8 {
                      const std::unique_ptr<cse491::AgentBase> & agent) {
       if (other_agent->GetProperty("Strength") > agent->GetProperty("Strength")) {
         std::cout << other_agent->GetName() << " has beat " << agent->GetName() << "\n";
+        this->RemoveAgent(agent->GetName());
       }
       else {
         std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
+        this->RemoveAgent(other_agent->GetName());
       }
     }
    
