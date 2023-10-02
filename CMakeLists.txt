@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # all the possible executables [each team can have their own configuration]
 # copy over simple or same and change the accordingly
-set(EXECUTABLES simple sample)
+set(EXECUTABLES simple sfml)
 
 
 # setting the output path to executable
@@ -23,17 +23,22 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 
+# Configure SFML
+set(SFML_SRC_DIR third_party/SFML)
+set(SFML_BUILD_DIR sfml_build)
+set(MAIN_SOURCE_DIR ./)
+add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
+
 
 foreach(EXECUTABLE ${EXECUTABLES})
-    if(${EXECUTABLE} STREQUAL "simple")
-        set(SOURCES source/${EXECUTABLE}_main.cpp)
-    elseif(${EXECUTABLE} STREQUAL "sample")
-        set(SOURCES source/${EXECUTABLE}_main.cpp)
-
-    # add the executable here to complile and run
-    endif()
+    set(SOURCES source/${EXECUTABLE}_main.cpp)
     add_executable(${EXECUTABLE} ${SOURCES})
-
+    target_include_directories(${EXECUTABLE}
+      PRIVATE ${MAIN_SOURCE_DIR}
+      )
+    target_link_libraries(${EXECUTABLE}
+      PRIVATE sfml-window sfml-audio sfml-graphics
+      )
 endforeach()
 
 
