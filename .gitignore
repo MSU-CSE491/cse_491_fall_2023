@@ -11,3 +11,7 @@ cmake-build-release
 # vscode settings
 .vscode/
 .github/
+
+# Vim swap files
+*.swp
+*.swo
