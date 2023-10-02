@@ -1,5 +1,5 @@
 /**
- * @file matt_k_first_agent.h
+ * @file AStarAgent.h
  * @author Matt Kight
  */
 #pragma once
@@ -13,9 +13,9 @@ namespace cse491
     namespace walle
     {
         /**
-         * Class that describes a matt_k_first_agent class
+         * Class that describes a AStarAgent class
          */
-        class matt_k_first_agent : public cse491::AgentBase
+        class AStarAgent : public cse491::AgentBase
         {
         private:
             std::vector<GridPosition> path;      // Path this agent is taking
@@ -25,17 +25,17 @@ namespace cse491
             WorldBase *world = nullptr;
 
         public:
-            matt_k_first_agent(size_t id, const std::string &name) : AgentBase(id, name)
+            AStarAgent(size_t id, const std::string &name) : AgentBase(id, name)
             {
             }
-            ~matt_k_first_agent() = default;
+            ~AStarAgent() = default;
 
             /**
              * @brief Set the word object
              *
              * @param world world this agent is a part of
              */
-            void set_word(WorldBase *world) { this->world = world; }
+            void SetWorld(WorldBase *world) { this->world = world; }
 
             /// @brief This agent needs a specific set of actions to function.
             /// @return Success.
@@ -44,7 +44,7 @@ namespace cse491
                 return HasAction("up") && HasAction("down") && HasAction("left") && HasAction("right");
             }
 
-            void set_goal_position(const GridPosition gp)
+            void SetGoalPosition(const GridPosition gp)
             {
                 goal_position = gp;
             }

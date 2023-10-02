@@ -57,7 +57,7 @@ namespace cse491 {
     }
 
     /// Can walk on all tiles except for walls
-    bool is_walkable (cse491::GridPosition pos) override {return main_grid.At(pos) != wall_id;}
+    bool IsWalkable (cse491::GridPosition pos) override {return main_grid.At(pos) != wall_id;}
   };
 
 } // End of namespace cse491

@@ -168,7 +168,7 @@ namespace cse491 {
     /// @author @mdkdoc15
     /// @param pos The grid position we are checking
     /// @return If an agent should be allowed on this square
-    virtual bool is_walkable(GridPosition /*pos*/) { return true; }
+    virtual bool IsWalkable(GridPosition /*pos*/) { return true; }
 
     /// @brief Uses A* to return a  list of grid positions
     /// @author @mdkdoc15
@@ -227,7 +227,7 @@ namespace cse491 {
         {
           GridPosition newPos(current->position.GetX() + dx[i], current->position.GetY() + dy[i]);
           // Check if the neighbor is within bounds and is a valid move
-          if (this->main_grid.IsValid(newPos) && this->is_walkable(newPos))
+          if (this->main_grid.IsValid(newPos) && this->IsWalkable(newPos))
           {
             int newG = current->g + 1;                                                                                          // Assuming a cost of 1 to move to a neighbor
             int newH = std::abs(newPos.GetX() - endNode->position.GetX()) + std::abs(newPos.GetY() - endNode->position.GetY()); // Manhattan distance
