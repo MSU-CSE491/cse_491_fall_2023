@@ -10,17 +10,13 @@ FLAGS_grumpy  = $(FLAGS_all) -Wconversion -Weffc++  # Some extra picky warnings
 CXX = g++
 
 # List of all available executables
-EXECUTABLES = simple
+EXECUTABLES = simple simple_gp
 
 default: simple
 
 # Generic rule to build default version of any executable
 $(EXECUTABLES): %:
 	$(CXX) $@_main.cpp $(FLAGS_all) -o $@
-
-# Rule for simple GPAgent executable
-gpagent: simple_gp_main.cpp
-	$(CXX) simple_gp_main.cpp ./Group7GP/GPGraph.cpp $(FLAGS_all) -o gpagent
 
 # Generic rule to build debug version of any executable
 debug-%: 
@@ -36,7 +32,7 @@ quick-%:
 
 
 FILES_backup	= *~ *.dSYM
-FILES_generated = *.o $(EXECUTABLES) gpagent
+FILES_generated = *.o $(EXECUTABLES)
 
 clean:
 	rm -rf $(FILES_backup) $(FILES_generated)

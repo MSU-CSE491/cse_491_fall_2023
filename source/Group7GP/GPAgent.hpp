@@ -29,6 +29,7 @@ namespace cowboys
         GPAgent(size_t id, const std::string &name)
             : AgentBase(id, name)
         {
+            extra_state["previous_action"] = 0;
         }
         ~GPAgent() = default;
 
@@ -49,7 +50,7 @@ namespace cowboys
                             const cse491::item_set_t &item_set,
                             const cse491::agent_set_t &agent_set) override
         {
-            auto inputs = EncodeState(grid, type_options, item_set, agent_set, this);
+            auto inputs = EncodeState(grid, type_options, item_set, agent_set, this, extra_state);
             size_t action_to_take = decision_graph->MakeDecision(inputs);
 
             // Update extra state information.
