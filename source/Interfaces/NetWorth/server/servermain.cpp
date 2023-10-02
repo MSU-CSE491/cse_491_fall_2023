@@ -9,7 +9,6 @@
 #include<string>
 #include<vector>
 #include "../../../core/Data.hpp"
-// #include "../core/InterfaceBase.hpp"
 #include "../../TrashInterface.hpp"
 #include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"
