@@ -82,3 +82,21 @@ cmake --build .
 All compiled executables should be in the `/build/executables/` directory. 
 
 Note that if you tried to build using CMake before, it likely tried to use MSVC as a compiler. If so, just wipe the build folder and start fresh. 
+
+## How to compile in debug mode
+
+To compile in debug mode, simply add `-DCMAKE_BUILD_TYPE=Debug` to the first cmake command. 
+
+This would normally look like: 
+```
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+```
+Unless you're on Windows, which would be:
+
+```
+cmake -DCMAKE_BUILD_TYPE=Debug -G "MinGW Makefiles" ..
+```
+
+You can then build like normal. 
+
+Note that you can also replace `Debug` with `Release` to compile with optimizations. 
