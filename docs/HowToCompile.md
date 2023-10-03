@@ -1,0 +1,84 @@
+# How to Compile
+
+First you'll need to clone the repo _with submodules_. 
+
+If you haven't yet cloned the repo, run: 
+```
+git clone https://github.com/MSU-CSE491/cse_491_fall_2023.git --recursive
+```
+
+If you _have_ already cloned the repo, but you need to download the submodules, run the following inside the repo's directory:
+```
+git submodule init
+git submodule update
+```
+
+Now jump to the section for your operating system.
+
+## Compiling under Linux
+
+If you're on a Linux machine, you first need to download some dependencies for SFML. 
+Specifically, you need: 
+- freetype
+- x11
+- xrandr
+- udev
+- opengl
+- flac
+- ogg
+- vorbis
+- vorbisenc
+- vorbisfile
+- openal
+- pthread
+
+If you're on Ubuntu or other similar Debian distro, you can run the following: 
+```
+sudo apt install libX-dev
+```
+For library X. 
+
+Once you have all dependencies downloaded, navigate to the root of the repo and run the following to build: 
+```
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+All compiled executables should be in the `/build/executables/` directory. 
+
+## Compiling under MacOS
+
+Mac shouldn't require any additional dependencies, so simply run the following, starting at the root of the repo:
+```
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+All compiled executables should be in the `/build/executables/` directory. 
+
+## Compiling under Windows with MinGW
+
+After you have the repo and submodules downloaded, we need to ensure you have MinGW and CMake.
+In a command line window, try running `g++` and `cmake`, if either give a "command not found" message, then we need to install them. 
+
+MinGW gives us g++, and can be downloaded here: https://winlibs.com/
+
+CMake can be downloaded from here: https://cmake.org/download/
+
+***Note:*** You'll likely need to add both MinGW's and CMake's `bin` folder to your path (I think CMake has a `bin` directory, otherwise add whatever directory contains the executable). 
+To add a directory to your path, follow these instructions: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
+Note that you may run into issues if the directories you're adding have spaces in their paths (e.g., "C:\Program Files\..." was giving me issues). If you run into this, I'd recommend creating a new directory on your `C:\` drive, like `C:\bin\` and then add CMake and MinGW as subdirectories there. 
+
+Once you have CMake and MinGW working in your terminal (note you'll have to restart cmd/VSCode/whatever to get the path changes to take effect), run the following from the root of your repo:
+```
+mkdir build
+cd build
+cmake -G "MinGW Makefiles" ..
+cmake --build .
+```
+
+All compiled executables should be in the `/build/executables/` directory. 
+
+Note that if you tried to build using CMake before, it likely tried to use MSVC as a compiler. If so, just wipe the build folder and start fresh. 
