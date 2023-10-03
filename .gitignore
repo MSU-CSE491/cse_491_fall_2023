@@ -1,2 +1,17 @@
+# vscode cmake build
+build
 
-.idea/workspace.xml
+# clion cmake build
+cmake-build-debug
+cmake-build-release
+
+# clion settings
+.idea/
+
+# vscode settings
+.vscode/
+.github/
+
+# Vim swap files
+*.swp
+*.swo
