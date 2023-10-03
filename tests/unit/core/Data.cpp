@@ -13,7 +13,7 @@
 #include "core/AgentBase.hpp"
 
 TEST_CASE("CellType", "[core]"){
-  cse491::CellType cell_type("name", "desc", '@');
+  cse491::CellType cell_type{"name", "desc", '@'};
   CHECK(cell_type.name == "name");
   CHECK(cell_type.desc == "desc");
   CHECK(cell_type.symbol == '@');
