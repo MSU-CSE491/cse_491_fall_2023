@@ -24,4 +24,5 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${SOURCE_FILES})
 # Link your main executable with SFML libraries
 target_include_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/opt/sfml/include)
 target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets/grids DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/assets/grids)
+# moving assets to build
+file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

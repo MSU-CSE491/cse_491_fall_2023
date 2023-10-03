@@ -16,8 +16,7 @@ void runSimulation()
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
 //  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
-  cse491::i_2D::MainInterface mainInterface(0, "Main Interface");
-  world.AddAgent<cse491::i_2D::MainInterface>("Interface").SetProperty("char", '@');
+  world.AddAgent<i_2D::MainInterface>("Interface").SetProperty("char", '@');
 
   world.Run();
 }
