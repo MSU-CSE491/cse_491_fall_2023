@@ -37,7 +37,3 @@ FILES_generated = *.o $(EXECUTABLES)
 clean:
 	rm -rf $(FILES_backup) $(FILES_generated)
 
-
-CMAKE_GENERATEDFILES := cmake-build-debug cmake-build build
-CMakeClean:
-	rm -rf $(CMAKE_GENERATEDFILES)
