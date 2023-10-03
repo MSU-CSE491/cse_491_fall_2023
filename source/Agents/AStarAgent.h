@@ -54,16 +54,20 @@ namespace cse491
                                 const item_set_t & /* item_set*/,
                                 const agent_set_t & /* agent_set*/) override
             {
-                // TODO REMOVE THIS
+                if(world == nullptr){
+                    // Do nothing if the agent doesnt know about its world
+                    return 0;
+                }
                 // We are taking an action so another turn has passed
-                ++(this->current_move_num);
+                ++current_move_num;
                 // If the last step failed, or we need a new path the then regenerate the path
-                if (action_result == 0 || this->path.empty() || this->current_move_num > this->recalculate_after_x_turns)
+                if (action_result == 0 || path.empty() || current_move_num > recalculate_after_x_turns)
                 {
-                    this->path = this->world->shortest_path(GetPosition(), this->goal_position);
+                    path = world->shortest_path(GetPosition(), goal_position);
+                    current_move_num = 0;
                 }
                 // Return whatever action gets us closer to our goal
-                if (!this->path.empty())
+                if (!path.empty())
                 {
                     auto pos = path.back();
                     path.pop_back();
