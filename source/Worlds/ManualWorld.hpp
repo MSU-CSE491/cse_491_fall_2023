@@ -38,6 +38,13 @@ namespace cse491_team8 {
     }
     ~ManualWorld() = default;
 
+
+    /// @brief Checks the strength between two agents
+    /// @param other_agent The first agent to compare
+    /// @param agent The second agent to compare
+    /// Prints the stronger agent and removes the weaker
+    /// @see RemoveAgent
+    /// @return None
     void StrengthCheck(const std::unique_ptr<cse491::AgentBase> & other_agent, 
                      const std::unique_ptr<cse491::AgentBase> & agent) {
       if (other_agent->GetProperty("Strength") > agent->GetProperty("Strength")) {
@@ -50,7 +57,12 @@ namespace cse491_team8 {
       }
     }
    
-    inline bool CheckAround(const std::unique_ptr<cse491::AgentBase> & agent)
+    /// @brief Checks for agents adjacent to the given agent
+    /// Checks the strengths if an agent is found
+    /// @param agent The agent to look around
+    /// @see StrengthCheck
+    /// @return true if an agent was found, else false
+    bool CheckAround(const std::unique_ptr<cse491::AgentBase> & agent)
     {
       auto new_position = agent->GetPosition();
       for (auto& other_agent : agent_set)
@@ -67,6 +79,8 @@ namespace cse491_team8 {
       return false;
     }
 
+
+    /// Finds an interface agent and calls CheckAround
     void HandleNeighbors()
     {
       for (const auto& agent : agent_set)
@@ -79,6 +93,8 @@ namespace cse491_team8 {
       }
     }
 
+
+    /// Runs agents, updates the world, and looks for adjacencies
     void Run() override
     {
       run_over = false;
