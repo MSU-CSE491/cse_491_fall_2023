@@ -27,6 +27,10 @@ namespace cse491 {
         public:
             ServerInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) { }
             ~ServerInterface() = default;
+
+            void ProcessPacket(sf::Packet packet) override{
+
+            }
         };//End of class ServerInterface
     }//End of namespace netWorth
 } // End of namespace cse491
