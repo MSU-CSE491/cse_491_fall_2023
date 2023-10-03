@@ -20,15 +20,13 @@ namespace cse491 {
     namespace netWorth{
         class NetworkingInterface : public InterfaceBase {
         private:
-            UdpSocket mSocket;
-            std::string mServerIPAddress = "35.12.211.81";
-            //Thought about making mClients a shared pointer to a vector, but it'll be a vector for now
-            std::vector<std::string> mClients;
-            const unsigned short mClientPort = 5100;
-            const unsigned short mServerPort = 5101;
 
         protected:
-            
+            UdpSocket mSocket;
+            IpAddress mLocalAddress;
+            //Thought about making mClients a shared pointer to a vector, but it'll be a vector for now
+            std::vector<std::string> mClients;
+            unsigned short mPort;
 
         public:
             NetworkingInterface(size_t id, const std::string & name) : InterfaceBase(id, name) { }
@@ -38,7 +36,7 @@ namespace cse491 {
                 return mClients.empty();
             }
 
-            Packet CreateAPacket(std::string action){
+            virtual Packet CreateActionPacket(std::string action){
                 //Creating packet to send to server of actions
                 Packet packet;
                 size_t action_num = action_map[action];
@@ -47,15 +45,11 @@ namespace cse491 {
             }
 
 
-            void SendClientPacket(Packet packet, IpAddress destAddr){
-                mSocket.send(packet, destAddr, mServerPort);
+            virtual void SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
+                mSocket.send(packet, destAddr, port);
             }
 
-            void SendServerPacket(Packet packet, IpAddress destAddr){
-                mSocket.send(packet, destAddr, mClientPort);
-            }
-
-            void ReceivePacket(){
+            virtual void ReceivePacket(){
                 char buffer[1024];
                 std::size_t received = 0;
                 sf::IpAddress sender;
@@ -64,7 +58,11 @@ namespace cse491 {
                 std::cout << "Packet receieved. IP address: " << sender << std::endl;
             }
 
-
+            virtual void ProcessPacket(Packet packet){
+                std::string actionInd;
+                packet >> actionInd;
+                std::cout << actionInd;
+            }
         };
     }
   
