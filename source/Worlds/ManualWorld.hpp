@@ -21,6 +21,7 @@ namespace cse491_team8 {
     size_t floor_id; ///< Easy access to floor CellType ID.
     size_t tree_id;  ///< Easy access to tree CellType ID.
     size_t water_id;  ///< Easy access to water CellType ID.
+    size_t bridge_id;  ///< Easy access to bridge CellType ID.
 
     /// Provide the agent with movement actions.
     void ConfigAgent(cse491::AgentBase & agent) override {
@@ -36,7 +37,8 @@ namespace cse491_team8 {
       floor_id = AddCellType("grass", "Grass that you can easily walk over.", ' ');
       tree_id = AddCellType("tree", "Tree that you cannot pass without an axe.", '^');
       water_id = AddCellType("water", "Water that cannot be crossed without a boat.", '~');
-      main_grid.Read("../assets/grids/team8_grid.grid", type_options);
+      bridge_id = AddCellType("bridge", "Bridge that goes over water.", '#');
+      main_grid.Read("../assets/grids/team8_large_grid.grid", type_options);
     }
     ~ManualWorld() = default;
 

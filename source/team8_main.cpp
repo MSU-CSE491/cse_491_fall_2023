@@ -12,11 +12,11 @@
 int main()
 {
   cse491_team8::ManualWorld world;
-  world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 7).SetProperty("char", '@');
-  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 2).SetPosition(3,1);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2", "Strength", 4).SetPosition(6,1);
+  world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 7).SetProperty("char", '@').SetPosition(40,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 2).SetPosition(3,14);
+  world.AddAgent<cse491::PacingAgent>("Pacer 2", "Strength", 4).SetPosition(7,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 3", "Strength", 6).SetPosition(18,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 8).SetPosition(21,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 8).SetPosition(45,17);
 
   world.Run();
 }
