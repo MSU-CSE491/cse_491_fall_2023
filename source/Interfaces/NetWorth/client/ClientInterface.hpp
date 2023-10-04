@@ -39,9 +39,9 @@ namespace cse491 {
              * @param ip_string String for destination IP address, make into IpAddress object
              * @param port Destination port number
              */
-            ClientInterface(
+            ClientInterface(size_t id, const std::string & name,
                             const std::string & ip_string,
-                            unsigned short port) {
+                            unsigned short port) : NetworkingInterface(id, name) {
                 mIp = sf::IpAddress(ip_string);
                 mPort = port;
             }
@@ -57,23 +57,24 @@ namespace cse491 {
              */
             bool EstablishConnection() {
                 // send ping to server
-                std::string message = "Ping!";
-                if (mSocket.send(message.c_str(), message.size() + 1, mIp, mPort) != Socket::Status::Done) {
+                sf::Packet send_pkt;
+                sf::Packet recv_pkt;
+                std::string str = "Ping!";
+                send_pkt << str;
+
+                if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
                     std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
                     return false;
                 }
 
                 // receive pong from server
-                size_t received;
-                Packet recvPacket; // TODO: Make packets instead of C strings
-                if (mSocket.receive(recvPacket, mIp, mPort) != sf::Socket::Done)
+                if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
                 {
                     std::cout << "Failure to receive" << std::endl;
                     return false;
                 }
-                std::string data;
-                recvPacket >> data;
-                std::cout << data << std::endl;
+                recv_pkt >> str;
+                std::cout << str << std::endl;
 
                 return true;
             }
@@ -89,6 +90,16 @@ namespace cse491 {
                 sf::Packet recv_pkt;
                 std::string recv_str;
                 sf::Packet send_pkt;
+
+                recv_pkt >> recv_str;
+                std::cout << recv_str;
+
+                WorldGrid grid;
+                type_options_t type_options;
+                item_set_t item_set;
+                agent_set_t agent_set;
+                std::string action;
+
                 std::string send_str = "Requesting game";
                 send_pkt << send_str;
 
@@ -98,45 +109,57 @@ namespace cse491 {
                     return;
                 }
 
-                // receive initial map
-                if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
+                while (action != "quit")
                 {
-                    std::cout << "Failure to receive" << std::endl;
-                    return;
-                }
+                    // receive initial map
+                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
+                    {
+                        std::cout << "Failure to receive" << std::endl;
+                        return;
+                    }
+                    recv_pkt >> recv_str;
+                    std::cout << std::endl << recv_str;
 
-                std::cout << "Do you get here" << std::endl;
+                    valid_input = false;
+                    while (!valid_input) {
+                        do {
+                            std::cin >> input;
+                        } while (!std::cin);
 
-                recv_pkt >> recv_str;
-                std::cout << recv_str;
+                        switch (input) {
+                            case 'w': case 'W': action = "up";      valid_input = true; break;
+                            case 'a': case 'A': action = "left";    valid_input = true; break;
+                            case 's': case 'S': action = "down";    valid_input = true; break;
+                            case 'd': case 'D': action = "right";   valid_input = true; break;
+                            case 'q': case 'Q': action = "quit";    valid_input = true; break;
+                            default: valid_input = false;
+                        }
+                        if (!valid_input) {
+                            std::cout << "Your move?";
+                        }
+                    }
 
-                WorldGrid grid;
-                type_options_t type_options;
-                item_set_t item_set;
-                agent_set_t agent_set;
-                size_t action;
+                    // TODO: Unpack recv_pkt into world grid, agent list, etc
+                    // We need to serialize these classes...
+                    //recv_pkt >> grid >> type_options >> item_set >> agent_set;
 
-                while (true)
-                {
                     //action = mTrash->SelectAction(grid, type_options, item_set, agent_set);
-                    recv_str = "ping!";
-                    send_pkt << recv_str;
+                    //recv_str = "ping!";
+                    send_pkt.clear();
+                    send_pkt << action;
 
                     if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
                         std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
                         return;
                     }
 
+                    /*
                     if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
                     {
                         std::cout << "Failure to receive" << std::endl;
                         return;
                     }
-
-                    // TODO: Unpack recv_pkt into world grid, agent list, etc
-                    recv_pkt >> recv_str;
-                    std::cout << recv_str;
-
+                    */
 
                     /*
                     do {
@@ -174,9 +197,10 @@ namespace cse491 {
                     */
 
                 }
+
             }
         }; //End of ClientInterface
-    };// End of namespace NetWorth
+    }// End of namespace NetWorth
 
 
 } // End of namespace cse491
