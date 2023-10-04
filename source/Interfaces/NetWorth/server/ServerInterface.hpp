@@ -15,10 +15,15 @@
 #include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
 
+
+
 using namespace sf;
 
 namespace cse491 {
     namespace netWorth{
+
+        class NetworkMazeWorld;
+
         class ServerInterface : public NetworkingInterface {
         private:
         std::shared_ptr<cse491::netWorth::NetworkMazeWorld> mWorld;

@@ -35,7 +35,7 @@ private:
     NetworkMazeWorld() {
       floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
-      main_grid.Read("D:/C++_Programs/CSE_491/cse_491_fall_2023/assets/grids/default_maze.grid", type_options);
+      main_grid.Read("../../../../assets/grids/default_maze.grid", type_options);
     }
     ~NetworkMazeWorld() = default;
 
