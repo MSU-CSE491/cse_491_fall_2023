@@ -12,7 +12,11 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # all the possible executables [each team can have their own configuration]
 # copy over simple or same and change the accordingly
-set(EXECUTABLES simple sfml_example)
+set(EXECUTABLES
+        simple
+        sfml_example
+        Logging
+)
 
 
 # setting the output path to executable
@@ -29,9 +33,10 @@ set(SFML_BUILD_DIR sfml_build)
 set(MAIN_SOURCE_DIR ./)
 add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
+set(EASY_LOGGING source/core/EasyLogging.hpp)
 
 foreach(EXECUTABLE ${EXECUTABLES})
-    set(SOURCES source/${EXECUTABLE}_main.cpp)
+    set(SOURCES source/${EXECUTABLE}_main.cpp ${EASY_LOGGING})
     add_executable(${EXECUTABLE} ${SOURCES})
     target_include_directories(${EXECUTABLE}
       PRIVATE ${MAIN_SOURCE_DIR}
