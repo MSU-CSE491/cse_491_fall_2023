@@ -16,6 +16,7 @@ namespace cse491_team8 {
   class ManualWorld : public cse491::WorldBase {
   protected:
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK };
+    enum FacingDirection { UP=1, RIGHT, DOWN, LEFT};
 
     size_t floor_id; ///< Easy access to floor CellType ID.
     size_t tree_id;  ///< Easy access to tree CellType ID.
@@ -144,21 +145,25 @@ namespace cse491_team8 {
       }
       case MOVE_UP:      
       {
+        agent.SetFacingDirection(UP);
         new_position = agent.GetPosition().Above();
         break;
       }
       case MOVE_DOWN:    
       {
+        agent.SetFacingDirection(DOWN);
         new_position = agent.GetPosition().Below();
         break;
       }
       case MOVE_LEFT:    
       {
+        agent.SetFacingDirection(LEFT);
         new_position = agent.GetPosition().ToLeft();
         break;
       }
       case MOVE_RIGHT:   
       {
+        agent.SetFacingDirection(RIGHT);
         new_position = agent.GetPosition().ToRight();
         break;
       }
