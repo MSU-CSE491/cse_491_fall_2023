@@ -20,6 +20,7 @@
 #include <random>
 
 #include "../core/AgentBase.hpp"
+#include "./GPAgentSensors.hpp"
 
 /**
  * @brief yeeeeeeeehaaaaaaaaa
@@ -63,9 +64,16 @@ namespace cowboys
                 return action_map["right"]; // do nothing if it is out of bound for defined movement
             }
 
+            Sensors::leftWallDistance(grid, *this);
+            Sensors::rightWallDistance(grid, *this);
+            Sensors::topWallDistance(grid, *this);
+            Sensors::bottomWallDistance(grid, *this);
+
             auto action = action_map[predefinedMovement[movementIndex++]];
             return action;
         }
+
+
     };
 
 }
