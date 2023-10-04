@@ -24,7 +24,7 @@ namespace cse491 {
 
     int action_result=1;  ///< Usually a one (success) or zero (failure).
 
-    size_t facing_direction;    ///< Direction this agent is facing
+    size_t facing_direction=0;    ///< Direction this agent is facing
 
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
