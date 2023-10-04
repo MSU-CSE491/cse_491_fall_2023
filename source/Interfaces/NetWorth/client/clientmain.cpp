@@ -20,9 +20,10 @@ int main(int argc, char *argv[])
 
   std::string ip_string(argv[1]);
   unsigned short port = stoi(std::string(argv[2]));
-  cse491::netWorth::ClientInterface interface(1, "client", ip_string, port);
+  cse491::netWorth::ClientInterface interface(ip_string, port);
 
   if (!interface.EstablishConnection()) return 1;
+  std::cout << "Starting loop" << std::endl;
   interface.Loop();
 
   return 0;

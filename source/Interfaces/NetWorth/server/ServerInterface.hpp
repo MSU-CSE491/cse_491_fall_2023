@@ -13,6 +13,7 @@
 #include <SFML/Network/Packet.hpp>
 
 #include "../NetworkInterface.hpp"
+#include "networkingworld.hpp"
 
 using namespace sf;
 
@@ -20,13 +21,16 @@ namespace cse491 {
     namespace netWorth{
         class ServerInterface : public NetworkingInterface {
         private:
+        std::shared_ptr<cse491::netWorth::NetworkMazeWorld> mWorld;
+
 
         protected:
 
 
         public:
-            ServerInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) { }
+            ServerInterface() : NetworkingInterface() { }
             ~ServerInterface() = default;
+
 
             void ProcessPacket(sf::Packet packet) override{
 

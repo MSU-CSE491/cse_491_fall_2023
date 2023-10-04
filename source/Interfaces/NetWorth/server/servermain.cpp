@@ -12,7 +12,7 @@
 #include "../../TrashInterface.hpp"
 #include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"
-#include "../NetworkInterface.hpp"
+#include "ServerInterface.hpp"
 #include "networkingworld.hpp"
 
 Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t & type_options,
@@ -65,37 +65,87 @@ Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t
     return gridPacket;
 }
 
-int main()
-{
+int main() {
     //Create the world on the server side upon initialization
     //Add the pacing agents to just simply walk around
     //Once everything is added we simply wait for a response from a client that is connecting.
     cse491::netWorth::NetworkMazeWorld world;
-    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+    //Populate world with PacingAgents
+    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
 
-    UdpSocket serverSocket;
-    serverSocket.bind(55002);
+    cse491::netWorth::ServerInterface serverInterface;
 
-    std::cout << sf::IpAddress::getLocalAddress() << std::endl;
+    //Not going to add TrashInterface here, client will do that once it gets the world
+//    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
 
-    // Receive a message from anyone
-    char buffer[1024];
-    std::size_t received = 0;
-    sf::IpAddress sender;
+    //Endless server running
+    //Wait for initial connection
+    std::cout << "Server IP: " << sf::IpAddress::getLocalAddress() << std::endl;
+
+    serverInterface.GetSocket()->bind(55002);
+
+    IpAddress clientIP;
+
+    //Gets clientIP from connection
+    while (true) {
+        clientIP = serverInterface.ReceivePacket();
+        if (clientIP.toString() != "0.0.0.0") {
+            break;
+        }
+    }
+
+    std::cout << "Got Client IP. IP address: " << clientIP << std::endl;
+
+    Packet recv_pkt;
+    IpAddress sender;
     unsigned short port;
-    serverSocket.receive(buffer, sizeof(buffer), received, sender, port);
-    std::cout << sender.toString() << " said: " << buffer << std::endl;
-    
-    if(received){
-        std::string message = "Pong!";
-        serverSocket.send(message.c_str(), message.size() + 1, sender, port);
-        //world.NetworkRun(&serverSocket, sender, port);
+    std::string str;
+//    while (true) {
         cse491::item_set_t item_set;
         cse491::agent_set_t agent_set;
-        sf::Packet gridPacket = GridToPacket(world.GetGrid(), world.GetCellTypes(), item_set, agent_set);
-        serverSocket.send(gridPacket, sender, port);
-    }
-    
+        size_t input;
+
+        while (true) {
+            std::cout << "before gridpacket send" << std::endl;
+            sf::Packet gridPacket = GridToPacket(world.GetGrid(), world.GetCellTypes(), item_set, agent_set);
+            serverInterface.GetSocket()->send(gridPacket, sender, port);
+            std::cout << "after gridpacket send" << std::endl;
+
+            std::cout << "before serverinterface receive" << std::endl;
+            serverInterface.GetSocket()->receive(recv_pkt, sender, port);
+            std::cout << "after serverinterface receive" << std::endl;
+            recv_pkt >> str;
+            std::cout << str;
+        }
+
+
+//    while (true){
+//
+////        break;
+//    }
+//    UdpSocket serverSocket;
+//    serverSocket.bind(55002);
+//
+//    std::cout << sf::IpAddress::getLocalAddress() << std::endl;
+//
+//    // Receive a message from anyone
+//    char buffer[1024];
+//    std::size_t received = 0;
+//    sf::IpAddress sender;
+//    unsigned short port;
+//    serverSocket.receive(buffer, sizeof(buffer), received, sender, port);
+//    std::cout << sender.toString() << " said: " << buffer << std::endl;
+//
+//    if(received){
+//        std::string message = "Pong!";
+//        serverSocket.send(message.c_str(), message.size() + 1, sender, port);
+//        //world.NetworkRun(&serverSocket, sender, port);
+//        cse491::item_set_t item_set;
+//        cse491::agent_set_t agent_set;
+//        sf::Packet gridPacket = GridToPacket(world.GetGrid(), world.GetCellTypes(), item_set, agent_set);
+//        serverSocket.send(gridPacket, sender, port);
+//    }
+
+//    }
 }

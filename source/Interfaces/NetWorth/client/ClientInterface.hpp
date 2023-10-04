@@ -39,9 +39,9 @@ namespace cse491 {
              * @param ip_string String for destination IP address, make into IpAddress object
              * @param port Destination port number
              */
-            ClientInterface(size_t id, const std::string & name,
+            ClientInterface(
                             const std::string & ip_string,
-                            unsigned short port) : NetworkingInterface(id, name) {
+                            unsigned short port) {
                 mIp = sf::IpAddress(ip_string);
                 mPort = port;
             }
@@ -65,12 +65,14 @@ namespace cse491 {
 
                 // receive pong from server
                 size_t received;
-                char data[100]; // TODO: Make packets instead of C strings
-                if (mSocket.receive(data, 100, received, mIp, mPort) != sf::Socket::Done)
+                Packet recvPacket; // TODO: Make packets instead of C strings
+                if (mSocket.receive(recvPacket, mIp, mPort) != sf::Socket::Done)
                 {
                     std::cout << "Failure to receive" << std::endl;
                     return false;
                 }
+                std::string data;
+                recvPacket >> data;
                 std::cout << data << std::endl;
 
                 return true;
@@ -83,8 +85,18 @@ namespace cse491 {
                 char input;
                 bool valid_input = false;
                 bool wait_for_input = true;
+
                 sf::Packet recv_pkt;
                 std::string recv_str;
+                sf::Packet send_pkt;
+                std::string send_str = "Requesting game";
+                send_pkt << send_str;
+
+                // ask for map
+                if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
+                    std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
+                    return;
+                }
 
                 // receive initial map
                 if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
@@ -93,11 +105,40 @@ namespace cse491 {
                     return;
                 }
 
+                std::cout << "Do you get here" << std::endl;
+
                 recv_pkt >> recv_str;
                 std::cout << recv_str;
 
-                while (input != 'q')
+                WorldGrid grid;
+                type_options_t type_options;
+                item_set_t item_set;
+                agent_set_t agent_set;
+                size_t action;
+
+                while (true)
                 {
+                    //action = mTrash->SelectAction(grid, type_options, item_set, agent_set);
+                    recv_str = "ping!";
+                    send_pkt << recv_str;
+
+                    if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
+                        std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
+                        return;
+                    }
+
+                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
+                    {
+                        std::cout << "Failure to receive" << std::endl;
+                        return;
+                    }
+
+                    // TODO: Unpack recv_pkt into world grid, agent list, etc
+                    recv_pkt >> recv_str;
+                    std::cout << recv_str;
+
+
+                    /*
                     do {
                         std::cin >> input;
                     } while (!std::cin && wait_for_input);
@@ -128,14 +169,14 @@ namespace cse491 {
 
                         recv_pkt >> recv_str;
                         std::cout << recv_str;
+
                     }
+                    */
 
-                    valid_input = false;
                 }
-
             }
         }; //End of ClientInterface
-    }// End of namespace NetWorth
+    };// End of namespace NetWorth
 
 
 } // End of namespace cse491

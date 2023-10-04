@@ -18,7 +18,7 @@ using namespace sf;
 
 namespace cse491 {
     namespace netWorth{
-        class NetworkingInterface : public InterfaceBase {
+        class NetworkingInterface{
         private:
 
         protected:
@@ -29,33 +29,39 @@ namespace cse491 {
             unsigned short mPort;
 
         public:
-            NetworkingInterface(size_t id, const std::string & name) : InterfaceBase(id, name) { }
+            NetworkingInterface() = default;
             ~NetworkingInterface() = default;
 
-            bool isInactive(){
-                return mClients.empty();
+            UdpSocket * GetSocket(){
+                return &mSocket;
             }
-
-            virtual Packet CreateActionPacket(std::string action){
-                //Creating packet to send to server of actions
-                Packet packet;
-                size_t action_num = action_map[action];
-                packet << static_cast<int>(action_num);
-                return packet;
-            }
+//            virtual Packet CreateActionPacket(std::string action){
+//                //Creating packet to send to server of actions
+//                Packet packet;
+//                size_t action_num = action_map[action];
+//                packet << static_cast<int>(action_num);
+//                return packet;
+//            }
 
 
             virtual void SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
                 mSocket.send(packet, destAddr, port);
             }
 
-            virtual void ReceivePacket(){
+            virtual IpAddress ReceivePacket(){
                 char buffer[1024];
                 std::size_t received = 0;
                 sf::IpAddress sender;
                 unsigned short port;
                 mSocket.receive(buffer, sizeof(buffer), received, sender, port);
-                std::cout << "Packet receieved. IP address: " << sender << std::endl;
+
+                if (received){
+                    sf::Packet messagePacket;
+                    std::string message = "Pong";
+                    messagePacket << message;
+                    mSocket.send(messagePacket, sender, port);
+                }
+                return sender;
             }
 
             virtual void ProcessPacket(Packet packet){
