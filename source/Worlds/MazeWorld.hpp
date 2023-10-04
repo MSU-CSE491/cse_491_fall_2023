@@ -38,6 +38,7 @@ namespace cse491 {
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
 
       spike_id = AddCellType("spike", "Dangerous spike that resets the game.", 'X');
+
       tar_id = AddCellType("tar", "Slow tile that makes you take two steps to get through it", 'O');
 
       main_grid.Read("../assets/grids/default_maze.grid", type_options);
@@ -64,7 +65,9 @@ namespace cse491 {
       // Check if the agent is trying to move onto a spike.
       if (main_grid.At(new_position) == spike_id) {
 
-
+      std::cout << "Game over, try again!" << std::endl;
+      exit(0);  // Halting the program
+      
       return false;
       }
 
