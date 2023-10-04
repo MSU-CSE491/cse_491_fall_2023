@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/jcbar/Desktop/CSE491/Project/group_1_cse_491/tests/unit
+# Install script for directory: C:/Users/Yousif/Desktop/School/2023-FALL/CSE-491/Project/group_1_cse_491/tests/unit
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,12 +34,12 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Users/jcbar/Desktop/mingw64/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "C:/Users/Yousif/Desktop/mingw64/bin/objdump.exe")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/jcbar/Desktop/CSE491/Project/group_1_cse_491/tests/build/unit/core/cmake_install.cmake")
+  include("C:/Users/Yousif/Desktop/School/2023-FALL/CSE-491/Project/group_1_cse_491/tests/build/unit/core/cmake_install.cmake")
 
 endif()
 

@@ -47,27 +47,27 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\CMake\bin\cmake.exe"
+CMAKE_COMMAND = C:\Users\Yousif\Desktop\mingw64\bin\cmake.exe
 
 # The command to remove a file.
-RM = "C:\Program Files\CMake\bin\cmake.exe" -E rm -f
+RM = C:\Users\Yousif\Desktop\mingw64\bin\cmake.exe -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests
+CMAKE_SOURCE_DIR = C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build
+CMAKE_BINARY_DIR = C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
-	"C:\Program Files\CMake\bin\cmake-gui.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
+	C:\Users\Yousif\Desktop\mingw64\bin\cmake.exe -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -77,7 +77,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake to regenerate build system..."
-	"C:\Program Files\CMake\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	C:\Users\Yousif\Desktop\mingw64\bin\cmake.exe --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -86,14 +86,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(CMAKE_COMMAND) -E cmake_progress_start C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build\CMakeFiles C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build\unit\core\\CMakeFiles\progress.marks
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build\CMakeFiles 0
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build\CMakeFiles C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build\unit\core\\CMakeFiles\progress.marks
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/all
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/clean
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/clean
 .PHONY : clean
 
 # The main clean target
@@ -102,22 +102,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/preinstall
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/preinstall
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 1
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 unit/core/CMakeFiles/tests-unit-core-Data.dir/rule:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/CMakeFiles/tests-unit-core-Data.dir/rule
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/CMakeFiles/tests-unit-core-Data.dir/rule
 .PHONY : unit/core/CMakeFiles/tests-unit-core-Data.dir/rule
 
 # Convenience name for target.
@@ -126,12 +126,12 @@ tests-unit-core-Data: unit/core/CMakeFiles/tests-unit-core-Data.dir/rule
 
 # fast build rule for target.
 tests-unit-core-Data/fast:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/build
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/build
 .PHONY : tests-unit-core-Data/fast
 
 # Convenience name for target.
 unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/rule:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/rule
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/rule
 .PHONY : unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/rule
 
 # Convenience name for target.
@@ -140,7 +140,7 @@ tests-unit-core-WorldGrid: unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/ru
 
 # fast build rule for target.
 tests-unit-core-WorldGrid/fast:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/build
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/build
 .PHONY : tests-unit-core-WorldGrid/fast
 
 Data.obj: Data.cpp.obj
@@ -148,7 +148,7 @@ Data.obj: Data.cpp.obj
 
 # target to build an object file
 Data.cpp.obj:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/Data.cpp.obj
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/Data.cpp.obj
 .PHONY : Data.cpp.obj
 
 Data.i: Data.cpp.i
@@ -156,7 +156,7 @@ Data.i: Data.cpp.i
 
 # target to preprocess a source file
 Data.cpp.i:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/Data.cpp.i
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/Data.cpp.i
 .PHONY : Data.cpp.i
 
 Data.s: Data.cpp.s
@@ -164,7 +164,7 @@ Data.s: Data.cpp.s
 
 # target to generate assembly for a file
 Data.cpp.s:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/Data.cpp.s
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-Data.dir\build.make unit/core/CMakeFiles/tests-unit-core-Data.dir/Data.cpp.s
 .PHONY : Data.cpp.s
 
 WorldGrid.obj: WorldGrid.cpp.obj
@@ -172,7 +172,7 @@ WorldGrid.obj: WorldGrid.cpp.obj
 
 # target to build an object file
 WorldGrid.cpp.obj:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/WorldGrid.cpp.obj
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/WorldGrid.cpp.obj
 .PHONY : WorldGrid.cpp.obj
 
 WorldGrid.i: WorldGrid.cpp.i
@@ -180,7 +180,7 @@ WorldGrid.i: WorldGrid.cpp.i
 
 # target to preprocess a source file
 WorldGrid.cpp.i:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/WorldGrid.cpp.i
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/WorldGrid.cpp.i
 .PHONY : WorldGrid.cpp.i
 
 WorldGrid.s: WorldGrid.cpp.s
@@ -188,7 +188,7 @@ WorldGrid.s: WorldGrid.cpp.s
 
 # target to generate assembly for a file
 WorldGrid.cpp.s:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/WorldGrid.cpp.s
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(MAKE) $(MAKESILENT) -f unit\core\CMakeFiles\tests-unit-core-WorldGrid.dir\build.make unit/core/CMakeFiles/tests-unit-core-WorldGrid.dir/WorldGrid.cpp.s
 .PHONY : WorldGrid.cpp.s
 
 # Help Target
@@ -218,6 +218,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /d C:\Users\jcbar\Desktop\CSE491\Project\group_1_cse_491\tests\build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 0
+	cd /d C:\Users\Yousif\Desktop\School\2023-FALL\CSE-491\Project\group_1_cse_491\tests\build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 0
 .PHONY : cmake_check_build_system
 
