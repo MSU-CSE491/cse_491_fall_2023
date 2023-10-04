@@ -6,7 +6,8 @@ enum class LogLevel {
     DEBUG,
     INFO,
     WARNING,
-    ERROR
+    ERROR,
+    NA
 };
 
 enum class Team {
@@ -55,6 +56,7 @@ public:
             currentTeam = Team::NA;
             currentLogLevel = LogLevel::DEBUG;
             currentColor = Color::RESET;
+
         }
         return *this;
     }
@@ -65,7 +67,7 @@ public:
         if (currentLogLevel >= LOGLEVEL)
         {
             std::ostringstream logMessage;
-            logMessage << "\033[" << static_cast<int>(currentColor) << "m[" << teamToString(currentTeam) << "]" << logToString(currentLogLevel) << " " << value << "\033[0m";
+            logMessage << "\033[" << static_cast<int>(currentColor) << "m" << teamToString(currentTeam) << logToString(currentLogLevel)  << value << "\033[0m";
             std::cout << logMessage.str() << std::endl;
         }
         #endif
@@ -96,7 +98,6 @@ private:
             {Team::TEAM_7, "Team 7"},
             {Team::TEAM_8, "Team 8"},
             {Team::TEAM_9, "Team 9"},
-            {Team::NA, "NA"},
             {Team::GENERAL, "General"}
     };
 
@@ -104,22 +105,22 @@ private:
 
         auto it = teamToStringMap.find(team);
         if (it != teamToStringMap.end()) {
-            return it->second;
+            return "[" + it->second + "]";
         }
 
-        return "Unknown Team";
+        return "";
 
     }
 
     std::string logToString(LogLevel logLevel) {
         if (logLevel == LogLevel::DEBUG) {
-            return "(DEBUG)";
+            return "(DEBUG) " ;
         } else if (logLevel == LogLevel::INFO) {
-            return "(INFO)";
+            return "(INFO) ";
         } else if (logLevel == LogLevel::WARNING) {
-            return "(WARNING)";
+            return "(WARNING) ";
         } else if (logLevel == LogLevel::ERROR) {
-            return "(ERROR)";
+            return "(ERROR) ";
         } else {
             return "";
         }
