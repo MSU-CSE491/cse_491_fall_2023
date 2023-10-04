@@ -15,7 +15,7 @@ TEST_CASE("Agent construction", "[gp_agents]")
     SECTION("Inheritance from AgentBase")
     {
         cowboys::GPAgent agent{1, "name"};
-        REQUIRE(agent.GetID() == 1);
-        REQUIRE(agent.GetName() == "name");
+        CHECK(agent.GetID() == 1);
+        CHECK(agent.GetName() == "name");
     }
 }
