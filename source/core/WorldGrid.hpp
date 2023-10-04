@@ -15,6 +15,7 @@
 
 #include "CoreObject.hpp"
 #include "GridPosition.hpp"
+#include "Data.hpp"
 
 namespace cse491 {
 
@@ -71,13 +72,13 @@ namespace cse491 {
     [[nodiscard]] size_t GetNumCells() const { return cells.size(); }
 
     /// Test if specific coordinates are in range for this GridWorld.
-    [[nodiscard]] bool IsValid(size_t x, size_t y) const {
-      return x < width && y < height;
+    [[nodiscard]] bool IsValid(double x, double y) const {
+      return x >= 0.0 && x < width && y >= 0.0 && y < height;
     }
 
     /// Test if a GridPosition is in range for this GridWorld.
     [[nodiscard]] bool IsValid(GridPosition pos) const {
-      return IsValid(pos.CellX(), pos.CellY());
+      return IsValid(pos.GetX(), pos.GetY());
     }
 
     /// @return The grid state at the provided x and y coordinates
