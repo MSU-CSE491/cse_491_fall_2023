@@ -1,7 +1,13 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": []
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/yonesmussa/Desktop/CSE491/cse_491_fall_2023_group2",
+      "program": "/Users/yonesmussa/Desktop/CSE491/cse_491_fall_2023_group2/build/Debug/outDebug"
+    }
+  ]
 }

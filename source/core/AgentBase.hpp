@@ -53,6 +53,10 @@ namespace cse491 {
       return it->second;
     }
 
+    [[nodiscard]] std::unordered_map<std::string, size_t> GetActionMap() {
+        return action_map;
+    }
+
     /// Provide a new action that this agent can take.
     virtual AgentBase & AddAction(const std::string & action_name, size_t action_id) {
       assert(!HasAction(action_name)); // Cannot add existing action name.

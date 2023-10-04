@@ -19,6 +19,8 @@
 
 namespace cse491 {
 
+class DataReceiver;
+
   class WorldBase {
   protected:
     /// This is the main grid for this world;
@@ -30,6 +32,8 @@ namespace cse491 {
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
     std::shared_ptr<DataCollection::GridPositionReceiver> grid_receiver;
+
+    
 
     bool run_over = false;   ///< Should the run end?
 
@@ -126,11 +130,17 @@ namespace cse491 {
         int result = DoAction(*agent_ptr, action_id);
         agent_ptr->SetActionResult(result);
       }
+
     }
 
+
+
     void CollectData() {
+
       auto & agent = agent_set.at(2);
       grid_receiver->store_data(agent->GetPosition());
+      grid_receiver->store_actions(agent->GetActionMap());
+      // grid_receiver->DebugPrint();
     }
 
     /// @brief UpdateWorld() is run after every agent has a turn.
@@ -138,7 +148,7 @@ namespace cse491 {
     virtual void UpdateWorld() { }
 
     /// @brief Run all agents repeatedly until an end condition is met.
-    virtual void Run() {
+    virtual void Run() {      
       run_over = false;
       while (!run_over) {
         RunAgents();
