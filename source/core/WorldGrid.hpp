@@ -124,6 +124,12 @@ namespace cse491 {
     }
 
 
+    /// TK NOT working yet, for dropping a loot item at the given lcoation
+    void AddLoot(size_t x, size_t y, char loot) {
+        cells[ToIndex(x, y)] = loot;
+    }
+
+
     // -- Read and Write functions --
     // These are the same idea as Save and Load, but they are human readable, but they
     // also require that each state has been assigned a unique character symbol.

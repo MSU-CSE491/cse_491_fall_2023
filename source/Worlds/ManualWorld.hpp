@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cassert>
+#include <stdlib.h>
 
 #include "../core/WorldBase.hpp"
 
@@ -40,8 +41,8 @@ namespace cse491_team8 {
 
 
     /// @brief Checks the strength between two agents
-    /// @param other_agent The first agent to compare
-    /// @param agent The second agent to compare
+    /// @param other_agent The autonomous agent to compare
+    /// @param agent The interface (player) agent to compare
     /// Prints the stronger agent and removes the weaker
     /// @see RemoveAgent
     /// @return None
@@ -53,7 +54,32 @@ namespace cse491_team8 {
       }
       else {
         std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
+
+        cse491::GridPosition position = other_agent->GetPosition();
+        int x = position.GetX();
+        int y = position.GetY();
         this->RemoveAgent(other_agent->GetName());
+
+        // get the loot dropped from the agent
+        int random = rand() % 10;
+        char loot = ' ';
+        if (random <= 4) {
+            loot = '/';
+        }
+        else if (random <= 7) {
+            loot = '|';
+        }
+        else if (random <= 9) {
+            loot = '{';
+        }
+        else {
+            loot = '!';
+        }
+
+        // put the loot where the agent was
+        cse491::WorldGrid grid = GetGrid();
+        grid.AddLoot(x, y, loot);   // TK does not currently display properly
+
       }
     }
    
