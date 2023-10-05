@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cassert>
+#include <random>
 
 #include "../core/WorldBase.hpp"
 
@@ -22,6 +23,12 @@ namespace cse491 {
     size_t spike_id;  ///< Easy access to spike CellType ID.
     size_t tar_id; ///< Easy access to tar CellTypeID
 
+    size_t grass_id;
+    size_t dirt_id;
+
+    unsigned int seed; ///< Seed used for generator
+    std::mt19937 randomGenerator;
+
 
     /// Provide the agent with movement actions.
     void ConfigAgent(AgentBase & agent) override {
@@ -33,7 +40,11 @@ namespace cse491 {
     }
 
   public:
-    MazeWorld() {
+    /**
+     * Initializes world with cell types and random generator
+     * @param seed Seed used for RNG. Default is current time
+     */
+    explicit MazeWorld(unsigned int seed = time(nullptr)) : seed(seed) {
       floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
 
@@ -41,7 +52,12 @@ namespace cse491 {
 
       tar_id = AddCellType("tar", "Slow tile that makes you take two steps to get through it", 'O');
 
+      grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
+      dirt_id  = AddCellType("dirt", "Dirt you can walk on.", '~');
+
       main_grid.Read("../assets/grids/default_maze.grid", type_options);
+
+      randomGenerator.seed(seed);
     }
     ~MazeWorld() = default;
 
@@ -67,7 +83,7 @@ namespace cse491 {
 
       std::cout << "Game over, try again!" << std::endl;
       exit(0);  // Halting the program
-      
+
       return false;
       }
 

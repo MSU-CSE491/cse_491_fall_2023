@@ -4,6 +4,10 @@ project(GROUP6)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(GROUP6 source/simple_main.cpp source/Worlds/MazeGeneration.cpp source/Worlds/MazeGeneration.h)
+add_executable(GROUP6 source/simple_main.cpp source/Worlds/MazeGeneration.cpp source/Worlds/MazeGeneration.h
+        source/Worlds/BiomeGenerator.cpp
+        source/Worlds/BiomeGenerator.h
+        source/Worlds/PerlinNoise.hpp
+)
 
 target_compile_options(GROUP6 PRIVATE -Wall -Wpedantic -Werror)

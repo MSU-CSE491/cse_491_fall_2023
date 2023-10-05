@@ -9,17 +9,23 @@
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 #include "Worlds/MazeGeneration.h"
+#include "Worlds/BiomeGenerator.h"
 
-int main()
-{
+int main() {
+    static const unsigned int SEED = 456;
+
     MazeGeneration maze(21, 9); // Set width and height
     maze.generate();
     maze.saveToFile("../assets/grids/default_maze.grid");
 
-  cse491::MazeWorld world;
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+    BiomeGenerator biomeGenerator(30, 30, SEED);
+    biomeGenerator.generate();
+    //biomeGenerator.saveToFile("../assets/grids/default_maze2.grid");
 
-  world.Run();
+    cse491::MazeWorld world(SEED);
+    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
+    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+
+    world.Run();
 }
