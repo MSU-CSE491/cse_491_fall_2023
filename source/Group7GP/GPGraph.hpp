@@ -39,6 +39,10 @@ namespace cowboys
 
         std::shared_ptr<GraphNode> GetInput(size_t input_idx) const
         {
+            if (inputs.size() == 0) {
+                // Throw error if no inputs
+                throw std::runtime_error("No inputs");
+            }
             if (input_idx >= inputs.size())
                 // Return last input if out of bounds
                 return inputs.back();
