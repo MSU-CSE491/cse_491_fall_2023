@@ -51,6 +51,9 @@ enum class Color {
 const LogLevel LOGLEVEL = LogLevel::DEBUG;
 
 
+/// @brief Ensure that we only log when NDEBUG flg is not set
+#ifndef NDEBUG
+
 /**
  * @brief Logger class with colors and team names
  * @author @amantham20 @chatGPT
@@ -67,7 +70,7 @@ public:
      * @param team name of the team
      * @return Logger& 
      */
-    Logger& operator<<(Team team) {
+    Logger &operator<<(Team team) {
         currentTeam = team;
 //         std::cout << endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
         return *this;
@@ -79,7 +82,7 @@ public:
      * @param logLevel Level/Type of the log
      * @return Logger& 
      */
-    Logger& operator<<(LogLevel logLevel) {
+    Logger &operator<<(LogLevel logLevel) {
         currentLogLevel = logLevel;
         return *this;
     }
@@ -90,7 +93,7 @@ public:
      * @param color 
      * @return Logger& 
      */
-    Logger& operator<<(Color color) {
+    Logger &operator<<(Color color) {
         currentColor = color;
         return *this;
     }
@@ -101,13 +104,14 @@ public:
      * @param manipulator 
      * @return Logger& 
      */
-    Logger& operator<<(std::ostream& (*manipulator)(std::ostream&)) {
+    Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
         if (manipulator == endl) {
 
             currentTeam = Team::NA;
             currentLogLevel = LogLevel::DEBUG;
             currentColor = Color::RESET;
-             std::cout << std::endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
+            std::cout
+                    << std::endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
         }
         return *this;
     }
@@ -122,21 +126,30 @@ public:
      * 
      * @TODO: Might have to change this so that we only break a team log when a new team is set. aka ensure that  logger << Team::TEAM_1 << "Hello" << "World" << endl; works in one line with one team print
      */
-    template <typename T>
-    Logger& operator<<(const T& value) {
+    template<typename T>
+    Logger &operator<<(const T &value) {
 
-        /// @brief Ensure that we only log when NDEBUG flg is not set
-        #ifndef NDEBUG
-        if (currentLogLevel >= LOGLEVEL)
-        {
+
+        //TODO: Define when to log by loglevel comparison. Goal is to send it in as a flag in the CMakeLists.txt
+        if (currentLogLevel >= LOGLEVEL) {
+
+            // added additional flag in case one wants to compile without colors (or) if the terminal does not support colors
+            #ifndef D_ANSI_COLOR_CODES
+            std::string colorStart = "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
+            std::string colorEnd = "\033[0m";
+            #else
+            std::string colorStart = "";
+            std::string colorEnd = "";
+            #endif
             std::ostringstream logMessage;
-            logMessage << "\033[" << static_cast<int>(currentColor) << "m" << teamToString(currentTeam) << logToString(currentLogLevel)  << value << "\033[0m";
-            std::cout << logMessage.str(); // << std::endl;  //TODO: Might have to make enable this so that we can have same line logging when endl is not used
+            logMessage << colorStart << teamToString(currentTeam)
+                       << logToString(currentLogLevel) << value << colorEnd;
+            std::cout
+                    << logMessage.str(); // << std::endl;  //TODO: Might have to make enable this so that we can have same line logging when endl is not used
         }
-        #endif
+
         return *this;
     }
-
 
 
     static Logger log; /// Global log instance //TODO: Check if poluting the global namespace is a good idea??
@@ -147,7 +160,7 @@ public:
      * @param os 
      * @return std::ostream& 
      */
-    static std::ostream& endl(std::ostream& os) {
+    static std::ostream &endl(std::ostream &os) {
 
         log << std::endl; // Call the custom Logger::endl to reset values
         return os;
@@ -168,15 +181,15 @@ private:
      * 
      */
     std::map<Team, std::string> teamToStringMap = {
-            {Team::TEAM_1, "Team 1"},
-            {Team::TEAM_2, "Team 2"},
-            {Team::TEAM_3, "Team 3"},
-            {Team::TEAM_4, "Team 4"},
-            {Team::TEAM_5, "Team 5"},
-            {Team::TEAM_6, "Team 6"},
-            {Team::TEAM_7, "Team 7"},
-            {Team::TEAM_8, "Team 8"},
-            {Team::TEAM_9, "Team 9"},
+            {Team::TEAM_1,  "Team 1"},
+            {Team::TEAM_2,  "Team 2"},
+            {Team::TEAM_3,  "Team 3"},
+            {Team::TEAM_4,  "Team 4"},
+            {Team::TEAM_5,  "Team 5"},
+            {Team::TEAM_6,  "Team 6"},
+            {Team::TEAM_7,  "Team 7"},
+            {Team::TEAM_8,  "Team 8"},
+            {Team::TEAM_9,  "Team 9"},
             {Team::GENERAL, "General"}
     };
 
@@ -205,7 +218,7 @@ private:
      */
     std::string logToString(LogLevel logLevel) {
         if (logLevel == LogLevel::DEBUG) {
-            return "(DEBUG) " ;
+            return "(DEBUG) ";
         } else if (logLevel == LogLevel::INFO) {
             return "(INFO) ";
         } else if (logLevel == LogLevel::WARNING) {
@@ -220,3 +233,25 @@ private:
 
 /// @brief Global log instance
 Logger Logger::log;
+
+#else
+class Logger {
+public:
+    template <typename T>
+    Logger& operator<<(const T& value) {
+        return *this;
+    }
+
+    Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
+        return *this;
+    }
+
+    static std::ostream &endl(std::ostream &os) {
+        return os;
+    }
+
+    static Logger log;
+};
+
+Logger Logger::log;
+#endif
