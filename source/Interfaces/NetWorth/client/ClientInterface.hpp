@@ -99,7 +99,7 @@ namespace cse491 {
                 agent_set_t agent_set;
                 std::string action;
 
-                std::string send_str = "Requesting game";
+                std::string send_str = "Game started";
                 send_pkt << send_str;
 
                 // ask for map
@@ -151,50 +151,6 @@ namespace cse491 {
                         std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
                         return;
                     }
-
-                    /*
-                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
-                    {
-                        std::cout << "Failure to receive" << std::endl;
-                        return;
-                    }
-                    */
-
-                    /*
-                    do {
-                        std::cin >> input;
-                    } while (!std::cin && wait_for_input);
-
-                    switch (input) {
-                        case 'w': case 'W': valid_input = true;   break;
-                        case 'a': case 'A': valid_input = true;   break;
-                        case 's': case 'S': valid_input = true;   break;
-                        case 'd': case 'D': valid_input = true;   break;
-                        case 'q': case 'Q': valid_input = true;   break;
-                        default: valid_input = false;
-                    }
-
-                    // If we waited for input, but don't understand it, notify the user.
-                    if (wait_for_input && !valid_input) {
-                        std::cout << "Unknown key '" << input << "'." << std::endl;
-                    } else {
-                        if (mSocket.send(&input, 1, mIp, mPort) != Socket::Status::Done) {
-                            std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
-                            return;
-                        }
-
-                        if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
-                        {
-                            std::cout << "Failure to receive" << std::endl;
-                            return;
-                        }
-
-                        recv_pkt >> recv_str;
-                        std::cout << recv_str;
-
-                    }
-                    */
-
                 }
 
             }

@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
   cse491::netWorth::ClientInterface interface(ip_string, port);
 
   if (!interface.EstablishConnection()) return 1;
-  std::cout << "Starting loop" << std::endl;
   interface.Loop();
 
   return 0;
