@@ -141,6 +141,8 @@ namespace cowboys
         }
     };
 
+    using GraphLayer = std::vector<std::shared_ptr<GraphNode>>;
+
     class Graph
     {
     protected:
@@ -148,11 +150,25 @@ namespace cowboys
         std::vector<size_t> actions;
 
         /// Layers of nodes in the graph.
-        std::vector<std::vector<std::shared_ptr<GraphNode>>> layers;
+        std::vector<GraphLayer> layers;
 
     public:
         Graph(const std::vector<size_t> &action_vec) : actions{action_vec} { assert(actions.size() > 0); }
         ~Graph() = default;
+
+        size_t GetNodeCount() const
+        {
+            size_t count = 0;
+            for (const auto &layer : layers)
+            {
+                count += layer.size();
+            }
+            return count;
+        }
+
+        size_t GetLayerCount() const {
+            return layers.size();
+        }
 
         size_t MakeDecision(const std::vector<double> &inputs)
         {
@@ -198,7 +214,7 @@ namespace cowboys
             return action;
         }
 
-        void AddLayer(const std::vector<std::shared_ptr<GraphNode>> &layer) { layers.push_back(layer); }
+        void AddLayer(const GraphLayer &layer) { layers.push_back(layer); }
     };
 
     /// @brief Encodes the actions from an agent's action map into a vector of size_t, representing action IDs.
@@ -219,9 +235,9 @@ namespace cowboys
     /// @brief Translates state into nodes for the decision graph.
     /// @return A vector of doubles for the decision graph.
     std::vector<double> EncodeState(const cse491::WorldGrid &grid,
-                                    const cse491::type_options_t &/*type_options*/,
-                                    const cse491::item_set_t &/*item_set*/,
-                                    const cse491::agent_set_t &/*agent_set*/,
+                                    const cse491::type_options_t & /*type_options*/,
+                                    const cse491::item_set_t & /*item_set*/,
+                                    const cse491::agent_set_t & /*agent_set*/,
                                     const cse491::Entity *agent,
                                     const std::unordered_map<std::string, double> &extra_agent_state)
     {
@@ -246,12 +262,46 @@ namespace cowboys
     class GraphBuilder
     {
     protected:
-        /// Action map from the agent
-        const std::unordered_map<std::string, size_t> action_map;
+        /// Action ids from the agent's action map
+        std::vector<size_t> actions;
 
     public:
-        GraphBuilder(const std::unordered_map<std::string, size_t> &action_map) : action_map{action_map} {}
+        GraphBuilder(const std::unordered_map<std::string, size_t> &action_map) : actions{EncodeActions(action_map)} {}
         ~GraphBuilder() = default;
+
+        std::unique_ptr<Graph> CartesianGraph(size_t num_inputs, size_t num_outputs, size_t num_layers, size_t num_nodes_per_layer)
+        {
+            auto decision_graph = std::make_unique<Graph>(actions);
+
+            // Input layer
+            GraphLayer input_layer;
+            for (size_t i = 0; i < num_inputs; ++i)
+            {
+                input_layer.push_back(std::make_shared<GraphNode>(0));
+            }
+            decision_graph->AddLayer(input_layer);
+
+            // Middle Layers
+            for (size_t i = 0; i < num_layers; ++i)
+            {
+                GraphLayer layer;
+                for (size_t j = 0; j < num_nodes_per_layer; ++j)
+                {
+                    layer.push_back(std::make_shared<GraphNode>(0));
+                }
+                decision_graph->AddLayer(layer);
+            }
+
+            // Action layer
+            GraphLayer output_layer;
+            for (size_t i = 0; i < num_outputs; ++i)
+            {
+                output_layer.push_back(std::make_shared<GraphNode>(0));
+            }
+            decision_graph->AddLayer(output_layer);
+
+            return decision_graph;
+        }
 
         /// @brief Creates a decision graph for pacing up and down in a MazeWorld.
         /// Assumes that the inputs are in the format: prev_action, current_state, above_state, below_state, left_state, right_state
@@ -259,9 +309,9 @@ namespace cowboys
         /// @return
         std::unique_ptr<Graph> VerticalPacer()
         {
-            auto decision_graph = std::make_unique<Graph>(EncodeActions(action_map));
+            auto decision_graph = std::make_unique<Graph>(actions);
 
-            std::vector<std::shared_ptr<GraphNode>> input_layer;
+            GraphLayer input_layer;
             std::shared_ptr<GraphNode> prev_action = std::make_shared<GraphNode>(0);
             std::shared_ptr<GraphNode> current_state = std::make_shared<GraphNode>(0);
             std::shared_ptr<GraphNode> above_state = std::make_shared<GraphNode>(0);
@@ -272,51 +322,51 @@ namespace cowboys
             decision_graph->AddLayer(input_layer);
 
             // state == 1 => floor which is walkable
-            std::vector<std::shared_ptr<GraphNode>> obstruction_layer;
+            GraphLayer obstruction_layer;
             std::shared_ptr<GraphNode> up_not_blocked = std::make_shared<AnyEqNode>();
-            up_not_blocked->AddInputs(std::vector<std::shared_ptr<GraphNode>>{above_state, std::make_shared<GraphNode>(1)});
+            up_not_blocked->AddInputs(GraphLayer{above_state, std::make_shared<GraphNode>(1)});
             std::shared_ptr<GraphNode> down_not_blocked = std::make_shared<AnyEqNode>();
-            down_not_blocked->AddInputs(std::vector<std::shared_ptr<GraphNode>>{below_state, std::make_shared<GraphNode>(1)});
+            down_not_blocked->AddInputs(GraphLayer{below_state, std::make_shared<GraphNode>(1)});
             obstruction_layer.insert(obstruction_layer.end(), {up_not_blocked, down_not_blocked});
             decision_graph->AddLayer(obstruction_layer);
 
             // Separate previous action into up and down nodes
-            std::vector<std::shared_ptr<GraphNode>> prev_action_layer;
+            GraphLayer prev_action_layer;
             std::shared_ptr<GraphNode> up_prev_action = std::make_shared<AnyEqNode>();
-            up_prev_action->AddInputs(std::vector<std::shared_ptr<GraphNode>>{prev_action, std::make_shared<GraphNode>(1)});
+            up_prev_action->AddInputs(GraphLayer{prev_action, std::make_shared<GraphNode>(1)});
             std::shared_ptr<GraphNode> down_prev_action = std::make_shared<AnyEqNode>();
-            down_prev_action->AddInputs(std::vector<std::shared_ptr<GraphNode>>{prev_action, std::make_shared<GraphNode>(2)});
+            down_prev_action->AddInputs(GraphLayer{prev_action, std::make_shared<GraphNode>(2)});
             prev_action_layer.insert(prev_action_layer.end(), {up_prev_action, down_prev_action});
             decision_graph->AddLayer(prev_action_layer);
 
-            std::vector<std::shared_ptr<GraphNode>> moving_layer;
+            GraphLayer moving_layer;
             // If up_not_blocked and up_prev_action ? return 1 : return 0
             // If down_not_blocked and down_prev_action ? return 1 : return 0
             std::shared_ptr<GraphNode> keep_up = std::make_shared<AndNode>();
-            keep_up->AddInputs(std::vector<std::shared_ptr<GraphNode>>{up_not_blocked, up_prev_action});
+            keep_up->AddInputs(GraphLayer{up_not_blocked, up_prev_action});
             std::shared_ptr<GraphNode> keep_down = std::make_shared<AndNode>();
-            keep_down->AddInputs(std::vector<std::shared_ptr<GraphNode>>{down_not_blocked, down_prev_action});
+            keep_down->AddInputs(GraphLayer{down_not_blocked, down_prev_action});
             moving_layer.insert(moving_layer.end(), {keep_up, keep_down});
             decision_graph->AddLayer(moving_layer);
 
             // If down_blocked, turn_up
             // If up_blocked, turn_down
-            std::vector<std::shared_ptr<GraphNode>> turn_layer;
+            GraphLayer turn_layer;
             std::shared_ptr<GraphNode> turn_up = std::make_shared<NotNode>();
-            turn_up->AddInputs(std::vector<std::shared_ptr<GraphNode>>{down_not_blocked});
+            turn_up->AddInputs(GraphLayer{down_not_blocked});
             std::shared_ptr<GraphNode> turn_down = std::make_shared<NotNode>();
-            turn_down->AddInputs(std::vector<std::shared_ptr<GraphNode>>{up_not_blocked});
+            turn_down->AddInputs(GraphLayer{up_not_blocked});
             turn_layer.insert(turn_layer.end(), {turn_up, turn_down});
             decision_graph->AddLayer(turn_layer);
 
             // Output layer, up, down, left, right
-            std::vector<std::shared_ptr<GraphNode>> action_layer;
+            GraphLayer action_layer;
             // move up = keep_up + turn_up,
             // move down = keep_down + turn_down,
             std::shared_ptr<GraphNode> up = std::make_shared<SumNode>();
-            up->AddInputs(std::vector<std::shared_ptr<GraphNode>>{keep_up, turn_up});
+            up->AddInputs(GraphLayer{keep_up, turn_up});
             std::shared_ptr<GraphNode> down = std::make_shared<SumNode>();
-            down->AddInputs(std::vector<std::shared_ptr<GraphNode>>{keep_down, turn_down});
+            down->AddInputs(GraphLayer{keep_down, turn_down});
             std::shared_ptr<GraphNode> left = std::make_shared<GraphNode>(0);
             std::shared_ptr<GraphNode> right = std::make_shared<GraphNode>(0);
             action_layer.insert(action_layer.end(), {up, down, left, right});

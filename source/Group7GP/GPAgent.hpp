@@ -19,9 +19,6 @@ namespace cowboys
     class GPAgent : public cse491::AgentBase
     {
     protected:
-        /// The decision graph for this agent.
-        std::unique_ptr<Graph> decision_graph;
-
         /// A map of extra state information.
         std::unordered_map<std::string, double> extra_state;
 
@@ -37,10 +34,6 @@ namespace cowboys
         /// @return Success.
         bool Initialize() override
         {
-            auto graph_builder = std::make_unique<GraphBuilder>(action_map);
-
-            decision_graph = graph_builder->VerticalPacer();
-
             return true;
         }
 
@@ -50,13 +43,18 @@ namespace cowboys
                             const cse491::item_set_t &item_set,
                             const cse491::agent_set_t &agent_set) override
         {
-            auto inputs = EncodeState(grid, type_options, item_set, agent_set, this, extra_state);
-            size_t action_to_take = decision_graph->MakeDecision(inputs);
+            size_t action = GetAction(grid, type_options, item_set, agent_set);
 
             // Update extra state information.
-            extra_state["previous_action"] = action_to_take;
-            return action_to_take;
+            extra_state["previous_action"] = action;
+
+            return action;
         }
+
+        virtual size_t GetAction(const cse491::WorldGrid &grid,
+                          const cse491::type_options_t &type_options,
+                          const cse491::item_set_t &item_set,
+                          const cse491::agent_set_t &agent_set) = 0;
 
         /// @brief Get a map of extra state information
         /// @return Map of extra state information
