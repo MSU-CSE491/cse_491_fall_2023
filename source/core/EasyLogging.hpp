@@ -124,6 +124,8 @@ public:
      */
     template <typename T>
     Logger& operator<<(const T& value) {
+
+        /// @brief Ensure that we only log when NDEBUG flg is not set
         #ifndef NDEBUG
         if (currentLogLevel >= LOGLEVEL)
         {
