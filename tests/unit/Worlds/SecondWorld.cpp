@@ -13,13 +13,17 @@
 
 TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
   SECTION("Default construction"){
-    // cse491::WorldGrid grid;
     group4::SecondWorld world;
-    CHECK(world.GetWidth() == 0);
-    CHECK(world.GetWidth() == 0);
-    CHECK(world.GetNumCells() == 0);
-    CHECK(!world.IsValid(0, 0));
-    CHECK(!world.IsValid(1, 1));
-    CHECK(!world.IsValid(-1, -1));
+    cse491::WorldGrid grid = world.GetGrid();
+    CHECK(grid.GetWidth() == 23);
+    CHECK(grid.GetHeight() == 9);
+    CHECK(grid.GetNumCells() == 207);
+    CHECK(grid.IsValid(0, 0));
+    CHECK(grid.IsValid(0, 8));
+    CHECK(!grid.IsValid(0, 9));
+    CHECK(!grid.IsValid(-1, -1));
+
+    CHECK(grid.IsValid(22, 0));
+    CHECK(!grid.IsValid(23, 0));
   }
 }
