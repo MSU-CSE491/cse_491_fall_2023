@@ -37,12 +37,8 @@ namespace cse491 {
             ~ServerInterface() = default;
 
 
-            void SetWorld(std::shared_ptr<cse491::netWorth::NetworkMazeWorld> &world){
+            void SetWorld(std::shared_ptr<cse491::netWorth::NetworkMazeWorld> &world) {
                 mWorld = world;
-            }
-
-            void ProcessPacket(sf::Packet packet) override{
-
             }
 
             void InitialConnection(sf::IpAddress sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
