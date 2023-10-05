@@ -7,6 +7,7 @@
 // Include the modules that we will be using.
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
+#include "Interfaces/MainInterface.h"
 #include "Worlds/MazeWorld.hpp"
 
 int main()
@@ -14,7 +15,8 @@ int main()
   cse491::MazeWorld world;
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+//  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+  world.AddAgent<i_2D::MainInterface>("Interface").SetProperty("char", '@');
 
   world.Run();
 }
