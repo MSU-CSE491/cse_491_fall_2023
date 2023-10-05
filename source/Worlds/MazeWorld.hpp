@@ -15,7 +15,7 @@ namespace cse491 {
 
   class MazeWorld : public WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, REMOVE_TAR };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
 
     size_t floor_id; ///< Easy access to floor CellType ID.
     size_t wall_id;  ///< Easy access to wall CellType ID.
@@ -36,7 +36,7 @@ namespace cse491 {
       agent.AddAction("down", MOVE_DOWN);
       agent.AddAction("left", MOVE_LEFT);
       agent.AddAction("right", MOVE_RIGHT);
-      agent.AddAction("tar", REMOVE_TAR);
+      agent.SetProperty("tar_property", 5.0); //if it is set to 5.0, agent is free to move. if it is set to 6.0, agent is stuck
     }
 
   public:
@@ -64,6 +64,7 @@ namespace cse491 {
     /// Allow the agents to move around the maze.
     int DoAction(AgentBase & agent, size_t action_id) override {
       // Determine where the agent is trying to move.
+      GridPosition currentPosition = agent.GetPosition();
       GridPosition new_position;
       switch (action_id) {
       case REMAIN_STILL: new_position = agent.GetPosition(); break;
@@ -71,7 +72,6 @@ namespace cse491 {
       case MOVE_DOWN:    new_position = agent.GetPosition().Below(); break;
       case MOVE_LEFT:    new_position = agent.GetPosition().ToLeft(); break;
       case MOVE_RIGHT:   new_position = agent.GetPosition().ToRight(); break;
-      case REMOVE_TAR:   new_position = agent.GetPosition(); break;
       }
 
       // Don't let the agent move off the world or into a wall.
@@ -85,6 +85,39 @@ namespace cse491 {
       exit(0);  // Halting the program
 
       return false;
+      }
+
+      // player is on tar tile and trying to move to a tar tile
+      if( main_grid.At(new_position) == tar_id && main_grid.At(currentPosition) == tar_id)
+      {
+          if( agent.GetProperty("tar_property") == 6.0 ) //player is stuck on tar
+          {
+              agent.SetProperty("tar_property", 5.0);
+              new_position = currentPosition;
+              return false;
+          }
+          else
+          {
+              agent.SetProperty("tar_property", 6.0);
+              agent.SetPosition(new_position);
+              return true;
+          }
+      }
+      // determining if player is moving onto a tar tile and setting tar property to 6.0 if so
+      if( main_grid.At(new_position) == tar_id )
+      {
+          agent.SetProperty("tar_property", 6.0);
+      }
+
+      //Determining if agent is stuck on tar or not
+      if( main_grid.At(currentPosition) == tar_id )
+      {
+          if( agent.GetProperty("tar_property") == 6.0 ) //player is stuck on tar
+          {
+              agent.SetProperty("tar_property", 5.0);
+              new_position = currentPosition;
+              return false;
+          }
       }
 
 

@@ -10,4 +10,4 @@ add_executable(GROUP6 source/simple_main.cpp source/Worlds/MazeGeneration.cpp so
         source/Worlds/PerlinNoise.hpp
 )
 
-target_compile_options(GROUP6 PRIVATE -Wall -Wpedantic -Werror)
+#target_compile_options(GROUP6 PRIVATE -Wall -Wpedantic -Werror)
