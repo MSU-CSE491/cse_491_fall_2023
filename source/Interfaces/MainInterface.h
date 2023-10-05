@@ -85,9 +85,7 @@ namespace i_2D {
                 std::cerr << "Failed to load wall texture!" << std::endl;
             }
             sf::Texture troll;
-            sf::Texture snake;
-            if (!troll.loadFromFile("../assets/agents/troll.png")
-            and (!snake.loadFromFile("../assets/agents/cobra.png"))) {
+            if (!troll.loadFromFile("../assets/agents/troll.png")) {
                 std::cerr << "Failed to load wall texture!" << std::endl;
             }
             // Draw the grid based on the symbol_grid
@@ -133,7 +131,7 @@ namespace i_2D {
                             break;
 
                         case '@':
-                            cellRect.setTexture(&snake);
+                            cellRect.setTexture(&troll);
                             cellRect.setFillColor(sf::Color::Red);
                             cell.setFillColor(sf::Color::Black);
                             mWindow.draw(cell);
