@@ -69,7 +69,7 @@ public:
      */
     Logger& operator<<(Team team) {
         currentTeam = team;
-        // std::cout << endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
+//         std::cout << endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
         return *this;
     }
 
@@ -107,7 +107,7 @@ public:
             currentTeam = Team::NA;
             currentLogLevel = LogLevel::DEBUG;
             currentColor = Color::RESET;
-            // std::cout << std::endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
+             std::cout << std::endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
         }
         return *this;
     }
@@ -131,8 +131,7 @@ public:
         {
             std::ostringstream logMessage;
             logMessage << "\033[" << static_cast<int>(currentColor) << "m" << teamToString(currentTeam) << logToString(currentLogLevel)  << value << "\033[0m";
-            std::cout << logMessage.str();
-                            //            << std::endl;  //TODO: Might have to make enable this so that we can have same line logging when endl is not used
+            std::cout << logMessage.str(); // << std::endl;  //TODO: Might have to make enable this so that we can have same line logging when endl is not used
         }
         #endif
         return *this;
