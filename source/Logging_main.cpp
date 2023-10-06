@@ -1,8 +1,11 @@
 
 #include "./core/EasyLogging.hpp"
 
+
+using namespace clogged;
+
 void samplefunction() {
-    Logger::log << FUNCTION_NAME << "This log message includes file and line number." << Logger::endl;
+    Logger::log << LOG_FNC << "This log message includes file and line number." << Logger::endl;
 }
 
 
