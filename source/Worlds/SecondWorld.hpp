@@ -46,11 +46,6 @@ namespace group4 {
             daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
             item_set.push_back(std::move(daedricArmor));
 
-            // Should we create classes that inherit Entity because weapons and armor
-            // do very different things? Where should we be initializing what the
-            // character will look like? For some reason, all entities are showing as
-            // the + symbol... How do we differentiate the two?
-
         }
 
         /**
