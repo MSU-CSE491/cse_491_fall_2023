@@ -17,9 +17,7 @@ namespace cowboys {
     /// @brief Sum all inputs.
     /// @param inputs Vector of doubles representing the inputs.
     /// @return The sum of all inputs.
-    double Sum(const std::vector<double> &inputs) {
-        return std::accumulate(inputs.begin(), inputs.end(), 0.0);
-    }
+    double Sum(const std::vector<double> &inputs) { return std::accumulate(inputs.begin(), inputs.end(), 0.0); }
 
     /// @brief Check if all inputs are not equal to 1.
     /// @param inputs Vector of doubles representing the inputs.
@@ -49,18 +47,14 @@ namespace cowboys {
     /// @param inputs Vector of doubles representing the inputs.
     /// @return 1 if the first input is equal to 0 or there are no inputs, 0
     /// otherwise.
-    double Not(const std::vector<double> &inputs) {
-        return (inputs.size() == 0) || (inputs.at(0) == 0.) ? 1. : 0.;
-    }
+    double Not(const std::vector<double> &inputs) { return (inputs.size() == 0) || (inputs.at(0) == 0.) ? 1. : 0.; }
 
     /// @brief Returns the input with index 0 if the condition (input with index
     /// 1) is not 0.
     /// @param inputs Vector of doubles representing the inputs.
     /// @return The value of the input with index 0 if the condition (input with
     /// index 1) is not 0, 0 otherwise.
-    double Gate(const std::vector<double> &inputs) {
-        return inputs.at(1) != 0. ? inputs.at(0) : 0.;
-    }
+    double Gate(const std::vector<double> &inputs) { return inputs.at(1) != 0. ? inputs.at(0) : 0.; }
 
     class GraphNode {
       protected:
@@ -83,8 +77,7 @@ namespace cowboys {
 
         /// @brief Constructor for input indices
         /// @param input_indices
-        GraphNode(std::vector<size_t> input_indices)
-            : inputs_indices{input_indices} {}
+        GraphNode(std::vector<size_t> input_indices) : inputs_indices{input_indices} {}
 
         std::string name;
 
@@ -108,9 +101,7 @@ namespace cowboys {
             return output;
         }
 
-        void SetFunctionPointer(NodeFunction function) {
-            function_pointer = function;
-        }
+        void SetFunctionPointer(NodeFunction function) { function_pointer = function; }
 
         std::shared_ptr<GraphNode> GetInput(size_t input_idx) const {
             if (inputs.size() == 0) {
@@ -124,15 +115,11 @@ namespace cowboys {
                 return inputs.at(input_idx);
         }
 
-        void AddInput(std::shared_ptr<GraphNode> node) {
-            inputs.push_back(node);
-        }
+        void AddInput(std::shared_ptr<GraphNode> node) { inputs.push_back(node); }
         void AddInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
             inputs.insert(inputs.end(), nodes.begin(), nodes.end());
         }
-        void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
-            inputs = nodes;
-        }
+        void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) { inputs = nodes; }
         void SetOutput(double value) { output = value; }
     };
 
@@ -148,8 +135,7 @@ namespace cowboys {
                 return 0.;
 
             // Let the signal through if the condition is not 0
-            return GetInput(1)->GetOutput() != 0. ? GetInput(0)->GetOutput()
-                                                  : 0.;
+            return GetInput(1)->GetOutput() != 0. ? GetInput(0)->GetOutput() : 0.;
         }
     };
 
@@ -162,8 +148,7 @@ namespace cowboys {
             // input 0 and 1 are the inputs
             if (inputs.size() < 2)
                 return 0.;
-            auto condition = GetInput(0)->GetOutput() != 0. &&
-                             GetInput(1)->GetOutput() != 0.;
+            auto condition = GetInput(0)->GetOutput() != 0. && GetInput(1)->GetOutput() != 0.;
             return condition ? 1. : 0.;
         }
     };
@@ -179,8 +164,7 @@ namespace cowboys {
             if (inputs.size() < 2)
                 return 0.;
             for (size_t i = 1; i < inputs.size(); ++i) {
-                auto condition =
-                    GetInput(0)->GetOutput() == GetInput(i)->GetOutput();
+                auto condition = GetInput(0)->GetOutput() == GetInput(i)->GetOutput();
                 if (condition)
                     return 1.;
             }
@@ -228,9 +212,7 @@ namespace cowboys {
         std::vector<GraphLayer> layers;
 
       public:
-        Graph(const std::vector<size_t> &action_vec) : actions{action_vec} {
-            assert(actions.size() > 0);
-        }
+        Graph(const std::vector<size_t> &action_vec) : actions{action_vec} { assert(actions.size() > 0); }
         ~Graph() = default;
 
         size_t GetNodeCount() const {
@@ -290,8 +272,7 @@ namespace cowboys {
     /// size_t, representing action IDs.
     /// @param action_map The action map from the agent.
     /// @return A vector of size_t, representing action IDs.
-    std::vector<size_t>
-    EncodeActions(const std::unordered_map<std::string, size_t> &action_map) {
+    std::vector<size_t> EncodeActions(const std::unordered_map<std::string, size_t> &action_map) {
         std::vector<size_t> actions;
         for (const auto &[action_name, action_id] : action_map) {
             actions.push_back(action_id);
@@ -303,35 +284,24 @@ namespace cowboys {
 
     /// @brief Translates state into nodes for the decision graph.
     /// @return A vector of doubles for the decision graph.
-    std::vector<double> EncodeState(
-        const cse491::WorldGrid &grid,
-        const cse491::type_options_t & /*type_options*/,
-        const cse491::item_set_t & /*item_set*/,
-        const cse491::agent_set_t & /*agent_set*/, const cse491::Entity *agent,
-        const std::unordered_map<std::string, double> &extra_agent_state) {
+    std::vector<double> EncodeState(const cse491::WorldGrid &grid, const cse491::type_options_t & /*type_options*/,
+                                    const cse491::item_set_t & /*item_set*/, const cse491::agent_set_t & /*agent_set*/,
+                                    const cse491::Entity *agent,
+                                    const std::unordered_map<std::string, double> &extra_agent_state) {
         /// TODO: Implement this function properly.
         std::vector<double> inputs;
 
         auto current_position = agent->GetPosition();
 
         double current_state = grid.At(current_position);
-        double above_state = grid.IsValid(current_position.Above())
-                                 ? grid.At(current_position.Above())
-                                 : 0.;
-        double below_state = grid.IsValid(current_position.Below())
-                                 ? grid.At(current_position.Below())
-                                 : 0.;
-        double left_state = grid.IsValid(current_position.ToLeft())
-                                ? grid.At(current_position.ToLeft())
-                                : 0.;
-        double right_state = grid.IsValid(current_position.ToRight())
-                                 ? grid.At(current_position.ToRight())
-                                 : 0.;
+        double above_state = grid.IsValid(current_position.Above()) ? grid.At(current_position.Above()) : 0.;
+        double below_state = grid.IsValid(current_position.Below()) ? grid.At(current_position.Below()) : 0.;
+        double left_state = grid.IsValid(current_position.ToLeft()) ? grid.At(current_position.ToLeft()) : 0.;
+        double right_state = grid.IsValid(current_position.ToRight()) ? grid.At(current_position.ToRight()) : 0.;
 
         double prev_action = extra_agent_state.at("previous_action");
 
-        inputs.insert(inputs.end(), {prev_action, current_state, above_state,
-                                     below_state, left_state, right_state});
+        inputs.insert(inputs.end(), {prev_action, current_state, above_state, below_state, left_state, right_state});
 
         return inputs;
     }
@@ -342,13 +312,10 @@ namespace cowboys {
         std::vector<size_t> actions;
 
       public:
-        GraphBuilder(const std::unordered_map<std::string, size_t> &action_map)
-            : actions{EncodeActions(action_map)} {}
+        GraphBuilder(const std::unordered_map<std::string, size_t> &action_map) : actions{EncodeActions(action_map)} {}
         ~GraphBuilder() = default;
 
-        std::unique_ptr<Graph> CartesianGraph(size_t num_inputs,
-                                              size_t num_outputs,
-                                              size_t num_layers,
+        std::unique_ptr<Graph> CartesianGraph(size_t num_inputs, size_t num_outputs, size_t num_layers,
                                               size_t num_nodes_per_layer) {
             auto decision_graph = std::make_unique<Graph>(actions);
 
@@ -388,49 +355,32 @@ namespace cowboys {
             auto decision_graph = std::make_unique<Graph>(actions);
 
             GraphLayer input_layer;
-            std::shared_ptr<GraphNode> prev_action =
-                std::make_shared<GraphNode>(0);
-            std::shared_ptr<GraphNode> current_state =
-                std::make_shared<GraphNode>(0);
-            std::shared_ptr<GraphNode> above_state =
-                std::make_shared<GraphNode>(0);
-            std::shared_ptr<GraphNode> below_state =
-                std::make_shared<GraphNode>(0);
-            std::shared_ptr<GraphNode> left_state =
-                std::make_shared<GraphNode>(0);
-            std::shared_ptr<GraphNode> right_state =
-                std::make_shared<GraphNode>(0);
+            std::shared_ptr<GraphNode> prev_action = std::make_shared<GraphNode>(0);
+            std::shared_ptr<GraphNode> current_state = std::make_shared<GraphNode>(0);
+            std::shared_ptr<GraphNode> above_state = std::make_shared<GraphNode>(0);
+            std::shared_ptr<GraphNode> below_state = std::make_shared<GraphNode>(0);
+            std::shared_ptr<GraphNode> left_state = std::make_shared<GraphNode>(0);
+            std::shared_ptr<GraphNode> right_state = std::make_shared<GraphNode>(0);
             input_layer.insert(input_layer.end(),
-                               {prev_action, current_state, above_state,
-                                below_state, left_state, right_state});
+                               {prev_action, current_state, above_state, below_state, left_state, right_state});
             decision_graph->AddLayer(input_layer);
 
             // state == 1 => floor which is walkable
             GraphLayer obstruction_layer;
-            std::shared_ptr<GraphNode> up_not_blocked =
-                std::make_shared<AnyEqNode>();
-            up_not_blocked->AddInputs(
-                GraphLayer{above_state, std::make_shared<GraphNode>(1)});
-            std::shared_ptr<GraphNode> down_not_blocked =
-                std::make_shared<AnyEqNode>();
-            down_not_blocked->AddInputs(
-                GraphLayer{below_state, std::make_shared<GraphNode>(1)});
-            obstruction_layer.insert(obstruction_layer.end(),
-                                     {up_not_blocked, down_not_blocked});
+            std::shared_ptr<GraphNode> up_not_blocked = std::make_shared<AnyEqNode>();
+            up_not_blocked->AddInputs(GraphLayer{above_state, std::make_shared<GraphNode>(1)});
+            std::shared_ptr<GraphNode> down_not_blocked = std::make_shared<AnyEqNode>();
+            down_not_blocked->AddInputs(GraphLayer{below_state, std::make_shared<GraphNode>(1)});
+            obstruction_layer.insert(obstruction_layer.end(), {up_not_blocked, down_not_blocked});
             decision_graph->AddLayer(obstruction_layer);
 
             // Separate previous action into up and down nodes
             GraphLayer prev_action_layer;
-            std::shared_ptr<GraphNode> up_prev_action =
-                std::make_shared<AnyEqNode>();
-            up_prev_action->AddInputs(
-                GraphLayer{prev_action, std::make_shared<GraphNode>(1)});
-            std::shared_ptr<GraphNode> down_prev_action =
-                std::make_shared<AnyEqNode>();
-            down_prev_action->AddInputs(
-                GraphLayer{prev_action, std::make_shared<GraphNode>(2)});
-            prev_action_layer.insert(prev_action_layer.end(),
-                                     {up_prev_action, down_prev_action});
+            std::shared_ptr<GraphNode> up_prev_action = std::make_shared<AnyEqNode>();
+            up_prev_action->AddInputs(GraphLayer{prev_action, std::make_shared<GraphNode>(1)});
+            std::shared_ptr<GraphNode> down_prev_action = std::make_shared<AnyEqNode>();
+            down_prev_action->AddInputs(GraphLayer{prev_action, std::make_shared<GraphNode>(2)});
+            prev_action_layer.insert(prev_action_layer.end(), {up_prev_action, down_prev_action});
             decision_graph->AddLayer(prev_action_layer);
 
             GraphLayer moving_layer;
@@ -439,8 +389,7 @@ namespace cowboys {
             std::shared_ptr<GraphNode> keep_up = std::make_shared<AndNode>();
             keep_up->AddInputs(GraphLayer{up_not_blocked, up_prev_action});
             std::shared_ptr<GraphNode> keep_down = std::make_shared<AndNode>();
-            keep_down->AddInputs(
-                GraphLayer{down_not_blocked, down_prev_action});
+            keep_down->AddInputs(GraphLayer{down_not_blocked, down_prev_action});
             moving_layer.insert(moving_layer.end(), {keep_up, keep_down});
             decision_graph->AddLayer(moving_layer);
 
