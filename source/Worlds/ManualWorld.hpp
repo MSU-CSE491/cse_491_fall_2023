@@ -51,13 +51,78 @@ namespace cse491_team8 {
     /// @return None
     void StrengthCheck(const std::unique_ptr<cse491::AgentBase> & other_agent, 
                      const std::unique_ptr<cse491::AgentBase> & agent) {
-      if (other_agent->GetProperty("Strength") > agent->GetProperty("Strength")) {
-        std::cout << other_agent->GetName() << " has beat " << agent->GetName() << "\n";
-        this->RemoveAgent(agent->GetName());
-      }
-      else {
-        std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
+        bool won = false;
+        bool run = false;
+        char input;
+        while (other_agent->GetProperty("Health") > 0 && agent->GetProperty("Health") > 0)
+        {
+            bool valid_input = true;
+            std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
+            std::cout << "Your Attack: ";
+            std::cin >> input;
+            double damage = 0.0;
+            double other_damage = other_agent->GetProperty("Strength");
+            switch (input) {
+            case 'a': case 'A': damage = agent->GetProperty("Strength");    break;
+            case 's': case 'S': damage = agent->GetProperty("Strength") * 1.5;  break;
+            case 'r': case 'R': won = false; run = true; break;
+            case 'h': case 'H': agent->SetProperty("Health",
+                    agent->GetProperty("Health") + agent->GetProperty("Strength") * 0.5); break;
+            default: valid_input = false; break;
+            }
+            if (!valid_input)
+            {
+                std::cout << "Invalid Input" << "\n";
+                continue;
+            }
+            if (run)
+            {
+                agent->SetProperty("Health", agent->GetProperty("Health") - other_damage);
+                break;
+            }
+            other_agent->SetProperty("Health", other_agent->GetProperty("Health") - damage);
+            if (other_agent->GetProperty("Health") <= 0)
+            {
+                won = true;
+                break;
+            }
+            agent->SetProperty("Health", agent->GetProperty("Health") - other_damage);
+            if (agent->GetProperty("Health") <= 0)
+            {
+                break;
+            }
+        }
 
+        if (!won) {
+            if (run)
+            {
+                std::cout << "You ran away, this means you don't gain health or strength and any battle damage stays!" << "\n";
+            }
+            if (agent->GetName() == "Interface" && agent->GetProperty("Health") <= 0)
+            {
+                std::cout << other_agent->GetName() << " has beat " << agent->GetName() << "\n";
+                std::cout << "You Lost..." << "\n";
+                std::cout << "Would You Like To Continue? Y or N? ";
+                char repeat_input;
+                std::cin >> repeat_input;
+                if (repeat_input == 'N')
+                {
+                    exit(0);
+                }
+                else
+                {
+                    agent->SetProperty("Health", 20);
+                    agent->SetProperty("Strength", 7);
+                    agent->SetPosition(40, 3);
+                }
+            }
+            this->RemoveAgent(agent->GetName()); // If the agent is the interface, this does nothing
+        }
+        else {
+        std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
+        // Gain the Agent's strength that you beat
+        agent->SetProperty("Strength",
+                agent->GetProperty("Strength") + other_agent->GetProperty("Strength"));
         cse491::GridPosition position = other_agent->GetPosition();
         int x = position.GetX();
         int y = position.GetY();
