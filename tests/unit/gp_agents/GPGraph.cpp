@@ -10,16 +10,13 @@
 #include "Group7GP/GPGraph.hpp"
 
 using namespace cowboys;
-TEST_CASE("GraphNode", "[group7][graphnode]")
-{
-    SECTION("Empty GraphNode")
-    {
+TEST_CASE("GraphNode", "[group7][graphnode]") {
+    SECTION("Empty GraphNode") {
         GraphNode node;
         CHECK_THROWS(node.GetInput(0));
         CHECK(node.GetOutput() == 0.0);
     }
-    SECTION("Non-Empty GraphNode")
-    {
+    SECTION("Non-Empty GraphNode") {
         GraphNode node;
         auto node1 = std::make_shared<GraphNode>(3);
         auto node2 = std::make_shared<GraphNode>(4);
@@ -29,11 +26,12 @@ TEST_CASE("GraphNode", "[group7][graphnode]")
         CHECK(node.GetInput(1)->GetOutput() == 4);
         CHECK(node.GetOutput() == 0.0);
     }
-    SECTION("GraphNode function pointers")
-    {
+    SECTION("GraphNode function pointers") {
         GraphNode node;
         // Function to sum the first two inputs
-        node.SetFunctionPointer([](const std::vector<double> &inputs) { return inputs.at(0) + inputs.at(1); });
+        node.SetFunctionPointer([](const std::vector<double> &inputs) {
+            return inputs.at(0) + inputs.at(1);
+        });
 
         // Not enough inputs
         CHECK(node.GetOutput() == 0);
@@ -50,8 +48,7 @@ TEST_CASE("GraphNode", "[group7][graphnode]")
     }
 }
 
-TEST_CASE("GraphNode function set", "[group7][functionset]")
-{
+TEST_CASE("GraphNode function set", "[group7][functionset]") {
     GraphNode node;
 
     SECTION("Sum") {
@@ -65,43 +62,45 @@ TEST_CASE("GraphNode function set", "[group7][functionset]")
     }
     SECTION("AnyEq") {
         node.SetFunctionPointer(AnyEq);
-        node.AddInput(std::make_shared<GraphNode>(3));  // The value to check for equality
+        node.AddInput(
+            std::make_shared<GraphNode>(3)); // The value to check for equality
         CHECK(node.GetOutput() == 0);
-        node.AddInput(std::make_shared<GraphNode>(4));  // None equal
+        node.AddInput(std::make_shared<GraphNode>(4)); // None equal
         CHECK(node.GetOutput() == 0);
-        node.AddInput(std::make_shared<GraphNode>(5));  // None equal
+        node.AddInput(std::make_shared<GraphNode>(5)); // None equal
         CHECK(node.GetOutput() == 0);
-        node.AddInput(std::make_shared<GraphNode>(3));  // One equal
+        node.AddInput(std::make_shared<GraphNode>(3)); // One equal
         CHECK(node.GetOutput() == 1);
-        node.AddInput(std::make_shared<GraphNode>(4));  // One equal
+        node.AddInput(std::make_shared<GraphNode>(4)); // One equal
         CHECK(node.GetOutput() == 1);
     }
     SECTION("And") {
         node.SetFunctionPointer(And);
-        node.AddInput(std::make_shared<GraphNode>(1));  // True
+        node.AddInput(std::make_shared<GraphNode>(1)); // True
         CHECK(node.GetOutput() == 1);
-        node.AddInput(std::make_shared<GraphNode>(5));  // True
+        node.AddInput(std::make_shared<GraphNode>(5)); // True
         CHECK(node.GetOutput() == 1);
-        node.AddInput(std::make_shared<GraphNode>(-1));  // True
+        node.AddInput(std::make_shared<GraphNode>(-1)); // True
         CHECK(node.GetOutput() == 1);
-        node.AddInput(std::make_shared<GraphNode>(0));  // False
+        node.AddInput(std::make_shared<GraphNode>(0)); // False
         CHECK(node.GetOutput() == 0);
-        node.AddInput(std::make_shared<GraphNode>(1));  // False
+        node.AddInput(std::make_shared<GraphNode>(1)); // False
         CHECK(node.GetOutput() == 0);
     }
     SECTION("Not") {
         node.SetFunctionPointer(Not);
         auto input = std::make_shared<GraphNode>();
         node.AddInput(input);
-        CHECK(node.GetOutput() == 1);  // No inputs, but default to true (return 1)
+        CHECK(node.GetOutput() ==
+              1); // No inputs, but default to true (return 1)
 
-        input->SetOutput(1);  // True -> 0
+        input->SetOutput(1); // True -> 0
         CHECK(node.GetOutput() == 0);
 
-        input->SetOutput(0);  // False -> 1
+        input->SetOutput(0); // False -> 1
         CHECK(node.GetOutput() == 1);
 
-        input->SetOutput(10);  // True -> 0
+        input->SetOutput(10); // True -> 0
         CHECK(node.GetOutput() == 0);
     }
     SECTION("Gate") {
@@ -128,10 +127,8 @@ TEST_CASE("GraphNode function set", "[group7][functionset]")
     }
 }
 
-TEST_CASE("Graph", "[group7][graph]")
-{
-    SECTION("Empty Graph")
-    {
+TEST_CASE("Graph", "[group7][graph]") {
+    SECTION("Empty Graph") {
         std::vector<size_t> actions{1, 2, 3, 4};
         Graph graph(actions);
         CHECK(graph.GetLayerCount() == 0);
@@ -146,8 +143,7 @@ TEST_CASE("Graph", "[group7][graph]")
         CHECK(graph2.MakeDecision(inputs) == actions2.at(0));
     }
 
-    SECTION("Non-Empty Graph")
-    {
+    SECTION("Non-Empty Graph") {
         Graph graph({1, 2, 3});
         GraphLayer layer1;
         layer1.push_back(std::make_shared<GraphNode>());
