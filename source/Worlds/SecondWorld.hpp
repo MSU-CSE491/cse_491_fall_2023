@@ -18,7 +18,7 @@ namespace group4 {
 
     public:
         /**
-         * Constructor
+         * Constructor with no arguments
          */
         SecondWorld() {
             // Call parent class' constructor
@@ -29,7 +29,7 @@ namespace group4 {
         }
 
         /**
-         * Desructor
+         * Destructor
          */
         ~SecondWorld() = default;
 
