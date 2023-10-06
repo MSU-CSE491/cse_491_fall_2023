@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-
+#include <fstream>
 
 /**
  * @brief Log levels for logging
@@ -54,6 +54,19 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
 /// @brief Ensure that we only log when NDEBUG flg is not set
 #ifndef NDEBUG
 
+#define LOGLINE \
+        "File: " << __FILE__ <<  "::->::Line(" << __LINE__ << ")"
+
+#define RELATIVE_PATH(file) \
+    (std::string(file).find_last_of("/\\") != std::string::npos \
+        ? std::string(file).substr(std::string(file).find_last_of("/\\") + 1) \
+        : std::string(file))
+
+#define LOG_RELLINE \
+        "File: " << RELATIVE_PATH(__FILE__) << "::->::Line(" << __LINE__ << ")"
+
+#define LOG_FNC \
+        "Function: " << __func__ << " "
 /**
  * @brief Logger class with colors and team names
  * @author @amantham20 @chatGPT
@@ -89,6 +102,8 @@ public:
         return *this;
     }
 
+
+
     /**
      * @brief colors of the log
      * 
@@ -107,6 +122,18 @@ public:
      * @return Logger& 
      */
     Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
+
+        typedef std::ostream& (*EndlManipulator)(std::ostream&);
+
+        // Compare the function pointers
+        if (manipulator == static_cast<EndlManipulator>(std::endl)) {
+            // Handle std::endl here
+            currentTeam = Team::NA;
+            currentLogLevel = LogLevel::DEBUG;
+            currentColor = Color::RESET;
+            std::cout << std::endl;
+        }
+
         if (manipulator == endl) {
 
             currentTeam = Team::NA;
@@ -187,6 +214,8 @@ private:
 
     bool metaPrinted = false;
 
+
+
     /**
      * @brief Map to convert Team enum to string
      * 
@@ -242,10 +271,18 @@ private:
     }
 };
 
+
+
 /// @brief Global log instance
 Logger Logger::log;
 
 #else
+
+#define LOGLINE ""
+#define LOG_RELLINE ""
+#define LOG_FNC ""
+
+
 class Logger {
 public:
     template <typename T>

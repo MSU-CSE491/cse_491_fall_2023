@@ -1,6 +1,10 @@
 
 #include "./core/EasyLogging.hpp"
 
+void samplefunction() {
+    Logger::log << FUNCTION_NAME << "This log message includes file and line number." << Logger::endl;
+}
+
 
 int main() {
     Logger::log << Team::TEAM_1 << LogLevel::DEBUG << Color::BLUE << "This is a debug message from Team A." << "aye 2" << Logger::endl;
@@ -8,12 +12,13 @@ int main() {
     Logger::log << Team::TEAM_3 << LogLevel::ERROR << Color::RED << " RED Error message from Team C." << Logger::endl;
     Logger::log << Team::TEAM_4 << LogLevel::ERROR << Color::BLUE << "Error message from Team C. no endl";
     Logger::log << "cont no endl Error message from Team";
-    Logger::log << Team::TEAM_6 << LogLevel::ERROR << Color::GREEN << "Error message from Team C. no endl";
-    Logger::log << "This is wi." << Logger::endl;
-    Logger::log << "This is wi." << Logger::endl;
-    Logger::log << Team::TEAM_5 << LogLevel::ERROR << Color::RED << "Error message from Team C." << Logger::endl;
-    Logger::log << Team::TEAM_5 << LogLevel::ERROR << "Error message from Team C." << Logger::endl;
-//
+
+    Logger::log << std::endl <<  "Warning message standard overload" << Logger::endl;
+
+    samplefunction();
+
+
+
 
 //    // Example 1: Logging a debug message for Team 1 in blue color
 //    Logger::log << Team::TEAM_1 << LogLevel::DEBUG << Color::BLUE << "Debug message for Team 1" << Logger::endl;
