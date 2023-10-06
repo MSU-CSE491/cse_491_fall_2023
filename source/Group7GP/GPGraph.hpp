@@ -119,84 +119,6 @@ namespace cowboys {
         void SetOutput(double value) { output = value; }
     };
 
-    class GateNode : public GraphNode {
-      public:
-        GateNode() = default;
-        virtual ~GateNode() = default;
-
-        double GetOutput() const override {
-            // input 0 is the input
-            // input 1 is the condition
-            if (inputs.size() < 2)
-                return 0.;
-
-            // Let the signal through if the condition is not 0
-            return GetInput(1)->GetOutput() != 0. ? GetInput(0)->GetOutput() : 0.;
-        }
-    };
-
-    class AndNode : public GraphNode {
-      public:
-        AndNode() = default;
-        virtual ~AndNode() = default;
-
-        double GetOutput() const override {
-            // input 0 and 1 are the inputs
-            if (inputs.size() < 2)
-                return 0.;
-            auto condition = GetInput(0)->GetOutput() != 0. && GetInput(1)->GetOutput() != 0.;
-            return condition ? 1. : 0.;
-        }
-    };
-
-    class AnyEqNode : public GraphNode {
-      public:
-        AnyEqNode() = default;
-        virtual ~AnyEqNode() = default;
-
-        double GetOutput() const override {
-            // input 0 is the input, the rest is the values that we are checking
-            // against
-            if (inputs.size() < 2)
-                return 0.;
-            for (size_t i = 1; i < inputs.size(); ++i) {
-                auto condition = GetInput(0)->GetOutput() == GetInput(i)->GetOutput();
-                if (condition)
-                    return 1.;
-            }
-            return 0.;
-        }
-    };
-
-    class NotNode : public GraphNode {
-      public:
-        NotNode() = default;
-        virtual ~NotNode() = default;
-
-        double GetOutput() const override {
-            // input 0 is the value to not
-            if (inputs.size() < 1)
-                return 0.;
-            auto condition = GetInput(0)->GetOutput() == 0.;
-            return condition ? 1. : 0.;
-        }
-    };
-
-    class SumNode : public GraphNode {
-      public:
-        SumNode() = default;
-        virtual ~SumNode() = default;
-
-        double GetOutput() const override {
-            // Sum all inputs
-            double sum = 0.;
-            for (auto &input : inputs) {
-                sum += input->GetOutput();
-            }
-            return sum;
-        }
-    };
-
     using GraphLayer = std::vector<std::shared_ptr<GraphNode>>;
 
     class Graph {
@@ -363,18 +285,18 @@ namespace cowboys {
 
             // state == 1 => floor which is walkable
             GraphLayer obstruction_layer;
-            std::shared_ptr<GraphNode> up_not_blocked = std::make_shared<AnyEqNode>();
+            std::shared_ptr<GraphNode> up_not_blocked = std::make_shared<GraphNode>(AnyEq);
             up_not_blocked->AddInputs(GraphLayer{above_state, std::make_shared<GraphNode>(1)});
-            std::shared_ptr<GraphNode> down_not_blocked = std::make_shared<AnyEqNode>();
+            std::shared_ptr<GraphNode> down_not_blocked = std::make_shared<GraphNode>(AnyEq);
             down_not_blocked->AddInputs(GraphLayer{below_state, std::make_shared<GraphNode>(1)});
             obstruction_layer.insert(obstruction_layer.end(), {up_not_blocked, down_not_blocked});
             decision_graph->AddLayer(obstruction_layer);
 
             // Separate previous action into up and down nodes
             GraphLayer prev_action_layer;
-            std::shared_ptr<GraphNode> up_prev_action = std::make_shared<AnyEqNode>();
+            std::shared_ptr<GraphNode> up_prev_action = std::make_shared<GraphNode>(AnyEq);
             up_prev_action->AddInputs(GraphLayer{prev_action, std::make_shared<GraphNode>(1)});
-            std::shared_ptr<GraphNode> down_prev_action = std::make_shared<AnyEqNode>();
+            std::shared_ptr<GraphNode> down_prev_action = std::make_shared<GraphNode>(AnyEq);
             down_prev_action->AddInputs(GraphLayer{prev_action, std::make_shared<GraphNode>(2)});
             prev_action_layer.insert(prev_action_layer.end(), {up_prev_action, down_prev_action});
             decision_graph->AddLayer(prev_action_layer);
@@ -382,9 +304,9 @@ namespace cowboys {
             GraphLayer moving_layer;
             // If up_not_blocked and up_prev_action ? return 1 : return 0
             // If down_not_blocked and down_prev_action ? return 1 : return 0
-            std::shared_ptr<GraphNode> keep_up = std::make_shared<AndNode>();
+            std::shared_ptr<GraphNode> keep_up = std::make_shared<GraphNode>(And);
             keep_up->AddInputs(GraphLayer{up_not_blocked, up_prev_action});
-            std::shared_ptr<GraphNode> keep_down = std::make_shared<AndNode>();
+            std::shared_ptr<GraphNode> keep_down = std::make_shared<GraphNode>(And);
             keep_down->AddInputs(GraphLayer{down_not_blocked, down_prev_action});
             moving_layer.insert(moving_layer.end(), {keep_up, keep_down});
             decision_graph->AddLayer(moving_layer);
@@ -392,9 +314,9 @@ namespace cowboys {
             // If down_blocked, turn_up
             // If up_blocked, turn_down
             GraphLayer turn_layer;
-            std::shared_ptr<GraphNode> turn_up = std::make_shared<NotNode>();
+            std::shared_ptr<GraphNode> turn_up = std::make_shared<GraphNode>(Not);
             turn_up->AddInputs(GraphLayer{down_not_blocked});
-            std::shared_ptr<GraphNode> turn_down = std::make_shared<NotNode>();
+            std::shared_ptr<GraphNode> turn_down = std::make_shared<GraphNode>(Not);
             turn_down->AddInputs(GraphLayer{up_not_blocked});
             turn_layer.insert(turn_layer.end(), {turn_up, turn_down});
             decision_graph->AddLayer(turn_layer);
@@ -403,9 +325,9 @@ namespace cowboys {
             GraphLayer action_layer;
             // move up = keep_up + turn_up,
             // move down = keep_down + turn_down,
-            std::shared_ptr<GraphNode> up = std::make_shared<SumNode>();
+            std::shared_ptr<GraphNode> up = std::make_shared<GraphNode>(Sum);
             up->AddInputs(GraphLayer{keep_up, turn_up});
-            std::shared_ptr<GraphNode> down = std::make_shared<SumNode>();
+            std::shared_ptr<GraphNode> down = std::make_shared<GraphNode>(Sum);
             down->AddInputs(GraphLayer{keep_down, turn_down});
             std::shared_ptr<GraphNode> left = std::make_shared<GraphNode>(0);
             std::shared_ptr<GraphNode> right = std::make_shared<GraphNode>(0);

@@ -46,7 +46,8 @@ namespace cowboys
         {
             auto graph_builder = GraphBuilder(action_map);
 
-            decision_graph = graph_builder.CartesianGraph(INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER);
+            // decision_graph = graph_builder.CartesianGraph(INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER);
+            decision_graph = graph_builder.VerticalPacer();
 
             return true;
         }
