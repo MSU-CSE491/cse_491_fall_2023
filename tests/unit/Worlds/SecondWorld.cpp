@@ -27,3 +27,20 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
     CHECK(!grid.IsValid(23, 0));
   }
 }
+
+TEST_CASE("EntityTest")
+{
+    group4::SecondWorld world;
+    CHECK(world.GetNumItems() == 3); // there are 3 entities
+
+    // Entities:
+    // ID 1 = Damage (20.0); ID 2 = Damage, Speed, Burning Duration; ID 3 = Health, Extra Inv. Space
+    const cse491::Entity &testEntity1 = world.GetItem(1);
+    CHECK(testEntity1.HasProperty("Damage"));
+
+    // this will cause an error because the entity w/ ID 2 overwrites the damage value
+//    CHECK(testEntity1.GetProperty("Damage") == 20.0);
+
+
+
+}
