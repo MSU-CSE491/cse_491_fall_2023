@@ -29,9 +29,7 @@ TEST_CASE("GraphNode", "[group7][graphnode]") {
     SECTION("GraphNode function pointers") {
         GraphNode node;
         // Function to sum the first two inputs
-        node.SetFunctionPointer([](const std::vector<double> &inputs) {
-            return inputs.at(0) + inputs.at(1);
-        });
+        node.SetFunctionPointer([](const std::vector<double> &inputs) { return inputs.at(0) + inputs.at(1); });
 
         // Not enough inputs
         CHECK(node.GetOutput() == 0);
@@ -62,8 +60,7 @@ TEST_CASE("GraphNode function set", "[group7][functionset]") {
     }
     SECTION("AnyEq") {
         node.SetFunctionPointer(AnyEq);
-        node.AddInput(
-            std::make_shared<GraphNode>(3)); // The value to check for equality
+        node.AddInput(std::make_shared<GraphNode>(3)); // The value to check for equality
         CHECK(node.GetOutput() == 0);
         node.AddInput(std::make_shared<GraphNode>(4)); // None equal
         CHECK(node.GetOutput() == 0);
@@ -91,8 +88,7 @@ TEST_CASE("GraphNode function set", "[group7][functionset]") {
         node.SetFunctionPointer(Not);
         auto input = std::make_shared<GraphNode>();
         node.AddInput(input);
-        CHECK(node.GetOutput() ==
-              1); // No inputs, but default to true (return 1)
+        CHECK(node.GetOutput() == 1); // No inputs, but default to true (return 1)
 
         input->SetOutput(1); // True -> 0
         CHECK(node.GetOutput() == 0);
