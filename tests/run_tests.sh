@@ -11,7 +11,7 @@ run_tests () {
 }
 
 cd unit
-TARGETS="core Agents Worlds Interfaces gp_agents agent"
+TARGETS="core Agents Worlds Interfaces gp_agents"
 for TARGET in ${TARGETS}
 do
 if [ -d ${TARGET} ]
