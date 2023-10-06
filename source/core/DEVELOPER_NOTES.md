@@ -82,3 +82,19 @@ one can also just use std::endl instead of Logger::endl they are equivalent.
 calling `Team (or) LogLevel (or) std::endl (or) Logger::endl` will reset the color team, color and log level to the default values.
 
 
+Current Feature set.
+
+- setting team number
+- setting log status [debug, info, warning, error]
+- setting colors of print statements.
+- Does not compile in RELEASE
+- Line number and file name
+
+
+Future Feature set.
+- logging to a file
+- adding flags for debuging in cmake.
+- making it run on a different thread/ running it Asynchronously?. Especially helpful for improving performance and responsiveness
+    - cuz of the io operation or if we want to send stuff thru the network
+- More log levels like `Fatal` or `Trace`
+- Categorization and filtering thru flags
