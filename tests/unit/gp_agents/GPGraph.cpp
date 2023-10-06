@@ -44,6 +44,14 @@ TEST_CASE("GraphNode", "[group7][graphnode]") {
         // Now we have enough inputs
         CHECK(node.GetOutput() == 7);
     }
+    SECTION("GraphNode function pointer constructor") {
+        GraphNode node([](const std::vector<double> &inputs) { return inputs.at(0) + inputs.at(1); });
+        auto node1 = std::make_shared<GraphNode>(3);
+        auto node2 = std::make_shared<GraphNode>(4);
+        node.AddInput(node1);
+        node.AddInput(node2);
+        CHECK(node.GetOutput() == 7);
+    }
 }
 
 TEST_CASE("GraphNode function set", "[group7][functionset]") {

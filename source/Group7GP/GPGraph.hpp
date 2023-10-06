@@ -73,6 +73,7 @@ namespace cowboys {
 
         /// TODO: Check guidelines for this
         GraphNode(double default_value) : output{default_value} {}
+        GraphNode(NodeFunction function) : function_pointer{function} {}
 
         std::string name;
 
