@@ -60,13 +60,12 @@ namespace cowboys {
       protected:
         /// The input nodes to this node.
         std::vector<std::shared_ptr<GraphNode>> inputs;
-        std::vector<size_t> inputs_indices;
 
         /// The function that operates on the outputs from a node's input nodes.
-        NodeFunction function_pointer = nullptr;
+        NodeFunction function_pointer{nullptr};
 
         /// The default output of this node.
-        double output = 0.;
+        double output{0};
 
       public:
         GraphNode() = default;
@@ -74,10 +73,6 @@ namespace cowboys {
 
         /// TODO: Check guidelines for this
         GraphNode(double default_value) : output{default_value} {}
-
-        /// @brief Constructor for input indices
-        /// @param input_indices
-        GraphNode(std::vector<size_t> input_indices) : inputs_indices{input_indices} {}
 
         std::string name;
 
