@@ -20,6 +20,7 @@ if [ -d ${TARGET} ]
     cd ${TARGET}
     run_tests
     echo "Exiting ${TARGET}"
+    cd ..
   else
     echo "Directory not found: ${TARGET}. Skipping."
   fi
