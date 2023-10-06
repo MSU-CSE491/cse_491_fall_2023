@@ -72,6 +72,7 @@ public:
      */
     Logger &operator<<(Team team) {
         currentTeam = team;
+        metaPrinted = false;
 //         std::cout << endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
         return *this;
     }
@@ -84,6 +85,7 @@ public:
      */
     Logger &operator<<(LogLevel logLevel) {
         currentLogLevel = logLevel;
+        metaPrinted = false;
         return *this;
     }
 
@@ -110,8 +112,10 @@ public:
             currentTeam = Team::NA;
             currentLogLevel = LogLevel::DEBUG;
             currentColor = Color::RESET;
+
             std::cout
                     << std::endl; //TODO: Might have to enable this so that we can have same line logging when endl is not used
+            metaPrinted = false;
         }
         return *this;
     }
@@ -142,8 +146,13 @@ public:
             std::string colorEnd = "";
             #endif
             std::ostringstream logMessage;
-            logMessage << colorStart << teamToString(currentTeam)
-                       << logToString(currentLogLevel) << value << colorEnd;
+            logMessage << colorStart;
+            if (!metaPrinted) {
+                logMessage << teamToString(currentTeam) << logToString(currentLogLevel);
+                metaPrinted = true;
+            }
+
+            logMessage << value << colorEnd;
             std::cout
                     << logMessage.str(); // << std::endl;  //TODO: Might have to make enable this so that we can have same line logging when endl is not used
         }
@@ -175,6 +184,8 @@ private:
 
     /// @brief Current color for the log
     Color currentColor = Color::RESET;
+
+    bool metaPrinted = false;
 
     /**
      * @brief Map to convert Team enum to string
