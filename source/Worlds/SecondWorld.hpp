@@ -1,14 +1,16 @@
 /**
  * @file SecondWorld.hpp
  * @author Jayson Van Dam
+ * @author Kurt LaBlanc
  * @author Satvik Ravipati
  */
 
 #pragma once
 
-#include "MazeWorld.hpp"
-#include "../core/WorldBase.hpp"
 #include <fstream>
+
+#include "../core/WorldBase.hpp"
+#include "MazeWorld.hpp"
 
 namespace group4 {
 /**
@@ -34,6 +36,25 @@ class SecondWorld : public cse491::MazeWorld {
     flag_id = cse491::WorldBase::AddCellType(
         "flag", "Goal flag for a game end state", 'g');
     main_grid.Read("../assets/grids/group4_maze.grid", type_options);
+
+    // Adding power sword with id = 1; name = sword of power
+    auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
+    powerSword->SetPosition(3, 4);
+    powerSword->SetProperty("Damage", 20.0);
+    item_set.push_back(std::move(powerSword));
+
+    // Adding fire sword with id = 2; name = Inferno Slicer
+    auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
+    infernoSlicer->SetPosition(5, 0);
+    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0,
+                                 "Burning Duration", 2.5);
+    item_set.push_back(std::move(infernoSlicer));
+
+    // Adding a piece of armor with id = 10; name = Daedric
+    auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
+    daedricArmor->SetPosition(7, 4);
+    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
+    item_set.push_back(std::move(daedricArmor));
   }
 
   /**
@@ -128,4 +149,4 @@ class SecondWorld : public cse491::MazeWorld {
     return true;
   }
 };
-}
+}  // namespace group4
