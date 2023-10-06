@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cassert>
 #include "../core/AgentBase.hpp"
-#include "../Group7GP/GPGraph.hpp"
 
 namespace cowboys
 {
