@@ -3,9 +3,6 @@
 #include <map>
 #include <fstream>
 
-#include <cstdlib>
-
-
 namespace clogged{
 
 /**
@@ -169,25 +166,14 @@ namespace clogged{
             //TODO: Define when to log by loglevel comparison. Goal is to send it in as a flag in the CMakeLists.txt
             if (currentLogLevel >= LOGLEVEL) {
 
-
-                const char* term = std::getenv("TERM");
+                // added additional flag in case one wants to compile without colors (or) if the terminal does not support colors
+#ifndef D_ANSI_COLOR_CODES
+                std::string colorStart = "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
+                std::string colorEnd = "\033[0m";
+#else
                 std::string colorStart = "";
                 std::string colorEnd = "";
-
-                if (term != nullptr) {
-                    colorStart = "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
-                    colorEnd = "\033[0m";
-                }
-
-//
-//                // added additional flag in case one wants to compile without colors (or) if the terminal does not support colors
-//#ifndef D_ANSI_COLOR_CODES
-//                std::string colorStart = "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
-//                std::string colorEnd = "\033[0m";
-//#else
-//                std::string colorStart = "";
-//                std::string colorEnd = "";
-//#endif
+#endif
                 std::ostringstream logMessage;
                 logMessage << colorStart;
                 if (!metaPrinted) {
