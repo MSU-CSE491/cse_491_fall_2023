@@ -156,5 +156,6 @@
   "files.watcherExclude": {
     "**/target": true
   },
-  "cmake.sourceDirectory": "/Users/yonesmussa/Desktop/CSE491/cse_491_fall_2023_group2/tests"
+  "cmake.sourceDirectory": "C:/Users/MiniS/Documents/Git/cse_491_fall_2023_group2",
+  "cmake.configureOnOpen": true
 }
