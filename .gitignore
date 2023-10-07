@@ -2,3 +2,25 @@
 .vscode/settings.json
 .vscode/tasks.json
 source/group4_main.exe
+=======
+# vscode cmake build
+build
+
+# clion cmake build
+cmake-build-debug
+cmake-build-release
+
+# clion settings
+.idea/
+
+# vscode settings
+.vscode/
+.github/
+
+# Vim swap files
+*.swp
+*.swo
+
+# executable files
+*.exe
+*.out
