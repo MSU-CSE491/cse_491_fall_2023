@@ -8,7 +8,7 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
-#include "Group7GP/CGPAgent.hpp"
+#include "Group7_GP_Agent/CGPAgent.hpp"
 
 int main()
 {
