@@ -42,7 +42,7 @@ namespace cowboys {
         /// @brief Setup graph.
         /// @return Success.
         bool Initialize() override {
-            auto graph_builder = GraphBuilder(action_map);
+            auto graph_builder = GraphBuilder();
 
             // decision_graph = graph_builder.CartesianGraph(INPUT_SIZE, action_map.size(), NUM_LAYERS,
             // NUM_NODES_PER_LAYER);
@@ -54,7 +54,7 @@ namespace cowboys {
         size_t GetAction(const cse491::WorldGrid &grid, const cse491::type_options_t &type_options,
                          const cse491::item_set_t &item_set, const cse491::agent_set_t &agent_set) override {
             auto inputs = EncodeState(grid, type_options, item_set, agent_set, this, extra_state);
-            size_t action_to_take = decision_graph->MakeDecision(inputs);
+            size_t action_to_take = decision_graph->MakeDecision(inputs, EncodeActions(action_map));
             return action_to_take;
         }
     };

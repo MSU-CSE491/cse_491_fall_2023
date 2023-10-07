@@ -19,7 +19,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
         constexpr size_t NUM_NODE_INPUTS = 10;
         constexpr size_t LAYERS_BACK = 2;
         auto action_map = std::unordered_map<std::string, size_t>{{"up", 0}, {"down", 1}, {"left", 2}, {"right", 3}};
-        GraphBuilder builder(action_map);
+        GraphBuilder builder;
 
         auto graph = builder.CartesianGraph(INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER);
 

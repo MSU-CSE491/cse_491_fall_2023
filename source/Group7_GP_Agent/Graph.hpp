@@ -8,22 +8,19 @@
 #include <unordered_map>
 #include <vector>
 
-#include "GraphNode.hpp"
 #include "../core/AgentBase.hpp"
+#include "GraphNode.hpp"
 
 namespace cowboys {
     using GraphLayer = std::vector<std::shared_ptr<GraphNode>>;
 
     class Graph {
       protected:
-        /// Actions that can be taken.
-        std::vector<size_t> actions;
-
         /// Layers of nodes in the graph.
         std::vector<GraphLayer> layers;
 
       public:
-        Graph(const std::vector<size_t> &action_vec) : actions{action_vec} { assert(actions.size() > 0); }
+        Graph() = default;
         ~Graph() = default;
 
         size_t GetNodeCount() const {
@@ -36,7 +33,11 @@ namespace cowboys {
 
         size_t GetLayerCount() const { return layers.size(); }
 
-        size_t MakeDecision(const std::vector<double> &inputs) {
+        /// @brief Makes a decision based on the inputs and the action vector.
+        /// @param inputs The inputs to the graph.
+        /// @param action_vec The action vector.
+        /// @return The action to take.
+        size_t MakeDecision(const std::vector<double> &inputs, const std::vector<size_t> &actions) {
             if (layers.size() == 0)
                 return actions.at(0);
 

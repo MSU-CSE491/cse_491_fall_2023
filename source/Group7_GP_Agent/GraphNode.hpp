@@ -2,9 +2,10 @@
 
 #include <memory>
 #include <numeric>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
+
 
 namespace cowboys {
     using NodeFunction = double (*)(const std::vector<double> &);

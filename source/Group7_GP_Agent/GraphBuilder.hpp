@@ -4,17 +4,13 @@
 
 namespace cowboys {
     class GraphBuilder {
-      protected:
-        /// Action ids from the agent's action map
-        std::vector<size_t> actions;
-
       public:
-        GraphBuilder(const std::unordered_map<std::string, size_t> &action_map) : actions{EncodeActions(action_map)} {}
+        GraphBuilder() = default;
         ~GraphBuilder() = default;
 
         std::unique_ptr<Graph> CartesianGraph(size_t num_inputs, size_t num_outputs, size_t num_layers,
                                               size_t num_nodes_per_layer) {
-            auto decision_graph = std::make_unique<Graph>(actions);
+            auto decision_graph = std::make_unique<Graph>();
 
             // Input layer
             GraphLayer input_layer;
@@ -49,7 +45,7 @@ namespace cowboys {
         /// up, down, left, right
         /// @return
         std::unique_ptr<Graph> VerticalPacer() {
-            auto decision_graph = std::make_unique<Graph>(actions);
+            auto decision_graph = std::make_unique<Graph>();
 
             GraphLayer input_layer;
             std::shared_ptr<GraphNode> prev_action = std::make_shared<GraphNode>(0);
