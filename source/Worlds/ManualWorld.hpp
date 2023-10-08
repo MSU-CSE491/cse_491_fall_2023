@@ -204,6 +204,7 @@ namespace cse491_team8 {
       // Determine where the agent is trying to move.
       cse491::GridPosition new_position;
 
+      // Update Direction property and get new position.
       switch (action_id) {
       case REMAIN_STILL:
       {
@@ -212,25 +213,25 @@ namespace cse491_team8 {
       }
       case MOVE_UP:      
       {
-        agent.SetFacingDirection(UP);
+        agent.SetProperty("Direction", UP);
         new_position = agent.GetPosition().Above();
         break;
       }
       case MOVE_DOWN:    
       {
-        agent.SetFacingDirection(DOWN);
+        agent.SetProperty("Direction", DOWN);
         new_position = agent.GetPosition().Below();
         break;
       }
       case MOVE_LEFT:    
       {
-        agent.SetFacingDirection(LEFT);
+        agent.SetProperty("Direction", LEFT);
         new_position = agent.GetPosition().ToLeft();
         break;
       }
       case MOVE_RIGHT:   
       {
-        agent.SetFacingDirection(RIGHT);
+        agent.SetProperty("Direction", RIGHT);
         new_position = agent.GetPosition().ToRight();
         break;
       }

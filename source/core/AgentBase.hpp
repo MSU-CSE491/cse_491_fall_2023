@@ -24,8 +24,6 @@ namespace cse491 {
 
     int action_result=1;  ///< Usually a one (success) or zero (failure).
 
-    size_t facing_direction=0;    ///< Direction this agent is facing
-
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
     ~AgentBase() = default; // Already virtual from Entity
@@ -78,12 +76,6 @@ namespace cse491 {
 
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }
-
-    /// Update the direction the agent is facing.
-    void SetFacingDirection(size_t direction) { facing_direction = direction; }
-
-    /// Retrieve the direction the agent is facing.
-    [[nodiscard]] size_t GetFacingDirection() const { return facing_direction; }
 
   };
 
