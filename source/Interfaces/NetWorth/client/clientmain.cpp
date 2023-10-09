@@ -25,6 +25,5 @@ int main(int argc, char *argv[])
   if (!interface.EstablishConnection()) return 1;
   interface.Loop();
 
-
   return 0;
 }
