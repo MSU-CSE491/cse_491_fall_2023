@@ -15,3 +15,8 @@ cmake-build-release
 # Vim swap files
 *.swp
 *.swo
+
+# executable files
+*.exe
+*.out
+
