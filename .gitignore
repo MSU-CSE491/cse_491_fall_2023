@@ -16,3 +16,8 @@ CMakeLists.txt
 # Vim swap files
 *.swp
 *.swo
+
+# executable files
+*.exe
+*.out
+
