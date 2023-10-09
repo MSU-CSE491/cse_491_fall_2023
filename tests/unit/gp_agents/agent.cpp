@@ -77,3 +77,29 @@ TEST_CASE("Agent initialization", "[gp_agents]")
 
 
 }
+
+
+TEST_CASE("Test iterator functionality", "[GPAgentRegisters]") {
+    cowboys::GPAgentRegisters registers;
+
+    // Set values in registers
+    for (size_t i = 0; i < registers.getNumRegisters(); ++i) {
+        registers.setRegister(i, i * 10);
+    }
+
+    SECTION("Iterating through registers using iterators") {
+        size_t expectedValue = 0;
+        for (auto it = registers.begin(); it != registers.end(); ++it) {
+            REQUIRE(*it == expectedValue);
+            expectedValue += 10;
+        }
+    }
+
+    SECTION("Range-based for loop") {
+        size_t expectedValue = 0;
+        for (const auto& value : registers) {
+            REQUIRE(value == expectedValue);
+            expectedValue += 10;
+        }
+    }
+}
