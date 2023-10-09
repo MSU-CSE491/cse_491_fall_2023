@@ -1,9 +1,4 @@
-.vscode/launch.json
-.vscode/settings.json
-.vscode/tasks.json
-source/group4_main.exe
-=======
-# vscode cmake build
+ vscode cmake build
 build
 
 # clion cmake build
