@@ -26,20 +26,12 @@ namespace cse491 {
 
         class ServerInterface : public NetworkingInterface {
         private:
-        std::shared_ptr<cse491::netWorth::NetworkMazeWorld> mWorld;
-
 
         protected:
-
 
         public:
             ServerInterface() : NetworkingInterface() { }
             ~ServerInterface() = default;
-
-
-            void SetWorld(std::shared_ptr<cse491::netWorth::NetworkMazeWorld> &world) {
-                mWorld = world;
-            }
 
             void InitialConnection(sf::IpAddress sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
                 mSocket.bind(55002);
@@ -69,15 +61,15 @@ namespace cse491 {
 
                 // Add in the agents / entities
                 for (const auto & entity_ptr : item_set) {
-                    cse491::GridPosition pos = entity_ptr->GetPosition();
+                    GridPosition pos = entity_ptr->GetPosition();
                     packet_grid[pos.CellY()][pos.CellX()] = '+';
                 }
 
                 for (const auto & agent_ptr : agent_set) {
-                    cse491::GridPosition pos = agent_ptr->GetPosition();
+                    GridPosition pos = agent_ptr->GetPosition();
                     char c = '*';
-                    if(agent_ptr->HasProperty("char")){
-                        c = static_cast<char>(agent_ptr->GetProperty("char"));
+                    if(agent_ptr->HasProperty("symbol")){
+                        c = agent_ptr->GetProperty<char>("symbol");
                     }
                     packet_grid[pos.CellY()][pos.CellX()] = c;
                 }

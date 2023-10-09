@@ -16,7 +16,7 @@ namespace cse491 {
     namespace netWorth{
 class NetworkMazeWorld : public WorldBase {
 private:
-
+    std::shared_ptr<ServerInterface> mServer;
   protected:
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
 
@@ -40,7 +40,14 @@ private:
     }
     ~NetworkMazeWorld() = default;
 
+    void SetServer(std::shared_ptr<ServerInterface> &server){
+        mServer = server;
+    }
 
+    Packet GetGridPacket(){
+        Packet gridPacket = mServer->GridToPacket(GetGrid(), GetCellTypes(), item_set, agent_set);
+        return gridPacket;
+    }
     /// Allow the agents to move around the maze.
     int DoAction(AgentBase & agent, size_t action_id) override {
       // Determine where the agent is trying to move.
