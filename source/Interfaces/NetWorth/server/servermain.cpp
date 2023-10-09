@@ -25,11 +25,12 @@ int main()
     world->AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
     world->AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
 
-    cse491::netWorth::ServerInterface serverInterface;
+    std::shared_ptr<cse491::netWorth::ServerInterface> serverInterface =
+            std::make_shared<cse491::netWorth::ServerInterface>();
 
-    serverInterface.SetWorld(world);
+    world->SetServer(serverInterface);
 
-    UdpSocket * serverSocket = serverInterface.GetSocket();
+    UdpSocket * serverSocket = serverInterface->GetSocket();
 
     std::cout << "Server IP Address: " << sf::IpAddress::getLocalAddress() << std::endl;
 
@@ -41,15 +42,12 @@ int main()
 
     sf::IpAddress sender;
     unsigned short port;
-    serverInterface.InitialConnection(sender, send_pkt, recv_pkt, port, str);
-
-    cse491::item_set_t item_set;
-    cse491::agent_set_t agent_set;
+    serverInterface->InitialConnection(sender, send_pkt, recv_pkt, port, str);
     std::string input;
 
     //Main game loop
     while (true) {
-        sf::Packet gridPacket = cse491::netWorth::ServerInterface::GridToPacket(world->GetGrid(), world->GetCellTypes(), item_set, agent_set);
+        sf::Packet gridPacket = world->GetWorldPacket();
         serverSocket->send(gridPacket, sender, port);
 
         serverSocket->receive(recv_pkt, sender, port);
@@ -60,5 +58,4 @@ int main()
     }
 
     return 0;
-    
 }
