@@ -10,6 +10,10 @@
 // Class project
 #include "Group7_GP_Agent/agent.hpp"
 
+#include "Group7_GP_Agent/GPAgentsRegisters.hpp"
+
+
+
 TEST_CASE("Agent construction", "[gp_agents]")
 {
     SECTION("Inheritance from AgentBase")
@@ -18,4 +22,58 @@ TEST_CASE("Agent construction", "[gp_agents]")
         CHECK(agent.GetID() == 1);
         CHECK(agent.GetName() == "name");
     }
+}
+
+TEST_CASE("Agent initialization", "[gp_agents]")
+{
+
+    SECTION("Initialize")
+    {
+    cowboys::GPAgentRegisters registers = cowboys::GPAgentRegisters();
+    }
+
+    cowboys::GPAgentRegisters registers = cowboys::GPAgentRegisters();
+    SECTION("Set and get registers") {
+        CHECK(registers.setRegister(0, 1));
+        CHECK(registers.getRegister(0) == 1);
+    }
+
+    SECTION("Set out-of-bounds register") {
+        CHECK_FALSE(registers.setRegister(20, 1)); // Should fail, as index 20 is out of bounds
+    }
+
+    SECTION("Get out-of-bounds register") {
+        CHECK(registers.getRegister(20) == 0); // Should return 0, as index 20 is out of bounds
+    }
+
+    SECTION("Check initial values") {
+        for (int i = 0; i < registers.getNumRegisters(); ++i) {
+            CHECK(registers.getRegister(i) == 0); // All registers should be initialized to 0
+        }
+    }
+
+    SECTION("Check number of registers") {
+        CHECK(registers.getNumRegisters() == 16);
+    }
+
+    SECTION("Modify multiple registers") {
+        CHECK(registers.setRegister(2, 10));
+        CHECK(registers.setRegister(5, 20));
+        CHECK(registers.setRegister(10, 30));
+        CHECK(registers.getRegister(2) == 10);
+        CHECK(registers.getRegister(5) == 20);
+        CHECK(registers.getRegister(10) == 30);
+    }
+
+//    SECTION("Check ostream operator") {
+//        std::ostringstream output;
+//        output << registers;
+//        std::string expectedOutput;
+//        for (int i = 0; i < registers.getNumRegisters(); ++i) {
+//            expectedOutput += "Register " + std::to_string(i) + ": 0\n";
+//        }
+//        CHECK(output.str() == expectedOutput);
+//    }
+
+
 }
