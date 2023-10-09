@@ -30,9 +30,16 @@ set(MAIN_SOURCE_DIR ./)
 add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
 
+# Debug Logging
+#option(DEBUG_LOGGING "Enable debug logging" OFF)
+set(LOGGING_CLASSES source/core/Logging.hpp)
+# add GP addition Classes to compile
+set(GP_CLASSES  source/Group7_GP_Agent/agent.hpp source/Group7_GP_Agent/GPAgentSensors.hpp)
+
+
 foreach(EXECUTABLE ${EXECUTABLES})
     set(SOURCES source/${EXECUTABLE}_main.cpp)
-    add_executable(${EXECUTABLE} ${SOURCES})
+    add_executable(${EXECUTABLE} ${SOURCES} ${GP_CLASSES} )
     target_include_directories(${EXECUTABLE}
       PRIVATE ${MAIN_SOURCE_DIR}
       )
