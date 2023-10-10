@@ -15,10 +15,10 @@ foreach(TARGET IN LISTS TARGETS)
   add_executable(tests-unit-core-${TARGET} ${TARGET}.cpp)
 
   # Takes an ABSOLUTE PATH to check for file existence
-  if(EXISTS "${CMAKE_SOURCE_DIR}/source/core/${TARGET}.cpp")
+  if(EXISTS "${ABSOLUTE_SOURCE_DIR}/core/${TARGET}.cpp")
     # Add implementation file to list of source files if non-header-only class is being tested
     # Note this is a RELATIVE PATH
-    target_sources(tests-unit-core-${TARGET} PUBLIC ${MAIN_SOURCE_DIR}/core/${TARGET}.cpp)
+    target_sources(tests-unit-core-${TARGET} PRIVATE ${MAIN_SOURCE_DIR}/core/${TARGET}.cpp)
   endif ()
 
   target_include_directories(tests-unit-core-${TARGET}

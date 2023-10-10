@@ -8,16 +8,17 @@ file(STRINGS targets.txt TARGETS)
 
 set(MAIN_SOURCE_DIR ../${MAIN_SOURCE_DIR})
 
+# Makes target_sources() take relative paths
 cmake_policy(SET CMP0076 NEW)
 
 foreach(TARGET IN LISTS TARGETS)
     add_executable(tests-unit-agents-${TARGET} ${TARGET}.cpp)
 
-    # Takes an ABSOLUTE PATH to check for file existence
-    if(EXISTS "${CMAKE_SOURCE_DIR}/source/Agents/${TARGET}.cpp")
+    # Top-level tests directory (searching only works so far with absolute paths)
+    if(EXISTS "${ABSOLUTE_SOURCE_DIR}/Agents/${TARGET}.cpp")
         # Add implementation file to list of source files if non-header-only class is being tested
         # Note this is a RELATIVE PATH
-        target_sources(tests-unit-agents-${TARGET} PUBLIC ${MAIN_SOURCE_DIR}/Agents/${TARGET}.cpp)
+        target_sources(tests-unit-agents-${TARGET} PRIVATE ${MAIN_SOURCE_DIR}/Agents/${TARGET}.cpp)
     endif ()
 
     target_include_directories(tests-unit-agents-${TARGET}
