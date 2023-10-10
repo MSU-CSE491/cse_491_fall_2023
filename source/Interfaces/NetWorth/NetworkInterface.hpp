@@ -18,20 +18,26 @@ using namespace sf;
 
 namespace cse491 {
     namespace netWorth{
+    /**
+     * TODO: Delete or incorporate
+     */
         class NetworkingInterface{
         private:
 
         protected:
-            UdpSocket mSocket;
-            IpAddress mLocalAddress;
+            UdpSocket mSocket; ///The socket we are going to make our connection
+            IpAddress mLocalAddress; ///the local address of the server
             //Thought about making mClients a shared pointer to a vector, but it'll be a vector for now
-            std::vector<std::string> mClients;
+            std::vector<std::string> mClients; ///list of all the clients that will connect with the server
             unsigned short mPort;
 
         public:
             NetworkingInterface() = default;
             ~NetworkingInterface() = default;
-
+            /**
+             * Receives a socket that has been connected between client and server
+             * @return the udp socket
+             */
             UdpSocket * GetSocket(){
                 return &mSocket;
             }
@@ -43,11 +49,19 @@ namespace cse491 {
 //                return packet;
 //            }
 
-
+            /**
+             * Sends a packet across the socket
+             * @param packet the packet we want to send
+             * @param destAddr the destination address we want to send to
+             * @param port the port of the connection
+             */
             virtual void SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
                 mSocket.send(packet, destAddr, port);
             }
-
+            /**
+             * Starts the connection by receiving the first packet
+             * @return the IP of the server
+             */
             virtual IpAddress ReceivePacket(){
                 char buffer[1024];
                 std::size_t received = 0;
@@ -63,7 +77,10 @@ namespace cse491 {
                 }
                 return sender;
             }
-
+            /**
+             * Processes the packet and outputs it
+             * @param packet the packet we want to output
+             */
             virtual void ProcessPacket(Packet packet){
                 std::string actionInd;
                 packet >> actionInd;

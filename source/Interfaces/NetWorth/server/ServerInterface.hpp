@@ -23,7 +23,9 @@ namespace cse491 {
     namespace netWorth{
 
         class NetworkMazeWorld;
-
+        /**
+         * The server that will be running and that allows clients to connect to
+         */
         class ServerInterface : public NetworkingInterface {
         private:
 
@@ -32,7 +34,14 @@ namespace cse491 {
         public:
             ServerInterface() : NetworkingInterface() { }
             ~ServerInterface() = default;
-
+            /**
+             * The initial connection for the server to a client
+             * @param sender address of the sender
+             * @param send_pkt the packet that the server will send initially
+             * @param recv_pkt the packet that the server will receive initially
+             * @param port port of the connection
+             * @param str string for the receive packet
+             */
             void InitialConnection(sf::IpAddress sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
                 mSocket.bind(55002);
 
@@ -46,6 +55,15 @@ namespace cse491 {
                     mSocket.send(send_pkt, sender, port);
                 }
             }
+            /**
+             * The grid that will be sent to the client from the server after the connection
+             * so the client can start asking to make moves
+             * @param grid the grid to send to the server
+             * @param type_options different cell types of the world
+             * @param item_set the items that may be apart of the grid
+             * @param agent_set the agents that may be apart of the grid
+             * @return the grid that will be sent to the client
+             */
             static Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t & type_options,
                                 const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
             {

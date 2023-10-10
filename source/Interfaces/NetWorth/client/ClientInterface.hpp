@@ -20,6 +20,9 @@ using namespace sf;
 
 namespace cse491 {
     namespace netWorth{
+    /**
+     * The interface of our client that will be interacting and connection with our server
+     */
         class ClientInterface {
         private:
             std::unique_ptr<TrashInterface> mTrash;     /// Display interface
@@ -34,8 +37,6 @@ namespace cse491 {
         public:
             /**
              * ClientInterface constructor (NetworkingInterface superclass)
-             * @param id Interface identifier
-             * @param name Interface name
              * @param ip_string String for destination IP address, make into IpAddress object
              * @param port Destination port number
              */

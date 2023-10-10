@@ -14,9 +14,13 @@
 
 namespace cse491 {
     namespace netWorth{
+    /**
+     * The world that is being sent over the network between the client and the server
+     */
 class NetworkMazeWorld : public WorldBase {
 private:
-    std::shared_ptr<ServerInterface> mServer;
+    std::shared_ptr<ServerInterface> mServer; /// The server that will be used to make changes to the world
+                                              /// and send back to the client
   protected:
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
 
@@ -36,14 +40,20 @@ private:
       floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
       //Set your proper filepath here for now until we figure out a workaround
-      main_grid.Read("D:/C++_Programs/CSE_491/cse_491_fall_2023/assets/grids/default_maze.grid", type_options);
+      main_grid.Read("C:/Users/chase/cse_491_fall_2023/assets/grids/default_maze.grid", type_options);
     }
     ~NetworkMazeWorld() = default;
-
+    /**
+     * Set a server to the one that is connected to the clients
+     * @param server the server we want to set
+     */
     void SetServer(std::shared_ptr<ServerInterface> &server){
         mServer = server;
     }
-
+    /**
+     * gets a grid packet from the grid used in Trash Interface
+     * @return the grid packet
+     */
     Packet GetGridPacket(){
         Packet gridPacket = mServer->GridToPacket(GetGrid(), GetCellTypes(), item_set, agent_set);
         return gridPacket;

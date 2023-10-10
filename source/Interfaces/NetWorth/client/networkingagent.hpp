@@ -15,6 +15,10 @@ using namespace sf;
 
 namespace cse491 {
     namespace netWorth{
+    /**
+     * A networking agent that will be sent over the connection with the corresponding movement
+     * @note not in use yet
+     */
         class NetworkingAgent : public PacingAgent {
         private:
             // UdpSocket mClientSocket;
@@ -24,6 +28,11 @@ namespace cse491 {
             bool reverse=false;  ///< Is this agent on their way back? (up/left?)
 
         public:
+            /**
+             * Constructor
+             * @param id unique id of the agent
+             * @param name name of the agent
+             */
             NetworkingAgent(size_t id, const std::string & name) : PacingAgent(id, name) { }
             ~NetworkingAgent() = default;
 
@@ -48,7 +57,10 @@ namespace cse491 {
             return 0;  // Should never actually get here...
             }
 
-
+            /**
+             * Creates a packet of actions to send to server
+             * @param action the action we want the server to update the agent
+             */
             void CreatePacket(std::string action){
                 //Creating packet to send to server of actions
                 Packet packet;
@@ -56,7 +68,9 @@ namespace cse491 {
                 packet << static_cast<int>(action_num);
             }
 
-
+            /**
+             * Will send a packet
+             */
             void SendPacket(){
                 //We'll do this in a sec
             }
