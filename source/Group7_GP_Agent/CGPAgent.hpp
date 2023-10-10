@@ -32,11 +32,11 @@ namespace cowboys {
     constexpr size_t LAYERS_BACK = 2;
 
     class CGPAgent : public GPAgent {
-      protected:
+    protected:
         /// The decision graph for this agent.
         std::unique_ptr<Graph> decision_graph;
 
-      public:
+    public:
         CGPAgent(size_t id, const std::string &name) : GPAgent(id, name) {}
 
         /// @brief Setup graph.

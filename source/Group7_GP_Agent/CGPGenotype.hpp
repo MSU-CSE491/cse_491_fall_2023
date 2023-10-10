@@ -56,7 +56,7 @@ namespace cowboys {
     };
 
     class CGPGenotype {
-      protected:
+    protected:
         /// Number of inputs to the graph.
         size_t num_inputs;
         /// Number of outputs from the graph.
@@ -74,7 +74,7 @@ namespace cowboys {
         /// The random number generator.
         std::mt19937 rng;
 
-      private:
+    private:
         /// @brief Decodes the header of the genotype.
         void DecodeHeader(const std::string &header) {
             // Parse header and save to member variables
@@ -102,7 +102,7 @@ namespace cowboys {
         /// @brief Decodes the genotype string. Header variables should be initialized before calling this.
         void DecodeGenotype(const std::string &genotype) {}
 
-      public:
+    public:
         CGPGenotype(size_t num_inputs, size_t num_outputs, size_t num_layers, size_t num_nodes_per_layer,
                     size_t layers_back)
             : num_inputs(num_inputs), num_outputs(num_outputs), num_layers(num_layers),
@@ -209,7 +209,7 @@ namespace cowboys {
                 }
             }
         }
-        
+
         /// @brief Mutates the genotype by changing the function of each node with a given probability between 0 and 1.
         /// @param mutation_rate The probability of changing the function of a node.
         /// @param num_functions The number of functions available to the nodes.

@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-
 namespace cowboys {
     using NodeFunction = double (*)(const std::vector<double> &);
 
@@ -53,7 +52,7 @@ namespace cowboys {
     double Gate(const std::vector<double> &inputs) { return inputs.at(1) != 0. ? inputs.at(0) : 0.; }
 
     class GraphNode {
-      protected:
+    protected:
         /// The input nodes to this node.
         std::vector<std::shared_ptr<GraphNode>> inputs;
 
@@ -63,7 +62,7 @@ namespace cowboys {
         /// The default output of this node.
         double output{0};
 
-      public:
+    public:
         GraphNode() = default;
         virtual ~GraphNode() = default;
 

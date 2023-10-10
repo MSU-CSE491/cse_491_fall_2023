@@ -4,7 +4,7 @@
 
 namespace cowboys {
     class GraphBuilder {
-      public:
+    public:
         GraphBuilder() = default;
         ~GraphBuilder() = default;
 

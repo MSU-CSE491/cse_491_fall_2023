@@ -15,11 +15,11 @@ namespace cowboys {
     using GraphLayer = std::vector<std::shared_ptr<GraphNode>>;
 
     class Graph {
-      protected:
+    protected:
         /// Layers of nodes in the graph.
         std::vector<GraphLayer> layers;
 
-      public:
+    public:
         Graph() = default;
         ~Graph() = default;
 

@@ -125,6 +125,5 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
         // These tests could fail, but it's unlikely: chance of failure = 1 / (2 ^ 196500)
         CHECK_FALSE(all_0s);
         CHECK_FALSE(all_1s);
-
     }
 }
