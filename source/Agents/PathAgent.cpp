@@ -46,38 +46,73 @@ PathAgent::PathAgent(size_t id, std::string const& name,
 }
 
 /**
- * Checks that the agent is able to freely change its own grid location
+ * Checks that the agent is able to move arbitrarily
  * Verifies that it can currently index into a valid offset
  * @return true if so; false otherwise
  */
 bool PathAgent::Initialize() {
-  return HasAction("move_self") && index_ >= 0 && static_cast<size_t>(index_) < offsets_.size();
+  return HasAction("move_arbitrary") && index_ >= 0 && static_cast<size_t>(index_) < offsets_.size();
 }
 
 /**
- * Updates the agent's position by applying the current offset
+ * Increments the index into the offsets sequence
  */
-void PathAgent::Update() {
-  cse491::GridPosition pos_offset = offsets_[index_];
-  SetPosition(position.GetX() + pos_offset.GetX(), position.GetY() + pos_offset.GetY());
-
-  // Restart cycling through offsets
+ void PathAgent::IncrementIndex() {
   ++index_;
-  if (static_cast<size_t>(index_ ) >= offsets_.size()) {
+
+  // Wrap-around to front of offsets
+  if (index_ >= static_cast<int>(offsets_.size())) {
     index_ = 0;
   }
+ }
+
+ /**
+  * Decrements the index into the offsets sequence
+  */
+ void PathAgent::DecrementIndex() {
+   --index_;
+
+   // Wrap-around to back of offsets
+   if (index_ < 0) {
+     index_ = static_cast<int>(offsets_.size()) - 1;
+   }
+ }
+
+ /**
+  * Retrieves the position of the agent after applying the current offset
+  * @return next position of the agent
+  */
+cse491::GridPosition PathAgent::GetNextPos() const {
+  return offsets_[index_] + GetPosition();
 }
 
 /**
- * Moves the agent by applying the current offset
+ * Convenience method
+ * Applies the current offset to calculate the next position and then adjusts the index
+ * @param increment decides whether to move in the forward or backward direction to allow for complex pathing
+ * @return
+ */
+cse491::GridPosition PathAgent::UpdateAndGetNextPos(bool increment) {
+  auto next_pos = GetNextPos();
+  if (increment) {
+    IncrementIndex();
+  }
+  else {
+    DecrementIndex();
+  }
+  return next_pos;
+}
+
+/**
+ * Tells world to
  * @return whether the update succeeded
  */
 size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
                                cse491::type_options_t const& /* type_options*/,
                                cse491::item_set_t const& /* item_set*/,
                                cse491::agent_set_t const& /* agent_set*/) {
-  Update();
-  return action_map["move_self"];
+  assert(HasAction("move_arbitrary"));
+  return action_map["move_arbitrary"];
 }
 
 /**
@@ -111,6 +146,14 @@ PathAgent& PathAgent::SetPath(std::string_view commands, size_t start_index) {
 }
 
 /**
+ * Retrieves which step the agent is on
+ * @return the current index into the offsets
+ */
+int PathAgent::GetIndex() const {
+  return index_;
+}
+
+/**
  * Returns an immutable reference to this agent's current path
  * @return sequence of offsets
  */
@@ -127,6 +170,12 @@ std::vector<cse491::GridPosition> const& PathAgent::GetPath() const {
  * `steps` is a positive integer and optional (assumed to be 1 by default)
  * star `*` represents scaling the movement by `steps`. Optional, but cannot be used if `steps` is not provided
  * if the star is not present, then `steps` individual offsets are created in the direction `direction`
+ * `direction` is a cardinal direction with the following logical mapping:
+ * n: north
+ * s: south
+ * e: east
+ * w: west
+ * x: stay put
  * Example: "n w 3e 10*s 5*w x" should create the sequence of offsets
  * {-1, 0}, {0, 1}, {0, -1}, {0, -1}, {0, -1}, {10, 0}, {0, 5}, {0, 0}
  * @param commands string in a format of sequential directions
@@ -188,7 +237,7 @@ std::vector<cse491::GridPosition> StrToOffsets(std::string_view commands) {
           }
 
             // Move left
-          case 'e': {
+          case 'w': {
             if (multiply) {
               positions.push_back(base_pos.ToLeft(steps));
             } else {
@@ -200,7 +249,7 @@ std::vector<cse491::GridPosition> StrToOffsets(std::string_view commands) {
           }
 
             // Move right
-          case 'w': {
+          case 'e': {
             if (multiply) {
               positions.push_back(base_pos.ToRight(steps));
             } else {
