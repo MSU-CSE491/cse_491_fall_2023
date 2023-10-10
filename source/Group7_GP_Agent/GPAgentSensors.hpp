@@ -58,7 +58,7 @@ namespace cowboys {
             int distance = 0;
             cse491::GridPosition position = agent.GetPosition();
 
-            while (grid.At(position) != WALL && grid.IsValid(position)) {
+            while ( grid.IsValid(position) && grid.At(position) != WALL) {
                 if (direction == LEFT) {
                     position = position.ToLeft();
                 } else if (direction == RIGHT) {
