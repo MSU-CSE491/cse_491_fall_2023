@@ -7,6 +7,8 @@
 #include <random>
 #include <algorithm>
 #include "../core/AgentBase.hpp"
+#include "GPAgentSensors.hpp"
+
 
 const int LISTSIZE = 100;
 
@@ -28,6 +30,11 @@ namespace cowboys {
         std::vector<std::tuple<std::string, int, int>> instructionsList = {};
         size_t currentInstructionIndex = 0;
 
+        std::vector<cowboys::Sensors> sensorsList;
+        std::vector<std::string> sensorsNamesList = {"getLeft", "getRight", "getUp", "getDown"};
+
+        bool hasActionOccured = false;
+
         std::random_device rd;
         std::mt19937 gen;
 
@@ -42,7 +49,7 @@ namespace cowboys {
         /// @brief This agent needs a specific set of actions to function.
         /// @return Success.
         bool Initialize() override {
-            possibleInstructionsList = EncodeActions(action_map);
+            possibleInstructionsList = EncodeActions(action_map, sensorsNamesList);
             GenerateRandomActionList();
             return true;
         }
@@ -55,17 +62,13 @@ namespace cowboys {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
 
-            for (auto action : instructionsList) {
-                std::cout << get<0>(action) << " ";
-            }
-            std::cout << std::endl;
 
         }
 
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
         /// @param action_map The action map from the agent.
         /// @return A vector of strings, representing action names.
-        static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map)
+        static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map, const std::vector<std::string> &sensorsNamesList)
         {
             std::vector<std::string> instructions;
             for (const auto &[action_name, action_id] : action_map)
@@ -75,6 +78,11 @@ namespace cowboys {
             instructions.push_back("lessthan");
             instructions.push_back("greaterthan");
             instructions.push_back("equals");
+
+            for (const auto& sensor : sensorsNamesList) {
+                instructions.push_back(sensor);
+            }
+
             return instructions;
         }
 
@@ -84,8 +92,11 @@ namespace cowboys {
                             [[maybe_unused]] const cse491::agent_set_t &agent_set) override {
             
             std::string action;
+            std::string sensor;
+            std::string operation;
             auto instruction = instructionsList[currentInstructionIndex];
             int i = 0;
+
 
             if (currentInstructionIndex != 0) {
                 resultsList[currentInstructionIndex-1] = action_result;
@@ -94,19 +105,25 @@ namespace cowboys {
                 resultsList[LISTSIZE-1] = action_result;
             }
 
-            std::cout << get<0>(instruction) << std::endl;
-            for (auto item : possibleInstructionsList) {
-                std::cout << item << " ";
-            }
-            std::cout << std::endl;
 
             while (i < LISTSIZE && action.empty()) {
                 ++currentInstructionIndex;
                 if (std::find(actionsList.begin(), actionsList.end(), get<0>(instruction)) != actionsList.end()) {
                     action = get<0>(instruction);
                 }
+                else if (std::find(sensorsNamesList.begin(), sensorsNamesList.end(), get<0>(instruction)) != sensorsNamesList.end()) {
+                    // the instruction is in the sensor list (getLeft, getRight, getUp, getDown)
+                    sensor = get<0>(instruction);
+
+                    SensorDirection direction = Sensors::getSensorDirectionEnum(sensor);
+                    int distance = Sensors::wallDistance(grid, *this, direction);
+                    resultsList[currentInstructionIndex - 1] = distance;
+
+                }
+
                 else {
-                    // do something
+                    // the instruction is an operation (lessthan, greaterthan, equals)
+                    operation = get<0>(instruction);
                 }
 
                 if (currentInstructionIndex >= instructionsList.size()) {
@@ -116,7 +133,7 @@ namespace cowboys {
                 instruction = instructionsList[currentInstructionIndex];
             }
 
-            std::cout << "action: " << action << std::endl;
+
             if (!action.empty()) {
                 return action_map[action];
             }
