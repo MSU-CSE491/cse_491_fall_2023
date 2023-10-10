@@ -15,7 +15,3 @@ configure_file(run_tests.sh run_tests.sh COPYONLY)
 add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
 
 add_subdirectory(unit)
-
-
-## Enable testing for the project
-#enable_testing()
