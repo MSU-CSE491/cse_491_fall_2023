@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "core/WorldGrid.hpp"
+#include "../core/WorldGrid.hpp"
 
 const int WALL = 2; //TODO: work with world teams to better define impenetrable objects
 
