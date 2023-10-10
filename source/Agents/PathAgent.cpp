@@ -177,7 +177,7 @@ std::vector<cse491::GridPosition> const& PathAgent::GetPath() const {
  * w: west
  * x: stay put
  * Example: "n w 3e 10*s 5*w x" should create the sequence of offsets
- * {-1, 0}, {0, 1}, {0, -1}, {0, -1}, {0, -1}, {10, 0}, {0, 5}, {0, 0}
+ * {0, -1}, {-1, 0}, {1, 0}, {1, 0}, {1, 0}, {0, 10}, {-5, 0}, {0, 0}
  * @param commands string in a format of sequential directions
  * @note throws an `std::invalid_argument` when input string is poorly formatted
  * @note this includes when a negative integer is passed as `steps`. If a zero is used, treated as the default (one)
