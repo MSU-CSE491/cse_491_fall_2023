@@ -1,4 +1,4 @@
-set(TEST_PREFIX "${TEST_PREFIX}-core")
+set(TEST_PREFIX "${TEST_PREFIX}-agents")
 # Find all of the .cpp files in this directory
 file(GLOB TARGET_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 

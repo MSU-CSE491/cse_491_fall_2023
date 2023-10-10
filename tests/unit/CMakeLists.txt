@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.10) 
-
-
-set(MAIN_SOURCE_DIR ../${MAIN_SOURCE_DIR})
+set(TEST_PREFIX "${TEST_PREFIX}-unit")
 add_subdirectory(core)
+add_subdirectory(Agents)
+add_subdirectory(Worlds)
+add_subdirectory(Interfaces)
