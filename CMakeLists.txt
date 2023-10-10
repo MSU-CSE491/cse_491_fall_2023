@@ -48,5 +48,6 @@ foreach(EXECUTABLE ${EXECUTABLES})
       )
 endforeach()
 
-
+include(Ctest)
+enable_testing()
 add_subdirectory(tests)

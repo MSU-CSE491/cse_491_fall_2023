@@ -32,7 +32,8 @@ namespace cowboys
     class GPAgent : public cse491::AgentBase
     {
     protected:
-        const std::vector<std::string> predefinedMovement = {"down", "down","down","down", "right", "right", "up", "up", "up","up", "right", "right",  "right",  "right",  "right",  "right",  "right", "right", "right",  "right", "right", "left", "left", "left"};
+//        const std::vector<std::string> predefinedMovement = {"down", "down","down","down", "right", "right", "up", "up", "up","up", "right", "right",  "right",  "right",  "right",  "right",  "right", "right", "right",  "right", "right", "left", "left", "left"};
+        const std::vector<std::string> predefinedMovement = {};
 
         size_t movementIndex = 0; // current move of the agent
 
@@ -60,18 +61,23 @@ namespace cowboys
                             const cse491::item_set_t &item_set,
                             const cse491::agent_set_t &agent_set) override
         {
+
+            Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
+            Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
+            Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
+            Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
+
+
             if (movementIndex >= predefinedMovement.size()){
-                return action_map["right"]; // do nothing if it is out of bound for defined movement
+                return 0; // do nothing if it is out of bound for defined movement
             }
 
-            Sensors::leftWallDistance(grid, *this);
-            Sensors::rightWallDistance(grid, *this);
-            Sensors::topWallDistance(grid, *this);
-            Sensors::bottomWallDistance(grid, *this);
 
             auto action = action_map[predefinedMovement[movementIndex++]];
             return action;
         }
+
+
 
 
     };
