@@ -12,26 +12,16 @@ git submodule update
 
 ## How to compile tests
 
-First, navigate to the `tests` directory. 
+First, create a build directory for tests if you don't already have one, and then enter that directory:
 ```
-cd tests
-```
-
-Create a build directory within `tests`, if it does not already exist.
-```
-mkdir build
-```
-Note that this will likely through an error/warning if the directory already exists. 
-
-Navigate into the `build` directory. 
-```
-cd build
+mkdir cmake-build-test
+cd cmake-build-test
 ```
 
 Now we need to use CMake to compile. This is a two step process.
 First we tell CMake where to find the files, relative to our current directory. 
 ```
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Test ..
 ```
 
 If that completes without errors, we can now build the files in our current directory. 
@@ -44,28 +34,32 @@ Note that this process will take a while the first time as it needs to compile C
 
 ## Running tests
 
-If you are on a Mac or Linux system and wish to run _all_ the unit tests, simply run 
+Inside of your test build directory (`/cmake-build-test/` above), run the following: 
 ```
-./run_tests.sh
-```
-from _within the `build` directory_ (not just in `tests`). 
-
-If you wish to run a particular test (or are on Windows), simply navigate to the test _within the build directory_. 
-For example, if we want to run tests for `WorldGrid` (which is in core), we would navigate like so: 
-```
-cd unit/core
+ctest --output-on-failure
 ```
 
-Once we're in the correct directory, we simply run the executable. 
-On Unix systems that looks like: 
+This should run all the unit tests, providing something like the following: 
+```bash
+
+Test project /Users/thammina/projectsLocal/CSE491_GP_Group7/build
+    Start 1: tests-unit-core-Data
+1/3 Test #1: tests-unit-core-Data .............   Passed    0.01 sec
+    Start 2: tests-unit-core-WorldGrid
+2/3 Test #2: tests-unit-core-WorldGrid ........   Passed    0.01 sec
+    Start 3: tests-unit-gp_agents-agent
+3/3 Test #3: tests-unit-gp_agents-agent .......   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 3
 ```
-./tests-unit-core-WorldGrid
-```
-On Windows it should be similar, though it may have a `.exe` extension.
+By specifying the `--output-on-failure` flag, we should see also see the specifics of which cases failed, if any. 
+
+If you wish to run a particular test, simply navigate to the `executable` directory inside the build folder, and then run that particular test (e.g., `tests-unit-core-Data`).
+Note that it may end in `.exe` on  Windows.
 
 ## Adding new tests
 
-To add tests for a new file, navigate to the corresponding folder in the `tests/unit` directory (not in `tests/build`. 
+To add tests for a new file, navigate to the corresponding folder in the `tests/unit` directory (not in `cmake-build-test` directory). 
 For example, if we want to add a test for a new file in `core`, from the root of the repo we would navigate like so: 
 ```
 cd tests/unit/core
@@ -94,6 +88,5 @@ TEST_CASE("NAME", "[tags]"){
 
 ```
 
-Finally, once you have some tests coded up, you need to make one more change. 
-Simply add the name of that file (including the `.cpp`!) to `targets.txt`. 
-CMake uses this file to ensure we compile the appropriate files. 
+This should be it!
+CMake should automatically detect the file and compile (and let Austin know if that doesn't work!)
