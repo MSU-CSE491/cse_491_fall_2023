@@ -1,4 +1,5 @@
 site_name: "CSE 491 Documentation"
+site_description: "Documentation for CSE 491 Group 7 GP Agent"
 
 theme:
   name: material
