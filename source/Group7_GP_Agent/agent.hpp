@@ -62,6 +62,7 @@ namespace cowboys
                             const cse491::agent_set_t &agent_set) override
         {
 
+        //// TODO: Remove this in later releases
         #ifndef NDEBUG
             Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
             Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
