@@ -40,20 +40,21 @@ For library X.
 
 Once you have all dependencies downloaded, navigate to the root of the repo and run the following to build: 
 ```
-mkdir build
-cd build
-cmake ..
+mkdir cmake-build-release
+cd cmake-build-release
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 All compiled executables should be in the `/build/executables/` directory. 
+Note that `Debug` can be swapped with `Release` or `Test` here.
 
 ## Compiling under MacOS
 
 Mac shouldn't require any additional dependencies, so simply run the following, starting at the root of the repo:
 ```
-mkdir build
-cd build
-cmake ..
+mkdir cmake-build-release
+cd cmake-build-release
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 All compiled executables should be in the `/build/executables/` directory. 
@@ -73,9 +74,9 @@ Note that you may run into issues if the directories you're adding have spaces i
 
 Once you have CMake and MinGW working in your terminal (note you'll have to restart cmd/VSCode/whatever to get the path changes to take effect), run the following from the root of your repo:
 ```
-mkdir build
-cd build
-cmake -G "MinGW Makefiles" ..
+mkdir build-build-release
+cd build-build-release
+cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" ..
 cmake --build .
 ```
 
@@ -85,7 +86,11 @@ Note that if you tried to build using CMake before, it likely tried to use MSVC 
 
 ## How to compile in debug mode
 
-To compile in debug mode, simply add `-DCMAKE_BUILD_TYPE=Debug` to the first cmake command. 
+First, it is recommended you build debug and release modes in separate directories. 
+To follow CLion's lead, you can create both `cmake-build-debug` and `cmake-build-release`.
+This will prevent you from needing to recompile Catch and SFML when you switch between debug and release!
+
+To compile in debug mode, change the build type to debug via `-DCMAKE_BUILD_TYPE=Debug` in the _first_ cmake command. 
 
 This would normally look like: 
 ```
@@ -99,4 +104,4 @@ cmake -DCMAKE_BUILD_TYPE=Debug -G "MinGW Makefiles" ..
 
 You can then build like normal. 
 
-Note that you can also replace `Debug` with `Release` to compile with optimizations. 
+Note that you can also replace `Debug` with `Test` to run only the unit tests.
