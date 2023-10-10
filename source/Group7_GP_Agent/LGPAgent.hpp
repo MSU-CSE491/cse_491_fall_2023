@@ -132,8 +132,7 @@ namespace cowboys {
                 ++i;
                 instruction = instructionsList[currentInstructionIndex];
             }
-
-
+            
             if (!action.empty()) {
                 return action_map[action];
             }
