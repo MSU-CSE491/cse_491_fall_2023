@@ -18,10 +18,11 @@ namespace cse491_team8 {
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK };
     enum FacingDirection { UP=1, RIGHT, DOWN, LEFT};
 
-    size_t floor_id; ///< Easy access to floor CellType ID.
-    size_t tree_id;  ///< Easy access to tree CellType ID.
+    size_t grass_id;  ///< Easy access to floor CellType ID.
+    size_t tree_id;   ///< Easy access to tree CellType ID.
     size_t water_id;  ///< Easy access to water CellType ID.
-    size_t bridge_id;  ///< Easy access to bridge CellType ID.
+    size_t bridge_id; ///< Easy access to bridge CellType ID.
+    size_t rock_id;   ///< Easy access to rock CellType ID.
 
     /// Provide the agent with movement actions.
     void ConfigAgent(cse491::AgentBase & agent) override {
@@ -34,11 +35,12 @@ namespace cse491_team8 {
 
   public:
     ManualWorld() {
-      floor_id = AddCellType("grass", "Grass that you can easily walk over.", ' ');
+      grass_id = AddCellType("grass", "Grass that you can easily walk over.", ' ');
       tree_id = AddCellType("tree", "Tree that you cannot pass without an axe.", '^');
       water_id = AddCellType("water", "Water that cannot be crossed without a boat.", '~');
-      bridge_id = AddCellType("bridge", "Bridge that goes over water.", '#');
-      main_grid.Read("../assets/grids/team8_large_grid.grid", type_options);
+      bridge_id = AddCellType("bridge", "Bridge that allows the playerto cross water.", '#');
+      rock_id = AddCellType("rock", "Rock that the player cannot cross", '$');
+      main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
     }
     ~ManualWorld() = default;
 
@@ -67,9 +69,13 @@ namespace cse491_team8 {
             case 's': case 'S': damage = agent->GetProperty("Strength") * 1.5;  break;
             case 'r': case 'R': won = false; run = true; break;
             case 'h': case 'H': agent->SetProperty("Health",
-                    agent->GetProperty("Health") + agent->GetProperty("Strength") * 0.5); break;
+                    agent->GetProperty("Health") + (int)(agent->GetProperty("Max_Health") * 0.25)); break;
             default: valid_input = false; break;
             }
+            if (agent->GetProperty("Health") > agent->GetProperty("Max_Health")) {
+              agent->SetProperty("Health", agent->GetProperty("Max_Health"));
+            }
+            std::cout << agent->GetProperty("Health") << " | " << other_agent->GetProperty("Health") << std::endl;
             if (!valid_input)
             {
                 std::cout << "Invalid Input" << "\n";
@@ -182,6 +188,8 @@ namespace cse491_team8 {
         if (agent->IsInterface())
         {
           CheckAround(agent);
+          // auto pos = agent->GetPosition().Above();
+          // GetGrid().SetCell(pos, 1);
           break;
         }
       }
