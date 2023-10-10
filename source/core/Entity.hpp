@@ -20,8 +20,30 @@ namespace cse491 {
     std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
     GridPosition position;  ///< Where on the grid is this entity?
 
+    struct PropertyBase {
+      virtual ~PropertyBase() { }
+    };
+
+    template <typename T>
+    struct Property : public PropertyBase {
+      T value;
+      Property(const T & in) : value(in) { }
+      Property(T && in) : value(in) { }
+    };
+
     /// Every entity can have a simple set of properties (with values) associated with it.
-    std::unordered_map<std::string, double> property_map;
+    std::unordered_map<std::string, std::unique_ptr<PropertyBase>> property_map;
+
+    // -- Helper Functions --
+
+    template <typename T>
+    Property<T> & AsProperty(const std::string & name) const {
+      assert( HasProperty(name) );
+      PropertyBase * raw_ptr = property_map.at(name).get();
+      assert( dynamic_cast<Property<T> *>(raw_ptr) );
+      auto property_ptr = static_cast<Property<T> *>(raw_ptr);
+      return *property_ptr;
+    }
 
   public:
     Entity(size_t id, const std::string & name) : id(id), name(name) { }
@@ -57,23 +79,29 @@ namespace cse491 {
     }
 
     /// Return the current value of the specified property.
-    [[nodiscard]] double GetProperty(const std::string & name) const {
+    template <typename T=double>
+    [[nodiscard]] const T & GetProperty(const std::string & name) const {
       assert(HasProperty(name));   // Break if property does not already exist.
-      return property_map.at(name);
+      return AsProperty<T>(name).value;
     }
 
     /// Change the value of the specified property (will create if needed)
-    Entity & SetProperty(const std::string & name, double value=0.0) {
-      property_map[name] = value;
+    template <typename T>
+    Entity & SetProperty(const std::string & name, const T & value) {
+      if (HasProperty(name)) {
+        AsProperty<T>(name).value = value;
+      } else {
+        property_map[name] = std::make_unique<Property<T>>(value);
+      }
       return *this;
     }
 
     /// Allow for setting multiple properties at once.
     Entity & SetProperties() { return *this; }
 
-    template <typename... EXTRA_Ts>
-    Entity & SetProperties(const std::string & name, double value, EXTRA_Ts... extras) {
-      SetProperty(name, value);        // Set the first property...
+    template <typename VALUE_T, typename... EXTRA_Ts>
+    Entity & SetProperties(const std::string & name, VALUE_T && value, EXTRA_Ts &&... extras) {
+      SetProperty(name, std::forward<VALUE_T>(value));        // Set the first property...
       return SetProperties(std::forward<EXTRA_Ts>(extras)...); // And any additional properties...
     }
 
