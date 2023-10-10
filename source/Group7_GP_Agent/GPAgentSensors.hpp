@@ -86,5 +86,18 @@ namespace cowboys {
             return distance - 1;
         }
 
+        // make a function that takes in a string and maps the SensorDirectionEnum
+        static SensorDirection getSensorDirectionEnum(const std::string& direction) {
+            if (direction == "getLeft") {
+                return SensorDirection::LEFT;
+            } else if (direction == "getRight") {
+                return SensorDirection::RIGHT;
+            } else if (direction == "getUp") {
+                return SensorDirection::ABOVE;
+            } else if (direction == "getDown") {
+                return SensorDirection::BELOW;
+            }
+        }
+
     };
 }
