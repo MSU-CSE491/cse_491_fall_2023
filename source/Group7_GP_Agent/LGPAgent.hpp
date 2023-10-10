@@ -11,10 +11,14 @@
 
 const int LISTSIZE = 100;
 
+#define EXPERIMENTAL_CLASS __attribute__((annotate("experimental_class"), warning("This is an experimental class and should be used with caution.")))
+#define EXPERIMENTAL_FUNCTION __attribute__((annotate("experimental_function"), warning("This is an experimental function and should be used with caution.")))
+
+
 namespace cowboys
 {
 
-    class LGPAgent : public cse491::AgentBase
+    EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase
     {
     protected:
         // A dictionary of actions and a dictionary of sensors
@@ -40,7 +44,7 @@ namespace cowboys
         std::mt19937 gen;
 
     public:
-        LGPAgent(size_t id, const std::string &name) : AgentBase(id, name)
+        EXPERIMENTAL_FUNCTION LGPAgent(size_t id, const std::string &name) : AgentBase(id, name)
         {
             // TODO: dont care didnt ask ignore this
             gen = std::mt19937(rd());
@@ -50,14 +54,14 @@ namespace cowboys
 
         /// @brief This agent needs a specific set of actions to function.
         /// @return Success.
-        bool Initialize() override
+        EXPERIMENTAL_FUNCTION bool Initialize() override
         {
             possibleInstructionsList = EncodeActions(action_map, sensorsNamesList);
             GenerateRandomActionList();
             return true;
         }
 
-        void GenerateRandomActionList()
+        EXPERIMENTAL_FUNCTION void GenerateRandomActionList()
         {
             // generate a random list of actions
             std::uniform_int_distribution<size_t> dist(0, possibleInstructionsList.size() - 1);
@@ -71,7 +75,7 @@ namespace cowboys
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
         /// @param action_map The action map from the agent.
         /// @return A vector of strings, representing action names.
-        static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map, const std::vector<std::string> &sensorsNamesList)
+        EXPERIMENTAL_FUNCTION static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map, const std::vector<std::string> &sensorsNamesList)
         {
             std::vector<std::string> instructions;
             for (const auto &[action_name, action_id] : action_map)
@@ -90,7 +94,7 @@ namespace cowboys
             return instructions;
         }
 
-        size_t SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
+        EXPERIMENTAL_FUNCTION size_t SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
                             [[maybe_unused]] const cse491::type_options_t &type_options,
                             [[maybe_unused]] const cse491::item_set_t &item_set,
                             [[maybe_unused]] const cse491::agent_set_t &agent_set) override

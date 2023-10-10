@@ -97,6 +97,9 @@ namespace cowboys {
             } else if (direction == "getDown") {
                 return SensorDirection::BELOW;
             }
+
+            throw std::invalid_argument("Invalid direction");
+            return SensorDirection::LEFT;
         }
 
     };
