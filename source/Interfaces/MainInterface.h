@@ -35,6 +35,7 @@ namespace i_2D {
         sf::Clock clock;
         sf::Vector2i characterPosition; // Add character position variable
         WorldGrid wGrid;
+        float const MIN_SIZE_CELL = 16; // Pixels
 
     public:
 

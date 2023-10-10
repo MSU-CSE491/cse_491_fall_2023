@@ -70,15 +70,20 @@ namespace i_2D {
         std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_set, agent_set);
 
         // Set the size of each cell in pixels (adjust this to fit your needs)
-        float cellSize = 40.0f;
-        // Calculate the total size of the grid
-        float gridWidth = static_cast<float>(grid.GetWidth()) * cellSize;
-        float gridHeight = static_cast<float>(grid.GetHeight()) * cellSize;
+        // Fit cells to shorter window side
+        float cellSizeWide = mWindow.getSize().x / grid.GetWidth();
+        float cellSizeTall = mWindow.getSize().y / grid.GetHeight();
+        float cellSize = std::min(cellSizeWide, cellSizeTall);
 
-        // Calculate the position to center the grid in the mWindow
-        float gridX = (mWindow.getSize().x - gridWidth) / 2.0f;
-        float gridY = (mWindow.getSize().y - gridHeight) / 2.0f;
+        // Calculate the total size of the draw space
+        float drawSpaceWidth = static_cast<float>(grid.GetWidth()) * cellSize;
+        float drawSpaceHeight = static_cast<float>(grid.GetHeight()) * cellSize;
 
+        // Calculate the position to center the draw space in the mWindow
+        float drawCenterX = (mWindow.getSize().x - drawSpaceWidth) / 2.0f;
+        float drawCenterY = (mWindow.getSize().y - drawSpaceHeight) / 2.0f;
+
+        // Reference texture files
         sf::Texture wallTexture;
         if (!wallTexture.loadFromFile("../assets/walls/wall.png")) {
             std::cerr << "Failed to load wall texture!" << std::endl;
@@ -87,31 +92,33 @@ namespace i_2D {
         if (!troll.loadFromFile("../assets/agents/troll.png")) {
             std::cerr << "Failed to load wall texture!" << std::endl;
         }
-        // Draw the grid based on the symbol_grid
-        for (size_t y = 0; y < grid.GetHeight(); ++y) {
-            for (size_t x = 0; x < grid.GetWidth(); ++x) {
+
+        // Draw the cells based on the symbol_grid
+        for (size_t iterY = 0; iterY < grid.GetHeight(); ++iterY) {
+            for (size_t iterX = 0; iterX < grid.GetWidth(); ++iterX) {
                 // Calculate the position for this cell
-                float posX = gridX + static_cast<float>(x) * cellSize;
-                float posY = gridY + static_cast<float>(y) * cellSize;
+                float cellPosX = drawCenterX + static_cast<float>(iterX) * cellSize;
+                float cellPosY = drawCenterY + static_cast<float>(iterY) * cellSize;
 
                 // Check the symbol in the symbol_grid
-                char symbol = symbol_grid[y][x];
+                char symbol = symbol_grid[iterY][iterX];
+
                 // Create a rectangle for each cell
                 sf::RectangleShape cellRect(sf::Vector2f(cellSize, cellSize));
                 sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
-                cellRect.setPosition(sf::Vector2f(posX, posY));
-                cell.setPosition(sf::Vector2f(posX, posY));
+                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
-                bool isVerticalWall = (y > 0 && symbol_grid[y - 1][x] == '#') ||
-                                      (y < grid.GetHeight() - 1 && symbol_grid[y + 1][x] == '#');
+                bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
+                                      (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
                 switch (symbol) {
                     case '#':
                         cellRect.setTexture(&wallTexture);
                         if (isVerticalWall) {
 //                                sf::Transform transform;
-////                                transform.rotate(270.0f, sf::Vector2f(posX + cellSize / 2.0f, posY + cellSize / 2.0f));
+////                                transform.rotate(270.0f, sf::Vector2f(cellPosX + cellSize / 2.0f, cellPosY + cellSize / 2.0f));
 //
-//                                transform.rotate(270.0f,sf::Vector2f(posX + cellSize / 2.0f, posY + cellSize / 2.0f));
+//                                transform.rotate(270.0f,sf::Vector2f(cellPosX + cellSize / 2.0f, cellPosY + cellSize / 2.0f));
 //                                mWindow.draw(cellRect, transform);
                             mWindow.draw(cellRect);
 
@@ -180,9 +187,11 @@ namespace i_2D {
         while (mWindow.isOpen()) {
             sf::Event event;
             while (mWindow.pollEvent(event)) {
+                // TODO convert to nested switch case statements?
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
                     exit(0);
+
                 } else if (event.type == sf::Event::KeyPressed) {
                     // Handle keypress events here
                     size_t action_id = 0;
@@ -210,6 +219,26 @@ namespace i_2D {
                     }
                     // Do the action!
                     return action_id;
+
+                } else if(event.type == sf::Event::Resized) {
+                    // Check size limits of window
+                    // TODO replace min calculations with a member var on first grid read?
+                    //  Min cell size may be bad for large worlds if min window size > monitor size
+                    float widthWindow = event.size.width;
+                    float heightWindow = event.size.height;
+                    float widthMin = grid.GetWidth() * MIN_SIZE_CELL;
+                    float heightMin = grid.GetHeight() * MIN_SIZE_CELL;
+                    widthWindow = std::max(widthWindow, widthMin);
+                    heightWindow = std::max(heightWindow, heightMin);
+
+                    // Restrict window size if necessary
+                    if(widthWindow <= widthMin || heightWindow <= heightMin) {
+                        mWindow.setSize(sf::Vector2u(widthWindow, heightWindow));
+                    }
+
+                    // Resize the view to match window size to prevent deformation
+                    sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
+                    mWindow.setView(sf::View(viewArea));
                 }
             }
 
