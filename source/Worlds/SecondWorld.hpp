@@ -58,8 +58,6 @@ namespace group4 {
          * Also checks if the next agent position will be the win flag.
          */
         int DoAction(cse491::AgentBase & agent, size_t action_id) override {
-            cse491::MazeWorld::DoAction(agent, action_id);
-
             cse491::GridPosition new_position;
             switch (action_id) {
             case REMAIN_STILL: new_position = agent.GetPosition(); break;
@@ -74,7 +72,10 @@ namespace group4 {
             if (main_grid.At(new_position) == flag_id) {
                 // Set win flag to true
                 std::cout << "flag found" << std::endl;
+                run_over = true;
             }
+
+            agent.SetPosition(new_position);
 
             return true;
         }
