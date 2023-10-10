@@ -8,7 +8,7 @@
 #include <catch2/catch_all.hpp>
 
 // class project
-#include "../Agents/FollowingAgent.hpp"
+#include "Agents/FollowingAgent.hpp"
 
 
 using namespace walle;
@@ -16,28 +16,48 @@ using namespace walle;
 TEST_CASE( "Following Agent", "[agent]" ) {
 
     FollowingAgent agent1(1, "Following Agent 1");
-    CHECK(agent1.IsAgent() == true);
 
-    // Check setting position
-    agent1.SetPosition(1.0, 1.0);
-    CHECK( agent1.GetPosition().GetX() == 1.0 );
-    CHECK( agent1.GetPosition().GetY() == 1.0 );
+	SECTION("Agent Initialization"){
 
-    // Check setting health, taking damage and isAlive
-    agent1.SetHealth(15);
-    CHECK(agent1.GetHealth() == 15);
-    CHECK(agent1.isAlive() == true);
+		agent1.AddAction("up", 1);
+		agent1.AddAction("down", 2);
+		agent1.AddAction("left", 3);
+		agent1.AddAction("right", 4);
 
-    agent1.TakeDamage(5);
-    CHECK(agent1.GetHealth() == 10);
+		REQUIRE(agent1.Initialize() == true);
+		REQUIRE(agent1.IsAgent() == true);
+	}
 
-    agent1.TakeDamage(10);
-    CHECK(agent1.isAlive() == false);
+	SECTION("Agent Position"){
+		GridPosition position = agent1.GetPosition();
 
-    // Check the action maps
-    CHECK(agent1.HasAction("up") == true);
-    CHECK(agent1.HasAction("down") == true);
-    CHECK(agent1.HasAction("left") == true);
-    CHECK(agent1.HasAction("right") == true);
+		REQUIRE(position.GetX() == 0.0);
+		REQUIRE(position.GetY() == 0.0);
+
+		agent1.SetPosition(1.0, 1.0);
+		position = agent1.GetPosition();
+		REQUIRE(position.GetX() == 1.0);
+		REQUIRE(position.GetY() == 1.0);
+
+		agent1.SetPosition(12.0, 7.0);
+		position = agent1.GetPosition();
+		REQUIRE(position.GetX() == 12.0);
+		REQUIRE(position.GetY() == 7.0);
+	}
+
+	SECTION("Agent Health"){
+		REQUIRE(agent1.GetHealth() == 20.0);
+
+		agent1.SetHealth(15.0);
+		REQUIRE(agent1.GetHealth() == 15.0);
+		REQUIRE(agent1.isAlive() == true);
+
+		agent1.TakeDamage(5.0);
+		REQUIRE(agent1.GetHealth() == 10.0);
+
+		agent1.TakeDamage(10.0);
+		REQUIRE(agent1.GetHealth() == 0.0);
+		REQUIRE(agent1.isAlive() == false);
+	}
 
 }

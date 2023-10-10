@@ -21,9 +21,9 @@ namespace walle {
             bool mMoving = false;              // is the agent currently in route
             bool mAlive = true;                // is this agent still alive
 
-            int mSpeed = 10;                    // could use this to determine how fast the agent is moving
-            int mHealth = 20;                   // an agents health, could be used if we add an attack action
-            int mDamage = 5;                    // how much damage the agent can do
+            double mSpeed = 10.0;                    // could use this to determine how fast the agent is moving
+            double mHealth = 20.0;                   // an agents health, could be used if we add an attack action
+            double mDamage = 5.0;                    // how much damage the agent can do
 
             int mLevel = 5;                     // agents level, can be used to decide difficulty
             std::vector<GridPosition> mPath;    // vector of positions on map for agent to follow (from A* Star)
@@ -42,19 +42,19 @@ namespace walle {
             }
 
             /// function to take damage, update health and update the agents life status
-            void TakeDamage(int damage)
+            void TakeDamage(double damage)
             {
                 mHealth -= damage;
-                if(mHealth <= 0){
+                if(mHealth <= 0.0){
                     mAlive = false;
                 }
             }
 
             bool isAlive() const { return mAlive; }                     /// function to return the agents current life status
-            int GetHealth() const { return mHealth; }                   /// function to get the agents health
-            GridPosition GetPosition() const { return GetPosition(); }  /// function to get the agents current position
+            double GetHealth() const { return mHealth; }                   /// function to get the agents health
+            GridPosition GetPosition() const { return Entity::GetPosition(); }  /// function to get the agents current position
 
-            void SetHealth(int hp) { mHealth = hp; } /// function to set the agents health
+            void SetHealth(double hp) { mHealth = hp; } /// function to set the agents health
 
             /// Choose the action to take a step in the appropriate direction.
             size_t SelectAction(const WorldGrid & /* grid*/,
