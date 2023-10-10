@@ -20,6 +20,13 @@ const int WALL = 2; //TODO: work with world teams to better define impenetrable 
  */
 namespace cowboys {
 
+    enum SensorDirection {
+        LEFT,
+        RIGHT,
+        ABOVE,
+        BELOW
+    };
+
     class Sensors {
     private:
         /**
@@ -40,87 +47,43 @@ namespace cowboys {
         ~Sensors() = default;
 
         /**
-         * @brief returns the distance to the wall on the left of the agent
-         *
-         * @param grid grid maze of the world
-         * @param agent agent to find the distance from
-         * @return distance to the wall
-         */
-        static int leftWallDistance(const cse491::WorldGrid& grid, const cse491::AgentBase & agent) {
+          * @brief returns the distance to the wall in a given direction from the agent
+          *
+          * @param grid grid maze of the world
+          * @param agent agent to find the distance from
+          * @param direction direction to find the distance (LEFT, RIGHT, ABOVE, BELOW)
+          * @return distance to the wall
+          */
+        static int wallDistance(const cse491::WorldGrid &grid, const cse491::AgentBase &agent, SensorDirection direction) {
             int distance = 0;
             cse491::GridPosition position = agent.GetPosition();
 
-
-            while (grid.At(position) != WALL && grid.IsValid(position)) {
-                position = position.ToLeft();
+            while ( grid.IsValid(position) && grid.At(position) != WALL) {
+                if (direction == LEFT) {
+                    position = position.ToLeft();
+                } else if (direction == RIGHT) {
+                    position = position.ToRight();
+                } else if (direction == ABOVE) {
+                    position = position.Above();
+                } else if (direction == BELOW) {
+                    position = position.Below();
+                }
                 distance++;
             }
 
-
-            printPositions("left distance to the wall:  " + std::to_string(distance));
-            return distance;
-        }
-
-        /**
-         * @brief returns the distance to the wall on the right of the agent
-         *
-         * @param grid grid maze of the world
-         * @param agent agent to find the distance from
-         * @return distance to the wall
-         */
-        static int rightWallDistance(const cse491::WorldGrid& grid, const cse491::AgentBase & agent) {
-            int distance = 0;
-            cse491::GridPosition position = agent.GetPosition();
-
-            while (grid.At(position) != WALL && grid.IsValid(position)) {
-                position = position.ToRight();
-                distance++;
+            std::string directionStr;
+            if (direction == LEFT) {
+                directionStr = "left";
+            } else if (direction == RIGHT) {
+                directionStr = "right";
+            } else if (direction == ABOVE) {
+                directionStr = "top";
+            } else if (direction == BELOW) {
+                directionStr = "bottom";
             }
 
-            printPositions("right distance to the wall:  " + std::to_string(distance));
-            return distance;
-        }
-
-
-        /**
-         * @brief returns the distance to the wall on the top of the agent
-         *
-         * @param grid grid maze of the world
-         * @param agent agent to find the distance from
-         * @return distance to the wall
-         */
-        static int topWallDistance(const cse491::WorldGrid& grid, const cse491::AgentBase & agent) {
-            int distance = 0;
-            cse491::GridPosition position = agent.GetPosition();
-
-            while (grid.At(position) != WALL && grid.IsValid(position)) {
-                position = position.Above();
-                distance++;
-            }
-
-
-            printPositions("top distance to the wall:  " + std::to_string(distance));
-            return distance;
-        }
-
-        /**
-         * @brief returns the distance to the wall on the bottom of the agent
-         *
-         * @param grid grid maze of the world
-         * @param agent agent to find the distance from
-         * @return distance to the wall
-         */
-        static int bottomWallDistance(const cse491::WorldGrid& grid, const cse491::AgentBase & agent) {
-            int distance = 0;
-            cse491::GridPosition position = agent.GetPosition();
-
-            while (grid.At(position) != WALL && grid.IsValid(position)) {
-                position = position.Below();
-                distance++;
-            }
-
-            printPositions("bottom distance to the wall:  " + std::to_string(distance));
-            return distance;
+            printPositions(directionStr + " distance to the wall:  " + std::to_string(distance - 1));
+            return distance - 1;
         }
 
     };
