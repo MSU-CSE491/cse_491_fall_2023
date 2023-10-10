@@ -16,7 +16,7 @@
 #include "Data.hpp"
 #include "Entity.hpp"
 #include "WorldGrid.hpp"
-#include "../Agents/AgentLibary.h"
+#include "../Agents/AgentLibary.hpp"
 
 namespace cse491 {
 
@@ -176,7 +176,7 @@ namespace cse491 {
     /// @param end Ending position for the search
     /// @return vector of A* path from start to end, empty vector if no path
     /// exist
-    std::vector<GridPosition> shortest_path(GridPosition start, GridPosition end)
+    std::vector<GridPosition> ShortestPath(GridPosition start, GridPosition end)
     {
       // TODO remove the use of new and this
 
