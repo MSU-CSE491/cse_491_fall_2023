@@ -49,7 +49,7 @@ class PathAgent : public cse491::AgentBase {
 
 };
 
-std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands);
+std::vector<cse491::GridPosition> StrToOffsets(std::string_view commands);
 
 } // namespace walle
 

@@ -39,7 +39,7 @@ PathAgent::PathAgent(size_t id, std::string const& name,
  * @attention The sequence of offsets must not be empty
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
-                     std::string_view commands) : cse491::AgentBase(id, name), offsets_(str_to_offsets(commands)) {
+                     std::string_view commands) : cse491::AgentBase(id, name), offsets_(StrToOffsets(commands)) {
   if (offsets_.empty()) {
     throw std::invalid_argument("Sequence of input offsets must not be empty");
   }
@@ -107,7 +107,7 @@ PathAgent& PathAgent::SetPath(std::vector<cse491::GridPosition> && offsets, size
  */
 PathAgent& PathAgent::SetPath(std::string_view commands, size_t start_index) {
   offsets_.clear();
-  return SetPath(str_to_offsets(commands), start_index);
+  return SetPath(StrToOffsets(commands), start_index);
 }
 
 /**
@@ -133,7 +133,7 @@ std::vector<cse491::GridPosition> const& PathAgent::GetPath() const {
  * @note throws an `std::invalid_argument` when input string is poorly formatted
  * @note this includes when a negative integer is passed as `steps`. If a zero is used, treated as the default (one)
  */
-std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands) {
+std::vector<cse491::GridPosition> StrToOffsets(std::string_view commands) {
   std::vector<cse491::GridPosition> positions;
 
   // Regex capturing groups logically mean the following:
