@@ -32,11 +32,13 @@ jobs:
       - run: sudo apt-get update -qq
       - run: sudo apt-get install -qq cmake build-essential python3-pip python3-virtualenv nodejs tar gzip libpthread-stubs0-dev libc6-dbg gdb
       - run: g++ --version
+      - name: Create build directory
+          mkdir cmake-build-test
       - name: Build tests
         run: |
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Test
           cmake --build .
-        working-directory: tests/build
+        working-directory: cmake-build-test
       - name: Run tests
-        run: ./run_tests.sh
-        working-directory: tests/build
+        run: ctest --output-on-failure
+        working-directory: cmake-build-test
