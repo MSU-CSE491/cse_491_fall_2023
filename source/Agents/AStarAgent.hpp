@@ -6,7 +6,7 @@
 
 #include <vector>
 #include "../core/AgentBase.hpp"
-#include "AgentLibary.h"
+#include "AgentLibary.hpp"
 #include <iostream>
 namespace cse491
 {
@@ -63,7 +63,7 @@ namespace cse491
                 // If the last step failed, or we need a new path the then regenerate the path
                 if (action_result == 0 || path.empty() || current_move_num > recalculate_after_x_turns)
                 {
-                    path = world->shortest_path(GetPosition(), goal_position);
+                    path = world->ShortestPath(GetPosition(), goal_position);
                     current_move_num = 0;
                 }
                 // Return whatever action gets us closer to our goal
