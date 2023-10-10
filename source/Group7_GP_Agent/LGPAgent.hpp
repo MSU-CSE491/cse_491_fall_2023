@@ -5,9 +5,10 @@
 #include <string>
 #include <iostream>
 #include <random>
+#include <algorithm>
 #include "../core/AgentBase.hpp"
 
-const int MAX_MOVEMENTS = 100;
+const int LISTSIZE = 100;
 
 namespace cowboys {
 
@@ -18,12 +19,15 @@ namespace cowboys {
 
         // For example group 1 has a function for the shortest path
         // TODO: ADD A STAY STATEMENT WORLD
-        std::vector<std::string> actionsList = {};
+        
+        std::vector<std::string> possibleInstructionsList = {};
+        std::vector<std::string> actionsList = {"up", "down", "left", "right"};
+        std::vector<std::string> operationsList = {"lessthan", "greaterthan", "equals"};
+        std::vector<int> resultsList = std::vector<int>(LISTSIZE);
 
-        std::vector<std::string> instructionsList = {};
+        std::vector<std::tuple<std::string, int, int>> instructionsList = {};
         size_t currentInstructionIndex = 0;
 
-        size_t movementIndex = 0; // current move of the agent
         std::random_device rd;
         std::mt19937 gen;
 
@@ -38,20 +42,21 @@ namespace cowboys {
         /// @brief This agent needs a specific set of actions to function.
         /// @return Success.
         bool Initialize() override {
-            actionsList = EncodeActions(action_map);
+            possibleInstructionsList = EncodeActions(action_map);
             GenerateRandomActionList();
             return true;
         }
 
         void GenerateRandomActionList() {
             // generate a random list of actions
-            std::uniform_int_distribution<size_t> dist(0, actionsList.size() - 1);
-            for (int i = 0; i < MAX_MOVEMENTS; i++) {
-                instructionsList.push_back(actionsList[dist(gen)]);
+            std::uniform_int_distribution<size_t> dist(0, possibleInstructionsList.size() - 1);
+            std::uniform_int_distribution<size_t> dist2(0, resultsList.size() - 1);
+            for (int i = 0; i < LISTSIZE; i++) {
+                instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
 
-            for (auto &action : instructionsList) {
-                std::cout << action << " ";
+            for (auto action : instructionsList) {
+                std::cout << get<0>(action) << " ";
             }
             std::cout << std::endl;
 
@@ -62,28 +67,62 @@ namespace cowboys {
         /// @return A vector of strings, representing action names.
         static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map)
         {
-            std::vector<std::string> actions;
+            std::vector<std::string> instructions;
             for (const auto &[action_name, action_id] : action_map)
             {
-                actions.push_back(action_name);
+                instructions.push_back(action_name);
             }
-            return actions;
+            instructions.push_back("lessthan");
+            instructions.push_back("greaterthan");
+            instructions.push_back("equals");
+            return instructions;
         }
 
-        size_t SelectAction(const cse491::WorldGrid &grid,
-                            const cse491::type_options_t &type_options,
-                            const cse491::item_set_t &item_set,
-                            const cse491::agent_set_t &agent_set) override {
+        size_t SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
+                            [[maybe_unused]] const cse491::type_options_t &type_options,
+                            [[maybe_unused]] const cse491::item_set_t &item_set,
+                            [[maybe_unused]] const cse491::agent_set_t &agent_set) override {
+            
+            std::string action;
+            auto instruction = instructionsList[currentInstructionIndex];
+            int i = 0;
 
-            auto action = action_map[instructionsList[currentInstructionIndex++]];
-
-            if (currentInstructionIndex >= instructionsList.size()) {
-                currentInstructionIndex = 0;
+            if (currentInstructionIndex != 0) {
+                resultsList[currentInstructionIndex-1] = action_result;
+            }
+            else {
+                resultsList[LISTSIZE-1] = action_result;
             }
 
-            return action;
+            std::cout << get<0>(instruction) << std::endl;
+            for (auto item : possibleInstructionsList) {
+                std::cout << item << " ";
+            }
+            std::cout << std::endl;
+
+            while (i < LISTSIZE && action.empty()) {
+                ++currentInstructionIndex;
+                if (std::find(actionsList.begin(), actionsList.end(), get<0>(instruction)) != actionsList.end()) {
+                    action = get<0>(instruction);
+                }
+                else {
+                    // do something
+                }
+
+                if (currentInstructionIndex >= instructionsList.size()) {
+                    currentInstructionIndex = 0;
+                }
+                ++i;
+                instruction = instructionsList[currentInstructionIndex];
+            }
+
+            std::cout << "action: " << action << std::endl;
+            if (!action.empty()) {
+                return action_map[action];
+            }
+
+            return 0;
 
         }
     };
 }
-

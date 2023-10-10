@@ -54,10 +54,10 @@ namespace cowboys
 
 
         /// Choose the action to take a step in the appropriate direction.
-        size_t SelectAction(const cse491::WorldGrid &grid,
-                            const cse491::type_options_t &type_options,
-                            const cse491::item_set_t &item_set,
-                            const cse491::agent_set_t &agent_set) override
+        size_t SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
+                            [[maybe_unused]] const cse491::type_options_t &type_options,
+                            [[maybe_unused]] const cse491::item_set_t &item_set,
+                            [[maybe_unused]] const cse491::agent_set_t &agent_set) override
         {
             if (movementIndex >= predefinedMovement.size()){
                 return action_map["right"]; // do nothing if it is out of bound for defined movement
