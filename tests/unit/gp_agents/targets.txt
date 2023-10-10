@@ -2,3 +2,4 @@ agent
 GraphNode
 Graph
 GraphBuilder
+CGPGenotype
