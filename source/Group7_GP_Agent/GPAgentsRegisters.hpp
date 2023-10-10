@@ -7,22 +7,41 @@
 
 namespace cowboys {
 
+    /**
+     * @brief Class to hold the registers of the agent
+     *
+     */
     class GPAgentRegisters {
     private:
-//    std::array<int, 16> registers;
+
+        /// Vector of registers
         std::vector<size_t> registers;
 
+        /// Number of registers Default is 16
         int numRegisters = 16;
 
 
     public:
+        /**
+         * Constructor for GPAgentRegisters
+         * @param numRegisters
+         */
         GPAgentRegisters(int numRegisters = 16) {
             registers.resize(numRegisters);
             this->numRegisters = numRegisters;
         }
 
+        /**
+         * Destructor for GPAgentRegisters
+         */
         ~GPAgentRegisters() = default;
 
+        /**
+         * @brief Set the Register object
+         * @param index
+         * @param value
+         * @return
+         */
         bool setRegister(size_t index, size_t value) {
             if (index >= registers.size()) {
 //                assert(index >= registers.size());
@@ -32,6 +51,11 @@ namespace cowboys {
             return true;
         }
 
+        /**
+         * @brief Get the Register object
+         * @param index
+         * @return
+         */
         size_t getRegister(size_t index) {
             if (index >= registers.size()) {
 //                assert(index >= registers.size());
@@ -40,6 +64,10 @@ namespace cowboys {
             return registers[index];
         }
 
+        /**
+         * @brief Get the number of registers
+         * @return
+         */
         int getNumRegisters() {
             return numRegisters;
         }
@@ -55,32 +83,58 @@ namespace cowboys {
 //        }
 
 
-
+        /**
+         * @brief Iterator class for GPAgentRegisters
+         *
+         */
         class iterator {
         private:
+            /// Index of the iterator
             size_t index;
+
+            /// Reference to the registers
             GPAgentRegisters& registers;
 
         public:
+
+            /**
+             * Constructor for iterator
+             * @param index
+             * @param regs
+             */
             iterator(size_t index, GPAgentRegisters& regs) : index(index), registers(regs) {}
 
-            // Overload dereference operator
+            /**
+             * Overload dereference operator
+             * @return
+             */
             size_t& operator*() {
                 return registers.registers[index];
             }
 
-            // Overload pre-increment operator
+            /**
+             * Overload pre-increment operator
+             * @return
+             */
             iterator& operator++() {
                 ++index;
                 return *this;
             }
 
-            // Overload equality operator
+            /**
+             * @brief Overload post-increment operator
+             * @param other
+             * @return
+             */
             bool operator==(const iterator& other) const {
                 return index == other.index;
             }
 
-            // Overload inequality operator
+            /**
+             * @brief Overload not equal operator
+             * @param other
+             * @return
+             */
             bool operator!=(const iterator& other) const {
                 return index != other.index;
             }
