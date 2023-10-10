@@ -20,3 +20,5 @@ cmake-build-release
 *.exe
 *.out
 
+site/
+
