@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="classcowboys_1_1_g_p_agent" kind="class" language="C++" prot="public">
+    <compoundname>cowboys::GPAgent</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">AgentBase</basecompoundref>
+    <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classcowboys_1_1_g_p_agent_1a912373cf39b7dfd7d4c317b41de003d2" prot="protected" static="no" mutable="no">
+        <type>const std::vector&lt; std::string &gt;</type>
+        <definition>const std::vector&lt;std::string&gt; predefinedMovement</definition>
+        <argsstring></argsstring>
+        <name>predefinedMovement</name>
+        <qualifiedname>cowboys::GPAgent::predefinedMovement</qualifiedname>
+        <initializer>= {&quot;down&quot;, &quot;down&quot;,&quot;down&quot;,&quot;down&quot;, &quot;right&quot;, &quot;right&quot;, &quot;up&quot;, &quot;up&quot;, &quot;up&quot;,&quot;up&quot;, &quot;right&quot;, &quot;right&quot;,  &quot;right&quot;,  &quot;right&quot;,  &quot;right&quot;,  &quot;right&quot;,  &quot;right&quot;, &quot;right&quot;, &quot;right&quot;,  &quot;right&quot;, &quot;right&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="source/Group7_GP_Agent/agent.hpp" line="34" column="27" bodyfile="source/Group7_GP_Agent/agent.hpp" bodystart="34" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcowboys_1_1_g_p_agent_1a13906f0c35df62183fcf9dbf67f543c1" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t movementIndex</definition>
+        <argsstring></argsstring>
+        <name>movementIndex</name>
+        <qualifiedname>cowboys::GPAgent::movementIndex</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="source/Group7_GP_Agent/agent.hpp" line="36" column="16" bodyfile="source/Group7_GP_Agent/agent.hpp" bodystart="36" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classcowboys_1_1_g_p_agent_1a7d6cd486d2a7128c28632f9b25b31e51" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>GPAgent</definition>
+        <argsstring>(size_t id, const std::string &amp;name)</argsstring>
+        <name>GPAgent</name>
+        <qualifiedname>cowboys::GPAgent::GPAgent</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="source/Group7_GP_Agent/agent.hpp" line="39" column="9" bodyfile="source/Group7_GP_Agent/agent.hpp" bodystart="39" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classcowboys_1_1_g_p_agent_1aa5fac944f1fd96f79fc213851909b9c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>~GPAgent</definition>
+        <argsstring>() override=default</argsstring>
+        <name>~GPAgent</name>
+        <qualifiedname>cowboys::GPAgent::~GPAgent</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="source/Group7_GP_Agent/agent.hpp" line="46" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="classcowboys_1_1_g_p_agent_1a54aa3db4e29fbab38a726bd91930b950" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Initialize</definition>
+        <argsstring>() override</argsstring>
+        <name>Initialize</name>
+        <qualifiedname>cowboys::GPAgent::Initialize</qualifiedname>
+        <briefdescription>
+<para>This agent needs a specific set of actions to function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="source/Group7_GP_Agent/agent.hpp" line="50" column="14" bodyfile="source/Group7_GP_Agent/agent.hpp" bodystart="50" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classcowboys_1_1_g_p_agent_1a10b3ffb9c270a2e36bfd722f238fe3dc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t SelectAction</definition>
+        <argsstring>(const cse491::WorldGrid &amp;grid, const cse491::type_options_t &amp;type_options, const cse491::item_set_t &amp;item_set, const cse491::agent_set_t &amp;agent_set) override</argsstring>
+        <name>SelectAction</name>
+        <qualifiedname>cowboys::GPAgent::SelectAction</qualifiedname>
+        <param>
+          <type>const cse491::WorldGrid &amp;</type>
+          <declname>grid</declname>
+        </param>
+        <param>
+          <type>const cse491::type_options_t &amp;</type>
+          <declname>type_options</declname>
+        </param>
+        <param>
+          <type>const cse491::item_set_t &amp;</type>
+          <declname>item_set</declname>
+        </param>
+        <param>
+          <type>const cse491::agent_set_t &amp;</type>
+          <declname>agent_set</declname>
+        </param>
+        <briefdescription>
+<para>Choose the action to take a step in the appropriate direction. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="source/Group7_GP_Agent/agent.hpp" line="57" column="16" bodyfile="source/Group7_GP_Agent/agent.hpp" bodystart="57" bodyend="68"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>GPAgent</label>
+        <link refid="classcowboys_1_1_g_p_agent"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>AgentBase</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>GPAgent</label>
+        <link refid="classcowboys_1_1_g_p_agent"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>AgentBase</label>
+      </node>
+    </collaborationgraph>
+    <location file="source/Group7_GP_Agent/agent.hpp" line="31" column="5" bodyfile="source/Group7_GP_Agent/agent.hpp" bodystart="32" bodyend="69"/>
+    <listofallmembers>
+      <member refid="classcowboys_1_1_g_p_agent_1a7d6cd486d2a7128c28632f9b25b31e51" prot="public" virt="non-virtual"><scope>cowboys::GPAgent</scope><name>GPAgent</name></member>
+      <member refid="classcowboys_1_1_g_p_agent_1a54aa3db4e29fbab38a726bd91930b950" prot="public" virt="non-virtual"><scope>cowboys::GPAgent</scope><name>Initialize</name></member>
+      <member refid="classcowboys_1_1_g_p_agent_1a13906f0c35df62183fcf9dbf67f543c1" prot="protected" virt="non-virtual"><scope>cowboys::GPAgent</scope><name>movementIndex</name></member>
+      <member refid="classcowboys_1_1_g_p_agent_1a912373cf39b7dfd7d4c317b41de003d2" prot="protected" virt="non-virtual"><scope>cowboys::GPAgent</scope><name>predefinedMovement</name></member>
+      <member refid="classcowboys_1_1_g_p_agent_1a10b3ffb9c270a2e36bfd722f238fe3dc" prot="public" virt="non-virtual"><scope>cowboys::GPAgent</scope><name>SelectAction</name></member>
+      <member refid="classcowboys_1_1_g_p_agent_1aa5fac944f1fd96f79fc213851909b9c2" prot="public" virt="non-virtual"><scope>cowboys::GPAgent</scope><name>~GPAgent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
