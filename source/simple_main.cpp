@@ -19,7 +19,7 @@ int main() {
 
 
     //GP agent
-    world.AddAgent<cowboys::GPAgent>("GP 1").SetPosition(6, 0).SetProperty("char", 'G');
+    world.AddAgent<cowboys::LGPAgent>("GP 1").SetPosition(1, 0).SetProperty("char", 'G');
 
     // Human agent
     world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
