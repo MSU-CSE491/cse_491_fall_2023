@@ -22,18 +22,24 @@ namespace walle {
  * @param id unique agent id
  * @param name name of path agent
  * @param offsets collection of offsets to move the agent
+ * @attention The sequence of offsets must not be empty
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
-                     std::vector<cse491::GridPosition> && offsets) : cse491::AgentBase(id, name), offsets_(offsets) {}
+                     std::vector<cse491::GridPosition> && offsets) : cse491::AgentBase(id, name), offsets_(offsets) {
+  assert(!offsets_.empty());
+}
 
 /**
  * Constructor (string)
  * @param id unique agent id
  * @param name name of path agent
  * @param commands sequence of commands to be interpreted as offsets
+ * @attention The sequence of offsets must not be empty
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
-                     std::string_view commands) : cse491::AgentBase(id, name), offsets_(str_to_offsets(commands)) {}
+                     std::string_view commands) : cse491::AgentBase(id, name), offsets_(str_to_offsets(commands)) {
+  assert(!offsets_.empty());
+}
 
 /**
  * Checks that the agent is able to freely change its own grid location
@@ -45,23 +51,28 @@ bool PathAgent::Initialize() {
 }
 
 /**
- * Moves the agent by applying the current offset
- * @return
+ * Updates the agent's position by applying the current offset
  */
-size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
-                               cse491::type_options_t const& /* type_options*/,
-                               cse491::item_set_t const& /* item_set*/,
-                               cse491::agent_set_t const& /* agent_set*/)
-{
+void PathAgent::Update() {
   cse491::GridPosition pos_offset = offsets_[index_];
-  SetPosition(position.CellX() + pos_offset.CellX(), position.CellY() + pos_offset.CellY());
+  SetPosition(position.GetX() + pos_offset.GetX(), position.GetY() + pos_offset.GetY());
 
   // Restart cycling through offsets
   ++index_;
   if (static_cast<size_t>(index_ ) >= offsets_.size()) {
     index_ = 0;
   }
+}
 
+/**
+ * Moves the agent by applying the current offset
+ * @return whether the update succeeded
+ */
+size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
+                               cse491::type_options_t const& /* type_options*/,
+                               cse491::item_set_t const& /* item_set*/,
+                               cse491::agent_set_t const& /* agent_set*/) {
+  Update();
   return action_map["move_self"];
 }
 
@@ -72,7 +83,7 @@ size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
  * @return self
  * @attention throws an `std::invalid_argument` when an invalid start index is provided
  */
-PathAgent& PathAgent::SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index) {
+PathAgent& PathAgent::SetPath(std::vector<cse491::GridPosition> && offsets, size_t start_index) {
   offsets_ = offsets;
   index_ = start_index;
   if (static_cast<size_t>(index_) >= offsets_.size()) {
@@ -90,9 +101,17 @@ PathAgent& PathAgent::SetProperties(std::vector<cse491::GridPosition> && offsets
  * @return self
  * @attention throws an `std::invalid_argument` when mis-formatted commands an invalid index is provided
  */
-PathAgent& PathAgent::SetProperties(std::string_view commands, size_t start_index) {
+PathAgent& PathAgent::SetPath(std::string_view commands, size_t start_index) {
   offsets_.clear();
-  return SetProperties(str_to_offsets(commands), start_index);
+  return SetPath(str_to_offsets(commands), start_index);
+}
+
+/**
+ * Returns an immutable reference to this agent's current path
+ * @return sequence of offsets
+ */
+std::vector<cse491::GridPosition> const& PathAgent::GetPath() const {
+  return offsets_;
 }
 
 /**
@@ -119,10 +138,7 @@ std::vector<cse491::GridPosition> str_to_offsets(std::string_view commands) {
   // Group 2: `steps` (optional)
   // Group 3: `*` (optional, only matches when Group 2 matches)
   // Group 4: direction
-  std::cout << "Bruh" << std::endl;
   std::regex pattern ("(([1-9]\\d*)(\\*?))?([nswex])");
-  std::cout << "Moment" << std::endl;
-
   std::istringstream iss{std::string(commands)};
   iss >> std::skipws;
 

@@ -28,19 +28,24 @@ class PathAgent : public cse491::AgentBase {
   std::vector<cse491::GridPosition> offsets_;
 
   /// Current index into offsets_
-  int index_ = -1;
+  int index_ = 0;
 
  public:
   PathAgent() = delete;
-  PathAgent(size_t id, std::string const& name, std::vector<cse491::GridPosition> && offsets = {});
+  PathAgent(size_t id, std::string const& name, std::vector<cse491::GridPosition> && offsets);
   PathAgent(size_t id, std::string const& name, std::string_view commands);
-  ~PathAgent() = default;
+  ~PathAgent() override = default;
 
   bool Initialize() override;
+
+  void Update();
+
   size_t SelectAction(cse491::WorldGrid const&, cse491::type_options_t const&, cse491::item_set_t const&, cse491::agent_set_t const&) override;
 
-  PathAgent& SetProperties(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0);
-  PathAgent& SetProperties(std::string_view commands, size_t start_index = 0);
+  PathAgent& SetPath(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0);
+  PathAgent& SetPath(std::string_view commands, size_t start_index = 0);
+
+  [[nodiscard]] std::vector<cse491::GridPosition> const& GetPath() const;
 
 };
 
