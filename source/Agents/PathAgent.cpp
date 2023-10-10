@@ -26,7 +26,9 @@ namespace walle {
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
                      std::vector<cse491::GridPosition> && offsets) : cse491::AgentBase(id, name), offsets_(offsets) {
-  assert(!offsets_.empty());
+  if (offsets_.empty()) {
+    throw std::invalid_argument("Sequence of input offsets must not be empty");
+  }
 }
 
 /**
@@ -38,7 +40,9 @@ PathAgent::PathAgent(size_t id, std::string const& name,
  */
 PathAgent::PathAgent(size_t id, std::string const& name,
                      std::string_view commands) : cse491::AgentBase(id, name), offsets_(str_to_offsets(commands)) {
-  assert(!offsets_.empty());
+  if (offsets_.empty()) {
+    throw std::invalid_argument("Sequence of input offsets must not be empty");
+  }
 }
 
 /**
@@ -85,7 +89,7 @@ size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
  */
 PathAgent& PathAgent::SetPath(std::vector<cse491::GridPosition> && offsets, size_t start_index) {
   offsets_ = offsets;
-  index_ = start_index;
+  index_ = static_cast<int>(start_index);
   if (static_cast<size_t>(index_) >= offsets_.size()) {
     std::ostringstream what;
     what << "Out of bounds offset index to begin from: " << index_ << ", number of offsets: " << offsets_.size();
