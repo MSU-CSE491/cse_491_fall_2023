@@ -16,4 +16,5 @@ foreach(TARGET_SOURCE IN LISTS TARGET_SOURCES)
   target_link_libraries(${EXE_NAME}
     PRIVATE Catch2::Catch2WithMain
     )
+  add_test(NAME ${EXE_NAME} COMMAND ${EXE_NAME})
 endforeach()

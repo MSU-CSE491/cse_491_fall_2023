@@ -16,3 +16,8 @@ cmake-build-test
 # Vim swap files
 *.swp
 *.swo
+
+# executable files
+*.exe
+*.out
+

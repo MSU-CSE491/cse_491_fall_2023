@@ -61,6 +61,10 @@ if(${BUILD_TESTS})
   set(CATCH_BUILD_DIR catch_build)
   add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
 
+  # Setup CTest
+  include(CTest)
+  enable_testing()
+
   # Tunnel into test directory CMake infrastructure
   add_subdirectory(tests)
 endif()
