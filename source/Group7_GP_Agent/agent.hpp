@@ -20,6 +20,7 @@
 #include <random>
 
 #include "../core/AgentBase.hpp"
+#include "./GPAgentSensors.hpp"
 
 /**
  * @brief yeeeeeeeehaaaaaaaaa
@@ -32,6 +33,7 @@ namespace cowboys
     {
     protected:
         const std::vector<std::string> predefinedMovement = {"down", "down","down","down", "right", "right", "up", "up", "up","up", "right", "right",  "right",  "right",  "right",  "right",  "right", "right", "right",  "right", "right", "left", "left", "left"};
+
 
         size_t movementIndex = 0; // current move of the agent
 
@@ -59,13 +61,27 @@ namespace cowboys
                             const cse491::item_set_t &item_set,
                             const cse491::agent_set_t &agent_set) override
         {
+
+        //// TODO: Remove this in later releases
+        #ifndef NDEBUG
+            Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
+            Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
+            Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
+            Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
+        #endif
+
             if (movementIndex >= predefinedMovement.size()){
-                return action_map["right"]; // do nothing if it is out of bound for defined movement
+                return 0; // do nothing if it is out of bound for defined movement
             }
+
 
             auto action = action_map[predefinedMovement[movementIndex++]];
             return action;
         }
+
+
+
+
     };
 
 }
