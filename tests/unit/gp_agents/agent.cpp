@@ -10,6 +10,10 @@
 // Class project
 #include "Group7_GP_Agent/agent.hpp"
 
+#include "Group7_GP_Agent/GPAgentsRegisters.hpp"
+
+
+
 TEST_CASE("Agent construction", "[gp_agents]")
 {
     SECTION("Inheritance from AgentBase")
