@@ -102,6 +102,19 @@ namespace cse491 {
       return *agent_set.back();
     }
 
+      /// @brief Build a new entity
+      /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
+      /// @param entity_name The name of this agent
+      /// @param properties Name/value pairs for any properties set at creation
+      /// @return A reference to the newly created entity
+      template <typename... PROPERTY_Ts>
+      Entity & AddEntity(std::string entity_name="None", PROPERTY_Ts... properties) {
+          auto entity_ptr = std::make_unique<Entity>(agent_set.size(), entity_name);
+          entity_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
+          item_set.emplace_back(std::move(entity_ptr));
+          return *item_set.back();
+      }
+
     /// @brief Remove an agent from the agent set
     /// @param agent_name The name of this agent
     /// @return None
