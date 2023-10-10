@@ -11,7 +11,7 @@ run_tests () {
 }
 
 cd unit
-TARGETS="core Agents Worlds Interfaces"
+TARGETS="core Agents Worlds Interfaces gp_agents"
 for TARGET in ${TARGETS}
 do
 if [ -d ${TARGET} ]
@@ -20,6 +20,7 @@ if [ -d ${TARGET} ]
     cd ${TARGET}
     run_tests
     echo "Exiting ${TARGET}"
+    cd ..
   else
     echo "Directory not found: ${TARGET}. Skipping."
   fi
