@@ -10,7 +10,11 @@
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Network/UdpSocket.hpp>
 #include "../../../core/WorldBase.hpp"
+
+
 #include "ServerInterface.hpp"
+
+const std::string filePath = "../../../../../../assets/grids/default_maze.grid";
 
 namespace cse491 {
     namespace netWorth{
@@ -37,10 +41,12 @@ private:
 
   public:
     NetworkMazeWorld() {
-      floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
-      wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
-      //Set your proper filepath here for now until we figure out a workaround
-      main_grid.Read("C:/Users/chase/cse_491_fall_2023/assets/grids/default_maze.grid", type_options);
+		floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
+		wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
+		//Set your proper filepath here for now until we figure out a workaround
+
+
+		main_grid.Read(filePath, type_options);
     }
     ~NetworkMazeWorld() = default;
     /**
