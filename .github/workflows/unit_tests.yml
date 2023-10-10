@@ -36,7 +36,7 @@ jobs:
         run: mkdir cmake-build-test
       - name: Build tests
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Test
+          cmake -DCMAKE_BUILD_TYPE=Test ..
           cmake --build .
         working-directory: cmake-build-test
       - name: Run tests
