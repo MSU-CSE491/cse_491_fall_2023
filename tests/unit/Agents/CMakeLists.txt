@@ -8,15 +8,16 @@ file(STRINGS targets.txt TARGETS)
 
 set(MAIN_SOURCE_DIR ../${MAIN_SOURCE_DIR})
 
+cmake_policy(SET CMP0076 NEW)
+
 foreach(TARGET IN LISTS TARGETS)
-    # Current directory is cmake-build-<type>
-    # ^ you can check this with execute(COMMAND pwd)
-    # I think this is because the top-level cmake file runs this, but I have no idea
-    if(EXISTS "../source/Agents/${TARGET}.cpp")
+    add_executable(tests-unit-agents-${TARGET} ${TARGET}.cpp)
+
+    # Takes an ABSOLUTE PATH to check for file existence
+    if(EXISTS "${CMAKE_SOURCE_DIR}/source/Agents/${TARGET}.cpp")
         # Add implementation file to list of source files if non-header-only class is being tested
-        add_executable(tests-unit-agents-${TARGET} ${TARGET}.cpp ${MAIN_SOURCE_DIR}/Agents/${TARGET}.cpp)
-    else ()
-        add_executable(tests-unit-agents-${TARGET} ${TARGET}.cpp)
+        # Note this is a RELATIVE PATH
+        target_sources(tests-unit-agents-${TARGET} PUBLIC ${MAIN_SOURCE_DIR}/Agents/${TARGET}.cpp)
     endif ()
 
     target_include_directories(tests-unit-agents-${TARGET}
