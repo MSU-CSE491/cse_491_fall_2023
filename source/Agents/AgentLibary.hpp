@@ -2,9 +2,7 @@
 // Created by Matthew Kight on 9/24/23.
 //
 #pragma once
-
 #include "../core/AgentBase.hpp"
-#include "../core/WorldBase.hpp"
 #include <vector>
 #include <map>
 #include <queue>
