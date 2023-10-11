@@ -29,8 +29,22 @@ namespace DataCollection {
         public:
             DoubleLinkedList(): head(nullptr), tail(nullptr) { }
 
+            /// @brief Get the size of this list
+            /// @return Size of this list as an int
             int getSize() const {
                 return size;
+            }
+
+            /// @brief Get the head node for this list
+            /// @return Shared pointer to the head node
+            std::shared_ptr<Node<T>> getHead() const {
+                return head;
+            }
+
+            /// @brief Get the tail node for this list
+            /// @return Shared pointer to the tail node
+            std::shared_ptr<Node<T>> getTail() const {
+                return tail;
             }
 
             /// @brief Create a new node by value and add it to the back of the list
