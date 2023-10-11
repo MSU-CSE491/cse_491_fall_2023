@@ -14,7 +14,7 @@
 #include "Entity.hpp"
 #include "GridPosition.hpp"
 #include "WorldGrid.hpp"
-#include "DataCollection//AgentData.hpp"
+#include "../DataCollection/AgentData.hpp"
 
 namespace cse491 {
 
@@ -56,7 +56,7 @@ namespace cse491 {
 
     void storeActionMap() {
         DataCollection::AgentData data;
-        data.store_action(action_map);
+        data.StoreAction(action_map);
     }
 
 

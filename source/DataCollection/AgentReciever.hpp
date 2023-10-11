@@ -9,12 +9,12 @@ namespace DataCollection
         public:
         void store_data(cse491::GridPosition pos, int last_action){
             AgentData agent;
-            agent.store_positions(pos);
-            agent.store_agent_id(last_action);
+            agent.StorePositions(pos);
+            agent.StoreAgentId(last_action);
             storage.push_back(agent);
         }
 
-        int get_position_size() { return storage.back().get_position_size(); }
+        int get_position_size() { return storage.back().GetPositionSize(); }
         bool is_empty() { return storage.empty(); }
     };
 }

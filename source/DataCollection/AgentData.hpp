@@ -8,31 +8,45 @@
 
 namespace DataCollection
 {
-    class AgentData
-    {
+    class AgentData {
     private:
         std::string name;
         std::vector<int> action_ids;
-        DoubleLinkedList<cse491::GridPosition> position;
+        DoubleLinkedList<cse491::GridPosition> position; // Assuming GridPosition is a valid type
         std::vector<std::unordered_map<std::string, size_t>> actions;
         int position_size = 0;
+
     public:
         AgentData() = default;
-//        AgentData(std::string name) : name(name) {}
-        virtual ~AgentData() = default;
-        void store_positions(cse491::GridPosition pos){
+        ~AgentData() = default;
+
+        void StorePositions(cse491::GridPosition pos) {
             position.add_node(pos);
             position_size += 1;
         }
-        inline void store_action(std::unordered_map<std::string, size_t> obj2){
-            actions.push_back(obj2);
+
+        void StoreAction(std::unordered_map<std::string, size_t> action) {
+            actions.push_back(action);
         }
-        void store_agent_id(int id) {
+
+        void StoreAgentId(int id) {
             action_ids.push_back(id);
         }
-        std::vector<std::unordered_map<std::string, size_t>> get_action(){
+
+        auto& GetActions() {
             return actions;
         }
-        int get_position_size() { return position_size; }
+        // Setter for actions
+        void SetActions(auto& newActions) {
+            actions = newActions;
+        }
+
+        int GetPositionSize() const {
+            return position_size;
+        }
+
+        auto GetAgentIds() const {
+            return action_ids;
+        }
     };
 } // namespace DataCollection
