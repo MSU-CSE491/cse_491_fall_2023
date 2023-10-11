@@ -5,27 +5,41 @@
  */
 
 #pragma once
-
-#include "MazeWorld.hpp"
+#include "../core/WorldBase.hpp"
 
 namespace group4 {
     /**
      * Creates a world with agents and a win flag
      */
-    class SecondWorld : public cse491::MazeWorld {
+    class SecondWorld : public cse491::WorldBase {
     protected:
+        enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
+
+        /// Easy access to floor CellType ID.
+        size_t floor_id;
+
         /// Easy access to flag CellType ID.
         size_t flag_id;
+
+        /// Easy access to wall CellType ID.
+        size_t wall_id;
+
+        /// Provide the agent with movement actions.
+        void ConfigAgent(cse491::AgentBase & agent) override {
+            agent.AddAction("up", MOVE_UP);
+            agent.AddAction("down", MOVE_DOWN);
+            agent.AddAction("left", MOVE_LEFT);
+            agent.AddAction("right", MOVE_RIGHT);
+        }
 
     public:
         /**
          * Constructor with no arguments
          */
         SecondWorld() {
-            // Call parent class' constructor
-            cse491::MazeWorld();
-
+            floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
             flag_id = cse491::WorldBase::AddCellType("flag", "Goal flag for a game end state", 'g');
+            wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
             main_grid.Read("../assets/grids/group4_maze.grid", type_options);
 
             // Adding power sword with id = 1; name = sword of power
