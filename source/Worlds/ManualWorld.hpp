@@ -99,6 +99,8 @@ namespace cse491_team8 {
             }
         }
 
+        std::string other_agent_name = other_agent->GetName();
+
         if (!won) {
             if (run)
             {
@@ -106,7 +108,7 @@ namespace cse491_team8 {
             }
             if (agent->GetName() == "Interface" && agent->GetProperty("Health") <= 0)
             {
-                std::cout << other_agent->GetName() << " has beat " << agent->GetName() << "\n";
+                std::cout << other_agent_name << " has beat " << agent->GetName() << "\n";
                 std::cout << "You Lost..." << "\n";
                 std::cout << "Would You Like To Continue? Y or N? ";
                 char repeat_input;
@@ -129,30 +131,56 @@ namespace cse491_team8 {
         // Gain the Agent's strength that you beat
         agent->SetProperty("Strength",
                 agent->GetProperty("Strength") + other_agent->GetProperty("Strength"));
-        cse491::GridPosition position = other_agent->GetPosition();
-        int x = position.GetX();
-        int y = position.GetY();
+        cse491::GridPosition other_position = other_agent->GetPosition();
         this->RemoveAgent(other_agent->GetName());
 
         // get the loot dropped from the agent
         int random = rand() % 10;
-        char loot = ' ';
-        if (random <= 4) {
-            loot = '/';
+        char symbol = ' ';
+        std::string loot = "";
+        std::string action = "";
+        int num_actions = 0;
+        if (random <= -1) {
+            symbol = '/';
+            loot = "Stick";
+            action = "Hit";
+            num_actions = 2;
         }
-        else if (random <= 7) {
-            loot = '|';
+        else if (random <= -1) {
+            symbol = 'U';
+            loot = "Boat";
+            action = "Swim";
+            num_actions = 7;
         }
-        else if (random <= 9) {
-            loot = '{';
+        else if (random <= 10) {
+            symbol = 'P';
+            loot = "Axe";
+            action = "Chop";
+            num_actions = 5;
         }
         else {
-            loot = '!';
+            symbol = '!';
+            loot = "Sword";
+            action = "Hit";
+            num_actions = 5;
         }
 
         // put the loot where the agent was
-        cse491::WorldGrid grid = GetGrid();
-        grid.AddLoot(x, y, loot);   // TK does not currently display properly
+        int x = other_position.CellX();
+        int y = other_position.CellY();
+        this->AddEntity(loot, "char", symbol).SetPosition(x, y);
+
+        // set the entity to have the property of "action type": number of uses
+        for (const auto& entity : item_set)
+        {
+            if (entity->GetPosition() == other_position)
+            {
+                entity->SetProperty(action, num_actions);
+                break;
+            }
+        }
+        
+        std::cout << other_agent_name << " dropped their " << loot << "!" << std::endl;
 
       }
     }
@@ -247,8 +275,68 @@ namespace cse491_team8 {
 
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
-      if (main_grid.At(new_position) == tree_id) { return false; }
-      if (main_grid.At(new_position) == water_id) { return false; }
+
+      // if they walk over an item, pick it up, add it to their properties, and remove from the entity set
+      for (size_t i = 0; i < GetNumItems(); i++)
+      {
+          auto const & entity = GetItem(i);
+          if (entity.GetPosition() == new_position)
+          {
+              std::string uses_property = "";
+              if (entity.GetName() == "Stick")   { uses_property = "Hit"; }
+              if (entity.GetName() == "Sword")   { uses_property = "Hit"; }
+              if (entity.GetName() == "Boat")    { uses_property = "Swim"; }
+              if (entity.GetName() == "Axe") { uses_property = "Chop"; }
+
+              std::cout << "Picked up the " << entity.GetName() << "!\n"
+                  << "This item has " << entity.GetProperty(uses_property) << " uses left." << std::endl;
+          
+              // add it to their inventory
+              agent.UpdateInventory(entity.GetName(), entity.GetProperty(uses_property));
+
+              // remove it from the board
+              //RemoveEntity(entity.GetName());
+          }
+      }
+
+      if (main_grid.At(new_position) == tree_id)
+      {
+          size_t uses_left = agent.CheckInventory("Axe");
+          if (uses_left > 0)
+          {
+              std::cout << "You can use your Axe once to chop down this tree. You have "
+                  << uses_left << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
+              char chop;
+              std::cin >> chop;
+              if (chop == 'Y')
+              {
+                  // decrement uses by 1, and change the tree to grass
+                  agent.UpdateInventory("Axe", uses_left - 1);
+                  main_grid.SetCell(new_position, grass_id);
+              }
+          }
+          // don't have an axe, can't walk here
+          return false;
+      }
+      if (main_grid.At(new_position) == water_id)
+      {
+          size_t uses_left = agent.CheckInventory("Boat");
+          if (uses_left > 0)
+          {
+              std::cout << "You can use your Boat once to float over this tile. You have "
+                  << uses_left << " uses remaining. Use your boat? Y/N:\n" << std::endl;
+              char boat;
+              std::cin >> boat;
+              if (boat == 'Y')
+              {
+                  // decrement uses by 1, and change the boat to bridge
+                  agent.UpdateInventory("Boat", uses_left - 1);
+                  main_grid.SetCell(new_position, bridge_id);
+              }
+          }
+          // don't have a boat, can't float here
+          return false;
+      }
 
       // Set the agent to its new postion.
       agent.SetPosition(new_position);

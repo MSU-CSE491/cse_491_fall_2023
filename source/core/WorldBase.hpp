@@ -102,18 +102,18 @@ namespace cse491 {
       return *agent_set.back();
     }
 
-      /// @brief Build a new entity
-      /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
-      /// @param entity_name The name of this agent
-      /// @param properties Name/value pairs for any properties set at creation
-      /// @return A reference to the newly created entity
-      template <typename... PROPERTY_Ts>
-      Entity & AddEntity(std::string entity_name="None", PROPERTY_Ts... properties) {
-          auto entity_ptr = std::make_unique<Entity>(agent_set.size(), entity_name);
-          entity_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
-          item_set.emplace_back(std::move(entity_ptr));
-          return *item_set.back();
-      }
+    /// @brief Build a new entity
+    /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
+    /// @param entity_name The name of this agent
+    /// @param properties Name/value pairs for any properties set at creation
+    /// @return A reference to the newly created entity
+    template <typename... PROPERTY_Ts>
+    Entity & AddEntity(std::string entity_name="None", PROPERTY_Ts... properties) {
+        auto entity_ptr = std::make_unique<Entity>(agent_set.size(), entity_name);
+        entity_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
+        item_set.emplace_back(std::move(entity_ptr));
+        return *item_set.back();
+    }
 
     /// @brief Remove an agent from the agent set
     /// @param agent_name The name of this agent
@@ -128,6 +128,17 @@ namespace cse491 {
                         [&](std::unique_ptr<AgentBase> & agent){ return agent->GetName() == agent_name;}
                 );
         agent_set.erase(std::remove(agent_set.begin(), agent_set.end(), *agent_pointer));
+    }
+
+    /// @brief Remove an entity from the agent set
+    /// @param entity_name The name of this entity
+    /// @return None
+    void RemoveEntity(std::string entity_name = "None") {
+        item_set_t ::iterator entity_pointer =
+            std::find_if(item_set.begin(), item_set.end(),
+                [&](std::unique_ptr<Entity>& entity) { return entity->GetName() == entity_name; }
+        );
+        agent_set.erase(std::remove(agent_set.begin(), agent_set.end(), *entity_pointer));
     }
 
     // -- Action Management --
