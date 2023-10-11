@@ -109,7 +109,7 @@ namespace cse491 {
     /// @return A reference to the newly created entity
     template <typename... PROPERTY_Ts>
     Entity & AddEntity(std::string entity_name="None", PROPERTY_Ts... properties) {
-        auto entity_ptr = std::make_unique<Entity>(agent_set.size(), entity_name);
+        auto entity_ptr = std::make_unique<Entity>(item_set.size(), entity_name);
         entity_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
         item_set.emplace_back(std::move(entity_ptr));
         return *item_set.back();
