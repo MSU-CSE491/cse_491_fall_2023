@@ -11,6 +11,7 @@
 #include <ranges>
 
 using namespace cowboys;
+/*
 TEST_CASE("base64", "[group7][base64]") {
     SECTION("Encode and decode") {
         auto max_ull = std::numeric_limits<size_t>::max();
@@ -20,6 +21,7 @@ TEST_CASE("base64", "[group7][base64]") {
         std::string max_ull_str = std::to_string(max_ull);
     }
 }
+*/
 TEST_CASE("Genotype construction", "[group7][genotype]") {
     SECTION("Parameters constructor") {
         auto genotype = CGPGenotype(8, 4, 2, 10, 2);

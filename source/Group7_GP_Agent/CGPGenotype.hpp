@@ -16,6 +16,7 @@ namespace cowboys {
     constexpr char HEADER_END = ':';
 
     namespace base64 {
+        /*
         static std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         static std::string encode(size_t ull) {
             std::string result = "";
@@ -35,18 +36,7 @@ namespace cowboys {
             }
             return result;
         }
-
-        static std::string encode(std::bitset<sizeof(size_t) * 8> bits) {
-            std::string result = "";
-            for (size_t i = 0; i < bits.size(); i += 6) {
-                size_t num = 0;
-                for (size_t j = 0; j < 6; j++) {
-                    num += bits[i + j] * std::pow(2, 5 - j);
-                }
-                result += chars[num];
-            }
-            return result;
-        }
+        */
     } // namespace base64
 
     struct CGPNodeGene {
@@ -102,7 +92,7 @@ namespace cowboys {
         }
 
         /// @brief Decodes the genotype string. Header variables should be initialized before calling this.
-        void DecodeGenotype(const std::string &genotype) {}
+        void DecodeGenotype(const std::string & /*genotype*/) {}
 
     public:
         CGPGenotype(size_t num_inputs, size_t num_outputs, size_t num_layers, size_t num_nodes_per_layer,
