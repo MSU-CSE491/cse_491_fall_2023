@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <ranges>
 
 namespace cowboys {
     using NodeFunction = double (*)(const std::vector<double> &);
