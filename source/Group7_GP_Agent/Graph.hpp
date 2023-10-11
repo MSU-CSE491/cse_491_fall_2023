@@ -2,7 +2,6 @@
 #pragma once
 
 #include <algorithm>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -57,12 +56,6 @@ namespace cowboys {
                 outputs.push_back(node->GetOutput());
             }
 
-            std::cout << "Outputs: ";
-            for (auto &output : outputs) {
-                std::cout << output << " ";
-            }
-            std::cout << std::endl;
-
             // Choose the action with the highest output
             auto max_output = std::max_element(outputs.begin(), outputs.end());
             size_t index = std::distance(outputs.begin(), max_output);
@@ -73,7 +66,6 @@ namespace cowboys {
                 action = actions.back();
             else
                 action = actions.at(index);
-            std::cout << "Action: " << action << std::endl;
             return action;
         }
 
