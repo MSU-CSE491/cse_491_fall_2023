@@ -78,6 +78,30 @@ namespace cowboys {
         }
 
         void AddLayer(const GraphLayer &layer) { layers.push_back(layer); }
+
+        /// @brief Returns a vector of functional (non-input) nodes in the graph.
+        /// @return A vector of functional nodes in the graph.
+        std::vector<std::shared_ptr<GraphNode>> GetFunctionalNodes() const {
+            std::vector<std::shared_ptr<GraphNode>> functional_nodes;
+            for (size_t i = 1; i < layers.size(); ++i) {
+                for (auto &node : layers[i]) {
+                    functional_nodes.push_back(node);
+                }
+            }
+            return functional_nodes;
+        }
+
+        /// @brief Returns a vector of all nodes in the graph.
+        /// @return A vector of all nodes in the graph.
+        std::vector<std::shared_ptr<GraphNode>> GetNodes() const {
+            std::vector<std::shared_ptr<GraphNode>> all_nodes;
+            for (auto &layer : layers) {
+                for (auto &node : layer) {
+                    all_nodes.push_back(node);
+                }
+            }
+            return all_nodes;
+        }
     };
 
     /// @brief Encodes the actions from an agent's action map into a vector of

@@ -33,20 +33,24 @@ namespace cowboys {
 
     class CGPAgent : public GPAgent {
     protected:
+        /// The genotype for this agent.
+        CGPGenotype genotype;
+
         /// The decision graph for this agent.
         std::unique_ptr<Graph> decision_graph;
 
     public:
-        CGPAgent(size_t id, const std::string &name) : GPAgent(id, name) {}
+        CGPAgent(size_t id, const std::string &name) : GPAgent(id, name), genotype(INPUT_SIZE, 0, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK) {}
 
         /// @brief Setup graph.
         /// @return Success.
         bool Initialize() override {
             auto graph_builder = GraphBuilder();
 
-            // decision_graph = graph_builder.CartesianGraph(INPUT_SIZE, action_map.size(), NUM_LAYERS,
-            // NUM_NODES_PER_LAYER);
-            decision_graph = graph_builder.VerticalPacer();
+            genotype = CGPGenotype(INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK);
+            genotype.MutateConnections(0.5);
+            genotype.MutateFunctions(0.5, FUNCTION_SET.size());
+            decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
 
             return true;
         }

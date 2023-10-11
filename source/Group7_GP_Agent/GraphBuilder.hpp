@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CGPGenotype.hpp"
 #include "Graph.hpp"
 
 namespace cowboys {
@@ -8,21 +9,27 @@ namespace cowboys {
         GraphBuilder() = default;
         ~GraphBuilder() = default;
 
-        std::unique_ptr<Graph> CartesianGraph(size_t num_inputs, size_t num_outputs, size_t num_layers,
-                                              size_t num_nodes_per_layer) {
+        /// @brief Creates a decision graph from a CGP genotype.
+        /// @param genotype The genotype to create the decision graph from.
+        /// @return The decision graph.
+        std::unique_ptr<Graph> CartesianGraph(const CGPGenotype &genotype,
+                                              const std::vector<NodeFunction> &function_set) {
             auto decision_graph = std::make_unique<Graph>();
 
+            //
+            // Add all the nodes
+            //
             // Input layer
             GraphLayer input_layer;
-            for (size_t i = 0; i < num_inputs; ++i) {
+            for (size_t i = 0; i < genotype.GetNumInputs(); ++i) {
                 input_layer.push_back(std::make_shared<GraphNode>(0));
             }
             decision_graph->AddLayer(input_layer);
 
             // Middle Layers
-            for (size_t i = 0; i < num_layers; ++i) {
+            for (size_t i = 0; i < genotype.GetNumLayers(); ++i) {
                 GraphLayer layer;
-                for (size_t j = 0; j < num_nodes_per_layer; ++j) {
+                for (size_t j = 0; j < genotype.GetNumNodesPerLayer(); ++j) {
                     layer.push_back(std::make_shared<GraphNode>(0));
                 }
                 decision_graph->AddLayer(layer);
@@ -30,10 +37,43 @@ namespace cowboys {
 
             // Action layer
             GraphLayer output_layer;
-            for (size_t i = 0; i < num_outputs; ++i) {
+            for (size_t i = 0; i < genotype.GetNumOutputs(); ++i) {
                 output_layer.push_back(std::make_shared<GraphNode>(0));
             }
             decision_graph->AddLayer(output_layer);
+
+            //
+            // Configure graph based on genotype
+            //
+
+            auto functional_nodes = decision_graph->GetFunctionalNodes();
+            auto all_nodes = decision_graph->GetNodes();
+            auto nodes_it = functional_nodes.begin();
+            auto genes_it = genotype.begin();
+            // Iterator distances should be the same
+            assert(std::distance(functional_nodes.end(), functional_nodes.begin()) == std::distance(genotype.end(), genotype.begin()));
+            // Get the iterator of all nodes and move it to the start of the first functional node
+            auto all_nodes_it = all_nodes.begin() + genotype.GetNumInputs();
+            for (; nodes_it != functional_nodes.end() && genes_it != genotype.end(); ++nodes_it, ++genes_it) {
+                // Advance the all nodes iterator if we are at the start of a new layer
+                auto dist = std::distance(functional_nodes.begin(), nodes_it);
+                if (dist != 0 && dist % genotype.GetNumNodesPerLayer() == 0) {
+                    std::advance(all_nodes_it, genotype.GetNumNodesPerLayer());
+                }
+
+                auto &[connections, function_idx] = *genes_it;
+                (*nodes_it)->SetFunctionPointer(function_set.at(function_idx));
+                // Copy the all nodes iterator and move it backwards by the number of connections
+                auto nodes_it_copy = all_nodes_it;
+                std::advance(nodes_it_copy, -connections.size());
+                // Add the inputs to the node
+                for (auto &connection : connections) {
+                    if (connection != '0') {
+                        (*nodes_it)->AddInput(*nodes_it_copy);
+                    }
+                    ++nodes_it_copy;
+                }
+            }
 
             return decision_graph;
         }
