@@ -10,18 +10,27 @@
 // Class project
 #include "DataCollection/DataReceiver.hpp"
 
-
-TEST_CASE("DataReceiver Storage", "[DataReceiver]") {
+TEMPLATE_TEST_CASE("DataReceiver class tests", "[DataReceiver][template]", int, double, std::string) {
     DataCollection::DataReceiver<int> dataReceiver;
-    SECTION("Store data and check if vector is not empty") {
+    SECTION("Test storing and retrieving data") {
+
         dataReceiver.store_data(42);
-        REQUIRE(dataReceiver.getStorage().size() == 1);
-        REQUIRE_FALSE(dataReceiver.getStorage().empty());
-        REQUIRE(dataReceiver.getStorage()[0] == 42);
-        dataReceiver.getStorage().clear();
-        REQUIRE_FALSE(dataReceiver.getStorage().size() == 1);
+        dataReceiver.store_data(321);
+        dataReceiver.store_data(123);
+
+        std::vector<int> storedData = dataReceiver.getStorage();
+        REQUIRE(storedData.size() == 3);
+        REQUIRE(storedData[0] == 42);
+        REQUIRE(storedData[1] == 321);
+        REQUIRE(storedData[2] == 123);
+    }
+
+    SECTION("Test empty storage") {
+        std::vector<int> storedData = dataReceiver.getStorage();
+        REQUIRE(storedData.empty());
     }
 }
+
 
 
 

@@ -5,7 +5,6 @@ namespace DataCollection {
 
     template <typename T>
     class DataReceiver {
-
     public:
     DataReceiver() = default;
     virtual ~DataReceiver() = default;

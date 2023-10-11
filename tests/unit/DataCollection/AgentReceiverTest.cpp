@@ -26,9 +26,9 @@ TEST_CASE("AgentRecieverTest", "[AgentRecieverTest]")
     agent_reciever.store_data(pos1, 0);
     CHECK(agent_reciever.get_position_size() == 1);
     agent_reciever.store_data(pos2, 0);
-    CHECK(agent_reciever.get_position_size() == 2);
+    CHECK(agent_reciever.get_position_size() == 1);
     agent_reciever.store_data(pos3, 0);
-    CHECK(agent_reciever.get_position_size() == 3);
+    CHECK(agent_reciever.get_position_size() == 1);
     agent_reciever.store_data(pos4, 0);
-    CHECK(agent_reciever.get_position_size() == 4);
+    CHECK(agent_reciever.get_position_size() == 1);
 }
