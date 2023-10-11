@@ -56,26 +56,26 @@ namespace cse491_team8 {
         bool won = false;
         bool run = false;
         char input;
-        while (other_agent->GetProperty("Health") > 0 && agent->GetProperty("Health") > 0)
+        while (other_agent->GetProperty<int>("Health") > 0 && agent->GetProperty<int>("Health") > 0)
         {
             bool valid_input = true;
             std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
             std::cout << "Your Attack: ";
             std::cin >> input;
             double damage = 0.0;
-            double other_damage = other_agent->GetProperty("Strength");
+            double other_damage = other_agent->GetProperty<int>("Strength");
             switch (input) {
-            case 'a': case 'A': damage = agent->GetProperty("Strength");    break;
-            case 's': case 'S': damage = agent->GetProperty("Strength") * 1.5;  break;
+            case 'a': case 'A': damage = (int)(agent->GetProperty<int>("Strength"));    break;
+            case 's': case 'S': damage = (int)(agent->GetProperty<int>("Strength") * 1.5);  break;
             case 'r': case 'R': won = false; run = true; break;
-            case 'h': case 'H': agent->SetProperty("Health",
-                    agent->GetProperty("Health") + (int)(agent->GetProperty("Max_Health") * 0.25)); break;
+            case 'h': case 'H': agent->SetProperty<int>("Health",
+                    agent->GetProperty<int>("Health") + (int)(agent->GetProperty<int>("Max_Health") * 0.25)); break;
             default: valid_input = false; break;
             }
-            if (agent->GetProperty("Health") > agent->GetProperty("Max_Health")) {
-              agent->SetProperty("Health", agent->GetProperty("Max_Health"));
+            if (agent->GetProperty<int>("Health") > agent->GetProperty<int>("Max_Health")) {
+              agent->SetProperty<int>("Health", agent->GetProperty<int>("Max_Health"));
             }
-            std::cout << agent->GetProperty("Health") << " | " << other_agent->GetProperty("Health") << std::endl;
+            std::cout << agent->GetProperty<int>("Health") << " | " << other_agent->GetProperty<int>("Health") << std::endl;
             if (!valid_input)
             {
                 std::cout << "Invalid Input" << "\n";
@@ -83,17 +83,17 @@ namespace cse491_team8 {
             }
             if (run)
             {
-                agent->SetProperty("Health", agent->GetProperty("Health") - other_damage);
+                agent->SetProperty<int>("Health", agent->GetProperty<int>("Health") - other_damage);
                 break;
             }
-            other_agent->SetProperty("Health", other_agent->GetProperty("Health") - damage);
-            if (other_agent->GetProperty("Health") <= 0)
+            other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") - damage);
+            if (other_agent->GetProperty<int>("Health") <= 0)
             {
                 won = true;
                 break;
             }
-            agent->SetProperty("Health", agent->GetProperty("Health") - other_damage);
-            if (agent->GetProperty("Health") <= 0)
+            agent->SetProperty<int>("Health", agent->GetProperty<int>("Health") - other_damage);
+            if (agent->GetProperty<int>("Health") <= 0)
             {
                 break;
             }
@@ -106,7 +106,7 @@ namespace cse491_team8 {
             {
                 std::cout << "You ran away, this means you don't gain health or strength and any battle damage stays!" << "\n";
             }
-            if (agent->GetName() == "Interface" && agent->GetProperty("Health") <= 0)
+            if (agent->GetName() == "Interface" && agent->GetProperty<int>("Health") <= 0)
             {
                 std::cout << other_agent_name << " has beat " << agent->GetName() << "\n";
                 std::cout << "You Lost..." << "\n";
@@ -119,8 +119,8 @@ namespace cse491_team8 {
                 }
                 else
                 {
-                    agent->SetProperty("Health", 20);
-                    agent->SetProperty("Strength", 7);
+                    agent->SetProperty<int>("Health", 20);
+                    agent->SetProperty<int>("Strength", 7);
                     agent->SetPosition(40, 3);
                 }
             }
@@ -129,8 +129,8 @@ namespace cse491_team8 {
         else {
         std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
         // Gain the Agent's strength that you beat
-        agent->SetProperty("Strength",
-                agent->GetProperty("Strength") + other_agent->GetProperty("Strength"));
+        agent->SetProperty<int>("Strength",
+                agent->GetProperty<int>("Strength") + other_agent->GetProperty<int>("Strength"));
         cse491::GridPosition other_position = other_agent->GetPosition();
         this->RemoveAgent(other_agent->GetName());
 
@@ -284,7 +284,7 @@ namespace cse491_team8 {
                   << uses_left << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
               char chop;
               std::cin >> chop;
-              if (chop == 'Y')
+              if (chop == 'Y' || chop == 'y')
               {
                   // decrement uses by 1, and change the tree to grass
                   agent.UpdateInventory("Axe", uses_left - 1);
@@ -303,7 +303,7 @@ namespace cse491_team8 {
                   << uses_left << " uses remaining. Use your boat? Y/N:\n" << std::endl;
               char boat;
               std::cin >> boat;
-              if (boat == 'Y')
+              if (boat == 'Y' || boat == 'y')
               {
                   // decrement uses by 1, and change the boat to bridge
                   agent.UpdateInventory("Boat", uses_left - 1);
@@ -354,7 +354,7 @@ namespace cse491_team8 {
             agent.UpdateInventory(entity.GetName(), entity.GetProperty<int>(uses_property));
 
             // remove it from the board
-            //RemoveEntity(entity.GetName());
+            RemoveEntity(entity.GetName());
           }
         }
       }

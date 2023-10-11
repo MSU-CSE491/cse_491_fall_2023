@@ -138,7 +138,7 @@ namespace cse491 {
             std::find_if(item_set.begin(), item_set.end(),
                 [&](std::unique_ptr<Entity>& entity) { return entity->GetName() == entity_name; }
         );
-        agent_set.erase(std::remove(agent_set.begin(), agent_set.end(), *entity_pointer));
+        item_set.erase(std::remove(item_set.begin(), item_set.end(), *entity_pointer));
     }
 
     // -- Action Management --
