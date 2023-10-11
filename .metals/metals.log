@@ -53,3 +53,6 @@ INFO: Schema "PUBLIC" is up to date. No migration necessary.
 2023.10.02 12:48:42 WARN  no build tool detected in workspace '/Users/yonesmussa/Desktop/CSE491/cse_491_fall_2023_group2'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
 Oct 02, 2023 1:35:30 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFO: Unsupported notification method: $/setTrace
+2023.10.10 14:50:02 INFO  Shutting down server
+2023.10.10 14:50:02 INFO  shutting down Metals
+2023.10.10 14:50:02 INFO  Exiting server

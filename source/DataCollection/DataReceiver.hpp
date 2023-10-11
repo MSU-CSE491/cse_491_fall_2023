@@ -1,29 +1,28 @@
 #pragma once
 
 #include <vector>
-
 namespace DataCollection {
 
-    struct DataStorage
-    {
-        /* data */
-        std::vector<std::unordered_map<std::string, size_t>> actions;
-
-    };
-    
     template <typename T>
     class DataReceiver {
 
     public:
-        DataReceiver() = default;
-        virtual ~DataReceiver() = default;
-        virtual void DebugPrint() = 0;
-        inline void store_data(T obj) { storage.push_back(obj); }
-        inline void store_actions(std::unordered_map<std::string, size_t> action){
-            DataStorage DataStorage;
-            DataStorage.actions.push_back(action);
-        }
+    DataReceiver() = default;
+    virtual ~DataReceiver() = default;
+    inline void store_data(T obj) { storage.push_back(obj); }
+    std::vector<T>& getStorage() {
+        return storage;
+    }
+    inline void store_actions(std::unordered_map<std::string, size_t> action){
+        actions.push_back(action);
+    }
+    auto &getActions(){
+        return actions;
+    }
+
     protected:
-        std::vector<T> storage;
+    std::vector<T> storage;
+    std::vector<std::unordered_map<std::string, size_t>> actions;
+
     };
 }
