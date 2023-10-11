@@ -8,17 +8,15 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
-#include "DataCollection/GridPositionReceiver.hpp"
+#include "DataCollection/AgentReciever.hpp"
 
 int main()
 {
   cse491::MazeWorld world;
-  DataCollection::GridPositionReceiver receiver;
   DataCollection::AgentReciever agent_receiver;
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
   world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
-  world.SetGridReceiver(receiver);
   world.SetAgentReceiver(agent_receiver);
 
   world.Run();

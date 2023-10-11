@@ -8,11 +8,11 @@
 #include <catch2/catch_all.hpp>
 
 // Class project
-#include "DataCollection/DataReceiverTest.hpp"
+#include "DataCollection/DataReceiver.hpp"
 
 
-TEST_CASE("DataReceiverTest Storage", "[DataReceiverTest]") {
-    DataCollection::DataReceiverTest<int> dataReceiver;
+TEST_CASE("DataReceiver Storage", "[DataReceiver]") {
+    DataCollection::DataReceiver<int> dataReceiver;
     SECTION("Store data and check if vector is not empty") {
         dataReceiver.store_data(42);
         REQUIRE(dataReceiver.getStorage().size() == 1);
@@ -24,7 +24,7 @@ TEST_CASE("DataReceiverTest Storage", "[DataReceiverTest]") {
 }
 
 TEST_CASE("Adding data to actions vector", "[actions]") {
-    DataCollection::DataReceiverTest<std::unordered_map<std::string, size_t>> actionsData;
+    DataCollection::DataReceiver<std::unordered_map<std::string, size_t>> actionsData;
 
     // Adding data to the actions vector
     std::unordered_map<std::string, size_t> data1 = {{"key1", 1}, {"key2", 2}};

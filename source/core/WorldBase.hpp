@@ -15,7 +15,6 @@
 #include "Data.hpp"
 #include "Entity.hpp"
 #include "WorldGrid.hpp"
-#include "../DataCollection/GridPositionReceiver.hpp"
 #include "../DataCollection/AgentReciever.hpp"
 
 namespace cse491 {
@@ -32,7 +31,6 @@ class DataReceiver;
     item_set_t item_set;     ///< Vector of pointers to non-agent entities
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
-    std::shared_ptr<DataCollection::GridPositionReceiver> grid_receiver;
     std::shared_ptr<DataCollection::AgentReciever> agent_receiver;
 
 
@@ -111,10 +109,6 @@ class DataReceiver;
       return *agent_set.back();
     }
 
-    void SetGridReceiver(DataCollection::GridPositionReceiver r) {
-      grid_receiver = std::make_shared<DataCollection::GridPositionReceiver>(r);
-    }
-
     void SetAgentReceiver(DataCollection::AgentReciever r) {
       agent_receiver = std::make_shared<DataCollection::AgentReciever>(r);
     }
@@ -140,16 +134,9 @@ class DataReceiver;
 
     }
 
-
-
     void CollectData() {
-
       auto & agent = agent_set.at(2);
-      grid_receiver->store_data(agent->GetPosition());
-      grid_receiver->store_actions(agent->GetActionMap());
-      agent_receiver->store_actions(agent->GetActionMap());
-      agent_receiver->store_positions(agent->GetPosition());
-      // grid_receiver->DebugPrint();
+      agent_receiver->store_data(agent->GetPosition(), agent->GetActionResult());
     }
 
     /// @brief UpdateWorld() is run after every agent has a turn.

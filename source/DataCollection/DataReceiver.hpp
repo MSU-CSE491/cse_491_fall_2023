@@ -4,25 +4,18 @@
 namespace DataCollection {
 
     template <typename T>
-    class DataReceiverTest {
+    class DataReceiver {
 
     public:
-    DataReceiverTest() = default;
-    virtual ~DataReceiverTest() = default;
+    DataReceiver() = default;
+    virtual ~DataReceiver() = default;
     inline void store_data(T obj) { storage.push_back(obj); }
     std::vector<T>& getStorage() {
         return storage;
     }
-    inline void store_actions(T obj){
-        actions.push_back(obj);
-    }
-    inline auto &getActions(){
-        return actions;
-    }
 
     protected:
     std::vector<T> storage;
-    std::vector<T> actions;
 
     };
 }
