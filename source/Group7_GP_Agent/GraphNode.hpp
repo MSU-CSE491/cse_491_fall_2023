@@ -54,7 +54,9 @@ namespace cowboys {
     /// @brief A vector of all the node functions.
     const std::vector<NodeFunction> FUNCTION_SET{Sum, And, AnyEq, Not, Gate};
 
-    class GraphNode {
+    /// @brief A node in a decision graph.
+    /// @note This should always be a shared pointer. Caching will not work otherwise.
+    class GraphNode : public std::enable_shared_from_this<GraphNode> {
     protected:
         /// The input nodes to this node.
         std::vector<std::shared_ptr<GraphNode>> inputs;
@@ -64,6 +66,26 @@ namespace cowboys {
 
         /// The default output of this node.
         double output{0};
+
+        /// The nodes connected to this node's output.
+        std::vector<std::weak_ptr<GraphNode>> outputs;
+
+        /// The cached output of this node.
+        mutable double cached_output{0};
+
+        /// Flag indicating whether the cached output is valid.
+        mutable bool cached_output_valid{false};
+
+        void AddOutput(std::weak_ptr<GraphNode> node) { outputs.push_back(node); }
+
+        void RecursiveInvalidateCache() const {
+            cached_output_valid = false;
+            for (auto &output : outputs) {
+                if (auto output_node = output.lock()) {
+                    output_node->RecursiveInvalidateCache();
+                }
+            }
+        }
 
     public:
         GraphNode() = default;
@@ -75,27 +97,35 @@ namespace cowboys {
 
         std::string name;
 
-        /// TODO: Cache outputs
         virtual double GetOutput() const {
+            if (cached_output_valid)
+                return cached_output;
+
+            double result = output;
             // Invoke function pointer if it exists
             if (function_pointer != nullptr) {
-                std::vector<double> input_values;
-                for (auto &input : inputs) {
-                    input_values.push_back(input->GetOutput());
-                }
+                std::vector<double> input_values(inputs.size());
+                std::ranges::transform(inputs, input_values.begin(),
+                                       [](const auto &input) { return input->GetOutput(); });
 
                 try {
-                    return function_pointer(input_values);
+                    result = function_pointer(input_values);
                 } catch (const std::out_of_range &e) {
-                    return 0.0;
+                    // Don't do anything, just use the default output
                 }
             }
 
-            // Default output
-            return output;
+            // Cache the output
+            cached_output = result;
+            cached_output_valid = true;
+
+            return result;
         }
 
-        void SetFunctionPointer(NodeFunction function) { function_pointer = function; }
+        void SetFunctionPointer(NodeFunction function) {
+            function_pointer = function;
+            RecursiveInvalidateCache();
+        }
 
         std::shared_ptr<GraphNode> GetInput(size_t input_idx) const {
             if (inputs.size() == 0) {
@@ -109,11 +139,24 @@ namespace cowboys {
                 return inputs.at(input_idx);
         }
 
-        void AddInput(std::shared_ptr<GraphNode> node) { inputs.push_back(node); }
+        void AddInput(std::shared_ptr<GraphNode> node) {
+            inputs.push_back(node);
+            // Add a weak pointer to this node to the input node's outputs
+            node->AddOutput(weak_from_this());
+            RecursiveInvalidateCache();
+        }
         void AddInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
             inputs.insert(inputs.end(), nodes.begin(), nodes.end());
+            RecursiveInvalidateCache();
         }
-        void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) { inputs = nodes; }
-        void SetOutput(double value) { output = value; }
+        void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
+            inputs = nodes;
+            RecursiveInvalidateCache();
+        }
+        void SetOutput(double value) {
+            output = value;
+            RecursiveInvalidateCache();
+        }
+        bool IsCacheValid() const { return cached_output_valid; }
     };
 } // namespace cowboys
