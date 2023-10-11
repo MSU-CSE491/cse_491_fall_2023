@@ -1,3 +1,5 @@
+#pragma once
+
 #include <bitset>
 #include <cassert>
 #include <format>
@@ -150,6 +152,30 @@ namespace cowboys {
             }
             return num_connections;
         }
+
+        /// @brief Returns the number of inputs to the graph.
+        /// @return The number of inputs to the graph.
+        size_t GetNumInputs() const { return num_inputs; }
+
+        /// @brief Returns the number of outputs from the graph.
+        /// @return The number of outputs from the graph.
+        size_t GetNumOutputs() const { return num_outputs; }
+
+        /// @brief Returns the number of middle layers in the graph.
+        /// @return The number of middle layers in the graph.
+        size_t GetNumLayers() const { return num_layers; }
+
+        /// @brief Returns the number of nodes per middle layer.
+        /// @return The number of nodes per middle layer.
+        size_t GetNumNodesPerLayer() const { return num_nodes_per_layer; }
+
+        /// @brief Returns the number of layers backward that a node can connect to.
+        /// @return The number of layers backward that a node can connect to.
+        size_t GetLayersBack() const { return layers_back; }
+
+        /// @brief Returns the number of nodes in the graph.
+        /// @return The number of nodes in the graph.
+        size_t GetNumNodes() const { return nodes.size(); }
 
         /// @brief Initializes an empty genotype with the cartesian graph parameters.
         void InitGenotype() {
