@@ -153,7 +153,6 @@ namespace cse491 {
                         return;
                     }
                 }
-
             }
         }; //End of ClientInterface
     }// End of namespace NetWorth

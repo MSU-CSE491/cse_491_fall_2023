@@ -92,14 +92,12 @@ namespace cse491 {
                     packet_grid[pos.CellY()][pos.CellX()] = c;
                 }
 
-
                 // Print out the symbol_grid with a box around it.
                 std::ostringstream oss;
                 oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
                 for (const auto & row : packet_grid) {
                     oss << "|";
                     for (char cell : row) {
-                        // std::cout << ' ' << cell;
                         oss << cell;
                     }
                     oss << "|\n";

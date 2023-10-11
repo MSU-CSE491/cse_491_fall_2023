@@ -6,9 +6,7 @@
 
 // // Include the modules that we will be using.
 #include "../../TrashInterface.hpp"
-#include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"
-#include "networkingagent.hpp"
 #include "ClientInterface.hpp"
 
 int main(int argc, char *argv[])
