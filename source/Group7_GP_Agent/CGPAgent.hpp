@@ -17,10 +17,10 @@
 
 namespace cowboys {
     /// Don't know the maximum size a state can be, arbitrary large number
-    constexpr size_t INPUT_SIZE = 10000;
+    constexpr size_t INPUT_SIZE = 100;
 
     /// Number of computational layers for each agent
-    constexpr size_t NUM_LAYERS = 10;
+    constexpr size_t NUM_LAYERS = 20;
 
     /// The number of nodes in each layer
     constexpr size_t NUM_NODES_PER_LAYER = 10;
@@ -48,8 +48,8 @@ namespace cowboys {
             auto graph_builder = GraphBuilder();
 
             genotype = CGPGenotype(INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK);
-            genotype.MutateConnections(0.5);
-            genotype.MutateFunctions(0.5, FUNCTION_SET.size());
+            genotype.MutateConnections(0.1);
+            genotype.MutateFunctions(0.1, FUNCTION_SET.size());
             decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
 
             return true;
