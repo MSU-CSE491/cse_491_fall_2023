@@ -4,7 +4,7 @@
  * @note Status: PROPOSAL
  **/
 
-// // Include the modules that we will be using.
+// Include the modules that we will be using.
 #include "../../TrashInterface.hpp"
 #include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"

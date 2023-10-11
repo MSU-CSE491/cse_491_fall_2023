@@ -27,7 +27,7 @@ namespace cse491 {
         private:
             std::unique_ptr<TrashInterface> mTrash;     /// Display interface
 
-            sf::IpAddress mIp;      /// Destination IP address
+            std::optional<sf::IpAddress> mIp;           /// Destination IP address
             sf::UdpSocket mSocket;  /// UDP socket for sending and receiving
             unsigned short mPort;   /// Destination port
 
@@ -42,7 +42,7 @@ namespace cse491 {
              */
             ClientInterface(const std::string & ip_string,
                             unsigned short port) {
-                mIp = sf::IpAddress(ip_string);
+                mIp = sf::IpAddress::resolve(ip_string);
                 mPort = port;
             }
 
@@ -62,13 +62,13 @@ namespace cse491 {
                 std::string str = "Ping!";
                 send_pkt << str;
 
-                if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
-                    std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
+                if (mSocket.send(send_pkt, mIp.value(), mPort) != Socket::Status::Done) {
+                    std::cout << "Could not connect to " << mIp.value() << " at port " << mPort << std::endl;
                     return false;
                 }
 
                 // receive pong from server
-                if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
+                if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Status::Done)
                 {
                     std::cout << "Failure to receive" << std::endl;
                     return false;
@@ -104,15 +104,15 @@ namespace cse491 {
                 send_pkt << send_str;
 
                 // ask for map
-                if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
-                    std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
+                if (mSocket.send(send_pkt, mIp.value(), mPort) != Socket::Status::Done) {
+                    std::cout << "Could not connect to " << mIp.value() << " at port " << mPort << std::endl;
                     return;
                 }
 
                 while (action != "quit")
                 {
                     // receive initial map
-                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
+                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Status::Done)
                     {
                         std::cout << "Failure to receive" << std::endl;
                         return;
@@ -148,8 +148,8 @@ namespace cse491 {
                     send_pkt.clear();
                     send_pkt << action;
 
-                    if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
-                        std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
+                    if (mSocket.send(send_pkt, mIp.value(), mPort) != Socket::Status::Done) {
+                        std::cout << "Could not connect to " << mIp.value() << " at port " << mPort << std::endl;
                         return;
                     }
                 }
