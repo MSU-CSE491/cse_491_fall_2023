@@ -14,12 +14,12 @@ int main()
   cse491_team8::ManualWorld world;
   world.AddEntity("Axe", "Cut", 5, "symbol", 'P').SetPosition(37, 3);
   world.AddEntity("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
-  world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 7, "Health", 20, "Max_Health", 40, "Direction", 0).SetProperty("symbol", '@').SetPosition(40,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 5, "Health",  5, "Max_Health", 30, "Direction", 0).SetPosition(45, 3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 2, "Health", 10, "Max_Health", 30, "Direction", 0).SetPosition(3,14);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2", "Strength", 4, "Health", 20, "Max_Health", 30, "Direction", 0).SetPosition(7,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 3", "Strength", 6, "Health", 30, "Max_Health", 30, "Direction", 0).SetPosition(18,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 8, "Health", 40, "Max_Health", 30, "Direction", 0).SetPosition(45,17);
+  world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 7, "Health", 20, "Max_Health", 40).SetProperty("symbol", '@').SetPosition(40,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 5, "Health",  5, "Max_Health", 30).SetPosition(45, 3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 2, "Health", 10, "Max_Health", 30).SetPosition(3,14);
+  world.AddAgent<cse491::PacingAgent>("Pacer 2", "Strength", 4, "Health", 20, "Max_Health", 30).SetPosition(7,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 3", "Strength", 6, "Health", 30, "Max_Health", 30).SetPosition(18,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 8, "Health", 40, "Max_Health", 30).SetPosition(45,17);
 
   world.Run();
 }
