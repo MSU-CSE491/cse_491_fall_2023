@@ -62,8 +62,8 @@ namespace cse491_team8 {
             std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
             std::cout << "Your Attack: ";
             std::cin >> input;
-            double damage = 0.0;
-            double other_damage = other_agent->GetProperty<int>("Strength");
+            int damage = 0;
+            int other_damage = other_agent->GetProperty<int>("Strength");
             switch (input) {
             case 'a': case 'A': damage = (int)(agent->GetProperty<int>("Strength"));    break;
             case 's': case 'S': damage = (int)(agent->GetProperty<int>("Strength") * 1.5);  break;
