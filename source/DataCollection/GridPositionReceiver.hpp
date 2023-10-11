@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#include "DataReceiver.hpp"
+#include "DataReceiverTest.hpp"
 #include "../core/GridPosition.hpp"
 
 namespace DataCollection {
 
-    class GridPositionReceiver : public DataReceiver<cse491::GridPosition> {
+    class GridPositionReceiver : public DataReceiverTest<cse491::GridPosition> {
 
     };
 }
