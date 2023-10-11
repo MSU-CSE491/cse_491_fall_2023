@@ -27,15 +27,12 @@ namespace i_2D {
     * for creating and displaying a 2D maze game world, handling user input,
     * and updating the graphical representation of the game.
     */
-    class MainInterface : public InterfaceBase { // Rename to mainInterface
+    class MainInterface : public InterfaceBase {
 
     protected:
-        bool wait_for_input = true;
-        sf::RenderWindow mWindow;
-        sf::Clock clock;
-        sf::Vector2i characterPosition; // Add character position variable
-        WorldGrid wGrid;
-        float const MIN_SIZE_CELL = 16; // Pixels
+
+        sf::RenderWindow mWindow; ///< render window
+        float const MIN_SIZE_CELL = 16; ///< Pixels
 
     public:
 
@@ -54,7 +51,7 @@ namespace i_2D {
                       const item_set_t &item_set, const agent_set_t &agent_set);
 
 
-        void updateGrid(const WorldGrid &grid,
+        void UpdateGrid(const WorldGrid &grid,
                         const type_options_t &type_options,
                         const item_set_t &item_set,
                         const agent_set_t &agent_set);
