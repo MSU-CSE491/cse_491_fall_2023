@@ -9,7 +9,6 @@
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
-
 int main()
 {
   cse491::MazeWorld world;
@@ -18,5 +17,4 @@ int main()
   world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
 
   world.Run();
-
 }
