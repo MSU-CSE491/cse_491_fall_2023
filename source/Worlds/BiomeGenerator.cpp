@@ -4,6 +4,9 @@
  */
 
 #include <fstream>
+#include <cmath>
+#include <set>
+#include <tuple>
 #include "BiomeGenerator.h"
 
 using std::vector;
@@ -15,7 +18,17 @@ using std::vector;
  * @param height The height of the grid
  * @param seed   The seed used for random number generation
  */
-BiomeGenerator::BiomeGenerator(const std::string &biome, unsigned int width, unsigned int height, unsigned int seed) : biome(biome), width(width), height(height) {
+BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed) : biome(biome), width(width), height(height) {
+
+    if (biome == BiomeType::Maze)
+    {
+        setTiles(' ', '#');
+    }
+    else if (biome == BiomeType::Grasslands)
+    {
+        setTiles('M', '~');
+    }
+
     perlinNoise = PerlinNoise(seed);
     grid = vector<vector<char>>(height, vector<char>(width));
 }
@@ -25,7 +38,11 @@ BiomeGenerator::BiomeGenerator(const std::string &biome, unsigned int width, uns
  * @param tile1  The first tile generated
  * @param tile2 The second tile generated
  */
-void BiomeGenerator::generate(const char &tile1, const char &tile2) {
+void BiomeGenerator::generate() {
+
+    char tile1 = tiles[0];
+    char tile2 = tiles[1];
+
     for (unsigned int y = 0; y < height; y++) {
         for (unsigned int x = 0; x < width; x++) {
             const double val = perlinNoise.noise2D(x * frequency / width, y * frequency / height);
@@ -33,12 +50,62 @@ void BiomeGenerator::generate(const char &tile1, const char &tile2) {
         }
     }
 
-    if (getBiome() == "maze")
+
+    if (biome == BiomeType::Maze)
     {
         placeSpecialTiles(tile1, 'X', 0.02); // Placing spike tiles
         placeSpecialTiles(tile1, 'O', 0.05); // Placing tar tiles
     }
 }
+
+//bool BiomeGenerator::isPathExists() {
+//    std::set<Point> closedSet;
+//    std::vector<Point> openSet{ {0, 0} };
+//
+//    auto heuristic = [](const Point& a, const Point& b) {
+//        return std::sqrt(std::pow(b.x - a.x, 2) + std::pow(b.y - a.y, 2));
+//    };
+//
+//    while (!openSet.empty()) {
+//        Point current = openSet.back();
+//        openSet.pop_back();
+//
+//        if (current.x == width - 1 && current.y == height - 1)
+//            return true;
+//
+//        closedSet.insert(current);
+//
+//        std::vector<Point> neighbors{
+//                {current.x + 1, current.y},
+//                {current.x - 1, current.y},
+//                {current.x, current.y + 1},
+//                {current.x, current.y - 1}
+//        };
+//
+//        for (const auto& neighbor : neighbors) {
+//            if (neighbor.x < 0 || neighbor.x >= width || neighbor.y < 0 || neighbor.y >= height)
+//                continue;
+//
+//            if (grid[neighbor.y][neighbor.x] == '#')  // Check if the neighbor is walkable
+//                continue;
+//
+//            if (closedSet.find(neighbor) != closedSet.end())
+//                continue;
+//
+//            double tentative_gScore = heuristic({0, 0}, neighbor);
+//
+//            auto it = std::find(openSet.begin(), openSet.end(), neighbor);
+//            if (it == openSet.end() || tentative_gScore < heuristic({0, 0}, *it)) {
+//                if (it == openSet.end()) {
+//                    openSet.push_back(neighbor);
+//                }
+//            }
+//        }
+//    }
+//
+//    return false;
+//}
+
 
 /**
  * Generates special tiles on the grid
@@ -80,3 +147,16 @@ void BiomeGenerator::saveToFile(const std::string &filename) const {
     }
     out.close();
 }
+
+/**
+ * Sets the tile vector for the biome
+ * @param firstTile Tile #1 for the biome
+ * @param secondTile Tile #2 for the biome
+ */
+void BiomeGenerator::setTiles(const char& firstTile, const char& secondTile)
+{
+    tiles.clear();
+    tiles.push_back(firstTile);
+    tiles.push_back(secondTile);
+}
+

@@ -11,14 +11,20 @@
 #include "Worlds/BiomeGenerator.h"
 
 int main() {
-    static const unsigned int SEED = 500;
+    static const unsigned int SEED = 933;
 
-    BiomeGenerator biomeGenerator("maze", 30, 30, SEED);
-    biomeGenerator.generate(' ', '#');
+    BiomeGenerator biomeGenerator(BiomeType::Maze, 100, 20, SEED);
+    biomeGenerator.generate();
+//    if (biomeGenerator.isPathExists()) {
+//        std::cout << "eeee" << std::endl;
+//    } else {
+//        std::cout << "iiii" << std::endl;
+//        // No path exists.
+//    }
     biomeGenerator.saveToFile("../assets/grids/default_maze.grid");
 
-    BiomeGenerator biomeGenerator2("grasslands", 30, 30, SEED);
-    biomeGenerator2.generate('M', '~');
+    BiomeGenerator biomeGenerator2(BiomeType::Grasslands, 30, 30, SEED);
+    biomeGenerator2.generate();
     biomeGenerator2.saveToFile("../assets/grids/default_maze2.grid");
 
     cse491::MazeWorld world(SEED);
