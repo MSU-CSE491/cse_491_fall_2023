@@ -7,7 +7,7 @@
 // Include the modules that we will be using.
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
-#include "Interfaces/MainInterface.h"
+#include "Interfaces/MainInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
 int main()
