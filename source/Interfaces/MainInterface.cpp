@@ -2,7 +2,7 @@
 // Created by Terra Byte on 10/9/23.
 //
 
-#include "MainInterface.h"
+#include "MainInterface.hpp"
 
 namespace i_2D {
     /**
