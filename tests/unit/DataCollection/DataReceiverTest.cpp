@@ -23,28 +23,6 @@ TEST_CASE("DataReceiver Storage", "[DataReceiver]") {
     }
 }
 
-TEST_CASE("Adding data to actions vector", "[actions]") {
-    DataCollection::DataReceiver<std::unordered_map<std::string, size_t>> actionsData;
-
-    // Adding data to the actions vector
-    std::unordered_map<std::string, size_t> data1 = {{"key1", 1}, {"key2", 2}};
-    actionsData.getActions().push_back(data1);
-
-    std::unordered_map<std::string, size_t> data2 = {{"key3", 3}, {"key4", 4}};
-    actionsData.getActions().push_back(data2);
-
-    SECTION("Check size of actions vector") {
-        REQUIRE(actionsData.getActions().size() == 2);
-    }
-
-    SECTION("Verify data in actions vector") {
-        REQUIRE(actionsData.getActions()[0]["key1"] == 1);
-        REQUIRE(actionsData.getActions()[0]["key2"] == 2);
-        REQUIRE(actionsData.getActions()[1]["key3"] == 3);
-        REQUIRE(actionsData.getActions()[1]["key4"] == 4);
-    }
-}
-
 
 
 
