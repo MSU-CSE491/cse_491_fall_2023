@@ -20,5 +20,6 @@ foreach(TARGET IN LISTS TARGETS)
     PRIVATE Catch2::Catch2WithMain
     )
 
-    add_test(NAME tests-unit-gp_agents-${TARGET} COMMAND tests-unit-gp_agents-${TARGET})
+
+    add_test(NAME tests-unit-gp_agents-ctest-${TARGET} COMMAND tests-unit-gp_agents-${TARGET} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endforeach()
