@@ -51,6 +51,9 @@ namespace cowboys {
     /// index 1) is not 0, 0 otherwise.
     double Gate(const std::vector<double> &inputs) { return inputs.at(1) != 0. ? inputs.at(0) : 0.; }
 
+    /// @brief A vector of all the node functions.
+    const std::vector<NodeFunction> FUNCTION_SET{Sum, And, AnyEq, Not, Gate};
+
     class GraphNode {
     protected:
         /// The input nodes to this node.
