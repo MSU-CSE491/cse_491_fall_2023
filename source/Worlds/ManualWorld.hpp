@@ -140,7 +140,7 @@ namespace cse491_team8 {
         std::string loot = "";
         std::string action = "";
         int num_actions = 0;
-        if (random <= 4) {
+        if (random <= 5) {
             symbol = '/';
             loot = "Stick";
             action = "Hit";
@@ -331,11 +331,30 @@ namespace cse491_team8 {
               {
                   // decrement uses by 1, and change the boat to bridge
                   agent.UpdateInventory("Boat", uses_left - 1);
-                  main_grid.SetCell(new_position, bridge_id);
+                  // don't change tile, stay on top of water
+                  if (uses_left - 1 == 0)
+                  {
+                      // they're on the water, and they no longer have a boat
+                      std::cout << "No boat uses left! Try again? Y/N:" << std::endl;
+                      char again;
+                      std::cin >> again;
+                      if (again == 'N')
+                      {
+                          exit(0);
+                      }
+                      else
+                      {
+                          agent.SetPosition(40, 3);
+                          return true;
+                      }
+                  }
               }
           }
-          // don't have a boat, can't float here
-          return false;
+          else
+          {
+              // can't float without a boat
+              return false;
+          }
       }
 
       // Set the agent to its new postion.
