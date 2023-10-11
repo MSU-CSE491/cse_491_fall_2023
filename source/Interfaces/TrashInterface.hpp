@@ -36,8 +36,8 @@ namespace cse491 {
       for (const auto & entity_ptr : item_set) {
         GridPosition pos = entity_ptr->GetPosition();
         char c = '+';
-        if (entity_ptr->HasProperty("char")) {
-            c = static_cast<char>(entity_ptr->GetProperty("char"));
+        if (entity_ptr->HasProperty("symbol")) {
+            c = entity_ptr->GetProperty<char>("symbol");
         }
         symbol_grid[pos.CellY()][pos.CellX()] = c;
       }
