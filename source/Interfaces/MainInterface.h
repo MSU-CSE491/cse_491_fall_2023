@@ -15,6 +15,8 @@
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
 
+#include "Menu.h"
+
 using namespace cse491;
 
 namespace i_2D {

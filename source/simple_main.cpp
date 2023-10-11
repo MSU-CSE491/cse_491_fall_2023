@@ -10,8 +10,12 @@
 #include "Interfaces/MainInterface.h"
 #include "Worlds/MazeWorld.hpp"
 
+#include "Interfaces/Menu.h"
+
 int main()
 {
+//    i_2D::Menu menu(600.f,600.f);
+//    menu.Start();
   cse491::MazeWorld world;
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);

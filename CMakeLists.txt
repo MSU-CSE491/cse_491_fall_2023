@@ -37,7 +37,7 @@ foreach(EXECUTABLE ${EXECUTABLES})
       PRIVATE ${MAIN_SOURCE_DIR}
       )
     target_link_libraries(${EXECUTABLE}
-      PRIVATE sfml-window sfml-audio sfml-graphics
+      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
       )
 endforeach()
 
