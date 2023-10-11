@@ -17,5 +17,4 @@ int main()
     world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
 
     world.Run();
-
 }
