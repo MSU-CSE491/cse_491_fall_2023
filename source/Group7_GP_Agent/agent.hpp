@@ -22,7 +22,7 @@
 #include "./GPAgentSensors.hpp"
 
 /**
- * @brief yeeeeeeeehaaaaaaaaa
+ * @brief yeeeeeeeehaaaaaaaaa 🤠
  */
 namespace cowboys {
 
@@ -33,7 +33,7 @@ protected:
       "up",    "up",    "right", "right", "right", "right", "right", "right",
       "right", "right", "right", "right", "right", "left",  "left",  "left"};
 
-  size_t movementIndex = 0; // current move of the agent
+  size_t movementIndex = 0; ///< current move of the agent
 
 public:
   GPAgent(size_t id, const std::string &name) : AgentBase(id, name) {
