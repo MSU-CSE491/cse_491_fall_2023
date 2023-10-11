@@ -168,14 +168,14 @@ namespace cse491_team8 {
         // put the loot where the agent was
         int x = other_position.CellX();
         int y = other_position.CellY();
-        this->AddEntity(loot, "char", symbol).SetPosition(x, y);
+        this->AddEntity(loot, "symbol", symbol).SetPosition(x, y);
 
         // set the entity to have the property of "action type": number of uses
         for (const auto& entity : item_set)
         {
             if (entity->GetPosition() == other_position)
             {
-                entity->SetProperty(action, num_actions);
+                entity->SetProperty<int>(action, num_actions);
                 break;
             }
         }
@@ -224,7 +224,7 @@ namespace cse491_team8 {
     }
 
 
-    /// Runs agents, updates the world, and looks for adjacencies
+    /// Runs agents, updates the world, and looks for adjacencies.
     void Run() override
     {
       run_over = false;
@@ -249,25 +249,25 @@ namespace cse491_team8 {
       }
       case MOVE_UP:      
       {
-        agent.SetProperty("Direction", UP);
+        agent.SetProperty<int>("Direction", UP);
         new_position = agent.GetPosition().Above();
         break;
       }
       case MOVE_DOWN:    
       {
-        agent.SetProperty("Direction", DOWN);
+        agent.SetProperty<int>("Direction", DOWN);
         new_position = agent.GetPosition().Below();
         break;
       }
       case MOVE_LEFT:    
       {
-        agent.SetProperty("Direction", LEFT);
+        agent.SetProperty<int>("Direction", LEFT);
         new_position = agent.GetPosition().ToLeft();
         break;
       }
       case MOVE_RIGHT:   
       {
-        agent.SetProperty("Direction", RIGHT);
+        agent.SetProperty<int>("Direction", RIGHT);
         new_position = agent.GetPosition().ToRight();
         break;
       }
@@ -275,30 +275,6 @@ namespace cse491_team8 {
 
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
-
-      // if they walk over an item, pick it up, add it to their properties, and remove from the entity set
-      for (size_t i = 0; i < GetNumItems(); i++)
-      {
-          auto const & entity = GetItem(i);
-          if (entity.GetPosition() == new_position)
-          {
-              std::string uses_property = "";
-              if (entity.GetName() == "Stick")   { uses_property = "Hit"; }
-              if (entity.GetName() == "Sword")   { uses_property = "Hit"; }
-              if (entity.GetName() == "Boat")    { uses_property = "Swim"; }
-              if (entity.GetName() == "Axe") { uses_property = "Chop"; }
-
-              std::cout << "Picked up the " << entity.GetName() << "!\n"
-                  << "This item has " << entity.GetProperty(uses_property) << " uses left." << std::endl;
-          
-              // add it to their inventory
-              agent.UpdateInventory(entity.GetName(), entity.GetProperty(uses_property));
-
-              // remove it from the board
-              //RemoveEntity(entity.GetName());
-          }
-      }
-
       if (main_grid.At(new_position) == tree_id)
       {
           size_t uses_left = agent.CheckInventory("Axe");
@@ -357,6 +333,31 @@ namespace cse491_team8 {
           }
       }
 
+      // if player agent walks over an item, pick it up, add it to their properties, and remove from the entity set
+      if (agent.IsInterface())
+      {
+        for (size_t i = 0; i < GetNumItems(); i++)
+        {
+          auto const & entity = GetItem(i);
+          if (entity.GetPosition() == new_position)
+          {
+            std::string uses_property = "";
+            if (entity.GetName() == "Stick")   { uses_property = "Hit"; }
+            if (entity.GetName() == "Sword")   { uses_property = "Hit"; }
+            if (entity.GetName() == "Boat")    { uses_property = "Swim"; }
+            if (entity.GetName() == "Axe") { uses_property = "Chop"; }
+
+            std::cout << "Picked up the " << entity.GetName() << "!\n"
+                      << "This item has " << entity.GetProperty<int>(uses_property) << " uses left." << std::endl;
+
+            // add it to their inventory
+            agent.UpdateInventory(entity.GetName(), entity.GetProperty<int>(uses_property));
+
+            // remove it from the board
+            //RemoveEntity(entity.GetName());
+          }
+        }
+      }
       // Set the agent to its new postion.
       agent.SetPosition(new_position);
 
