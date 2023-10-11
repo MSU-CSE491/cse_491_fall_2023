@@ -11,7 +11,7 @@ set(MAIN_SOURCE_DIR ../${MAIN_SOURCE_DIR})
 # Makes target_sources() take relative paths
 cmake_policy(SET CMP0076 NEW)
 
-set(MODULE_TYPE "core")
+set(MODULE_TYPE "Agents")
 
 foreach(TARGET IN LISTS TARGETS)
     add_executable(tests-unit-${MODULE_TYPE}-${TARGET} ${TARGET}.cpp)

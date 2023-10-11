@@ -1,5 +1,5 @@
 FLAGS_version = -std=c++20
-FLAGS_warn    = -Wall -Wextra -Wcast-align -Winfinite-recursion -Wnon-virtual-dtor -Wnull-dereference -Woverloaded-virtual -pedantic
+FLAGS_warn    = -Wall -Wextra -Wcast-align -Winfinite-recursion -Wnon-virtual-dtor -Wnull-dereference -Woverloaded-virtual -Wpedantic
 FLAGS_all     = $(FLAGS_version) $(FLAGS_warn)
 
 FLAGS_debug   = $(FLAGS_all) -g                     # Setup for running a debugger
@@ -36,3 +36,4 @@ FILES_generated = *.o $(EXECUTABLES)
 
 clean:
 	rm -rf $(FILES_backup) $(FILES_generated)
+

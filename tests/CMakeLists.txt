@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10) 
-project(tests VERSION 0.1)
+#project(tests VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CATCH_SRC_DIR ../third_party/Catch2)
 set(CATCH_BUILD_DIR catch_build)
 set(MAIN_SOURCE_DIR ../source)
+
+# Absolute path to the source directory (used for EXISTS to conditionally add a source file)
+# further down in subsequent CMakeLists.txt files
+set(ABSOLUTE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../source")
 
 configure_file(run_tests.sh run_tests.sh COPYONLY)
 
