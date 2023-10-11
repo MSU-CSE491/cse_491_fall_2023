@@ -14,6 +14,7 @@
 #include "Entity.hpp"
 #include "GridPosition.hpp"
 #include "WorldGrid.hpp"
+#include "DataCollection//AgentData.hpp"
 
 namespace cse491 {
 
@@ -53,9 +54,11 @@ namespace cse491 {
       return it->second;
     }
 
-    [[nodiscard]] std::unordered_map<std::string, size_t> GetActionMap() {
-        return action_map;
+    void storeActionMap() {
+        DataCollection::AgentData data;
+        data.store_action(action_map);
     }
+
 
     /// Provide a new action that this agent can take.
     virtual AgentBase & AddAction(const std::string & action_name, size_t action_id) {

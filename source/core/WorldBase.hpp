@@ -34,6 +34,8 @@ class DataReceiver;
     std::shared_ptr<DataCollection::AgentReciever> agent_receiver;
 
 
+
+
     
 
     bool run_over = false;   ///< Should the run end?
@@ -128,6 +130,7 @@ class DataReceiver;
       for (const auto & agent_ptr : agent_set) {
         size_t action_id =
           agent_ptr->SelectAction(main_grid, type_options, item_set, agent_set);
+        agent_ptr->storeActionMap();
         int result = DoAction(*agent_ptr, action_id);
         agent_ptr->SetActionResult(result);
       }

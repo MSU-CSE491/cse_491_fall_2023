@@ -13,9 +13,7 @@ namespace DataCollection {
     std::vector<T>& getStorage() {
         return storage;
     }
-
     protected:
     std::vector<T> storage;
-
     };
 }
