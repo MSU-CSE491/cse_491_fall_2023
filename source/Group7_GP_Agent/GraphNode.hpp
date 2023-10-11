@@ -154,8 +154,10 @@ namespace cowboys {
             RecursiveInvalidateCache();
         }
         void SetOutput(double value) {
-            output = value;
-            RecursiveInvalidateCache();
+            if (output != value) {
+                output = value;
+                RecursiveInvalidateCache();
+            }
         }
         bool IsCacheValid() const { return cached_output_valid; }
     };
