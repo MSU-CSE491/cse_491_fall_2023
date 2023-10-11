@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # all the possible executables [each team can have their own configuration]
 # copy over simple or same and change the accordingly
-set(EXECUTABLES simple sfml_example jsontest)
+set(EXECUTABLES simple sfml_example jsontest group4 second_floor)
 
 
 # setting the output path to executable

@@ -35,26 +35,28 @@ class SecondWorld : public cse491::MazeWorld {
 
     flag_id = cse491::WorldBase::AddCellType(
         "flag", "Goal flag for a game end state", 'g');
-    main_grid.Read("../assets/grids/group4_maze.grid", type_options);
+    // main_grid.Read("../assets/grids/group4_maze.grid", type_options);
+    main_grid.Read("../assets/grids/second_floor.grid", type_options);
 
-    // Adding power sword with id = 1; name = sword of power
-    auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
-    powerSword->SetPosition(3, 4);
-    powerSword->SetProperty("Damage", 20.0);
-    item_set.push_back(std::move(powerSword));
 
-    // Adding fire sword with id = 2; name = Inferno Slicer
-    auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
-    infernoSlicer->SetPosition(5, 0);
-    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0,
-                                 "Burning Duration", 2.5);
-    item_set.push_back(std::move(infernoSlicer));
+    // // Adding power sword with id = 1; name = sword of power
+    // auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
+    // powerSword->SetPosition(3, 4);
+    // powerSword->SetProperty("Damage", 20.0);
+    // item_set.push_back(std::move(powerSword));
 
-    // Adding a piece of armor with id = 10; name = Daedric
-    auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
-    daedricArmor->SetPosition(7, 4);
-    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
-    item_set.push_back(std::move(daedricArmor));
+    // // Adding fire sword with id = 2; name = Inferno Slicer
+    // auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
+    // infernoSlicer->SetPosition(5, 0);
+    // infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0,
+    //                              "Burning Duration", 2.5);
+    // item_set.push_back(std::move(infernoSlicer));
+
+    // // Adding a piece of armor with id = 10; name = Daedric
+    // auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
+    // daedricArmor->SetPosition(7, 4);
+    // daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
+    // item_set.push_back(std::move(daedricArmor));
   }
 
   /**
@@ -113,8 +115,6 @@ class SecondWorld : public cse491::MazeWorld {
    * Also checks if the next agent position will be the win flag.
    */
   int DoAction(cse491::AgentBase& agent, size_t action_id) override {
-    cse491::MazeWorld::DoAction(agent, action_id);
-
     cse491::GridPosition new_position;
     switch (action_id) {
       case REMAIN_STILL:
@@ -145,6 +145,8 @@ class SecondWorld : public cse491::MazeWorld {
       std::cout << "flag found" << std::endl;
       flag_hit = true;
     }
+
+    agent.SetPosition(new_position);
 
     return true;
   }
