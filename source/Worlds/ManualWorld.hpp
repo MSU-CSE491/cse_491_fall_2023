@@ -140,19 +140,19 @@ namespace cse491_team8 {
         std::string loot = "";
         std::string action = "";
         int num_actions = 0;
-        if (random <= -1) {
+        if (random <= 4) {
             symbol = '/';
             loot = "Stick";
             action = "Hit";
             num_actions = 2;
         }
-        else if (random <= -1) {
+        else if (random <= 7) {
             symbol = 'U';
             loot = "Boat";
             action = "Swim";
             num_actions = 7;
         }
-        else if (random <= 10) {
+        else if (random <= 9) {
             symbol = 'P';
             loot = "Axe";
             action = "Chop";
