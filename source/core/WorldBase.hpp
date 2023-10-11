@@ -16,6 +16,7 @@
 #include "Entity.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/GridPositionReceiver.hpp"
+#include "../DataCollection/AgentReciever.hpp"
 
 namespace cse491 {
 
@@ -32,6 +33,8 @@ class DataReceiver;
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
     std::shared_ptr<DataCollection::GridPositionReceiver> grid_receiver;
+    std::shared_ptr<DataCollection::AgentReciever> agent_receiver;
+
 
     
 
@@ -112,6 +115,10 @@ class DataReceiver;
       grid_receiver = std::make_shared<DataCollection::GridPositionReceiver>(r);
     }
 
+    void SetAgentReceiver(DataCollection::AgentReciever r) {
+      agent_receiver = std::make_shared<DataCollection::AgentReciever>(r);
+    }
+
     // -- Action Management --
 
     /// @brief Central function for an agent to take any action
@@ -140,6 +147,8 @@ class DataReceiver;
       auto & agent = agent_set.at(2);
       grid_receiver->store_data(agent->GetPosition());
       grid_receiver->store_actions(agent->GetActionMap());
+      agent_receiver->store_actions(agent->GetActionMap());
+      agent_receiver->store_positions(agent->GetPosition());
       // grid_receiver->DebugPrint();
     }
 
