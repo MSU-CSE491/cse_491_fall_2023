@@ -24,39 +24,39 @@ TEST_CASE("base64", "[group7][base64]") {
 */
 TEST_CASE("Genotype construction", "[group7][genotype]") {
     SECTION("Parameters constructor") {
-        auto genotype = CGPGenotype(8, 4, 2, 10, 2);
+        auto genotype = CGPGenotype({8, 4, 2, 10, 2});
         genotype.InitGenotype();
         CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
 
-        genotype = CGPGenotype(8, 4, 2, 10, 3);
+        genotype = CGPGenotype({8, 4, 2, 10, 3});
         genotype.InitGenotype();
         CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (8 + 10 + 10) * 4);
 
-        genotype = CGPGenotype(8, 4, 2, 10, 10);
+        genotype = CGPGenotype({8, 4, 2, 10, 10});
         genotype.InitGenotype();
         CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (8 + 10 + 10) * 4);
     }
     SECTION("Load constructor") {
         std::string encoded_genotype = "8,4,2,10,2";
-        CHECK_THROWS(CGPGenotype(encoded_genotype));
+        CHECK_THROWS(CGPGenotype().Configure(encoded_genotype));
 
         encoded_genotype = "8,4,2,10;";
-        CHECK_THROWS(CGPGenotype(encoded_genotype));
+        CHECK_THROWS(CGPGenotype().Configure(encoded_genotype));
 
         encoded_genotype = "8,4,2,10,x;";
-        CHECK_THROWS(CGPGenotype(encoded_genotype));
+        CHECK_THROWS(CGPGenotype().Configure(encoded_genotype));
 
         encoded_genotype = "8,4,2,10,2;";
-        CHECK_NOTHROW(CGPGenotype(encoded_genotype));
+        CHECK_NOTHROW(CGPGenotype().Configure(encoded_genotype));
 
-        auto genotype = CGPGenotype(encoded_genotype);
+        auto genotype = CGPGenotype().Configure(encoded_genotype);
         genotype.InitGenotype();
         CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
     }
 }
 TEST_CASE("Genotype iterators", "[group7][genotype]") {
     SECTION("Genotype iterators") {
-        CGPGenotype genotype(8, 4, 2, 10, 2);
+        CGPGenotype genotype({8, 4, 2, 10, 2});
         genotype.InitGenotype();
         auto it = genotype.begin();
         CHECK(it->input_connections.size() == 8);
@@ -93,7 +93,7 @@ TEST_CASE("Genotype iterators", "[group7][genotype]") {
 }
 TEST_CASE("Genotype mutation", "[group7][genotype]") {
     SECTION("Genotype mutation") {
-        CGPGenotype genotype(10, 10, 200, 10, 10);
+        CGPGenotype genotype({10, 10, 200, 10, 10});
         genotype.InitGenotype();
         // Each connection will have a 0% chance of being mutated
         genotype.MutateConnections(0.);

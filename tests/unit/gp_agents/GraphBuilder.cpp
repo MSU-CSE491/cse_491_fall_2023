@@ -22,7 +22,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
     SECTION("Cartesian Graph construction") {
         GraphBuilder builder;
 
-        CGPGenotype genotype(INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK);
+        CGPGenotype genotype({INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
         auto graph = builder.CartesianGraph(genotype, FUNCTION_SET);
 
         // Input layer + middle layers + output layer
@@ -43,7 +43,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
         size_t iterations = 100;
         bool choose_first_action_only = true;
         for (size_t i = 0; i < iterations; ++i) {
-            CGPGenotype genotype(INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK);
+            CGPGenotype genotype({INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
             genotype.SetSeed(i);
             genotype.MutateConnections(0.5);
             genotype.MutateFunctions(0.5, FUNCTION_SET.size());

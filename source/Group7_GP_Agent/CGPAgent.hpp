@@ -40,17 +40,21 @@ namespace cowboys {
         std::unique_ptr<Graph> decision_graph;
 
     public:
-        CGPAgent(size_t id, const std::string &name) : GPAgent(id, name), genotype(INPUT_SIZE, 0, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK) {}
+        CGPAgent(size_t id, const std::string &name) : GPAgent(id, name) {}
+        CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype)
+            : GPAgent(id, name), genotype(genotype) {}
 
         /// @brief Setup graph.
         /// @return Success.
         bool Initialize() override {
             auto graph_builder = GraphBuilder();
 
-            genotype = CGPGenotype(INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK);
-            genotype.MutateConnections(0.5);
-            genotype.MutateFunctions(0.5, FUNCTION_SET.size());
-            decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
+            // Create a default genotype if one wasn't provided
+            if (genotype.GetNumFunctionalNodes() == 0) {
+                genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
+                genotype.MutateConnections(0.5);
+                genotype.MutateFunctions(0.5, FUNCTION_SET.size());
+            }
 
             return true;
         }
@@ -61,6 +65,10 @@ namespace cowboys {
             size_t action_to_take = decision_graph->MakeDecision(inputs, EncodeActions(action_map));
             return action_to_take;
         }
+
+        /// @brief Get the genotype for this agent.
+        /// @return A const reference to the genotype for this agent.
+        const CGPGenotype &GetGenotype() const { return genotype; }
     };
 
 } // End of namespace cowboys

@@ -3,5 +3,6 @@ GraphNode
 Graph
 GraphBuilder
 CGPGenotype
+CGPAgent
 registers
 sensors
