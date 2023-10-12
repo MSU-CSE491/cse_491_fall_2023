@@ -7,12 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 file(STRINGS targets.txt TARGETS)
 
 set(MAIN_SOURCE_DIR ../${MAIN_SOURCE_DIR})
+set(PEGTL_INCLUDE_DIR ../${PEGTL_INCLUDE_DIR})
 
 foreach(TARGET IN LISTS TARGETS)
   add_executable(tests-unit-world-${TARGET} ${TARGET}.cpp)
 
   target_include_directories(tests-unit-world-${TARGET}
-    PRIVATE ${MAIN_SOURCE_DIR}
+    PRIVATE ${MAIN_SOURCE_DIR} ${PEGTL_INCLUDE_DIR}
     )
   target_link_libraries(tests-unit-world-${TARGET}
     PRIVATE Catch2::Catch2WithMain

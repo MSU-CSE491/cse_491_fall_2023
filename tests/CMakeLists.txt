@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CATCH_SRC_DIR ../third_party/Catch2)
 set(CATCH_BUILD_DIR catch_build)
 set(MAIN_SOURCE_DIR ../source)
+set(PEGTL_INCLUDE_DIR ../third_party/PEGTL/include)
 
 configure_file(run_tests.sh run_tests.sh COPYONLY)
 
