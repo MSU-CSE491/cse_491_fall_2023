@@ -56,6 +56,9 @@ namespace cowboys {
                 genotype.MutateFunctions(0.5, FUNCTION_SET.size());
             }
 
+            // Initialize the decision graph
+            decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
+
             return true;
         }
 
