@@ -1,6 +1,9 @@
 #pragma once
 
-#include "../third_party/PEGTL/include/tao/pegtl.hpp"
+// Debug
+#include <iostream>
+
+#include <tao/pegtl.hpp>
 
 namespace pegtl = tao::pegtl;
 
@@ -36,7 +39,13 @@ namespace worldlang{
 		TAO_PEGTL_KEYWORD("||")
 	>
 	{};
-
+	
+	struct op_prio_add : pegtl::one< '+', '-' >
+	{};
+	
+	struct op_prio_mul : pegtl::one< '*', '/' >
+	{};
+	
 	// Must forward-declare for recursion
 	struct expression;
 
@@ -52,12 +61,67 @@ namespace worldlang{
 	>
 	{};
 	
-	// Expressions:
-	// expr :=  e <op> e | e <op> expr
-	struct expression : pegtl::seq<
-		element,
-		any_operator,
+	struct mul_a : pegtl::sor<
+		pegtl::seq<
+			element,
+			op_prio_mul,
+			element
+		>,
 		element
 	>
 	{};
+	
+	struct mul;
+	struct mul : pegtl::sor<
+		pegtl::seq<
+			mul_a,
+			op_prio_mul,
+			mul
+		>,
+		mul_a
+	>
+	{};
+	
+	// Hope this works lol
+	struct add_a : pegtl::sor<
+		pegtl::seq<
+			mul,
+			op_prio_add,
+			mul
+		>,
+		mul
+	>
+	{};	
+	
+	struct add;
+	struct add : pegtl::sor<
+		pegtl::seq<
+			add_a,
+			op_prio_add,
+			add
+		>,
+		add_a
+	>
+	{};
+	
+	// Expressions:
+	// expr :=  add | e <op> e | e <op> expr
+	struct expression : pegtl::sor<
+		add	
+	>
+	{};
+	
+	template <typename Rule>
+	struct action : pegtl::nothing< Rule > {};
+	
+	// Specialize to capture numbers
+	template <>
+	struct action<number>
+	{
+		template <typename ActionInput>
+		static void apply( const ActionInput& in, std::string& s){
+			s += in.string() + " ";
+			std::cout << s << std::endl;
+		}	
+	};
 } //worldlang

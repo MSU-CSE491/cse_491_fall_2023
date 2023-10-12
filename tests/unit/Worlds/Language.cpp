@@ -7,11 +7,13 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
+#include <string>
+
 // Class project
 #include "Worlds/Language.hpp"
 
 // PEGTL grammar check
-#include "../third_party/PEGTL/include/tao/pegtl/contrib/analyze.hpp"
+#include <tao/pegtl/contrib/analyze.hpp>
 
 // Macros to simplify case creation
 #define PEGTL_PARSE_CHECK(grammar, string, condition) {\
@@ -57,26 +59,51 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_FALSE(worldlang::identifier, "369");
 		PARSE_FALSE(worldlang::identifier, "!~!");
 	}
-
-	SECTION("Operator rules"){
-		PEGTL_GRAMMAR_CHECK(worldlang::any_operator);
-
-		PARSE_TRUE(worldlang::any_operator, "+");
-		PARSE_TRUE(worldlang::any_operator, "-");
-		PARSE_TRUE(worldlang::any_operator, "/");
-		PARSE_TRUE(worldlang::any_operator, "*");
-		PARSE_TRUE(worldlang::any_operator, "||");
-		PARSE_TRUE(worldlang::any_operator, "&&");
-
-		PARSE_FALSE(worldlang::any_operator, "a");
-		PARSE_FALSE(worldlang::any_operator, "0");
-		PARSE_FALSE(worldlang::any_operator, "`");
+	
+	SECTION("Addition-level operators rule"){
+		PEGTL_GRAMMAR_CHECK(worldlang::op_prio_add);
+		
+		PARSE_TRUE(worldlang::op_prio_add, "+");
+		PARSE_TRUE(worldlang::op_prio_add, "-");
+		PARSE_FALSE(worldlang::op_prio_add, "*");
+		PARSE_FALSE(worldlang::op_prio_add, "/");
 	}
-
+	
+	SECTION("Multiplication-level operators rule"){
+		PEGTL_GRAMMAR_CHECK(worldlang::op_prio_mul);
+		
+		PARSE_FALSE(worldlang::op_prio_mul, "+");
+		PARSE_FALSE(worldlang::op_prio_mul, "-");
+		PARSE_TRUE(worldlang::op_prio_mul, "*");
+		PARSE_TRUE(worldlang::op_prio_mul, "/");
+	}
+	
+	SECTION("Add rule"){
+		PEGTL_GRAMMAR_CHECK(worldlang::add);
+		
+		PARSE_TRUE(worldlang::add, "4+4");
+		// Due to precedence rules, this should work as add contains mul
+		PARSE_TRUE(worldlang::add, "6*8");
+	}
+	
+	// This section tests pretty much every big expression rule
 	SECTION("Expression rules"){
 		PEGTL_GRAMMAR_CHECK(worldlang::expression);
 		
 		PARSE_TRUE(worldlang::expression, "3+5");
+		PARSE_TRUE(worldlang::expression, "3+5+6");
+		PARSE_TRUE(worldlang::expression, "3*5+8");
+		PARSE_TRUE(worldlang::expression, "3*6*5");
+		PARSE_TRUE(worldlang::expression, "46.7+(32)");
+		PARSE_TRUE(worldlang::expression, "(3+5)+5");
+		PARSE_TRUE(worldlang::expression, "(((3))+5)+5");
+		PARSE_TRUE(worldlang::expression, "4-6+5");
+		
+		PARSE_TRUE(worldlang::expression, "(3+-5)+Name");
+		PARSE_TRUE(worldlang::expression, "(((3))+36+dd)+5");
+		PARSE_TRUE(worldlang::expression, "asdf-asdf+asdf");
+		
+		PARSE_FALSE(worldlang::expression, "-iden");
 	}	
 }
 
