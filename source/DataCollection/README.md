@@ -1,8 +1,9 @@
 # DataCollection Namespace
+
 The DataCollection namespace provides a set of classes and templates for managing and processing data related to agent actions and positions. This library offers flexibility and ease of use for storing, retrieving, and manipulating data within your C++ applications.
 
-Classes
-1. AgentData
+- Classes
+- 1. AgentData
 The AgentData class represents data collected for an agent, including their name, actions, positions, and associated IDs.
 
 Methods
