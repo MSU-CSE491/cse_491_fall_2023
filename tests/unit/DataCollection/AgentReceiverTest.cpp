@@ -10,14 +10,14 @@
 
 TEST_CASE("AgentRecieverConstruction", "[AgentRecieverTest]")
 {
-    DataCollection::AgentReciever agent_reciever;
+    DataCollection::AgentReceiver agent_reciever;
     CHECK(agent_reciever.is_empty());
 
 }
 
 TEST_CASE("AgentRecieverTest", "[AgentRecieverTest]")
 {
-    DataCollection::AgentReciever agent_reciever;
+    DataCollection::AgentReceiver agent_reciever;
     cse491::GridPosition pos1(1, 1);
     cse491::GridPosition pos2(2, 2);
     cse491::GridPosition pos3(3, 3);
