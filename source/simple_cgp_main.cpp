@@ -1,6 +1,6 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
- * @brief A simplistic main file to demonstrate a system.
+ * @brief A simplistic main file to test the CGP agent in the maze world.
  * @note Status: PROPOSAL
  **/
 
