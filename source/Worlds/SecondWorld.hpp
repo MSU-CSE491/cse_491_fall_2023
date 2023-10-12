@@ -69,9 +69,7 @@ namespace group4 {
   ~SecondWorld() = default;
 
   void UpdateWorld() override {
-    if (flag_hit) {
-      run_over = true;
-    }
+
   }
 
   virtual void Run() override {
