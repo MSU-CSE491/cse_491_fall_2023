@@ -21,9 +21,6 @@ namespace cse491 {
   protected:
     /// A map of names to IDs for each available action
     std::unordered_map<std::string, size_t> action_map;
-
-    ///  A map of names to uses remaining for each item in inventory
-    std::unordered_map<std::string, size_t> inventory_map;
     
     int action_result=1;  ///< Usually a one (success) or zero (failure).
 
@@ -40,44 +37,6 @@ namespace cse491 {
     // -- Entity Overrides --
 
     bool IsAgent() const override { return true; }
-
-
-    /// Insert pair of item_name and num_uses, or update num_uses if possible
-    /// If num_uses == 0, removes the pair from inventory_map
-    void UpdateInventory(const std::string& item_name, const size_t& num_uses) {
-        bool inserting = true;
-        for (auto& pair : inventory_map)
-        {
-            if (pair.first == item_name)
-            {
-                pair.second = num_uses;
-                inserting = false;
-                if (num_uses == 0)
-                {
-                    inventory_map.erase(item_name);
-                }
-                break;
-            }
-        }
-        if (inserting)
-        {
-            inventory_map.insert(std::make_pair(item_name, num_uses));
-        }
-        
-    }
-
-    /// See if the specific item_name is in the inventory.
-    /// If so, return the number of uses remaining. If not, return zero.
-    size_t CheckInventory(const std::string& item_name) const {
-        for (const auto & pair : inventory_map)
-        {
-            if (pair.first == item_name)
-            {
-                return pair.second;
-            }
-        }
-        return 0;
-    }
 
 
     // -- Action management --

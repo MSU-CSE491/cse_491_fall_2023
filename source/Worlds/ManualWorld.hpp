@@ -140,7 +140,7 @@ namespace cse491_team8 {
         std::string loot = "";
         std::string action = "";
         int num_actions = 0;
-        if (random <= 5) {
+        if (random <= 4) {
             symbol = '/';
             loot = "Stick";
             action = "Hit";
@@ -150,7 +150,7 @@ namespace cse491_team8 {
             symbol = 'U';
             loot = "Boat";
             action = "Swim";
-            num_actions = 7;
+            num_actions = 10;
         }
         else if (random <= 9) {
             symbol = 'P';
@@ -170,7 +170,7 @@ namespace cse491_team8 {
         int y = other_position.CellY();
         this->AddEntity(loot, "symbol", symbol).SetPosition(x, y);
 
-        // set the entity to have the property of "action type": number of uses
+        // set the entity's _action_ property to have _num_action_ uses
         for (const auto& entity : item_set)
         {
             if (entity->GetPosition() == other_position)
@@ -216,8 +216,6 @@ namespace cse491_team8 {
         if (agent->IsInterface())
         {
           CheckAround(agent);
-          // auto pos = agent->GetPosition().Above();
-          // GetGrid().SetCell(pos, 1);
           break;
         }
       }
@@ -275,19 +273,57 @@ namespace cse491_team8 {
 
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
+
+      // if player agent walks over an item, pick it up, add it to their properties, and remove from the entity set
+      if (agent.IsInterface())
+      {
+          for (size_t i = 0; i < GetNumItems(); i++)
+          {
+              auto const& entity = GetItem(i);
+              if (entity.GetPosition() == new_position)
+              {
+                  std::string uses_property = "";
+                  if (entity.GetName() == "Stick") { uses_property = "Hit"; }
+                  if (entity.GetName() == "Sword") { uses_property = "Hit"; }
+                  if (entity.GetName() == "Boat") { uses_property = "Swim"; }
+                  if (entity.GetName() == "Axe")  { uses_property = "Chop"; }
+
+                  if (uses_property != "")
+                  {
+                      if (agent.HasProperty(uses_property))
+                      {
+                          agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
+                      }
+                      else
+                      {
+                          agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property));
+                      }
+                  }
+
+                  std::cout << "Picked up the " << entity.GetName() << "!\n"
+                      << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
+
+                  // remove it from the board
+                  RemoveEntity(entity.GetName());
+
+                  break;
+              }
+          }
+      }
+
+      // if it's a tree, check that we have an axe
       if (main_grid.At(new_position) == tree_id)
       {
-          size_t uses_left = agent.CheckInventory("Axe");
-          if (uses_left > 0)
+          if (agent.HasProperty("Chop") && agent.GetProperty<int>("Chop") > 0)
           {
               std::cout << "You can use your Axe once to chop down this tree. You have "
-                  << uses_left << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
+                  << agent.GetProperty<int>("Chop") << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
               char chop;
               std::cin >> chop;
               if (chop == 'Y' || chop == 'y')
               {
-                  // decrement uses by 1, and change the tree to grass
-                  agent.UpdateInventory("Axe", uses_left - 1);
+                  // decrement uses by 1, change the tree to grass, but don't move the agent's position
+                  agent.SetProperty("Chop", agent.GetProperty<int>("Chop") - 1);
                   main_grid.SetCell(new_position, grass_id);
               }
           }
@@ -296,25 +332,25 @@ namespace cse491_team8 {
       }
       if (main_grid.At(new_position) == water_id)
       {
-          size_t uses_left = agent.CheckInventory("Boat");
-          if (uses_left > 0)
+          
+          if (agent.HasProperty("Swim") && agent.GetProperty<int>("Swim") > 0)
           {
               std::cout << "You can use your Boat once to float over this tile. You have "
-                  << uses_left << " uses remaining. Use your boat? Y/N:\n" << std::endl;
+                  << agent.GetProperty<int>("Swim") << " uses remaining. Use your boat? Y/N:\n" << std::endl;
               char boat;
               std::cin >> boat;
               if (boat == 'Y' || boat == 'y')
               {
-                  // decrement uses by 1, and change the boat to bridge
-                  agent.UpdateInventory("Boat", uses_left - 1);
-                  // don't change tile, stay on top of water
-                  if (uses_left - 1 == 0)
+                  // decrement uses by 1, and display agent over top of water tile
+                  agent.SetProperty("Swim", agent.GetProperty<int>("Swim") - 1);
+
+                  if (agent.GetProperty<int>("Swim") == 0)
                   {
                       // they're on the water, and they no longer have a boat
                       std::cout << "No boat uses left! Try again? Y/N:" << std::endl;
                       char again;
                       std::cin >> again;
-                      if (again == 'N')
+                      if (again == 'N' || again == 'n')
                       {
                           exit(0);
                       }
@@ -325,39 +361,12 @@ namespace cse491_team8 {
                       }
                   }
               }
+              else { return false; }    // did not use boat
           }
-          else
-          {
-              // can't float without a boat
-              return false;
-          }
+          else { return false; }        // does not have boat
+          
       }
 
-      // if player agent walks over an item, pick it up, add it to their properties, and remove from the entity set
-      if (agent.IsInterface())
-      {
-        for (size_t i = 0; i < GetNumItems(); i++)
-        {
-          auto const & entity = GetItem(i);
-          if (entity.GetPosition() == new_position)
-          {
-            std::string uses_property = "";
-            if (entity.GetName() == "Stick")   { uses_property = "Hit"; }
-            if (entity.GetName() == "Sword")   { uses_property = "Hit"; }
-            if (entity.GetName() == "Boat")    { uses_property = "Swim"; }
-            if (entity.GetName() == "Axe") { uses_property = "Chop"; }
-
-            std::cout << "Picked up the " << entity.GetName() << "!\n"
-                      << "This item has " << entity.GetProperty<int>(uses_property) << " uses left." << std::endl;
-
-            // add it to their inventory
-            agent.UpdateInventory(entity.GetName(), entity.GetProperty<int>(uses_property));
-
-            // remove it from the board
-            RemoveEntity(entity.GetName());
-          }
-        }
-      }
       // Set the agent to its new postion.
       agent.SetPosition(new_position);
 
