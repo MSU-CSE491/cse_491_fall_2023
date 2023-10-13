@@ -46,7 +46,6 @@ only on files above it in the core.
 
 ## `EasyLogging.h`
 
-Certainly! Here are the examples provided earlier formatted in Markdown:
 
 ### 1. Basic Logging:
 ```cpp
