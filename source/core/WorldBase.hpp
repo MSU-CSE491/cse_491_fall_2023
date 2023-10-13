@@ -57,8 +57,13 @@ class DataReceiver;
 
   public:
     WorldBase() {
+        DataCollection::AgentReceiver receiver;
+
       // The first cell type (ID 0) should be reserved for errors or empty spots in a grid.
       AddCellType("Unknown", "This is an invalid cell type and should not be reachable.");
+
+      // Set up the agent data receiver
+      SetAgentReceiver(receiver);
     }
     virtual ~WorldBase() = default;
 

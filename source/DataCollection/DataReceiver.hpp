@@ -30,11 +30,23 @@ namespace DataCollection {
             return storage;
         }
 
+        /**
+         * @brief Store a data object into the storage
+         * @param obj The data object to store
+         */
         void StoreIntoStorage(T obj){
             storage.push_back(obj);
         }
 
+        /**
+         * @brief Checks if the storage is empty.
+         * @return True if the storage is empty, false otherwise.
+         */
+        bool IsEmpty() {
+            return storage.empty();
+        }
+
     protected:
-        std::vector<T> storage; ///< Vector to store data objects of type T.
+        std::vector<T> storage; ///< Vector to store shared_ptr data objects of type T.
     };
 } // namespace DataCollection

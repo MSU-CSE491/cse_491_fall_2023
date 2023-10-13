@@ -23,14 +23,7 @@ namespace DataCollection {
             AgentData agent;
             agent.StorePositions(pos);
             agent.StoreAgentId(last_action);
-        }
-        /**
-         * @brief Checks if the storage is empty.
-         *
-         * @return True if the storage is empty, false otherwise.
-         */
-        bool IsEmpty() {
-            return storage.empty();
+            StoreIntoStorage(agent);
         }
     };
 } // namespace DataCollection
