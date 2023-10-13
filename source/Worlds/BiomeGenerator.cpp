@@ -4,9 +4,13 @@
  */
 
 #include <fstream>
+<<<<<<< HEAD
 #include <cmath>
 #include <set>
 #include <tuple>
+=======
+#include <random>
+>>>>>>> 627df6f (Added Key and Door tile with functionality)
 #include "BiomeGenerator.h"
 
 using std::vector;
@@ -55,6 +59,8 @@ void BiomeGenerator::generate() {
     {
         placeSpecialTiles(tile1, 'X', 0.02); // Placing spike tiles
         placeSpecialTiles(tile1, 'O', 0.05); // Placing tar tiles
+        placeDoorTile('D'); // placing door tile
+        placeKeyTile('K'); // placing key tile
     }
 }
 
@@ -107,6 +113,38 @@ void BiomeGenerator::generate() {
 //}
 
 
+/**
+ * Generates random coordinate to place Key tile
+ * @param keyTile  Door Tile
+ */
+ void BiomeGenerator::placeKeyTile(const char &keyTile)
+{
+     bool counter = false;
+     while( counter == false )
+     {
+         std::random_device rd;
+         std::mt19937 gen(rd());
+
+         std::uniform_int_distribution<int> distribution(height/2, height-1);
+         auto random_x = distribution(gen);
+         auto random_y = distribution(gen);
+
+         if( grid[random_x][random_y] == ' ' )
+         {
+             grid[random_x][random_y] = keyTile;
+             counter = true;
+         }
+     }
+}
+
+/**
+ * Generates door tile on grid at [0][0]
+ * @param doorTile  Door Tile
+ */
+void BiomeGenerator::placeDoorTile(const char &doorTile)
+{
+    grid[0][0] = doorTile;
+}
 /**
  * Generates special tiles on the grid
  * @param genericTile  The tile that the special tile can spawn on

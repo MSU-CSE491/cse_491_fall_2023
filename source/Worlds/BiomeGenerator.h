@@ -52,5 +52,12 @@ public:
     void placeSpecialTiles(const char& genericTile, const char& specialTile, double percentage);
 //    bool isPathExists();
 
+<<<<<<< HEAD
     void setTiles(const char &firstTile, const char &secondTile);
+=======
+    [[nodiscard]] std::string getBiome() const { return biome; }
+
+    void placeDoorTile(const char &doorTile);
+    void placeKeyTile(const char &keyTile);
+>>>>>>> 627df6f (Added Key and Door tile with functionality)
 };

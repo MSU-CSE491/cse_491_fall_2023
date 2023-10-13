@@ -22,6 +22,8 @@ namespace cse491 {
 
     size_t spike_id;  ///< Easy access to spike CellType ID.
     size_t tar_id; ///< Easy access to tar CellTypeID
+    size_t key_id; ///< Easy access to key CellTypeID
+    size_t door_id; ///< Easy access to door CellTypeID
 
     size_t grass_id;
     size_t dirt_id;
@@ -36,6 +38,7 @@ namespace cse491 {
       agent.AddAction("down", MOVE_DOWN);
       agent.AddAction("left", MOVE_LEFT);
       agent.AddAction("right", MOVE_RIGHT);
+      agent.SetProperty("key_property", 0.0); //if key is set to 0, agent does not have possession of key. If it is 1, agent has possession of key and can exit through door
       agent.SetProperty("tar_property", 5.0); //if it is set to 5.0, agent is free to move. if it is set to 6.0, agent is stuck
     }
 
@@ -51,6 +54,8 @@ namespace cse491 {
       spike_id = AddCellType("spike", "Dangerous spike that resets the game.", 'X');
 
       tar_id = AddCellType("tar", "Slow tile that makes you take two steps to get through it", 'O');
+      key_id = AddCellType("key", "item that can be picked up to unlock door and escape maze", 'K');
+      door_id = AddCellType("door", "Door that can be walked through only with possession of key to leave maze", 'D');
 
       grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
       dirt_id  = AddCellType("dirt", "Dirt you can walk on.", '~');
@@ -85,6 +90,20 @@ namespace cse491 {
       exit(0);  // Halting the program
 
       return false;
+      }
+
+      // agent is moving onto a key tile and picking it up
+      if( main_grid.At(new_position) == key_id )
+      {
+          agent.SetProperty("key_property", 1.0);
+          main_grid.At(new_position) = floor_id;
+      }
+
+      // player is exiting through door with key and ending game
+      if( main_grid.At(new_position) == door_id && agent.GetProperty("key_property") == 1.0 )
+      {
+          std::cout << "You successfully exited maze!" << std::endl;
+          exit(0);
       }
 
       // player is on tar tile and trying to move to a tar tile
