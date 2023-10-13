@@ -34,11 +34,11 @@ foreach(EXECUTABLE ${EXECUTABLES})
     set(SOURCES source/${EXECUTABLE}_main.cpp source/Interfaces/MainInterface.cpp source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Container.cpp source/Interfaces/Container.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp)
     add_executable(${EXECUTABLE} ${SOURCES} source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp)
     target_include_directories(${EXECUTABLE}
-      PRIVATE ${MAIN_SOURCE_DIR}
-      )
+            PRIVATE ${MAIN_SOURCE_DIR}
+            )
     target_link_libraries(${EXECUTABLE}
-      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
-      )
+            PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
+            )
 endforeach()
 
 
