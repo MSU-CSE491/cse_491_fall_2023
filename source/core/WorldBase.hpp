@@ -31,7 +31,7 @@ class DataReceiver;
     item_set_t item_set;     ///< Vector of pointers to non-agent entities
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
-    std::shared_ptr<DataCollection::AgentReciever> agent_receiver;
+    std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
 
 
 
@@ -111,8 +111,8 @@ class DataReceiver;
       return *agent_set.back();
     }
 
-    void SetAgentReceiver(DataCollection::AgentReciever r) {
-      agent_receiver = std::make_shared<DataCollection::AgentReciever>(r);
+    void SetAgentReceiver(DataCollection::AgentReceiver r) {
+      agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
     }
 
     // -- Action Management --
