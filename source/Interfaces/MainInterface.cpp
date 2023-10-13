@@ -2,7 +2,7 @@
 // Created by Terra Byte on 10/9/23.
 //
 
-#include "MainInterface.h"
+#include "MainInterface.hpp"
 
 namespace i_2D {
     /**
@@ -164,7 +164,7 @@ namespace i_2D {
     * @param item_set     The set of items in the maze.
     * @param agent_set    The set of agents in the maze.
     */
-    void MainInterface::updateGrid(const WorldGrid &grid,
+    void MainInterface::UpdateGrid(const WorldGrid &grid,
                                    const type_options_t &type_options,
                                    const item_set_t &item_set,
                                    const agent_set_t &agent_set) {
@@ -242,7 +242,7 @@ namespace i_2D {
                 }
             }
 
-            updateGrid(grid, type_options, item_set, agent_set);
+            UpdateGrid(grid, type_options, item_set, agent_set);
         }
 
         return 0;
