@@ -14,6 +14,26 @@ namespace i_2D {
     MainInterface::MainInterface(size_t id, const std::string &name) : InterfaceBase(id, name),
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
+        menuBtn.setButtonSize({200,50});
+        menuBtn.setBackColor(sf::Color::Black);
+        menuBtn.setMFont();
+        menuBtn.setString("Menu");
+        menuBtn.setTextColor(sf::Color::White);
+        menuBtn.setPosition({0,0});
+
+        inventoryBTN.setButtonSize({200,50});
+        inventoryBTN.setBackColor(sf::Color::Black);
+        inventoryBTN.setMFont();
+        inventoryBTN.setString("Inventory");
+        inventoryBTN.setTextColor(sf::Color::White);
+        inventoryBTN.setPosition({200,0});
+
+        exitBtn.setButtonSize({200,50});
+        exitBtn.setBackColor(sf::Color::Black);
+        exitBtn.setMFont();
+        exitBtn.setString("Exit");
+        exitBtn.setTextColor(sf::Color::White);
+        exitBtn.setPosition({400,0});
     }
 
     /**
@@ -153,6 +173,9 @@ namespace i_2D {
 
         }
         // Display everything
+        menuBtn.drawTo(mWindow);
+        inventoryBTN.drawTo(mWindow);
+        exitBtn.drawTo(mWindow);
         mWindow.display();
     }
 
@@ -239,6 +262,28 @@ namespace i_2D {
                     // Resize the view to match window size to prevent deformation
                     sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
                     mWindow.setView(sf::View(viewArea));
+                } else if(event.type == sf::Event::MouseMoved){
+                    if (menuBtn.isMouseOver(mWindow)){
+                        menuBtn.setBackColor(sf::Color::Magenta);
+                        inventoryBTN.setBackColor(sf::Color::Black);
+                        exitBtn.setBackColor(sf::Color::Black);
+                    }else if (inventoryBTN.isMouseOver(mWindow)){
+                        inventoryBTN.setBackColor(sf::Color::Magenta);
+                        menuBtn.setBackColor(sf::Color::Black);
+                        exitBtn.setBackColor(sf::Color::Black);
+                    }else if (exitBtn.isMouseOver(mWindow)){
+                        menuBtn.setBackColor(sf::Color::Black);
+                        inventoryBTN.setBackColor(sf::Color::Black);
+                        exitBtn.setBackColor(sf::Color::Magenta);
+                    }else{
+                        menuBtn.setBackColor(sf::Color::Black);
+                        inventoryBTN.setBackColor(sf::Color::Black);
+                        exitBtn.setBackColor(sf::Color::Black);
+                    }
+                } else if(event.type == sf::Event::MouseButtonPressed){
+                    if (exitBtn.isMouseOver(mWindow)){
+                        mWindow.close();
+                    }
                 }
             }
 
