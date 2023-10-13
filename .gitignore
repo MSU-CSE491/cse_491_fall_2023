@@ -21,10 +21,3 @@ cmake-build-release
 *.out
 
 #Mui's local classes
-source/Interfaces/Component.cpp
-source/Interfaces/Component.h
-source/Interfaces/Container.cpp
-source/Interfaces/Container.h
-source/Interfaces/Menu.cpp
-source/Interfaces/Menu.h
-

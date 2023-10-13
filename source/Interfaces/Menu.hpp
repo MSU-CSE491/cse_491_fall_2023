@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef CSE_491_MENU_H
-#define CSE_491_MENU_H
+#ifndef CSE_491_MENU_HPP
+#define CSE_491_MENU_HPP
 #include <SFML/Graphics.hpp>
 
 namespace i_2D {
@@ -34,4 +34,4 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         int GetPressedItem(){ return selectedItemIndex;}
     };
 }
-#endif //CSE_491_MENU_H
+#endif //CSE_491_MENU_HPP

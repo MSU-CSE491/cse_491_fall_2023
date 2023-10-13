@@ -31,8 +31,8 @@ add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
 
 foreach(EXECUTABLE ${EXECUTABLES})
-    set(SOURCES source/${EXECUTABLE}_main.cpp source/Interfaces/MainInterface.cpp source/Interfaces/Component.cpp source/Interfaces/Component.h source/Interfaces/Container.cpp source/Interfaces/Container.h source/Interfaces/Button.cpp source/Interfaces/Button.h)
-    add_executable(${EXECUTABLE} ${SOURCES} source/Interfaces/Component.cpp source/Interfaces/Component.h source/Interfaces/Button.cpp source/Interfaces/Button.h)
+    set(SOURCES source/${EXECUTABLE}_main.cpp source/Interfaces/MainInterface.cpp source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Container.cpp source/Interfaces/Container.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp)
+    add_executable(${EXECUTABLE} ${SOURCES} source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp)
     target_include_directories(${EXECUTABLE}
       PRIVATE ${MAIN_SOURCE_DIR}
       )

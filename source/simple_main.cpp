@@ -10,7 +10,7 @@
 #include "Interfaces/MainInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
-#include "Interfaces/Menu.h"
+#include "Interfaces/Menu.hpp"
 
 int main()
 {

@@ -11,11 +11,12 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include "Button.hpp"
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
 
-#include "Menu.h"
+//#include "Menu.h"
 
 using namespace cse491;
 
@@ -35,6 +36,9 @@ namespace i_2D {
 
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
+        Button menuBtn;
+        Button inventoryBTN;
+        Button exitBtn;
 
     public:
 

@@ -3,7 +3,7 @@
  * @author
  */
 
-#include "Menu.h"
+#include "Menu.hpp"
 #include <SFML/Window.hpp>
 
 namespace i_2D{

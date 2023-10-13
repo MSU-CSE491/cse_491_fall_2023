@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef CSE_491_BUTTON_H
-#define CSE_491_BUTTON_H
+#ifndef CSE_491_BUTTON_HPP
+#define CSE_491_BUTTON_HPP
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
@@ -95,4 +95,4 @@ namespace i_2D {
     };
 }
 
-#endif //CSE_491_BUTTON_H
+#endif //CSE_491_BUTTON_HPP
