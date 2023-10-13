@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   cse491::netWorth::ClientInterface interface(ip_string, port);
 
   if (!interface.EstablishConnection()) return 1;
-  interface.Loop();
+  interface.GameLoop();
 
   return 0;
 }

@@ -29,7 +29,7 @@ int main()
 
     world->SetServer(serverInterface);
 
-    UdpSocket * serverSocket = serverInterface->GetSocket();
+    sf::UdpSocket * serverSocket = serverInterface->GetSocket();
 
     std::cout << "Server IP Address: " << sf::IpAddress::getLocalAddress() << std::endl;
 

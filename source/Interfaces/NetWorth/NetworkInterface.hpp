@@ -14,10 +14,12 @@
 
 #include "../../core/InterfaceBase.hpp"
 
-using namespace sf;
+
 
 namespace cse491 {
     namespace netWorth{
+
+        using namespace sf;
     /**
      * TODO: Delete or incorporate
      */

@@ -16,13 +16,14 @@
 #include "../NetworkInterface.hpp"
 #include "../../TrashInterface.hpp"
 
-using namespace sf;
+
 
 namespace cse491 {
     namespace netWorth{
     /**
      * The interface of our client that will be interacting and connection with our server
      */
+        using namespace sf;
         class ClientInterface {
         private:
             std::unique_ptr<TrashInterface> mTrash;     /// Display interface
@@ -82,7 +83,7 @@ namespace cse491 {
             /**
              * Game loop
              */
-            void Loop() {
+            void GameLoop() {
                 char input;
                 bool valid_input = false;
                 bool wait_for_input = true;
@@ -122,10 +123,7 @@ namespace cse491 {
 
                     valid_input = false;
                     while (!valid_input) {
-                        do {
-                            std::cin >> input;
-                        } while (!std::cin);
-
+                        std::cin >> input;
                         switch (input) {
                             case 'w': case 'W': action = "up";      valid_input = true; break;
                             case 'a': case 'A': action = "left";    valid_input = true; break;

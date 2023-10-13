@@ -17,11 +17,11 @@
 
 
 
-using namespace sf;
+
 
 namespace cse491 {
     namespace netWorth{
-
+        using namespace sf;
         class NetworkMazeWorld;
         /**
          * The server that will be running and that allows clients to connect to
