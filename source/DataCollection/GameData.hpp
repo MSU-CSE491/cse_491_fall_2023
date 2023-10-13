@@ -1,5 +1,5 @@
 #pragma once
-#include "DoubleLinkedList.hpp"
+
 #include <vector>
 #include"../core/GridPosition.hpp"
 namespace DataCollection{
@@ -9,8 +9,8 @@ namespace DataCollection{
         int numOfCol;
 
         std::vector<int>collisions;///< A vector of Collision Data
-        std::vector<size_t>ShortestPathAction; ///<A vector of the shortest path action
-        std::vector<DoubleLinkedList<cse491::GridPosition>>ShortestPathPos;///<A vector of the shortest Position
+        std::vector<size_t>shortestPathAction; ///<A vector of the shortest path action
+        std::vector<cse491::GridPosition>shortestPathPos;///<A vector of the shortest Position
     public:
         /**
          * @brief Default constructor for AgentData class.
@@ -59,7 +59,7 @@ namespace DataCollection{
          * @param action Shortest path action to store.
          */
         void StoreShortestPathAction(size_t action) {
-            ShortestPathAction.push_back(action);
+            shortestPathAction.push_back(action);
         }
 
         /**
@@ -67,23 +67,23 @@ namespace DataCollection{
          * @return A constant reference to the vector of shortest path actions.
          */
         const std::vector<size_t>& GetShortestPathActions() const {
-            return ShortestPathAction;
+            return shortestPathAction;
         }
 
         /**
          * @brief Store a shortest path position.
          * @param position Shortest path position to store.
          */
-        void StoreShortestPathPos(const DoubleLinkedList<cse491::GridPosition>& position) {
-            ShortestPathPos.push_back(position);
+        void StoreShortestPathPos(const cse491::GridPosition pos) {
+            shortestPathPos.push_back(pos);
         }
 
         /**
          * @brief Retrieve the stored shortest path positions.
          * @return A constant reference to the vector of shortest path positions.
          */
-        const std::vector<DoubleLinkedList<cse491::GridPosition>>& GetShortestPathPos() const {
-            return ShortestPathPos;
+        const std::vector<cse491::GridPosition> GetShortestPathPos() const {
+            return shortestPathPos;
         }
     };
     }
