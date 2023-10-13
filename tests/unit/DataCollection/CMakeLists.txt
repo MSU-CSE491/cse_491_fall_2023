@@ -10,7 +10,8 @@ set(MAIN_SOURCE_DIR ../${MAIN_SOURCE_DIR})
 
 foreach(TARGET IN LISTS TARGETS)
   add_executable(tests-unit-core-${TARGET} ${TARGET}.cpp
-          AgentDataTest.cpp)
+          AgentDataTest.cpp
+          GameDataTest.cpp)
 
   target_include_directories(tests-unit-core-${TARGET}
     PRIVATE ${MAIN_SOURCE_DIR}

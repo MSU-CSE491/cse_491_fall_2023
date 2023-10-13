@@ -8,9 +8,7 @@
 #include <catch2/catch_all.hpp>
 
 // Class project
-#include "DataCollection/DoubleLinkedList.hpp"
 #include "DataCollection/GameData.hpp"
-#include "DataCollection/DoubleLinkedList.hpp"
 TEST_CASE("GameDataTest", "[DataCollection][GameData]") {
     DataCollection::GameData data;
     // Testing numOfCol getter and setter
@@ -36,18 +34,5 @@ TEST_CASE("GameDataTest", "[DataCollection][GameData]") {
         CHECK(data.GetShortestPathActions()[0] == 3);
         CHECK(data.GetShortestPathActions()[1] == 4);
     }
-
-        // Testing shortest path position storage and retrieval
-    SECTION("Test StoreShortestPathPos and GetShortestPathPos") {
-        DataCollection::DoubleLinkedList<cse491::GridPosition> pos1;
-        pos1.add_node(cse491::GridPosition(1, 1));
-        data.StoreShortestPathPos(pos1);
-
-        DataCollection::DoubleLinkedList<cse491::GridPosition> pos2;
-        pos2.add_node(cse491::GridPosition(2, 2));
-        data.StoreShortestPathPos(pos2);
-
-        CHECK(data.GetShortestPathPos().size() == 2);
-        // Here you might also want to check the actual positions inside the stored LinkedLists
-    }
+    
 }

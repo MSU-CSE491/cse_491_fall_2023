@@ -17,7 +17,6 @@ namespace DataCollection
         std::vector<int> actionIds;  ///< IDs associated with the agent's actions.
         std::vector<cse491::GridPosition> position;  ///list of grid positions.
         std::vector<std::unordered_map<std::string, size_t>> actions;  ///< Vector of action maps.
-        int positionSize = 0;  ///< Current size of the position data.
 
     public:
         /**
