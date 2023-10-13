@@ -1,6 +1,6 @@
 /**
  * @file BiomeGenerator.h
- * @author Paul Schulte
+ * @author Paul Schulte, Milan Mihailovic, ChatGPT
  *
  * Uses perlin noise to create dirt and grass on a grid
  */
@@ -10,31 +10,59 @@
 #include <functional>
 #include <vector>
 
-
 #include "PerlinNoise.hpp"
 #include "../core/WorldGrid.hpp"
 
 using siv::PerlinNoise;
 using cse491::WorldGrid;
 
-struct Point {
-    int x, y;
-    bool operator==(const Point& other) const { return x == other.x && y == other.y; }
-    bool operator<(const Point& other) const { return std::tie(x, y) < std::tie(other.x, other.y); }
-};
-
-
+/**
+ * Each possible type of biome
+ */
 enum class BiomeType {
     Maze,
     Grasslands
 };
 
+/**
+ * Holds coordinate position on the grid
+ * @param biome The biome of the grid
+ */
+struct Point {
+    int x;    ///< The x coordinate on the grid)
+    int y;    ///< The y coordinate on the grid)
+
+    /**
+     * Creates an (x,y) coordinate point
+     * @param _x  The x-coordinate
+     * @param _y  The y-coordinate
+     */
+    Point(int _x, int _y): x(_x), y(_y) {}
+
+    /**
+     * Comparison operator between 2 equal points
+     * @param other The other point that this point is being compared to
+     * @return True if the 2 points are equal, false otherwise
+     */
+    bool operator==(const Point& other) const { return x == other.x && y == other.y; }
+
+    /**
+     * Comparison operator between 2 different points
+     * @param other The other point that this point is being compared to
+     * @return True if the 2 points are different, false otherwise
+     */
+    bool operator!=(const Point& other) const { return !(*this == other); }
+};
+
+/**
+ * Generates a new grid based on a specified biome
+ */
 class BiomeGenerator {
 private:
-    const double frequency = 8.0; ///< [0.1, 64.0]
-    const int octaves = 8;        ///< [1, 16]
+    const double frequency = 8.0;         ///< [0.1, 64.0]
+    const int octaves = 8;                ///< [1, 16]
 
-    PerlinNoise perlinNoise;
+    PerlinNoise perlinNoise;              ///< The Perlin Noise procedural generation algorithm
 
     BiomeType biome;                      ///< Biome for the gird
     std::vector<char> tiles;              ///< Vector to store tiles
@@ -50,7 +78,9 @@ public:
     void generate();
     void saveToFile(const std::string &filename) const;
     void placeSpecialTiles(const char& genericTile, const char& specialTile, double percentage);
-//    bool isPathExists();
 
     void setTiles(const char &firstTile, const char &secondTile);
+
+    [[nodiscard]] std::vector<Point> clearPath() const;
+    void applyPathToGrid(const std::vector<Point>& path);
 };

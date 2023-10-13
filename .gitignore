@@ -5,5 +5,7 @@ cmake-build-*/
 .cmake/
 .idea/
 *.iml
-
+../source/Worlds/Doxyfile.doxy
+../source/Worlds/html/
+../source/Worlds/latex/
 ../assets/grids/

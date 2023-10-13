@@ -1,11 +1,9 @@
 /**
  * @file BiomeGenerator.cpp
- * @author Paul Schulte
+ * @author Paul Schulte, Milan Mihailovic, ChatGPT
  */
 
 #include <fstream>
-#include <cmath>
-#include <set>
 #include <tuple>
 #include "BiomeGenerator.h"
 
@@ -35,8 +33,6 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
 
 /**
  * Generates the grid with two types of tiles
- * @param tile1  The first tile generated
- * @param tile2 The second tile generated
  */
 void BiomeGenerator::generate() {
 
@@ -58,59 +54,11 @@ void BiomeGenerator::generate() {
     }
 }
 
-//bool BiomeGenerator::isPathExists() {
-//    std::set<Point> closedSet;
-//    std::vector<Point> openSet{ {0, 0} };
-//
-//    auto heuristic = [](const Point& a, const Point& b) {
-//        return std::sqrt(std::pow(b.x - a.x, 2) + std::pow(b.y - a.y, 2));
-//    };
-//
-//    while (!openSet.empty()) {
-//        Point current = openSet.back();
-//        openSet.pop_back();
-//
-//        if (current.x == width - 1 && current.y == height - 1)
-//            return true;
-//
-//        closedSet.insert(current);
-//
-//        std::vector<Point> neighbors{
-//                {current.x + 1, current.y},
-//                {current.x - 1, current.y},
-//                {current.x, current.y + 1},
-//                {current.x, current.y - 1}
-//        };
-//
-//        for (const auto& neighbor : neighbors) {
-//            if (neighbor.x < 0 || neighbor.x >= width || neighbor.y < 0 || neighbor.y >= height)
-//                continue;
-//
-//            if (grid[neighbor.y][neighbor.x] == '#')  // Check if the neighbor is walkable
-//                continue;
-//
-//            if (closedSet.find(neighbor) != closedSet.end())
-//                continue;
-//
-//            double tentative_gScore = heuristic({0, 0}, neighbor);
-//
-//            auto it = std::find(openSet.begin(), openSet.end(), neighbor);
-//            if (it == openSet.end() || tentative_gScore < heuristic({0, 0}, *it)) {
-//                if (it == openSet.end()) {
-//                    openSet.push_back(neighbor);
-//                }
-//            }
-//        }
-//    }
-//
-//    return false;
-//}
-
-
 /**
  * Generates special tiles on the grid
  * @param genericTile  The tile that the special tile can spawn on
  * @param specialTile The special tile to generate
+ * @param percentage Chance of special tile generating on the generic tile
  */
 void BiomeGenerator::placeSpecialTiles(const char &genericTile, const char &specialTile, double percentage) {
     std::vector<std::pair<int, int>> floorPositions;
@@ -130,6 +78,60 @@ void BiomeGenerator::placeSpecialTiles(const char &genericTile, const char &spec
     // Convert some generic floor tiles to special tiles
     for (int i = 0; i < numSpikes; ++i) {
         grid[floorPositions[i].second][floorPositions[i].first] = specialTile;
+    }
+}
+
+/**
+ * Clears a randomized path from the top left of the
+ * grid, to any point on the rightmost side of the map
+ * @return A vector of points necessary for this path
+ */
+std::vector<Point> BiomeGenerator::clearPath() const {
+    std::vector<Point> path;
+
+    Point current(0, 0);
+    path.push_back(current);
+
+    while (current.x < width - 1) {
+        int randDirection = rand() % 3; // 0: Right, 1: Up, 2: Down
+
+        // Choose next point based on random direction
+        Point next = current;
+        if (randDirection == 0)
+        {
+            next.x++;
+        }
+
+        else if (randDirection == 1)
+        {
+            if (next.y > 0) // Ensure within grid bounds
+                next.y--;
+        }
+        else {
+
+            if (next.y < height - 1) // Ensure within grid bounds
+                next.y++;
+        }
+
+        // If the next point is the same as the current, then we chose an invalid direction
+        // (like trying to go up at the top edge), so just skip this iteration.
+        if (next != current) {
+            path.push_back(next);
+            current = next;
+        }
+    }
+
+    return path;
+}
+
+/**
+ * Clears the walls out of the grid, guaranteeing a path from the
+ * left of the grid, to any point on the rightmost side of the map
+ * @param path A vector of points necessary for this path
+ */
+void BiomeGenerator::applyPathToGrid(const std::vector<Point>& path) {
+    for (const Point& p : path) {
+        grid[p.y][p.x] = ' ';
     }
 }
 
@@ -159,4 +161,3 @@ void BiomeGenerator::setTiles(const char& firstTile, const char& secondTile)
     tiles.push_back(firstTile);
     tiles.push_back(secondTile);
 }
-

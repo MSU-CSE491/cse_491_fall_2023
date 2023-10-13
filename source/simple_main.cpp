@@ -11,21 +11,15 @@
 #include "Worlds/BiomeGenerator.h"
 
 int main() {
-    static const unsigned int SEED = 933;
+    static const unsigned int SEED = 973;
 
-    BiomeGenerator biomeGenerator(BiomeType::Maze, 100, 20, SEED);
+    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
     biomeGenerator.generate();
-//    if (biomeGenerator.isPathExists()) {
-//        std::cout << "eeee" << std::endl;
-//    } else {
-//        std::cout << "iiii" << std::endl;
-//        // No path exists.
-//    }
-    biomeGenerator.saveToFile("../assets/grids/default_maze.grid");
 
-    BiomeGenerator biomeGenerator2(BiomeType::Grasslands, 30, 30, SEED);
-    biomeGenerator2.generate();
-    biomeGenerator2.saveToFile("../assets/grids/default_maze2.grid");
+    srand(time(NULL));
+    auto path = biomeGenerator.clearPath();
+    biomeGenerator.applyPathToGrid(path);
+    biomeGenerator.saveToFile("../assets/grids/default_maze.grid");
 
     cse491::MazeWorld world(SEED);
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
