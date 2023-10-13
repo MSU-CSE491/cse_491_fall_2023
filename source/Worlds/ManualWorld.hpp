@@ -8,6 +8,8 @@
 
 #include <cassert>
 #include <stdlib.h>
+#include <map>
+#include <tuple>
 
 #include "../core/WorldBase.hpp"
 
@@ -44,6 +46,43 @@ namespace cse491_team8 {
     }
     ~ManualWorld() = default;
 
+    void GenerateMoveSets()
+    {
+        for (auto& agent : agent_set)
+        {
+            auto agent_strength = agent->GetProperty<int>("Strength");
+            if (agent->GetName() == "Interface")
+            {
+                std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)},
+                        {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
+                        {"Health", std::make_tuple('h', 0.25)}};
+                agent->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+                continue;
+            }
+            std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)}};
+            if (agent_strength >= 10)
+            {
+                move_set["Special"] = std::make_tuple('d', 1.5);
+            }
+            if (agent_strength >= 15)
+            {
+                move_set["Heal"] = std::make_tuple('h', 0.25);
+            }
+            if (agent_strength >= 20)
+            {
+                move_set["Hyper"] = std::make_tuple('d', 2.0);
+            }
+            if (agent_strength >= 25)
+            {
+                move_set["De-Buff"] = std::make_tuple('s', -0.5);
+            }
+            if (agent_strength >= 30)
+            {
+                move_set["Buff"] = std::make_tuple('s', 0.5);
+            }
+            agent->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+        }
+    }
 
     /// @brief Checks the strength between two agents
     /// @param other_agent The autonomous agent to compare
@@ -53,17 +92,19 @@ namespace cse491_team8 {
     /// @return None
     void StrengthCheck(const std::unique_ptr<cse491::AgentBase> & other_agent, 
                      const std::unique_ptr<cse491::AgentBase> & agent) {
+        // User Input for Player Decision
         bool won = false;
         bool run = false;
         char input;
         while (other_agent->GetProperty<int>("Health") > 0 && agent->GetProperty<int>("Health") > 0)
         {
             bool valid_input = true;
+            std::cout << "Your Health: " << agent->GetProperty<int>("Health") << " Their Health: " <<
+                    other_agent->GetProperty<int>("Health") << std::endl;
             std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
             std::cout << "Your Attack: ";
             std::cin >> input;
             int damage = 0;
-            int other_damage = other_agent->GetProperty<int>("Strength");
             switch (input) {
             case 'a': case 'A': damage = (int)(agent->GetProperty<int>("Strength"));    break;
             case 's': case 'S': damage = (int)(agent->GetProperty<int>("Strength") * 1.5);  break;
@@ -72,15 +113,58 @@ namespace cse491_team8 {
                     agent->GetProperty<int>("Health") + (int)(agent->GetProperty<int>("Max_Health") * 0.25)); break;
             default: valid_input = false; break;
             }
-            if (agent->GetProperty<int>("Health") > agent->GetProperty<int>("Max_Health")) {
-              agent->SetProperty<int>("Health", agent->GetProperty<int>("Max_Health"));
+            if (agent->GetProperty<int>("Health") > agent->GetProperty<int>("Max_Health"))
+            {
+                agent->SetProperty<int>("Health", agent->GetProperty<int>("Max_Health"));
             }
-            std::cout << agent->GetProperty<int>("Health") << " | " << other_agent->GetProperty<int>("Health") << std::endl;
             if (!valid_input)
             {
                 std::cout << "Invalid Input" << "\n";
                 continue;
             }
+
+            // Other Agent Move Choice
+            int other_damage = 0;
+            std::map<std::string, std::tuple<char, double>> move_set = other_agent->GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
+            auto iterator = move_set.begin();
+            int random = rand() % move_set.size();
+            std::advance(iterator, random);
+            std::string random_key = iterator->first;
+            std::cout << "The enemy has used: " << random_key << "\n";
+            std::tuple<char, double> move_info = iterator->second;
+            char stat_char = std::get<0>(move_info);
+            double stat_modification = std::get<1>(move_info);
+            if (stat_char == 'd')
+            {
+                other_damage = other_agent->GetProperty<int>("Strength") * stat_modification;
+                other_damage = (int)other_damage;
+            }
+            if (stat_char == 'h')
+            {
+                other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") +
+                        (int)(other_agent->GetProperty<int>("Max_Health") * stat_modification));
+                if (other_agent->GetProperty<int>("Health") > other_agent->GetProperty<int>("Max_Health"))
+                {
+                    other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Max_Health"));
+                }
+            }
+            if (stat_char == 's')
+            {
+                if (stat_modification < 0)
+                {
+                    int agent_strength = agent->GetProperty<int>("Strength");
+                    int new_strength = (int)(agent_strength - abs(stat_modification) * agent_strength);
+                    agent->SetProperty<int>("Strength", new_strength);
+                }
+                else
+                {
+                    int other_agent_strength = other_agent->GetProperty<int>("Strength");
+                    int new_strength_other = (int)(other_agent_strength + abs(stat_modification) * other_agent_strength);
+                    agent->SetProperty<int>("Strength", new_strength_other);
+                }
+            }
+
+            // Process the Player's Move and the Agent's Move
             if (run)
             {
                 agent->SetProperty<int>("Health", agent->GetProperty<int>("Health") - other_damage);
