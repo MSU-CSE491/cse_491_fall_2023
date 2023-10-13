@@ -14,9 +14,9 @@ TEMPLATE_TEST_CASE("DataReceiver class tests", "[DataReceiver][template]", int, 
     DataCollection::DataReceiver<int> dataReceiver;
     SECTION("Test storing and retrieving data") {
 
-        dataReceiver.store_data(42);
-        dataReceiver.store_data(321);
-        dataReceiver.store_data(123);
+        dataReceiver.StoreIntoStorage(42);
+        dataReceiver.StoreIntoStorage(321);
+        dataReceiver.StoreIntoStorage(123);
 
         std::vector<int> storedData = dataReceiver.getStorage();
         REQUIRE(storedData.size() == 3);

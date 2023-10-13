@@ -1,9 +1,9 @@
 #pragma once
 
 #include <string>
+#include <list>
 #include <vector>
 #include <unordered_map>
-#include "DoubleLinkedList.hpp"
 #include "../core/GridPosition.hpp"
 
 namespace DataCollection
@@ -14,10 +14,10 @@ namespace DataCollection
     class AgentData {
     private:
         std::string name;  ///< The name of the agent.
-        std::vector<int> action_ids;  ///< IDs associated with the agent's actions.
-        DoubleLinkedList<cse491::GridPosition> position;  ///< Linked list of grid positions.
+        std::vector<int> actionIds;  ///< IDs associated with the agent's actions.
+        std::vector<cse491::GridPosition> position;  ///list of grid positions.
         std::vector<std::unordered_map<std::string, size_t>> actions;  ///< Vector of action maps.
-        int position_size = 0;  ///< Current size of the position data.
+        int positionSize = 0;  ///< Current size of the position data.
 
     public:
         /**
@@ -35,8 +35,7 @@ namespace DataCollection
          * @param pos The grid position to be stored.
          */
         void StorePositions(cse491::GridPosition pos) {
-            position.add_node(pos);
-            position_size += 1;
+            position.push_back(pos);
         }
 
         /**
@@ -52,7 +51,7 @@ namespace DataCollection
          * @param id The agent ID to be stored.
          */
         void StoreAgentId(int id) {
-            action_ids.push_back(id);
+            actionIds.push_back(id);
         }
 
         /**
@@ -76,7 +75,7 @@ namespace DataCollection
          * @return The number of stored grid positions.
          */
         int GetPositionSize() const {
-            return position_size;
+            return position.size();
         }
 
         /**
@@ -84,7 +83,7 @@ namespace DataCollection
          * @return The vector of agent IDs.
          */
         auto GetAgentIds() const {
-            return action_ids;
+            return actionIds;
         }
     };
 } // namespace DataCollection

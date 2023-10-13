@@ -139,7 +139,7 @@ class DataReceiver;
 
     void CollectData() {
       auto & agent = agent_set.at(2);
-      agent_receiver->store_data(agent->GetPosition(), agent->GetActionResult());
+        agent_receiver->StoreData(agent->GetPosition(), agent->GetActionResult());
     }
 
     /// @brief UpdateWorld() is run after every agent has a turn.

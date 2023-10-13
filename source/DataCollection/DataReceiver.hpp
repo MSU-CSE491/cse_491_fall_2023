@@ -23,19 +23,15 @@ namespace DataCollection {
         virtual ~DataReceiver() = default;
 
         /**
-         * @brief Stores a data object of type T.
-         * @param obj The data object to be stored.
-         */
-        inline void store_data(T obj) {
-            storage.push_back(obj);
-        }
-
-        /**
          * @brief Retrieves the stored data objects.
          * @return Reference to the vector containing stored data objects.
          */
         std::vector<T>& getStorage() {
             return storage;
+        }
+
+        void StoreIntoStorage(T obj){
+            storage.push_back(obj);
         }
 
     protected:
