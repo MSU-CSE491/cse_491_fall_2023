@@ -48,7 +48,7 @@ TEST_CASE("Logger class tests", "[Logger]") {
                          "\x1B[34mcont no endl Error message from Team\x1B[0m\n"
                          "\x1B[0m(DEBUG) Warning message standard overload\x1B[0m\n"
                          "\x1B[34m[Team 5](WARNING) Warning message from Team D.\x1B[0m\n");
-  }
+  
 
 #else
     REQUIRE(logOutput == "");
