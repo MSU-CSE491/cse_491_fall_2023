@@ -14,9 +14,8 @@
 #include <cassert>
 #include <iostream>
 #include <map>
-#include <string>
-
 #include <random>
+#include <string>
 
 #include "../core/AgentBase.hpp"
 #include "./GPAgentSensors.hpp"
@@ -27,21 +26,22 @@
 namespace cowboys {
 
 class GPAgent : public cse491::AgentBase {
-protected:
+ protected:
   const std::vector<std::string> predefinedMovement = {
       "down",  "down",  "down",  "down",  "right", "right", "up",    "up",
       "up",    "up",    "right", "right", "right", "right", "right", "right",
       "right", "right", "right", "right", "right", "left",  "left",  "left"};
 
-  size_t movementIndex = 0; ///< current move of the agent
+  size_t movementIndex = 0;  ///< current move of the agent
 
-public:
+ public:
   GPAgent(size_t id, const std::string &name) : AgentBase(id, name) {
     std::random_device rd;
     std::mt19937 gen(rd());
 
     std::uniform_int_distribution<int> dist(
-        0, 3); // size of the random set to 3 as we only have 4 actions initally
+        0,
+        3);  // size of the random set to 3 as we only have 4 actions initally
   }
   ~GPAgent() override = default;
 
@@ -50,12 +50,11 @@ public:
   bool Initialize() override { return true; }
 
   /// Choose the action to take a step in the appropriate direction.
-  size_t
-  SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
-               [[maybe_unused]] const cse491::type_options_t &type_options,
-               [[maybe_unused]] const cse491::item_set_t &item_set,
-               [[maybe_unused]] const cse491::agent_set_t &agent_set) override {
-
+  size_t SelectAction(
+      [[maybe_unused]] const cse491::WorldGrid &grid,
+      [[maybe_unused]] const cse491::type_options_t &type_options,
+      [[maybe_unused]] const cse491::item_set_t &item_set,
+      [[maybe_unused]] const cse491::agent_set_t &agent_set) override {
 //// TODO: Remove this in later releases
 #ifndef NDEBUG
     Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
@@ -65,7 +64,7 @@ public:
 #endif
 
     if (movementIndex >= predefinedMovement.size()) {
-      return 0; // do nothing if it is out of bound for defined movement
+      return 0;  // do nothing if it is out of bound for defined movement
     }
 
     auto action = action_map[predefinedMovement[movementIndex++]];
@@ -73,4 +72,4 @@ public:
   }
 };
 
-} // namespace cowboys
+}  // namespace cowboys

@@ -4,7 +4,7 @@
 #include "../core/WorldGrid.hpp"
 
 const int WALL =
-    2; // TODO: work with world teams to better define impenetrable objects
+    2;  // TODO: work with world teams to better define impenetrable objects
 
 // #define DEBUG
 
@@ -25,7 +25,7 @@ namespace cowboys {
 enum SensorDirection { LEFT, RIGHT, ABOVE, BELOW };
 
 class Sensors {
-private:
+ private:
   /**
    * @brief print the positions of the agent only during debug mode
    * @param printstring
@@ -36,7 +36,7 @@ private:
 #endif
   }
 
-public:
+ public:
   /// Constructor
   Sensors() = default;
 
@@ -102,4 +102,4 @@ public:
     return SensorDirection::LEFT;
   }
 };
-} // namespace cowboys
+}  // namespace cowboys

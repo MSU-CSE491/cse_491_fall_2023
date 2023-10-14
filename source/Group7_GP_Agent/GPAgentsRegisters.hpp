@@ -3,6 +3,7 @@
 
 // #include <array>
 #include <assert.h>
+
 #include <iostream>
 #include <vector>
 
@@ -13,14 +14,14 @@ namespace cowboys {
  *
  */
 class GPAgentRegisters {
-private:
+ private:
   /// Vector of registers
   std::vector<size_t> registers;
 
   /// Number of registers Default is 16
   int numRegisters = 16;
 
-public:
+ public:
   /**
    * Constructor for GPAgentRegisters
    * @param numRegisters
@@ -83,14 +84,14 @@ public:
    *
    */
   class iterator {
-  private:
+   private:
     /// Index of the iterator
     size_t index;
 
     /// Reference to the registers
     GPAgentRegisters &registers;
 
-  public:
+   public:
     /**
      * Constructor for iterator
      * @param index
@@ -140,4 +141,4 @@ public:
   iterator end() { return iterator(numRegisters, *this); }
 };
 
-} // namespace cowboys
+}  // namespace cowboys
