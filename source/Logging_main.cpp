@@ -5,18 +5,18 @@
 using namespace clogged;
 
 void samplefunction() {
-    Logger::log << LOG_FNC << "This log message includes file and line number." << Logger::endl;
+    std::log << LOG_FNC << "This log message includes file and line number." << std::endl;
 }
 
 
 int main() {
-    Logger::log << Team::TEAM_1 << LogLevel::DEBUG << Color::BLUE << "This is a debug message from Team A." << "aye 2" << Logger::endl;
-    Logger::log << Team::TEAM_2 << LogLevel::INFO << Color::GREEN << "This is an info message from Team B." << Logger::endl;
-    Logger::log << Team::TEAM_3 << LogLevel::ERROR << Color::RED << " RED Error message from Team C." << Logger::endl;
+    Logger::log << Team::TEAM_1 << LogLevel::DEBUG << Color::BLUE << "This is a debug message from Team A." << "aye 2" << std::endl;
+    Logger::log << Team::TEAM_2 << LogLevel::INFO << Color::GREEN << "This is an info message from Team B." << std::endl;
+    Logger::log << Team::TEAM_3 << LogLevel::ERROR << Color::RED << " RED Error message from Team C." << std::endl;
     Logger::log << Team::TEAM_4 << LogLevel::ERROR << Color::BLUE << "Error message from Team C. no endl";
     Logger::log << "cont no endl Error message from Team";
 
-    Logger::log << std::endl <<  "Warning message standard overload" << Logger::endl;
+    Logger::log << std::endl <<  "Warning message standard overload" << std::endl;
 
     samplefunction();
 
