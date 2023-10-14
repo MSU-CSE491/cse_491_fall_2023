@@ -56,6 +56,10 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
 
 #define LOG_FNC "Function: " << __func__ << " "
 
+/// Not a fan of this practice
+/// But would prefer not to use parenthesis
+#define log Log()
+
 /**
  * @brief Logger class with colors and team names
  * @author @amantham20 @chatGPT
@@ -173,10 +177,37 @@ class Logger {
     return *this;
   }
 
-  //  static Logger log; /// Global log instance //TODO: Check if poluting the
-  /// global namespace is a good idea??
 
-  static Logger log;
+    /**
+     * Only instance of the logger once
+     * Changes requested from Dr.@ofria
+     *
+     * @authors @mercere99
+     * @return
+     */
+    static Logger& Log() {
+      static Logger instance; // Guaranteed to be initialized only once.
+      return instance;
+    }
+
+    /**
+     * Only instance of the logger once
+     * Changes requested from Dr.@ofria
+     *
+     * @authors @mercere99
+     * @return
+     */
+    template <typename T, typename... EXTRA_Ts>
+    static Logger & Log(T && arg1, EXTRA_Ts &&... extra_args) {
+      Log() << std::forward<T>(arg1);  // Log the first argument.
+      if constexpr (sizeof...(EXTRA_Ts) == 0) {  // No arguments left.
+        return Log() << Logger::endl;  // Trigger a flush.
+      } else {
+        return Log(std::forward<EXTRA_Ts>(extra_args)...);  // Log remaining arguments.
+      }
+    }
+
+
   /**
    * @brief Custom endl to reset the values
    *
@@ -184,7 +215,7 @@ class Logger {
    * @return std::ostream&
    */
   static std::ostream &endl(std::ostream &os) {
-    log << std::endl;  // Call the custom Logger::endl to reset values
+    Log() << std::endl;  // Call the custom Logger::endl to reset values
     return os;
   }
 
@@ -247,8 +278,7 @@ class Logger {
   }
 };
 
-/// @brief Global log instance
-Logger Logger::log;
+
 
 #else
 
