@@ -16,11 +16,11 @@
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
 
-//#include "Menu.h"
-
-using namespace cse491;
 
 namespace i_2D {
+
+    using namespace cse491;
+
     /**
     * @class MainInterface
     *
@@ -73,6 +73,23 @@ namespace i_2D {
                             const type_options_t &type_options,
                             const item_set_t &item_set,
                             const agent_set_t &agent_set) override;
+
+        size_t HandleKeyEvent(const sf::Event &event);
+
+        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall);
+
+        void DrawEmptyCell(sf::RectangleShape &cellRect);
+
+        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent, sf::Color color);
+
+        void DrawCell(sf::RectangleShape &cellRect, float cellPosX, float cellPosY);
+
+        void LoadTextures(sf::Texture &wallTexture, sf::Texture &trollTexture);
+
+        void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth, float &drawSpaceHeight,
+                                float &drawCenterX, float &drawCenterY);
+
+        sf::Vector2f CalculateCellSize(const WorldGrid &grid);
     };
 
 } // End of namespace 2D
