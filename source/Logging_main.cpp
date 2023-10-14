@@ -5,7 +5,7 @@
 using namespace clogged;
 
 void samplefunction() {
-    std::log << LOG_FNC << "This log message includes file and line number." << std::endl;
+    Logger::log << LOG_FNC << "This log message includes file and line number." << std::endl;
 }
 
 

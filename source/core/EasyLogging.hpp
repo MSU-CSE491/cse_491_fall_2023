@@ -103,6 +103,7 @@ class Logger {
     return *this;
   }
 
+
   /**
    * @brief Manipulator for endl so that we can reset the values when a team is
    * done logging
@@ -175,12 +176,7 @@ class Logger {
   //  static Logger log; /// Global log instance //TODO: Check if poluting the
   /// global namespace is a good idea??
 
-  static Logger &Log() {
-    static Logger log;  // Creates this instance of log only when called the
-                        // first time, but always uses same one.
-    return log;         // Returns a consistent instance of log.
-  }
-
+  static Logger log;
   /**
    * @brief Custom endl to reset the values
    *
