@@ -4,13 +4,10 @@
  */
 
 #include <fstream>
-<<<<<<< HEAD
 #include <cmath>
 #include <set>
 #include <tuple>
-=======
 #include <random>
->>>>>>> 627df6f (Added Key and Door tile with functionality)
 #include "BiomeGenerator.h"
 
 using std::vector;

@@ -77,14 +77,11 @@ public:
     void saveToFile(const std::string &filename) const;
     void placeSpecialTiles(const char& genericTile, const char& specialTile, double percentage);
 
-<<<<<<< HEAD
     void setTiles(const char &firstTile, const char &secondTile);
-=======
-    [[nodiscard]] std::string getBiome() const { return biome; }
+    [[nodiscard]] BiomeType getBiome() const { return biome; }
 
     void placeDoorTile(const char &doorTile);
     void placeKeyTile(const char &keyTile);
->>>>>>> 627df6f (Added Key and Door tile with functionality)
 
     [[nodiscard]] std::vector<Point> clearPath() const;
     void applyPathToGrid(const std::vector<Point>& path);
