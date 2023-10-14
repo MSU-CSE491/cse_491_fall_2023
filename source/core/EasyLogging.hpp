@@ -46,12 +46,12 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
 
 #define LOGLINE "File: " << __FILE__ << "::->::Line(" << __LINE__ << ")"
 
-#define RELATIVE_PATH(file)                                                    \
-  (std::string(file).find_last_of("/\\") != std::string::npos                  \
-       ? std::string(file).substr(std::string(file).find_last_of("/\\") + 1)   \
+#define RELATIVE_PATH(file)                                                  \
+  (std::string(file).find_last_of("/\\") != std::string::npos                \
+       ? std::string(file).substr(std::string(file).find_last_of("/\\") + 1) \
        : std::string(file))
 
-#define LOG_RELLINE                                                            \
+#define LOG_RELLINE \
   "File: " << RELATIVE_PATH(__FILE__) << "::->::Line(" << __LINE__ << ")"
 
 #define LOG_FNC "Function: " << __func__ << " "
@@ -65,7 +65,7 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
  * the console.
  */
 class Logger {
-public:
+ public:
   /**
    * @brief Sets the Team name for the current log
    *
@@ -111,28 +111,21 @@ public:
    * @return Logger&
    */
   Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
-
     typedef std::ostream &(*EndlManipulator)(std::ostream &);
 
     // Compare the function pointers
-    if (manipulator == static_cast<EndlManipulator>(std::endl)) {
+    if (manipulator == static_cast<EndlManipulator>(std::endl) ||
+        manipulator == endl) {
       // Handle std::endl here
       currentTeam = Team::NA;
       currentLogLevel = LogLevel::DEBUG;
       currentColor = Color::RESET;
+
       std::cout << std::endl;
-    }
 
-    if (manipulator == endl) {
-
-      currentTeam = Team::NA;
-      currentLogLevel = LogLevel::DEBUG;
-      currentColor = Color::RESET;
-
-      std::cout << std::endl; // TODO: Might have to enable this so that we can
-                              // have same line logging when endl is not used
       metaPrinted = false;
     }
+
     return *this;
   }
 
@@ -148,12 +141,11 @@ public:
    * new team is set. aka ensure that  logger << Team::TEAM_1 << "Hello" <<
    * "World" << endl; works in one line with one team print
    */
-  template <typename T> Logger &operator<<(const T &value) {
-
+  template <typename T>
+  Logger &operator<<(const T &value) {
     // TODO: Define when to log by loglevel comparison. Goal is to send it in as
     // a flag in the CMakeLists.txt
     if (currentLogLevel >= LOGLEVEL) {
-
       // added additional flag in case one wants to compile without colors (or)
       // if the terminal does not support colors
 #ifndef D_ANSI_COLOR_CODES
@@ -172,16 +164,22 @@ public:
       }
 
       logMessage << value << colorEnd;
-      std::cout << logMessage.str(); // << std::endl;  //TODO: Might have to
-                                     // make enable this so that we can have
-                                     // same line logging when endl is not used
+      std::cout << logMessage.str();  // << std::endl;  //TODO: Might have to
+                                      // make enable this so that we can have
+                                      // same line logging when endl is not used
     }
 
     return *this;
   }
 
-  static Logger log; /// Global log instance //TODO: Check if poluting the
-                     /// global namespace is a good idea??
+  //  static Logger log; /// Global log instance //TODO: Check if poluting the
+  /// global namespace is a good idea??
+
+  static Logger &Log() {
+    static Logger log;  // Creates this instance of log only when called the
+                        // first time, but always uses same one.
+    return log;         // Returns a consistent instance of log.
+  }
 
   /**
    * @brief Custom endl to reset the values
@@ -190,12 +188,11 @@ public:
    * @return std::ostream&
    */
   static std::ostream &endl(std::ostream &os) {
-
-    log << std::endl; // Call the custom Logger::endl to reset values
+    log << std::endl;  // Call the custom Logger::endl to reset values
     return os;
   }
 
-private:
+ private:
   /// @brief Current team for that is going to log
   Team currentTeam = Team::NA;
 
@@ -225,7 +222,6 @@ private:
    * @return std::string
    */
   std::string teamToString(Team team) {
-
     auto it = teamToStringMap.find(team);
     if (it != teamToStringMap.end()) {
       return "[" + it->second + "]";
@@ -265,8 +261,11 @@ Logger Logger::log;
 #define LOG_FNC ""
 
 class Logger {
-public:
-  template <typename T> Logger &operator<<(const T &value) { return *this; }
+ public:
+  template <typename T>
+  Logger &operator<<(const T &value) {
+    return *this;
+  }
 
   Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
     return *this;
@@ -280,4 +279,4 @@ public:
 Logger Logger::log;
 #endif
 
-} // namespace clogged
+}  // namespace clogged
