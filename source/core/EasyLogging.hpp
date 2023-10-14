@@ -286,6 +286,8 @@ class Logger {
 #define LOG_RELLINE ""
 #define LOG_FNC ""
 
+#define log Log()
+
 class Logger {
  public:
   template <typename T>
@@ -299,10 +301,14 @@ class Logger {
 
   static std::ostream &endl(std::ostream &os) { return os; }
 
-  static Logger log;
+  static Logger& Log() {
+    static Logger instance; // Guaranteed to be initialized only once.
+    return instance;
+  }
+
 };
 
-Logger Logger::log;
+//Logger Logger::log;
 #endif
 
 }  // namespace clogged
