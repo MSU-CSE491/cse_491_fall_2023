@@ -3,8 +3,7 @@
 
 #include "../core/WorldGrid.hpp"
 
-const int WALL =
-    2;  // TODO: work with world teams to better define impenetrable objects
+
 
 // #define DEBUG
 
@@ -22,6 +21,12 @@ const int WALL =
  */
 namespace cowboys {
 
+
+static constexpr int WALL =
+        2;  // TODO: work with world teams to better define impenetrable objects
+        // FIXME: Group 1 has made a class that can check if a position is penetrable
+        // or not. We This will be used instead
+
 enum SensorDirection { LEFT, RIGHT, ABOVE, BELOW };
 
 class Sensors {
@@ -30,7 +35,7 @@ class Sensors {
    * @brief print the positions of the agent only during debug mode
    * @param printstring
    */
-  [[maybe_unused]] static void printPositions(const std::string &printstring) {
+  [[maybe_unused]] static void debugPosition(const std::string &printstring) {
 #ifndef NDEBUG
     std::cout << printstring << std::endl;
 #endif
@@ -81,9 +86,12 @@ class Sensors {
       directionStr = "bottom";
     }
 
-    printPositions(directionStr +
+    debugPosition(directionStr +
                    " distance to the wall:  " + std::to_string(distance - 1));
+    
     return distance - 1;
+
+
   }
 
   // make a function that takes in a string and maps the SensorDirectionEnum
