@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # all the possible executables [each team can have their own configuration]
 # copy over simple or same and change the accordingly
-set(EXECUTABLES simple sfml_example)
+set(EXECUTABLES simple sfml_example gp)
 
 
 # setting the output path to executable
@@ -34,7 +34,7 @@ add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 #option(DEBUG_LOGGING "Enable debug logging" OFF)
 set(LOGGING_CLASSES source/core/Logging.hpp)
 # add GP addition Classes to compile
-set(GP_CLASSES  source/Group7_GP_Agent/agent.hpp source/Group7_GP_Agent/GPAgentSensors.hpp)
+set(GP_CLASSES  source/Group7_GP_Agent/agent.hpp source/Group7_GP_Agent/GPAgentSensors.hpp source/Group7_GP_Agent/GPAgentsRegisters.hpp)
 
 
 foreach(EXECUTABLE ${EXECUTABLES})
