@@ -20,12 +20,12 @@ int main()
     //Create the world on the server side upon initialization
     //Add the pacing agents to just simply walk around
     //Once everything is added we simply wait for a response from a client that is connecting.
-    std::shared_ptr<cse491::netWorth::NetworkMazeWorld> world = std::make_shared<cse491::netWorth::NetworkMazeWorld>();
+    std::shared_ptr<netWorth::NetworkMazeWorld> world = std::make_shared<netWorth::NetworkMazeWorld>();
     world->AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world->AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
     world->AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", 'Z');
 
-    std::shared_ptr<cse491::netWorth::ServerInterface> serverInterface = std::make_shared<cse491::netWorth::ServerInterface>();
+    std::shared_ptr<netWorth::ServerInterface> serverInterface = std::make_shared<netWorth::ServerInterface>();
 
     world->SetServer(serverInterface);
 

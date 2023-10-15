@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
   std::string ip_string(argv[1]);
   unsigned short port = stoi(std::string(argv[2]));
-  cse491::netWorth::ClientInterface interface(ip_string, port);
+  netWorth::ClientInterface interface(ip_string, port);
 
   if (!interface.EstablishConnection()) return 1;
   interface.GameLoop();
