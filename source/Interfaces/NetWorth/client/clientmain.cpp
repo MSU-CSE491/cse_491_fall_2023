@@ -5,8 +5,8 @@
  **/
 
 // Include the modules that we will be using.
-#include "../../TrashInterface.hpp"
-#include "../../../Worlds/MazeWorld.hpp"
+//#include "../../TrashInterface.hpp"
+//#include "../../../Worlds/MazeWorld.hpp"
 #include "ClientInterface.hpp"
 
 int main(int argc, char *argv[])

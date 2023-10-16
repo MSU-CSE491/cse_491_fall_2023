@@ -13,22 +13,25 @@
 #include <SFML/Network/UdpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
 
-#include "../NetworkInterface.hpp"
+//#include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
 
 
 namespace netWorth{
+    using namespace sf;
+
     class NetworkMazeWorld;
     /**
      * The server that will be running and that allows clients to connect to
      */
-    class ServerInterface : public NetworkingInterface {
+    class ServerInterface {
     private:
+        UdpSocket m_socket;         /// UDP socket for sending and receiving
 
     protected:
 
     public:
-        ServerInterface() : NetworkingInterface() { }
+        ServerInterface() = default;
         ~ServerInterface() = default;
         /**
          * The initial connection for the server to a client
@@ -38,17 +41,27 @@ namespace netWorth{
          * @param port port of the connection
          * @param str string for the receive packet
          */
-        void InitialConnection(sf::IpAddress sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
-            m_socket.bind(55002);
+        void InitialConnection(std::optional<IpAddress> sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
+            if (m_socket.bind(55002) != Socket::Status::Done) {
+                std::cout << "Failed to bind socket" << std::endl;
+                return;
+            }
 
-            m_socket.receive(recv_pkt, sender, port);
+            if (m_socket.receive(recv_pkt, sender, port) != Socket::Status::Done) {
+                std::cout << "Failed to receive" << std::endl;
+                return;
+            }
+
             recv_pkt >> str;
-            std::cout << sender.toString() << " has connected successfully." << std::endl;
+            std::cout << sender.value() << " has connected successfully." << std::endl;
 
             if(!str.empty()) {
                 std::string msg = "Connection established.";
                 send_pkt << msg;
-                m_socket.send(send_pkt, sender, port);
+                if (m_socket.send(send_pkt, sender.value(), port) != Socket::Status::Done) {
+                    std::cout << "Failed to send" << std::endl;
+                    return;
+                }
             }
         }
         /**
@@ -106,6 +119,10 @@ namespace netWorth{
             gridPacket << gridString;
 
             return gridPacket;
+        }
+
+        UdpSocket *GetSocket() {
+            return &m_socket;
         }
     };//End of class ServerInterface
 }//End of namespace netWorth

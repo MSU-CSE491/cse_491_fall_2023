@@ -13,7 +13,7 @@
 #include <SFML/Network/Packet.hpp>
 #include <memory>
 
-#include "../NetworkInterface.hpp"
+//#include "../NetworkInterface.hpp"
 #include "../../TrashInterface.hpp"
 
 namespace netWorth{
@@ -24,7 +24,7 @@ namespace netWorth{
     class ClientInterface {
     private:
 
-        IpAddress dest_ip;      /// Destination IP address
+        std::optional<IpAddress> m_ip;      /// Destination IP address
         UdpSocket m_socket;  /// UDP socket for sending and receiving
         unsigned short m_port;   /// Destination port
 
@@ -39,7 +39,7 @@ namespace netWorth{
          */
         ClientInterface(const std::string & ip_string,
                         unsigned short port) {
-            dest_ip = IpAddress(ip_string);
+            m_ip = IpAddress::resolve(ip_string);
             m_port = port;
         }
 
@@ -59,13 +59,13 @@ namespace netWorth{
             std::string str = "Ping!";
             send_pkt << str;
 
-            if (m_socket.send(send_pkt, dest_ip, m_port) != Socket::Status::Done) {
-                std::cout << "Could not connect to " << dest_ip << " at port " << m_port << std::endl;
+            if (m_socket.send(send_pkt, m_ip.value(), m_port) != Socket::Status::Done) {
+                std::cout << "Could not connect to " << m_ip.value() << " at port " << m_port << std::endl;
                 return false;
             }
 
             // receive pong from server
-            if (m_socket.receive(recv_pkt, dest_ip, m_port) != Socket::Done)
+            if (m_socket.receive(recv_pkt, m_ip, m_port) != Socket::Status::Done)
             {
                 std::cout << "Failure to receive" << std::endl;
                 return false;
@@ -100,15 +100,15 @@ namespace netWorth{
             send_pkt << send_str;
 
             // ask for map
-            if (m_socket.send(send_pkt, dest_ip, m_port) != Socket::Status::Done) {
-                std::cout << "Could not connect to " << dest_ip << " at port " << m_port << std::endl;
+            if (m_socket.send(send_pkt, m_ip.value(), m_port) != Socket::Status::Done) {
+                std::cout << "Could not connect to " << m_ip.value() << " at port " << m_port << std::endl;
                 return;
             }
 
             while (action != "quit")
             {
                 // receive initial map
-                if (m_socket.receive(recv_pkt, dest_ip, m_port) != Socket::Done)
+                if (m_socket.receive(recv_pkt, m_ip, m_port) != Socket::Status::Done)
                 {
                     std::cout << "Failure to receive" << std::endl;
                     return;
@@ -141,8 +141,8 @@ namespace netWorth{
                 send_pkt.clear();
                 send_pkt << action;
 
-                if (m_socket.send(send_pkt, dest_ip, m_port) != Socket::Status::Done) {
-                    std::cout << "Could not connect to " << dest_ip << " at port " << m_port << std::endl;
+                if (m_socket.send(send_pkt, m_ip.value(), m_port) != Socket::Status::Done) {
+                    std::cout << "Could not connect to " << m_ip.value() << " at port " << m_port << std::endl;
                     return;
                 }
             }
