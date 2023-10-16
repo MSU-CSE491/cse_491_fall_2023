@@ -106,11 +106,11 @@ namespace cse491_team8 {
             std::cin >> input;
             int damage = 0;
             switch (input) {
-            case 'a': case 'A': damage = (int)(agent->GetProperty<int>("Strength"));    break;
-            case 's': case 'S': damage = (int)(agent->GetProperty<int>("Strength") * 1.5);  break;
+            case 'a': case 'A': damage = agent->GetProperty<int>("Strength");    break;
+            case 's': case 'S': damage = static_cast<int>(agent->GetProperty<int>("Strength") * 1.5);  break;
             case 'r': case 'R': won = false; run = true; break;
             case 'h': case 'H': agent->SetProperty<int>("Health",
-                    agent->GetProperty<int>("Health") + (int)(agent->GetProperty<int>("Max_Health") * 0.25)); break;
+                    agent->GetProperty<int>("Health") + static_cast<int>(agent->GetProperty<int>("Max_Health") * 0.25)); break;
             default: valid_input = false; break;
             }
             if (agent->GetProperty<int>("Health") > agent->GetProperty<int>("Max_Health"))
@@ -137,12 +137,12 @@ namespace cse491_team8 {
             if (stat_char == 'd')
             {
                 other_damage = other_agent->GetProperty<int>("Strength") * stat_modification;
-                other_damage = (int)other_damage;
+                other_damage = static_cast<int>(other_damage);
             }
             if (stat_char == 'h')
             {
                 other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") +
-                        (int)(other_agent->GetProperty<int>("Max_Health") * stat_modification));
+                        static_cast<int>(other_agent->GetProperty<int>("Max_Health") * stat_modification));
                 if (other_agent->GetProperty<int>("Health") > other_agent->GetProperty<int>("Max_Health"))
                 {
                     other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Max_Health"));
@@ -153,13 +153,13 @@ namespace cse491_team8 {
                 if (stat_modification < 0)
                 {
                     int agent_strength = agent->GetProperty<int>("Strength");
-                    int new_strength = (int)(agent_strength - abs(stat_modification) * agent_strength);
+                    int new_strength = static_cast<int>(agent_strength - abs(stat_modification) * agent_strength);
                     agent->SetProperty<int>("Strength", new_strength);
                 }
                 else
                 {
                     int other_agent_strength = other_agent->GetProperty<int>("Strength");
-                    int new_strength_other = (int)(other_agent_strength + abs(stat_modification) * other_agent_strength);
+                    int new_strength_other = static_cast<int>(other_agent_strength + abs(stat_modification) * other_agent_strength);
                     agent->SetProperty<int>("Strength", new_strength_other);
                 }
             }
