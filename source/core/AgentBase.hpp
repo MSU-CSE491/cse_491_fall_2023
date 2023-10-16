@@ -28,7 +28,9 @@ namespace cse491 {
     walle::Inventory mInventory;
 
   public:
-    AgentBase(size_t id, const std::string & name) : Entity(id, name), mInventory(this) { }
+    AgentBase(size_t id, const std::string & name) : Entity(id, name) {
+		mInventory.SetAgent(this);
+	}
     ~AgentBase() = default; // Already virtual from Entity
 
     // -- World Interactions --

@@ -13,3 +13,16 @@
 #include "core/Inventory.hpp"
 #include "core/AgentBase.hpp"
 
+
+TEST_CASE("Inventory Initialization", "[core]"){
+
+	cse491::AgentBase agent(1, "Test Agent");
+	walle::Inventory inventory = agent.GetInventory();
+
+	SECTION("Get Agent"){
+
+		// check that the inventorys agent is set correctly
+		REQUIRE(inventory.GetAgent() == &agent);
+	}
+
+}

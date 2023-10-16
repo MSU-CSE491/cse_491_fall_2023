@@ -9,7 +9,11 @@
 
 #include <vector>
 
-#include "AgentBase.hpp"
+namespace cse491{
+	class AgentBase;
+}
+
+
 
 namespace walle {
 
@@ -24,10 +28,13 @@ namespace walle {
 
 
     public:
-        Inventory(cse491::AgentBase* agent) : mAgent(agent) {}
+        Inventory() {}
 
         ~Inventory() = default;
 
+		void SetAgent(cse491::AgentBase* agent) { mAgent = agent; }
+
+		cse491::AgentBase* GetAgent() const { return mAgent; }
 
     };
 
