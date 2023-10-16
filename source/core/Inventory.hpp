@@ -9,22 +9,24 @@
 
 #include <vector>
 
+#include "Item.hpp"
+
 namespace cse491{
 	class AgentBase;
 }
-
-
 
 namespace walle {
 
     class Inventory {
 
     private:
-        // Agent this inventory is a part of
+        /// Agent this inventory is a part of
         cse491::AgentBase* mAgent = nullptr;
 
-        // amount of items the agent currently has
+        /// amount of items the agent currently has
         int mItemCount = 0;
+
+
 
 
     public:
