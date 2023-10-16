@@ -19,6 +19,8 @@ namespace walle {
         // Agent this inventory is a part of
         cse491::AgentBase* mAgent = nullptr;
 
+        // amount of items the agent currently has
+        int mItemCount = 0;
 
 
     public:

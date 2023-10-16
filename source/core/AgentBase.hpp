@@ -80,6 +80,9 @@ namespace cse491 {
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }
 
+    /// Gets the Inventory item
+    walle::Inventory GetInventory() const {return mInventory; }
+
   };
 
 } // End of namespace cse491
