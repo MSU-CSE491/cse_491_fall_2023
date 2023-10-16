@@ -9,8 +9,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/Packet.hpp>
+#include <SFML/Network.hpp>
 
 #include "../../core/InterfaceBase.hpp"
 
@@ -26,7 +25,7 @@ namespace cse491 {
 
         protected:
             UdpSocket mSocket; ///The socket we are going to make our connection
-            IpAddress mLocalAddress; ///the local address of the server
+            std::optional<IpAddress> mLocalAddress; ///the local address of the server
             //Thought about making mClients a shared pointer to a vector, but it'll be a vector for now
             std::vector<std::string> mClients; ///list of all the clients that will connect with the server
             unsigned short mPort;

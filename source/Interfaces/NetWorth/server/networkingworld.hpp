@@ -14,7 +14,7 @@
 
 #include "ServerInterface.hpp"
 
-const std::string filePath = "../../../../../../assets/grids/default_maze.grid";
+const std::string filePath = "../../../../assets/grids/default_maze.grid";
 
 namespace cse491 {
     namespace netWorth{

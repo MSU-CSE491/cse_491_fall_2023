@@ -9,11 +9,10 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/Packet.hpp>
+#include <SFML/Network.hpp>
 #include <memory>
 
-#include "../NetworkInterface.hpp"
+//#include "../NetworkInterface.hpp"
 #include "../../TrashInterface.hpp"
 
 using namespace sf;
@@ -40,7 +39,7 @@ namespace cse491 {
              * @param ip_string String for destination IP address, make into IpAddress object
              * @param port Destination port number
              */
-            ClientInterface(const std::string & ip_string,
+            ClientInterface(std::string & ip_string,
                             unsigned short port) {
                 mIp = sf::IpAddress::resolve(ip_string);
                 mPort = port;
@@ -112,8 +111,7 @@ namespace cse491 {
                 while (action != "quit")
                 {
                     // receive initial map
-                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Status::Done)
-                    {
+                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Status::Done) {
                         std::cout << "Failure to receive" << std::endl;
                         return;
                     }

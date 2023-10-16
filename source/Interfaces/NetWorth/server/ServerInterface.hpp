@@ -9,13 +9,10 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/Packet.hpp>
+#include <SFML/Network.hpp>
 
-#include "../NetworkInterface.hpp"
+//#include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
-
-
 
 using namespace sf;
 
@@ -26,13 +23,14 @@ namespace cse491 {
         /**
          * The server that will be running and that allows clients to connect to
          */
-        class ServerInterface : public NetworkingInterface {
+        class ServerInterface {
         private:
+            sf::UdpSocket mSocket;
 
         protected:
 
         public:
-            ServerInterface() : NetworkingInterface() { }
+            ServerInterface() = default;
             ~ServerInterface() = default;
             /**
              * The initial connection for the server to a client
@@ -42,17 +40,26 @@ namespace cse491 {
              * @param port port of the connection
              * @param str string for the receive packet
              */
-            void InitialConnection(sf::IpAddress sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
-                mSocket.bind(55002);
+            void InitialConnection(std::optional<sf::IpAddress> &sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
+                if (mSocket.bind(55002) != sf::Socket::Status::Done) {
+                    std::cout << "Could not bind socket" << std::endl;
+                    return;
+                }
 
-                mSocket.receive(recv_pkt, sender, port);
+                if (mSocket.receive(recv_pkt, sender, port) != sf::Socket::Status::Done) {
+                    std::cout << "Failure to receive" << std::endl;
+                    return;
+                }
                 recv_pkt >> str;
-                std::cout << sender.toString() << " has connected successfully." << std::endl;
+                std::cout << sender.value().toString() << " has connected successfully." << std::endl;
 
                 if(!str.empty()) {
                     std::string msg = "Connection established.";
                     send_pkt << msg;
-                    mSocket.send(send_pkt, sender, port);
+                    if (mSocket.send(send_pkt, sender.value(), port) != sf::Socket::Status::Done) {
+                        std::cout << "Could not send packet" << std::endl;
+                        return;
+                    }
                 }
             }
             /**
@@ -112,6 +119,10 @@ namespace cse491 {
                 gridPacket << gridString;
 
                 return gridPacket;
+            }
+
+            sf::UdpSocket *GetSocket() {
+                return &mSocket;
             }
         };//End of class ServerInterface
     }//End of namespace netWorth

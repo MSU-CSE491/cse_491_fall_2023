@@ -6,13 +6,13 @@
 
 // Include the modules that we will be using.
 #include <sstream>
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 #include "../../../core/Data.hpp"
 #include "../../TrashInterface.hpp"
 #include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"
-#include "../NetworkInterface.hpp"
+//#include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
 
 int main()
@@ -23,7 +23,7 @@ int main()
     std::shared_ptr<cse491::netWorth::NetworkMazeWorld> world = std::make_shared<cse491::netWorth::NetworkMazeWorld>();
     world->AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world->AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    world->AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", 'Z');
+    world->AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
 
     std::shared_ptr<cse491::netWorth::ServerInterface> serverInterface = std::make_shared<cse491::netWorth::ServerInterface>();
 
@@ -31,7 +31,7 @@ int main()
 
     UdpSocket * serverSocket = serverInterface->GetSocket();
 
-    std::cout << "Server IP Address: " << sf::IpAddress::getLocalAddress() << std::endl;
+    std::cout << "Server IP Address: " << sf::IpAddress::getLocalAddress().value() << std::endl;
 
     //Establish an initial connection
     // Receive a message from anyone
@@ -39,7 +39,7 @@ int main()
     sf::Packet recv_pkt;
     std::string str;
 
-    sf::IpAddress sender;
+    std::optional<sf::IpAddress> sender;
     unsigned short port;
     serverInterface->InitialConnection(sender, send_pkt, recv_pkt, port, str);
 
@@ -47,12 +47,24 @@ int main()
     cse491::agent_set_t agent_set;
     std::string input;
 
+    // await request for map from client
+    if (serverSocket->receive(recv_pkt, sender, port) != sf::Socket::Status::Done) {
+        std::cout << "Failure to receive" << std::endl;
+        return 1;
+    }
+
     //Main game loop
     while (true) {
         sf::Packet gridPacket = world->GetGridPacket();
-        serverSocket->send(gridPacket, sender, port);
+        if (serverSocket->send(gridPacket, sender.value(), port) != sf::Socket::Status::Done) {
+            std::cout << "Could not send packet" << std::endl;
+            return 1;
+        }
 
-        serverSocket->receive(recv_pkt, sender, port);
+        if (serverSocket->receive(recv_pkt, sender, port) != sf::Socket::Status::Done) {
+            std::cout << "Failure to receive" << std::endl;
+            return 1;
+        }
         recv_pkt >> input;
         std::cout << input << std::endl;
 
