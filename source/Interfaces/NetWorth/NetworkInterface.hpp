@@ -25,13 +25,15 @@ namespace netWorth{
 
     protected:
         UdpSocket m_socket; ///The socket we are going to make our connection
-        IpAddress m_local_address; ///the local address of the server
+        std::optional<IpAddress> m_ip; /// the local address of the machine
+        unsigned short m_port;          /// local port number of the machine
         //Thought about making m_clients a shared pointer to a vector, but it'll be a vector for now
         std::vector<std::string> m_clients; ///list of all the clients that will connect with the server
 
     public:
         NetworkingInterface() = default;
         ~NetworkingInterface() = default;
+
         /**
          * Receives a socket that has been connected between client and server
          * @return the udp socket
@@ -45,28 +47,30 @@ namespace netWorth{
          * @param packet the packet we want to send
          * @param destAddr the destination address we want to send to
          * @param port the port of the connection
+         * @return true if successfully sent
          */
-        virtual void SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
-            m_socket.send(packet, destAddr, port);
+        virtual bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
+            return m_socket.send(packet, destAddr, port) == Socket::Status::Done;
         }
         /**
          * Starts the connection by receiving the first packet
          * @return the IP of the server
          */
         virtual IpAddress ReceivePacket(){
-            std::array<char, 1024> buffer{};
-            std::size_t received = 0;
-            sf::IpAddress sender;
+            Packet packet;
+            std::optional<IpAddress> sender;
             unsigned short port;
-            m_socket.receive(buffer.data(), sizeof(buffer), received, sender, port);
+            if (m_socket.receive(packet, sender, port) != Socket::Status::Done) {
+                std::cout << "Failed to receive" << std::endl;
+            }
 
-            if (received){
-                sf::Packet messagePacket;
+            if (packet){
+                Packet messagePacket;
                 std::string message = "Pong";
                 messagePacket << message;
-                m_socket.send(messagePacket, sender, port);
+                SendPacket(messagePacket, sender.value(), port);
             }
-            return sender;
+            return sender.value();
         }
         /**
          * Processes the packet and outputs it

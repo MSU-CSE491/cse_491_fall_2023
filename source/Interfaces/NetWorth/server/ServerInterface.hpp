@@ -13,7 +13,7 @@
 #include <SFML/Network/UdpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
 
-//#include "../NetworkInterface.hpp"
+#include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
 
 
@@ -24,15 +24,15 @@ namespace netWorth{
     /**
      * The server that will be running and that allows clients to connect to
      */
-    class ServerInterface {
+    class ServerInterface : public NetworkingInterface {
     private:
-        UdpSocket m_socket;         /// UDP socket for sending and receiving
 
     protected:
 
     public:
         ServerInterface() = default;
         ~ServerInterface() = default;
+
         /**
          * The initial connection for the server to a client
          * @param sender address of the sender
@@ -119,10 +119,6 @@ namespace netWorth{
             gridPacket << gridString;
 
             return gridPacket;
-        }
-
-        UdpSocket *GetSocket() {
-            return &m_socket;
         }
     };//End of class ServerInterface
 }//End of namespace netWorth

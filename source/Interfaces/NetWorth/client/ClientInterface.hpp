@@ -13,7 +13,7 @@
 #include <SFML/Network/Packet.hpp>
 #include <memory>
 
-//#include "../NetworkInterface.hpp"
+#include "../NetworkInterface.hpp"
 #include "../../TrashInterface.hpp"
 
 namespace netWorth{
@@ -21,15 +21,10 @@ namespace netWorth{
  * The interface of our client that will be interacting and connection with our server
  */
     using namespace sf;
-    class ClientInterface {
+    class ClientInterface : public NetworkingInterface {
     private:
 
-        std::optional<IpAddress> m_ip;      /// Destination IP address
-        UdpSocket m_socket;  /// UDP socket for sending and receiving
-        unsigned short m_port;   /// Destination port
-
     protected:
-
 
     public:
         /**
