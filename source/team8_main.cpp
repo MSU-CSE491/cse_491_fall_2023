@@ -12,8 +12,8 @@
 int main()
 {
   cse491_team8::ManualWorld world;
-  world.AddEntity("Axe", "Cut", 5, "symbol", 'P').SetPosition(37, 3);
-  world.AddEntity("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
+  world.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
+  world.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
   world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 15, "Health", 12000, "Max_Health", 14000, "Direction", 0).SetProperty("symbol", '@').SetPosition(40,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health",  5, "Max_Health", 30, "Direction", 0).SetPosition(45, 3);
   world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 15, "Health", 10, "Max_Health", 30, "Direction", 0).SetPosition(3,14);

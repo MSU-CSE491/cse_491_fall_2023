@@ -252,7 +252,7 @@ namespace cse491_team8 {
         // put the loot where the agent was
         int x = other_position.CellX();
         int y = other_position.CellY();
-        this->AddEntity(loot, "symbol", symbol).SetPosition(x, y);
+        this->AddItem(loot, "symbol", symbol).SetPosition(x, y);
 
         // set the entity's _action_ property to have _num_action_ uses
         for (const auto& entity : item_set)
@@ -388,7 +388,7 @@ namespace cse491_team8 {
                       << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
 
                   // remove it from the board
-                  RemoveEntity(entity.GetName());
+                  RemoveItem(entity.GetName());
 
                   break;
               }
