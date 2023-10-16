@@ -317,6 +317,45 @@ namespace cse491_team8 {
       }
     }
 
+    /// @brief Attempt to pick up an item for the agent.
+    /// @param agent The agent that is picking up the item.
+    /// @param new_position New position of the agent to check if an item is there.
+    /// @return Nothing
+    void AttemptItemPickup(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
+      for (size_t i = 0; i < GetNumItems(); i++)
+      {
+        auto const& entity = GetItem(i);
+        if (entity.GetPosition() == new_position)
+        {
+          std::string uses_property = "";
+          if (entity.GetName() == "Stick") { uses_property = "Hit"; }
+          if (entity.GetName() == "Sword") { uses_property = "Hit"; }
+          if (entity.GetName() == "Boat") { uses_property = "Swim"; }
+          if (entity.GetName() == "Axe")  { uses_property = "Chop"; }
+
+          if (uses_property != "")
+          {
+            if (agent.HasProperty(uses_property))
+            {
+              agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
+            }
+            else
+            {
+              agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property));
+            }
+          }
+
+          std::cout << "Picked up the " << entity.GetName() << "!\n"
+                    << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
+
+          // remove it from the board
+          RemoveItem(entity.GetName());
+
+          break;
+        }
+      }
+    }
+
     /// Allow the agents to move around the maze.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
       // Determine where the agent is trying to move.
@@ -361,38 +400,7 @@ namespace cse491_team8 {
       // if player agent walks over an item, pick it up, add it to their properties, and remove from the entity set
       if (agent.IsInterface())
       {
-          for (size_t i = 0; i < GetNumItems(); i++)
-          {
-              auto const& entity = GetItem(i);
-              if (entity.GetPosition() == new_position)
-              {
-                  std::string uses_property = "";
-                  if (entity.GetName() == "Stick") { uses_property = "Hit"; }
-                  if (entity.GetName() == "Sword") { uses_property = "Hit"; }
-                  if (entity.GetName() == "Boat") { uses_property = "Swim"; }
-                  if (entity.GetName() == "Axe")  { uses_property = "Chop"; }
-
-                  if (uses_property != "")
-                  {
-                      if (agent.HasProperty(uses_property))
-                      {
-                          agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
-                      }
-                      else
-                      {
-                          agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property));
-                      }
-                  }
-
-                  std::cout << "Picked up the " << entity.GetName() << "!\n"
-                      << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
-
-                  // remove it from the board
-                  RemoveItem(entity.GetName());
-
-                  break;
-              }
-          }
+        AttemptItemPickup(agent, new_position);
       }
 
       // if it's a tree, check that we have an axe
