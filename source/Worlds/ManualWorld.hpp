@@ -304,15 +304,18 @@ namespace cse491_team8 {
       }
     }
 
+    /// @brief Looks for adjacencies
+    void UpdateWorld() override {
+      HandleNeighbors();
+    }
 
-    /// Runs agents, updates the world, and looks for adjacencies.
+    /// Runs agents, updates the world.
     void Run() override
     {
       run_over = false;
       while (!run_over) {
         RunAgents();
         UpdateWorld();
-        HandleNeighbors();
       }
     }
 
