@@ -136,8 +136,7 @@ namespace cse491_team8 {
             double stat_modification = std::get<1>(move_info);
             if (stat_char == 'd')
             {
-                other_damage = other_agent->GetProperty<int>("Strength") * stat_modification;
-                other_damage = static_cast<int>(other_damage);
+                other_damage = static_cast<int>(other_agent->GetProperty<int>("Strength") * stat_modification);
             }
             if (stat_char == 'h')
             {
