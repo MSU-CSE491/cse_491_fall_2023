@@ -14,6 +14,7 @@
 #include "Entity.hpp"
 #include "GridPosition.hpp"
 #include "WorldGrid.hpp"
+#include "Inventory.hpp"
 
 namespace cse491 {
 
@@ -24,8 +25,10 @@ namespace cse491 {
 
     int action_result=1;  ///< Usually a one (success) or zero (failure).
 
+    walle::Inventory mInventory;
+
   public:
-    AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
+    AgentBase(size_t id, const std::string & name) : Entity(id, name), mInventory(this) { }
     ~AgentBase() = default; // Already virtual from Entity
 
     // -- World Interactions --
