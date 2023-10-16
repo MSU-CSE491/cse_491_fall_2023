@@ -12,7 +12,6 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-#include <filesystem>
 
 #include "CoreObject.hpp"
 #include "GridPosition.hpp"
@@ -185,8 +184,6 @@ namespace cse491 {
 
     /// Helper function to specify a file name to read the grid state from.
     bool Read(std::string filename, const type_options_t & types) {
-	  std::filesystem::path currentPath = std::filesystem::current_path();
-	  std::cout << "Current working directory: " << currentPath << std::endl;
       std::ifstream is(filename);
       if (!is.is_open()) {
         std::cerr << "Could not open file '" << filename << "' to write grid." << std::endl;

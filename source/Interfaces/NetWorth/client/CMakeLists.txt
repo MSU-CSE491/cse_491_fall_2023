@@ -29,6 +29,12 @@ set(SFML_BUILD_DIR sfml_build)
 add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
 add_executable(CMakeSFMLProject clientmain.cpp)
+set_target_properties(
+        CMakeSFMLProject
+        PROPERTIES
+        OUTPUT_NAME "clientmain"
+        SUFFIX ".networth"
+)
 target_link_libraries(CMakeSFMLProject PRIVATE sfml-network)
 target_compile_features(CMakeSFMLProject PRIVATE cxx_std_20)
 

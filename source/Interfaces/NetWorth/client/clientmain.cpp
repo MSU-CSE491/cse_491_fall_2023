@@ -6,9 +6,7 @@
 
 // Include the modules that we will be using.
 #include "../../TrashInterface.hpp"
-#include "../../../Agents/PacingAgent.hpp"
 #include "../../../Worlds/MazeWorld.hpp"
-#include "networkingagent.hpp"
 #include "ClientInterface.hpp"
 
 int main(int argc, char *argv[])
@@ -20,10 +18,10 @@ int main(int argc, char *argv[])
 
   std::string ip_string(argv[1]);
   unsigned short port = stoi(std::string(argv[2]));
-  cse491::netWorth::ClientInterface interface(ip_string, port);
+  netWorth::ClientInterface interface(ip_string, port);
 
   if (!interface.EstablishConnection()) return 1;
-  interface.Loop();
+  interface.GameLoop();
 
   return 0;
 }
