@@ -416,7 +416,7 @@ namespace cse491_team8 {
               {
                   // decrement uses by 1, change the tree to grass, but don't move the agent's position
                   agent.SetProperty("Chop", agent.GetProperty<int>("Chop") - 1);
-                  main_grid.SetCell(new_position, grass_id);
+                  main_grid[new_position] = grass_id;
               }
           }
           // don't have an axe, can't walk here

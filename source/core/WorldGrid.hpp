@@ -193,13 +193,7 @@ namespace cse491 {
       return true;
     }
 
-    /// @brief Allows the system to replace any cell with a new cell type
-    /// @param grid 
-    /// @param newType 
-    void SetCell (GridPosition grid, int newType) {
-      int pos = (int)(width * grid.GetY()) + grid.GetX();
-      cells[pos] = newType;
-    }
+    
   };
 
 } // End of namespace cse491
