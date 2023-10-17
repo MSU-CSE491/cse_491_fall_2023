@@ -131,7 +131,7 @@ namespace cse491 {
     }
 
     /// @brief Remove an item from the item set
-    /// @param entity_name The name of this entity
+    /// @param entity_id The ID of this entity
     /// @return None
     void RemoveItem(size_t entity_id) {
         item_set_t ::iterator entity_pointer =
