@@ -133,10 +133,10 @@ namespace cse491 {
     /// @brief Remove an item from the item set
     /// @param entity_name The name of this entity
     /// @return None
-    void RemoveItem(std::string entity_name = "None") {
+    void RemoveItem(size_t entity_id) {
         item_set_t ::iterator entity_pointer =
             std::find_if(item_set.begin(), item_set.end(),
-                [&](std::unique_ptr<Entity>& entity) { return entity->GetName() == entity_name; }
+                [&](std::unique_ptr<Entity>& entity) { return entity->GetID() == entity_id; }
         );
         item_set.erase(std::remove(item_set.begin(), item_set.end(), *entity_pointer));
     }

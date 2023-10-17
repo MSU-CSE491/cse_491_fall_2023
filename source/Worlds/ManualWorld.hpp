@@ -376,7 +376,7 @@ namespace cse491_team8 {
                     << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
 
           // remove it from the board
-          RemoveItem(entity.GetName());
+          RemoveItem(entity.GetID());
 
           break;
         }
@@ -436,7 +436,7 @@ namespace cse491_team8 {
     /// @param agent The agent trying to interact
     /// @param new_position The position being interacted with
     /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
-    void DoAction_TestNewPosition_Tree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
+    void DoActionTestNewPositionTree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
         if (agent.HasProperty("Chop") && agent.GetProperty<int>("Chop") > 0)
         {
             std::cout << "You can use your Axe once to chop down this tree. You have "
@@ -456,9 +456,8 @@ namespace cse491_team8 {
     /// @brief Attempt to float on a water tile
     /// If the agent has a boat, prompts the user if they want to use the boat once
     /// @param agent The agent trying to interact
-    /// @param new_position The position being interacted with
     /// @return True if the agent is able to (and chooses) to move to the new spot, else false
-    bool DoAction_TestNewPosition_Water(cse491::AgentBase& agent, const cse491::GridPosition& new_position) {
+    bool DoActionTestNewPositionWater(cse491::AgentBase& agent) {
         if (agent.HasProperty("Swim") && agent.GetProperty<int>("Swim") > 0)
         {
             std::cout << "You can use your Boat once to float over this tile. You have "
@@ -514,13 +513,13 @@ namespace cse491_team8 {
       if (main_grid.At(new_position) == tree_id)
       {
           // chop the tree if possible, but don't move the agent either way
-          DoAction_TestNewPosition_Tree(agent, new_position);
+          DoActionTestNewPositionTree(agent, new_position);
           return false;
       }
 
       if (main_grid.At(new_position) == water_id)
       {
-          bool moved = DoAction_TestNewPosition_Water(agent, new_position);
+          bool moved = DoActionTestNewPositionWater(agent);
           
           // if they didn't move onto the water tile, we don't update their position
           // return false from here
