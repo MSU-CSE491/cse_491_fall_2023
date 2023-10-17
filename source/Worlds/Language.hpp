@@ -48,9 +48,20 @@ namespace worldlang{
 	
 	// Must forward-declare for recursion
 	struct expression;
-
+	struct expression_list;	
+	
+	// Function call
+	struct function : pegtl::seq<
+		identifier,
+		pegtl::one< '(' >,
+		pegtl::opt<expression_list>,
+		pegtl::one< ')' >
+	>
+	{};
+	
 	// Match single value	
 	struct element : pegtl::sor<
+		function,
 		identifier,
 		number,
 		pegtl::seq<
@@ -60,7 +71,7 @@ namespace worldlang{
 		>
 	>
 	{};
-	
+
 	struct mul_a : pegtl::sor<
 		pegtl::seq<
 			element,
@@ -111,17 +122,49 @@ namespace worldlang{
 	>
 	{};
 	
+	struct expression_list;	
+	struct expression_list : pegtl::sor<
+		pegtl::seq<
+			expression,
+			pegtl::one< ',' >,
+			expression_list
+		>,
+		expression
+	>
+	{};
+	
+	struct statement_list;	
+	// function()\nfunction()...
+	struct statement_list : pegtl::sor<
+		pegtl::seq<
+			function,
+			pegtl::eol,
+			statement_list
+		>,
+		pegtl::seq<
+			function,
+			pegtl::eol
+		>
+	>
+	{};
+	
+	// Rules
 	template <typename Rule>
 	struct action : pegtl::nothing< Rule > {};
 	
 	// Specialize to capture numbers
 	template <>
-	struct action<number>
+	struct action<number> 
 	{
 		template <typename ActionInput>
-		static void apply( const ActionInput& in, std::string& s){
+		static void apply(const ActionInput& in, std::string& s){
 			s += in.string() + " ";
-			std::cout << s << std::endl;
+			std::cout << in.string() << std::endl;
 		}	
 	};
+	
+	// Execution
+	
+	
+	
 } //worldlang
