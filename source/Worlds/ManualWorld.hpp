@@ -348,7 +348,7 @@ namespace cse491_team8 {
     /// @param agent The agent that is picking up the item.
     /// @param new_position New position of the agent to check if an item is there.
     /// @return Nothing
-    void AttemptItemPickup(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
+    void DoActionAttemptItemPickup(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
       for (size_t i = 0; i < GetNumItems(); i++)
       {
         auto const& entity = GetItem(i);
@@ -507,7 +507,7 @@ namespace cse491_team8 {
       // TK we might later want to let NPCs pick up items
       if (agent.IsInterface())
       {
-        AttemptItemPickup(agent, new_position);
+        DoActionAttemptItemPickup(agent, new_position);
       }
 
       if (main_grid.At(new_position) == tree_id)
