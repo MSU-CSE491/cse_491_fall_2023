@@ -52,12 +52,16 @@ TEST_CASE("Add Item to Inventory", "[core]"){
 		REQUIRE(inventory.GetItemCount() == 2);
 	}
 
-//	SECTION("Has Item"){
-//
-//		// checks that the inventory now has those items
-//		REQUIRE(inventory.HasItem(item1) == true);
-//		REQUIRE(inventory.HasItem(item2) == true);
-//	}
+	// add items to the inventory
+	inventory.AddItem(item1);
+	inventory.AddItem(item2);
+
+	SECTION("Has Item"){
+
+		// checks that the inventory now has those items
+		REQUIRE(inventory.HasItem(item1) == true);
+		REQUIRE(inventory.HasItem(item2) == true);
+	}
 
 }
 
@@ -87,7 +91,9 @@ TEST_CASE("Drop Item from Inventory", "[core]"){
 		REQUIRE(inventory.GetItemCount() == 0);
 	}
 
-	inventory.DisplayInventory();
+	// drop the items from the inventory
+	inventory.DropItem(item1);
+	inventory.DropItem(item2);
 
 	SECTION("Does Not Have Item"){
 
@@ -95,5 +101,63 @@ TEST_CASE("Drop Item from Inventory", "[core]"){
 		REQUIRE(inventory.HasItem(item1) == false);
 		REQUIRE(inventory.HasItem(item2) == false);
 	}
+}
 
+TEST_CASE("Clear the Inventory", "[core]"){
+
+	// create a temp agent and get its inventory
+	cse491::AgentBase agent(1, "Test Agent");
+	walle::Inventory inventory = agent.GetInventory();
+
+	// create items to test on
+	std::shared_ptr<walle::Item> item1 = std::make_shared<Item>("sword", "weapon", 10);
+	std::shared_ptr<walle::Item> item2 = std::make_shared<Item>("apple", "food", 2);
+	std::shared_ptr<walle::Item> item3 = std::make_shared<Item>("axe", "weapon", 12);
+	std::shared_ptr<walle::Item> item4 = std::make_shared<Item>("banana", "food", 1);
+
+	SECTION("Inventory Empty"){
+
+		// check that the inventory is initially empty
+		REQUIRE(inventory.GetItemCount() == 0);
+	}
+
+	inventory.AddItem(item1);
+	inventory.AddItem(item2);
+	inventory.AddItem(item3);
+	inventory.AddItem(item4);
+
+	SECTION("Inventory Clear"){
+
+		// check that the items were added
+		REQUIRE(inventory.GetItemCount() == 4);
+
+		// clear the inventory and check the item count
+		inventory.ClearInventory();
+		REQUIRE(inventory.GetItemCount() == 0);
+	}
+}
+
+TEST_CASE("Transfer Item Between Inventories"){
+
+	// create a temp agent and get its inventory
+	cse491::AgentBase agent1(1, "Test Agent");
+	walle::Inventory inventory1 = agent1.GetInventory();
+
+	// create a second temp agent and get its inventory
+	cse491::AgentBase agent2(1, "Test Agent");
+	walle::Inventory inventory2 = agent2.GetInventory();
+
+	// create items to test on
+	std::shared_ptr<walle::Item> item = std::make_shared<Item>("sword", "weapon", 10);
+
+	inventory1.AddItem(item);
+
+	SECTION("Transfer Item"){
+
+		// transfer item to new inventory and check that it is not in the old one
+		REQUIRE(inventory1.TransferItem(item, inventory2) == true);
+
+		REQUIRE(inventory1.HasItem(item) == false);
+		REQUIRE(inventory2.HasItem(item) == true);
+	}
 }

@@ -26,6 +26,9 @@ namespace walle {
         /// Agent this inventory is a part of
         cse491::AgentBase* mAgent = nullptr;
 
+		/// max items that this inventory can hold
+		int mMaxItems = 10;
+
         /// amount of items the agent currently has
         int mItemCount = 0;
 
@@ -44,6 +47,9 @@ namespace walle {
 		/// function to get the agent for this inventory
 		cse491::AgentBase* GetAgent() const { return mAgent; }
 
+		/// set the maximum items for this inventory
+		void SetMaxItems(const int max) { mMaxItems = max; }
+
 		/// Gets the current item count
 		int GetItemCount() const { return mItemCount; }
 
@@ -53,14 +59,7 @@ namespace walle {
 		 * @return bool if the operation was successful
 		 */
 		bool AddItem(std::shared_ptr<Item> item){
-			if(mItemCount < 10){
-				for(auto& stored : mItems){
-					if(stored.get() == nullptr){
-						stored = item;
-						mItemCount++;
-						return true;
-					}
-				}
+			if(mItemCount < mMaxItems){
 				mItems.push_back(item);
 				mItemCount++;
 				return true;
@@ -76,12 +75,14 @@ namespace walle {
 		 * @return bool if operation worked
 		 */
 		bool DropItem(std::shared_ptr<Item> item){
-			for(auto& stored : mItems){
-				if(stored.get() == item.get()){
-					stored.reset();
-					mItemCount--;
-					return true;
-				}
+			// find items location in mItems
+			auto it = std::remove(mItems.begin(), mItems.end(), item);
+
+			// if its an item, delete it
+			if(it != mItems.end()){
+				mItems.erase(it);
+				mItemCount--;
+				return true;
 			}
 			return false;
 		}
@@ -93,7 +94,7 @@ namespace walle {
 		 */
 		bool HasItem(const std::shared_ptr<Item> item){
 			for(const auto& stored : mItems){
-				if(stored.get() == item.get()){
+				if(stored == item){
 					return true;
 				}
 			}
