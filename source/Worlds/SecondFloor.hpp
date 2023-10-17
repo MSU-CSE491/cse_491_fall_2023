@@ -64,6 +64,11 @@ class SecondFloor : public cse491::WorldBase {
    */
   ~SecondFloor() = default;
 
+  /**
+   * Loads data from a JSON file
+   * and adds agents with specified properties into the world.
+   * @param input_filename Relative path to input.json file
+   */
   void LoadFromFile(const std::string& input_filename) {
     std::ifstream input_file(input_filename);
 
@@ -83,10 +88,28 @@ class SecondFloor : public cse491::WorldBase {
     for (const auto& agent : data) {
       // May get a json.exception.type_error here if you assign to the wrong C++ type,
       // so make sure to nail down what types things are in JSON first!
+      // My intuition is that each agent object will have:
+      // name: string (C++ std::string)
+      // x: number (C++ int)
+      // y: number (C++ int)
+      // entities: array<string> (C++ std::vector<std::string>)
       std::string agent_name = agent.at("name");
       int x_pos = agent.at("x");
       int y_pos = agent.at("y");
-      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos);
+
+      const int BASE_MAX_HEALTH = 100;
+      int additional_max_health = 0;
+      std::vector<std::string> entities = agent.at("entities");
+
+      for (const auto& entity : entities) {
+        // TODO: How should we set the entity properties here?
+        // Just adding to MaxHealth now, but this doesn't seem very scalable.
+        if (entity == "chocolate_bar") {
+          additional_max_health = 10;
+        }
+      }
+      
+      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos).SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
     }
   }
 
