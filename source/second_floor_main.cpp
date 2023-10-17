@@ -1,8 +1,8 @@
 #include "Interfaces/TrashInterface.hpp"
-#include "Worlds/SecondWorld.hpp"
+#include "Worlds/SecondFloor.hpp"
 
 int main() {
-    group4::SecondWorld world;
+    group4::SecondFloor world;
     world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
     world.Run();
 
