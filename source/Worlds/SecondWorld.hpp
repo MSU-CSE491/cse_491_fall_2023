@@ -79,6 +79,10 @@ class SecondWorld : public cse491::WorldBase {
 
   void UpdateWorld() override {}
 
+
+  /**
+   * This function gives us an output.json file
+  */
   virtual void Run() override {
     while (!run_over) {
       RunAgents();
