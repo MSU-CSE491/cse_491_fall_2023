@@ -87,15 +87,12 @@ namespace group4 {
                 std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
 
                 // Move the ownership of the item to the agents inventory
-                // which will also remove it from the being seen on the grid
                 inventory.push_back(std::move(*(item_found)));
 
-                // It will, however, let me remove the item from item_set which is weird...?
                 CleanEntities();
 
-                // Remove the '+' so it cannot be found again
-                // Still leaves an unknown character on the grid...
-                main_grid.At(new_position) = ' ';
+                // Change the grid position to floor_id so it's not seen on the grid
+                main_grid.At(new_position) = floor_id;
 
             }
 
@@ -125,6 +122,18 @@ namespace group4 {
                 return entityPtr == nullptr;
             });
 
+        }
+
+        /**
+         * Removes an Entity from itemset (testing)
+         * @param removeID The ID of the entity we're removing
+         */
+        void RemoveEntity(size_t removeID) {
+            std::erase_if(item_set, [removeID] (const std::unique_ptr<cse491::Entity> &entityPtr) {
+                return entityPtr->GetID() == removeID;
+            });
+
+            CleanEntities();
         }
 
 
