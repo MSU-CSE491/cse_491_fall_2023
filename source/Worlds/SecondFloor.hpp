@@ -5,6 +5,8 @@
 
 #pragma once
 #include "../core/WorldBase.hpp"
+#include "../Agents/PacingAgent.hpp"
+#include <nlohmann/json.hpp>
 
 namespace group4 {
 /**
@@ -52,12 +54,41 @@ class SecondFloor : public cse491::WorldBase {
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
     main_grid.Read("../assets/grids/second_floor.grid", type_options);
+
+    const std::string input_filename = "../assets/second_floor_input.json";
+    LoadFromFile(input_filename);
   }
 
   /**
    * Destructor
    */
   ~SecondFloor() = default;
+
+  void LoadFromFile(const std::string& input_filename) {
+    std::ifstream input_file(input_filename);
+
+    if (!input_file.is_open()) {
+      std::cerr << "Error: could not open file " << input_filename << std::endl;
+      return;
+    }
+
+    nlohmann::json data;
+    try {
+      input_file >> data;
+    } catch (const nlohmann::json::parse_error& err) {
+      std::cerr << "JSON parsing error: " << err.what() << std::endl;
+      return;
+    }
+
+    for (const auto& agent : data) {
+      // May get a json.exception.type_error here if you assign to the wrong C++ type,
+      // so make sure to nail down what types things are in JSON first!
+      std::string agent_name = agent.at("name");
+      int x_pos = agent.at("x");
+      int y_pos = agent.at("y");
+      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos);
+    }
+  }
 
   void UpdateWorld() override {}
 

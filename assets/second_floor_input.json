@@ -1,7 +1,18 @@
 [
     {
-        "name": "Player",
-        "x": 1,
-        "y": 1
+        "name": "Imp",
+        "x": 3,
+        "y": 1,
+        "entities": [
+            "chocolate_bar"
+        ]
+    },
+    {
+        "name": "Pinky",
+        "x": 11,
+        "y": 2,
+        "entities": [
+            
+        ]
     }
 ]
