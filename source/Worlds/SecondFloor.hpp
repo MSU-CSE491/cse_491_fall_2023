@@ -1,8 +1,6 @@
 /**
- * @file SecondWorld.hpp
+ * @file SecondFloor.hpp
  * @author Jayson Van Dam
- * @author Kurt LaBlanc
- * @author Satvik Ravipati
  */
 
 #pragma once
@@ -11,8 +9,11 @@
 namespace group4 {
 /**
  * Creates a world with agents and a win flag
+ * TODO: Integrate this class into SecondWorld by
+ * adding a constructor to SecondWorld
+ * that takes a path to a grid file.
  */
-class SecondWorld : public cse491::WorldBase {
+class SecondFloor : public cse491::WorldBase {
  protected:
   enum ActionType {
     REMAIN_STILL = 0,
@@ -43,39 +44,20 @@ class SecondWorld : public cse491::WorldBase {
   /**
    * Constructor with no arguments
    */
-  SecondWorld() {
+  SecondFloor() {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = cse491::WorldBase::AddCellType(
         "flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
-    main_grid.Read("../assets/grids/group4_maze.grid", type_options);
-
-    // Adding power sword with id = 1; name = sword of power
-    auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
-    powerSword->SetPosition(3, 4);
-    powerSword->SetProperty("Damage", 20.0);
-    item_set.push_back(std::move(powerSword));
-
-    // Adding fire sword with id = 2; name = Inferno Slicer
-    auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
-    infernoSlicer->SetPosition(5, 0);
-    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0,
-                                 "Burning Duration", 2.5);
-    item_set.push_back(std::move(infernoSlicer));
-
-    // Adding a piece of armor with id = 10; name = Daedric
-    auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
-    daedricArmor->SetPosition(7, 4);
-    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
-    item_set.push_back(std::move(daedricArmor));
+    main_grid.Read("../assets/grids/second_floor.grid", type_options);
   }
 
   /**
    * Destructor
    */
-  ~SecondWorld() = default;
+  ~SecondFloor() = default;
 
   void UpdateWorld() override {}
 
