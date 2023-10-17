@@ -22,7 +22,7 @@ The resulting code was pretty solid, as it knew to keep track of the maximum Q-v
 
 I also asked ChatGPT to write the `computeActionFromValues(state)` and the `computeQValueFromValues(state, action)` functions, but because these were simple implementations that involved iterating over every possible Q-Value and action, things looked clean from the outset. The only sticking point was in the Q-Value function, where there was some confusion with the math being performed. Ideally, it would perform in accordance with the value iteration state update equation:
 
-$$ V_{k+1}(s) \leftarrow \max _{a} \sum_{s^{\prime}} T\left(s, a, s^{\prime}\right)\left[R\left(s, a, s^{\prime}\right)+\gamma V_{k}\left(s^{\prime}\right)\right] $$
+![value iteration state update equation image](https://github.com/MSU-CSE491/cse_491_fall_2023/assets/94126547/fad457b4-b9b5-4c70-910c-da02574cb8b4)
 
 Or, equivalently:
 
