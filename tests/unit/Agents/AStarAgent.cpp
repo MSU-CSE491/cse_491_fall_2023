@@ -100,13 +100,26 @@ TEST_CASE("AStarAgent RecalculatePath", "[Agents]") {
     cse491::MazeWorld world;
     agent.SetWorld(&world);
     agent.SetPosition(cse491::GridPosition(0, 0));
-    agent.SetGoalPosition(0.0, 5.0);
 
-    agent.RecalculatePath();
+	SECTION("Invalid Goal Position"){
 
-    // You may need to check if the path is correctly calculated, but this depends on your implementation
-    // You could check the size of the path, or specific positions in the path
-    REQUIRE(agent.GetPathLength() > 0);
+		// check that the agent can't find a path to an invalid location
+		agent.SetGoalPosition(0.0, 5.0);
+		agent.RecalculatePath();
+
+		REQUIRE(agent.GetPathLength() == 0);
+
+	}
+
+	SECTION("Valid Goal Position")
+	{
+
+		// check that the agents calculated path is > 0 when the goal position is correct
+		agent.SetGoalPosition(0.0, 6.0);
+		agent.RecalculatePath();
+
+		REQUIRE(agent.GetPathLength() > 0);
+	}
 }
 
 TEST_CASE("AStarAgent SelectAction", "[Agents]") {
