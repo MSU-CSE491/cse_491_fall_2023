@@ -274,8 +274,8 @@ namespace cse491_team8 {
         }
 
         // put the loot where the agent was
-        int x = other_position.CellX();
-        int y = other_position.CellY();
+        double x = other_position.GetX();
+        double y = other_position.GetY();
         this->AddItem(loot, "symbol", symbol).SetPosition(x, y);
 
         // set the entity's _action_ property to have _num_action_ uses
@@ -388,7 +388,7 @@ namespace cse491_team8 {
     /// @param agent The agent that is moving its position
     /// @param action_id A size_t representing the direction the agent moved
     /// @return The agent's new position
-    cse491::GridPosition DoAction_FindNewPosition(cse491::AgentBase& agent, size_t action_id) {
+    cse491::GridPosition DoActionFindNewPosition(cse491::AgentBase& agent, size_t action_id) {
         // Determine where the agent is trying to move.
         cse491::GridPosition new_position;
 
@@ -499,7 +499,7 @@ namespace cse491_team8 {
     /// Allow the agents to move around the maze.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
       
-      cse491::GridPosition new_position = DoAction_FindNewPosition(agent, action_id);
+      cse491::GridPosition new_position = DoActionFindNewPosition(agent, action_id);
 
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
