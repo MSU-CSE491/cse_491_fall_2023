@@ -9,7 +9,11 @@
 
 #include <string>
 
-class Item {
+namespace walle
+{
+
+class Item
+{
 private:
 	std::string name;
 	std::string type;
@@ -17,11 +21,13 @@ private:
 
 public:
 	// Constructor
-	Item(const std::string& name, const std::string& type, int value)
+	Item(const std::string &name, const std::string &type, int value)
 		: name(name), type(type), value(value) {}
 
 	// Getters
-	const std::string& GetName() const { return name; }
-	const std::string& GetType() const { return type; }
+	const std::string &GetName() const { return name; }
+	const std::string &GetType() const { return type; }
 	int GetValue() const { return value; }
 };
+
+}

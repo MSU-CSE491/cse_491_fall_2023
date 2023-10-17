@@ -44,6 +44,9 @@ namespace walle {
 		/// function to get the agent for this inventory
 		cse491::AgentBase* GetAgent() const { return mAgent; }
 
+		/// Gets the current item count
+		int GetItemCount() const { return mItemCount; }
+
 		/**
 		 * Adds an item to the agents inventory if there's room
 		 * @param item shared_ptr to item being added
@@ -51,9 +54,9 @@ namespace walle {
 		 */
 		bool AddItem(std::shared_ptr<Item> item){
 			if(mItemCount < 10){
-				for(int i = 0; i < mItems.size(); i++){
-					if(mItems[i] == nullptr){
-						mItems[i] = item;
+				for(auto& stored : mItems){
+					if(stored.get() == nullptr){
+						stored = item;
 						mItemCount++;
 						return true;
 					}
@@ -73,9 +76,9 @@ namespace walle {
 		 * @return bool if operation worked
 		 */
 		bool DropItem(std::shared_ptr<Item> item){
-			for(int i = 0; i < mItems.size(); i++){
-				if(mItems[i] == item){
-					mItems[i] = nullptr;
+			for(auto& stored : mItems){
+				if(stored.get() == item.get()){
+					stored.reset();
 					mItemCount--;
 					return true;
 				}
@@ -88,9 +91,9 @@ namespace walle {
 		 * @param item
 		 * @return
 		 */
-		bool HasItem(std::shared_ptr<Item> item){
-			for(int i = 0; i < mItems.size(); i++){
-				if(mItems[i] == item){
+		bool HasItem(const std::shared_ptr<Item> item){
+			for(const auto& stored : mItems){
+				if(stored.get() == item.get()){
 					return true;
 				}
 			}
@@ -105,9 +108,9 @@ namespace walle {
 
 		/// displays the current inventory
 		void DisplayInventory(){
-			for(auto item : mItems){
+			for(auto& item : mItems){
 				if(item.get() != nullptr){
-					std::cout << "Stored Item: " << item.get() << "\n";
+					std::cout << "Stored Item: " << item.get()->GetName() << "\n";
 				}
 			}
 		}
