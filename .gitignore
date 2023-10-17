@@ -4,7 +4,6 @@ build
 # clion cmake build
 cmake-build-debug
 cmake-build-release
-CMakeLists.txt
 
 # clion settings
 .idea/
