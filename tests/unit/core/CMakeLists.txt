@@ -18,5 +18,5 @@ foreach(TARGET IN LISTS TARGETS)
     PRIVATE Catch2::Catch2WithMain
     )
 
-    add_test(NAME tests-unit-core-${TARGET} COMMAND tests-unit-core-${TARGET})
+    add_test(NAME tests-unit-core-${TARGET} COMMAND tests-unit-core-${TARGET} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endforeach()
