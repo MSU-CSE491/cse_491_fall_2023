@@ -358,107 +358,148 @@ namespace cse491_team8 {
       }
     }
 
+
+    /// @brief Updates agent's position and direction
+    /// @param agent The agent that is moving its position
+    /// @param action_id A size_t representing the direction the agent moved
+    /// @return The agent's new position
+    cse491::GridPosition DoAction_FindNewPosition(cse491::AgentBase& agent, size_t action_id) {
+        // Determine where the agent is trying to move.
+        cse491::GridPosition new_position;
+
+        // Update Direction property and get new position.
+        switch (action_id) {
+        case REMAIN_STILL:
+        {
+            new_position = agent.GetPosition();
+            break;
+        }
+        case MOVE_UP:
+        {
+            agent.SetProperty<int>("Direction", UP);
+            new_position = agent.GetPosition().Above();
+            break;
+        }
+        case MOVE_DOWN:
+        {
+            agent.SetProperty<int>("Direction", DOWN);
+            new_position = agent.GetPosition().Below();
+            break;
+        }
+        case MOVE_LEFT:
+        {
+            agent.SetProperty<int>("Direction", LEFT);
+            new_position = agent.GetPosition().ToLeft();
+            break;
+        }
+        case MOVE_RIGHT:
+        {
+            agent.SetProperty<int>("Direction", RIGHT);
+            new_position = agent.GetPosition().ToRight();
+            break;
+        }
+        }
+
+        // assume new position is valid
+        return new_position;
+    
+    }
+
+
+    /// @brief Attempt to interact with a tree
+    /// If the agent can interact with the tree, prompts the user if they want to use one of their chops
+    /// @param agent The agent trying to interact
+    /// @param new_position The position being interacted with
+    /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
+    void DoAction_TestNewPosition_Tree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
+        if (agent.HasProperty("Chop") && agent.GetProperty<int>("Chop") > 0)
+        {
+            std::cout << "You can use your Axe once to chop down this tree. You have "
+                << agent.GetProperty<int>("Chop") << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
+            char chop;
+            std::cin >> chop;
+            if (chop == 'Y' || chop == 'y')
+            {
+                // decrement uses by 1, change the tree to grass, but don't move the agent's position
+                agent.SetProperty("Chop", agent.GetProperty<int>("Chop") - 1);
+                main_grid[new_position] = grass_id;
+            }
+        }
+    }
+
+
+    /// @brief Attempt to float on a water tile
+    /// If the agent has a boat, prompts the user if they want to use the boat once
+    /// @param agent The agent trying to interact
+    /// @param new_position The position being interacted with
+    /// @return True if the agent is able to (and chooses) to move to the new spot, else false
+    bool DoAction_TestNewPosition_Water(cse491::AgentBase& agent, const cse491::GridPosition& new_position) {
+        if (agent.HasProperty("Swim") && agent.GetProperty<int>("Swim") > 0)
+        {
+            std::cout << "You can use your Boat once to float over this tile. You have "
+                << agent.GetProperty<int>("Swim") << " uses remaining. Use your boat? Y/N:\n" << std::endl;
+            char boat;
+            std::cin >> boat;
+            if (boat == 'Y' || boat == 'y')
+            {
+                // decrement uses by 1, and display agent over top of water tile
+                agent.SetProperty("Swim", agent.GetProperty<int>("Swim") - 1);
+
+                if (agent.GetProperty<int>("Swim") == 0)
+                {
+                    // they're on the water, and they no longer have a boat
+                    std::cout << "No boat uses left! Try again? Y/N:" << std::endl;
+                    char again;
+                    std::cin >> again;
+                    if (again == 'N' || again == 'n')
+                    {
+                        exit(0);
+                    }
+                    else
+                    {
+                        // reset the interface to starting position, don't update
+                        // with the new position back in the calling function
+                        agent.SetPosition(40, 3);
+                        return false;
+                    }
+                }
+                
+                // still have boat uses left, used the boat so position is valid
+                return true;
+            }
+            else { return false; }    // did not use boat
+        }
+        else { return false; }        // does not have boat
+    }
+
     /// Allow the agents to move around the maze.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
-      // Determine where the agent is trying to move.
-      cse491::GridPosition new_position;
-
-      // Update Direction property and get new position.
-      switch (action_id) {
-      case REMAIN_STILL:
-      {
-          new_position = agent.GetPosition();
-          break;
-      }
-      case MOVE_UP:      
-      {
-        agent.SetProperty<int>("Direction", UP);
-        new_position = agent.GetPosition().Above();
-        break;
-      }
-      case MOVE_DOWN:    
-      {
-        agent.SetProperty<int>("Direction", DOWN);
-        new_position = agent.GetPosition().Below();
-        break;
-      }
-      case MOVE_LEFT:    
-      {
-        agent.SetProperty<int>("Direction", LEFT);
-        new_position = agent.GetPosition().ToLeft();
-        break;
-      }
-      case MOVE_RIGHT:   
-      {
-        agent.SetProperty<int>("Direction", RIGHT);
-        new_position = agent.GetPosition().ToRight();
-        break;
-      }
-      }
+      
+      cse491::GridPosition new_position = DoAction_FindNewPosition(agent, action_id);
 
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
 
-      // if player agent walks over an item, pick it up, add it to their properties, and remove from the entity set
+      // TK we might later want to let NPCs pick up items
       if (agent.IsInterface())
       {
         AttemptItemPickup(agent, new_position);
       }
 
-      // if it's a tree, check that we have an axe
       if (main_grid.At(new_position) == tree_id)
       {
-          if (agent.HasProperty("Chop") && agent.GetProperty<int>("Chop") > 0)
-          {
-              std::cout << "You can use your Axe once to chop down this tree. You have "
-                  << agent.GetProperty<int>("Chop") << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
-              char chop;
-              std::cin >> chop;
-              if (chop == 'Y' || chop == 'y')
-              {
-                  // decrement uses by 1, change the tree to grass, but don't move the agent's position
-                  agent.SetProperty("Chop", agent.GetProperty<int>("Chop") - 1);
-                  main_grid[new_position] = grass_id;
-              }
-          }
-          // don't have an axe, can't walk here
+          // chop the tree if possible, but don't move the agent either way
+          DoAction_TestNewPosition_Tree(agent, new_position);
           return false;
       }
+
       if (main_grid.At(new_position) == water_id)
       {
+          bool moved = DoAction_TestNewPosition_Water(agent, new_position);
           
-          if (agent.HasProperty("Swim") && agent.GetProperty<int>("Swim") > 0)
-          {
-              std::cout << "You can use your Boat once to float over this tile. You have "
-                  << agent.GetProperty<int>("Swim") << " uses remaining. Use your boat? Y/N:\n" << std::endl;
-              char boat;
-              std::cin >> boat;
-              if (boat == 'Y' || boat == 'y')
-              {
-                  // decrement uses by 1, and display agent over top of water tile
-                  agent.SetProperty("Swim", agent.GetProperty<int>("Swim") - 1);
-
-                  if (agent.GetProperty<int>("Swim") == 0)
-                  {
-                      // they're on the water, and they no longer have a boat
-                      std::cout << "No boat uses left! Try again? Y/N:" << std::endl;
-                      char again;
-                      std::cin >> again;
-                      if (again == 'N' || again == 'n')
-                      {
-                          exit(0);
-                      }
-                      else
-                      {
-                          agent.SetPosition(40, 3);
-                          return true;
-                      }
-                  }
-              }
-              else { return false; }    // did not use boat
-          }
-          else { return false; }        // does not have boat
-          
+          // if they didn't move onto the water tile, we don't update their position
+          // return false from here
+          if (not moved) { return false; }
       }
 
       // Set the agent to its new postion.
