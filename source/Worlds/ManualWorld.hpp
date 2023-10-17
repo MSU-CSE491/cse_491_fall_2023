@@ -46,6 +46,9 @@ namespace cse491_team8 {
     }
     ~ManualWorld() = default;
 
+    /// @brief Generates move sets for all the agents
+    /// Sets the move sets as a property for each agent
+    /// @return None
     void GenerateMoveSets()
     {
         for (auto& agent : agent_set)
@@ -84,6 +87,54 @@ namespace cse491_team8 {
         }
     }
 
+    /// @brief Determines the damage of the other agent
+    /// @param other_agent The NPC agent
+    /// @param agent The player agent
+    /// Gets the damage of the NPC agent
+    /// @return The damage of the NPC
+    int OtherAction(const std::unique_ptr<cse491::AgentBase> & other_agent, const std::unique_ptr<cse491::AgentBase> & agent)
+    {
+        int other_damage = 0;
+        std::map<std::string, std::tuple<char, double>> move_set = other_agent->GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
+        auto iterator = move_set.begin();
+        int random = rand() % move_set.size();
+        std::advance(iterator, random);
+        std::string random_key = iterator->first;
+        std::cout << "The enemy has used: " << random_key << "\n";
+        std::tuple<char, double> move_info = iterator->second;
+        char stat_char = std::get<0>(move_info);
+        double stat_modification = std::get<1>(move_info);
+        if (stat_char == 'd')
+        {
+            other_damage = static_cast<int>(other_agent->GetProperty<int>("Strength") * stat_modification);
+        }
+        if (stat_char == 'h')
+        {
+            other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") +
+                    static_cast<int>(other_agent->GetProperty<int>("Max_Health") * stat_modification));
+            if (other_agent->GetProperty<int>("Health") > other_agent->GetProperty<int>("Max_Health"))
+            {
+                other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Max_Health"));
+            }
+        }
+        if (stat_char == 's')
+        {
+            if (stat_modification < 0)
+            {
+                int agent_strength = agent->GetProperty<int>("Strength");
+                int new_strength = static_cast<int>(agent_strength - abs(stat_modification) * agent_strength);
+                agent->SetProperty<int>("Strength", new_strength);
+            }
+            else
+            {
+                int other_agent_strength = other_agent->GetProperty<int>("Strength");
+                int new_strength_other = static_cast<int>(other_agent_strength + abs(stat_modification) * other_agent_strength);
+                other_agent->SetProperty<int>("Strength", new_strength_other);
+            }
+        }
+        return other_damage;
+    }
+
     /// @brief Checks the strength between two agents
     /// @param other_agent The autonomous agent to compare
     /// @param agent The interface (player) agent to compare
@@ -99,8 +150,10 @@ namespace cse491_team8 {
         while (other_agent->GetProperty<int>("Health") > 0 && agent->GetProperty<int>("Health") > 0)
         {
             bool valid_input = true;
-            std::cout << "Your Health: " << agent->GetProperty<int>("Health") << " Their Health: " <<
-                    other_agent->GetProperty<int>("Health") << std::endl;
+            std::cout << "Your Health: " << agent->GetProperty<int>("Health") << " Your Strength: " <<
+                    agent->GetProperty<int>("Strength") << " Their Health: " <<
+                            other_agent->GetProperty<int>("Health") << " Their Strength: " <<
+                                    other_agent->GetProperty<int>("Strength") << std::endl;
             std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
             std::cout << "Your Attack: ";
             std::cin >> input;
@@ -123,45 +176,8 @@ namespace cse491_team8 {
                 continue;
             }
 
-            // Other Agent Move Choice
-            int other_damage = 0;
-            std::map<std::string, std::tuple<char, double>> move_set = other_agent->GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
-            auto iterator = move_set.begin();
-            int random = rand() % move_set.size();
-            std::advance(iterator, random);
-            std::string random_key = iterator->first;
-            std::cout << "The enemy has used: " << random_key << "\n";
-            std::tuple<char, double> move_info = iterator->second;
-            char stat_char = std::get<0>(move_info);
-            double stat_modification = std::get<1>(move_info);
-            if (stat_char == 'd')
-            {
-                other_damage = static_cast<int>(other_agent->GetProperty<int>("Strength") * stat_modification);
-            }
-            if (stat_char == 'h')
-            {
-                other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") +
-                        static_cast<int>(other_agent->GetProperty<int>("Max_Health") * stat_modification));
-                if (other_agent->GetProperty<int>("Health") > other_agent->GetProperty<int>("Max_Health"))
-                {
-                    other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Max_Health"));
-                }
-            }
-            if (stat_char == 's')
-            {
-                if (stat_modification < 0)
-                {
-                    int agent_strength = agent->GetProperty<int>("Strength");
-                    int new_strength = static_cast<int>(agent_strength - abs(stat_modification) * agent_strength);
-                    agent->SetProperty<int>("Strength", new_strength);
-                }
-                else
-                {
-                    int other_agent_strength = other_agent->GetProperty<int>("Strength");
-                    int new_strength_other = static_cast<int>(other_agent_strength + abs(stat_modification) * other_agent_strength);
-                    agent->SetProperty<int>("Strength", new_strength_other);
-                }
-            }
+            // Other Agent Move Choice, will modify strength of player agent or NPC agent based on the move selected
+            int other_damage = OtherAction(other_agent, agent);
 
             // Process the Player's Move and the Agent's Move
             if (run)
@@ -191,20 +207,29 @@ namespace cse491_team8 {
             }
             if (agent->GetName() == "Interface" && agent->GetProperty<int>("Health") <= 0)
             {
-                std::cout << other_agent_name << " has beat " << agent->GetName() << "\n";
-                std::cout << "You Lost..." << "\n";
-                std::cout << "Would You Like To Continue? Y or N? ";
-                char repeat_input;
-                std::cin >> repeat_input;
-                if (repeat_input == 'N')
+                while (true)
                 {
-                    exit(0);
-                }
-                else
-                {
-                    agent->SetProperty<int>("Health", 20);
-                    agent->SetProperty<int>("Strength", 7);
-                    agent->SetPosition(40, 3);
+                    std::cout << other_agent_name << " has beat " << agent->GetName() << "\n";
+                    std::cout << "You Lost..." << "\n";
+                    std::cout << "Would You Like To Continue? Y or N? ";
+                    char repeat_input;
+                    std::cin >> repeat_input;
+                    if (repeat_input == 'N')
+                    {
+                        exit(0);
+                    }
+                    else if (repeat_input == 'Y')
+                    {
+                        agent->SetProperty<int>("Health", 20);
+                        agent->SetProperty<int>("Strength", 7);
+                        agent->SetPosition(40, 3);
+                        break;
+                    }
+                    else
+                    {
+                        std::cout << "Invalid Input!" << "\n";
+                        continue;
+                    }
                 }
             }
             this->RemoveAgent(agent->GetName()); // If the agent is the interface, this does nothing
