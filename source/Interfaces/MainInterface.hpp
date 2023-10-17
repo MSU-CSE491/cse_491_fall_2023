@@ -90,6 +90,8 @@ namespace i_2D {
                                 float &drawCenterX, float &drawCenterY);
 
         sf::Vector2f CalculateCellSize(const WorldGrid &grid);
+
+        void HandleResize(const sf::Event &event, const WorldGrid &grid);
     };
 
 } // End of namespace 2D

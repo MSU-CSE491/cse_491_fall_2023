@@ -228,41 +228,19 @@ namespace i_2D {
                                        const type_options_t &type_options,
                                        const item_set_t &item_set,
                                        const agent_set_t &agent_set) {
-
         while (mWindow.isOpen()) {
             sf::Event event;
             while (mWindow.pollEvent(event)) {
-                // TODO convert to nested switch case statements?
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
                     exit(0);
 
                 } else if (event.type == sf::Event::KeyPressed) {
-                    // Handle keypress events here
-                    size_t action_id = HandleKeyEvent(event);
-
-                    // Do the action!
-                    return action_id;
+                    return HandleKeyEvent(event);
 
                 } else if(event.type == sf::Event::Resized) {
-                    // Check size limits of window
-                    // TODO replace min calculations with a member var on first grid read?
-                    //  Min cell size may be bad for large worlds if min window size > monitor size
-                    float widthWindow = event.size.width;
-                    float heightWindow = event.size.height;
-                    float widthMin = grid.GetWidth() * MIN_SIZE_CELL;
-                    float heightMin = grid.GetHeight() * MIN_SIZE_CELL;
-                    widthWindow = std::max(widthWindow, widthMin);
-                    heightWindow = std::max(heightWindow, heightMin);
+                    HandleResize(event, grid);
 
-                    // Restrict window size if necessary
-                    if(widthWindow <= widthMin || heightWindow <= heightMin) {
-                        mWindow.setSize(sf::Vector2u(widthWindow, heightWindow));
-                    }
-
-                    // Resize the view to match window size to prevent deformation
-                    sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
-                    mWindow.setView(sf::View(viewArea));
                 } else if(event.type == sf::Event::MouseMoved){
                     if (menuBtn.isMouseOver(mWindow)){
                         menuBtn.setBackColor(sf::Color::Magenta);
@@ -281,6 +259,7 @@ namespace i_2D {
                         inventoryBTN.setBackColor(sf::Color::Black);
                         exitBtn.setBackColor(sf::Color::Black);
                     }
+
                 } else if(event.type == sf::Event::MouseButtonPressed){
                     if (exitBtn.isMouseOver(mWindow)){
                         mWindow.close();
@@ -331,6 +310,35 @@ namespace i_2D {
         }
         // Do the action!
         return action_id;
+    }
+
+    /**
+     * @brief Handles the window resize event
+     *
+     * Restricts window resizing if below a minimum size.
+     * Matches the window's view to the new size of the window.
+     *
+     * @param event The SFML event object containing the resize event information.
+     * @param grid The WorldGrid containing information on the world structure.
+     */
+    void MainInterface::HandleResize(const sf::Event& event, const WorldGrid &grid)
+    {
+        // Check size limits of window
+        float widthWindow = event.size.width;
+        float heightWindow = event.size.height;
+        float widthMin = grid.GetWidth() * MIN_SIZE_CELL;
+        float heightMin = grid.GetHeight() * MIN_SIZE_CELL;
+        widthWindow = std::max(widthWindow, widthMin);
+        heightWindow = std::max(heightWindow, heightMin);
+
+        // Restrict window size if necessary
+        if(widthWindow <= widthMin || heightWindow <= heightMin) {
+            mWindow.setSize(sf::Vector2u(widthWindow, heightWindow));
+        }
+
+        // Resize the view to match window size to prevent deformation
+        sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
+        mWindow.setView(sf::View(viewArea));
     }
 
 
