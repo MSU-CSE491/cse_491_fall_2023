@@ -6,12 +6,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CATCH_SRC_DIR ../third_party/Catch2)
 set(CATCH_BUILD_DIR catch_build)
+set(SFML_SRC_DIR ../third_party/SFML)
+set(SFML_BUILD_DIR sfml_build)
 set(MAIN_SOURCE_DIR ../source)
 
 configure_file(run_tests.sh run_tests.sh COPYONLY)
 
 # Catch2 CMake integration
 # From https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md#top
+add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
 
 add_subdirectory(unit)

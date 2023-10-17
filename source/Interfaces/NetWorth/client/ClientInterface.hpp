@@ -16,191 +16,126 @@
 #include "../NetworkInterface.hpp"
 #include "../../TrashInterface.hpp"
 
-using namespace sf;
+namespace netWorth{
+/**
+ * The interface of our client that will be interacting and connection with our server
+ */
+    using namespace sf;
 
-namespace cse491 {
-    namespace netWorth{
-        class ClientInterface : public NetworkingInterface {
-        private:
-            std::shared_ptr<TrashInterface> mTrash;     /// Display interface
+    class ClientInterface : public NetworkingInterface {
+    private:
+        std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
+        unsigned short m_dest_port;         /// the destination port (server port)
 
-            sf::IpAddress mIp;      /// Destination IP address
-            sf::UdpSocket mSocket;  /// UDP socket for sending and receiving
-            unsigned short mPort;   /// Destination port
+        /**
+         * Get user input to be sent to server
+         * @return string corresponding to action
+         */
+        static std::string GameLoop_GetInput() {
+            bool valid_input = false;
+            std::string action;
+            char input;
 
-        protected:
-
-
-        public:
-            /**
-             * ClientInterface constructor (NetworkingInterface superclass)
-             * @param id Interface identifier
-             * @param name Interface name
-             * @param ip_string String for destination IP address, make into IpAddress object
-             * @param port Destination port number
-             */
-            ClientInterface(size_t id, const std::string & name,
-                            const std::string & ip_string,
-                            unsigned short port) : NetworkingInterface(id, name) {
-                mIp = sf::IpAddress(ip_string);
-                mPort = port;
+            while (!valid_input) {
+                std::cin >> input;
+                switch (input) {
+                    case 'w': case 'W': action = "up";      valid_input = true; break;
+                    case 'a': case 'A': action = "left";    valid_input = true; break;
+                    case 's': case 'S': action = "down";    valid_input = true; break;
+                    case 'd': case 'D': action = "right";   valid_input = true; break;
+                    case 'q': case 'Q': action = "quit";    valid_input = true; break;
+                    default: valid_input = false;
+                }
+                if (!valid_input) {
+                    std::cout << "Your move?";
+                }
             }
 
-            /**
-             * Default destructor
-             */
-            ~ClientInterface() = default;
+            return action;
+        }
 
-            /**
-             * Establish connection with server
-             * @return True if successful, false if error
-             */
-            bool EstablishConnection() {
-                // send ping to server
-                sf::Packet send_pkt;
-                sf::Packet recv_pkt;
-                std::string str = "Ping!";
-                send_pkt << str;
+    protected:
 
-                if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
-                    std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
-                    return false;
-                }
+    public:
+        /**
+         * ClientInterface constructor (NetworkingInterface superclass)
+         * @param ip_string String for destination IP address, make into IpAddress object
+         * @param port Destination port number
+         */
+        ClientInterface(const std::string & ip_string,
+                        unsigned short port) {
+            m_dest_ip = IpAddress::resolve(ip_string);
+            m_dest_port = port;
+        }
 
-                // receive pong from server
-                if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
-                {
-                    std::cout << "Failure to receive" << std::endl;
-                    return false;
-                }
-                recv_pkt >> str;
-                std::cout << str << std::endl;
+        /**
+         * Default destructor
+         */
+        ~ClientInterface() = default;
 
-                return true;
-            }
+        /**
+         * Establish connection with server
+         * @return True if successful, false if error
+         */
+        bool EstablishConnection() {
+            Packet send_pkt, recv_pkt;
 
-            /**
-             * Game loop
-             */
-            void Loop() {
-                char input;
-                bool valid_input = false;
-                bool wait_for_input = true;
+            // send request message
+            send_pkt << "New client requesting connection.";
+            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return false;
 
-                sf::Packet recv_pkt;
-                std::string recv_str;
-                sf::Packet send_pkt;
+            // receive from server
+            if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return false;
 
+            // print received string (Connection established.)
+            std::string str;
+            recv_pkt >> str;
+            std::cout << str << std::endl;
+
+            return true;
+        }
+
+        /**
+         * Game loop
+         */
+        void GameLoop() {
+            Packet send_pkt, recv_pkt;
+            std::string recv_str;
+
+            cse491::WorldGrid grid;
+            cse491::type_options_t type_options;
+            cse491::item_set_t item_set;
+            cse491::agent_set_t agent_set;
+            std::string action;
+
+            send_pkt << "Game started.";
+
+            // ask for map
+            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
+
+            while (action != "quit") {
+                // receive map
+                if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return;
+
+                // print map
                 recv_pkt >> recv_str;
-                std::cout << recv_str;
+                std::cout << std::endl << recv_str;
 
-                WorldGrid grid;
-                type_options_t type_options;
-                item_set_t item_set;
-                agent_set_t agent_set;
-                std::string action;
+                // get user input
+                action = GameLoop_GetInput();
 
-                std::string send_str = "Requesting game";
-                send_pkt << send_str;
+                // TODO: Unpack recv_pkt into world grid, agent list, etc
+                // We need to serialize these classes...
+                //recv_pkt >> grid >> type_options >> item_set >> agent_set;
 
-                // ask for map
-                if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
-                    std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
-                    return;
-                }
+                //action = mTrash->SelectAction(grid, type_options, item_set, agent_set);
 
-                while (action != "quit")
-                {
-                    // receive initial map
-                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
-                    {
-                        std::cout << "Failure to receive" << std::endl;
-                        return;
-                    }
-                    recv_pkt >> recv_str;
-                    std::cout << std::endl << recv_str;
+                // send packet with action
+                send_pkt.clear();
+                send_pkt << action;
 
-                    valid_input = false;
-                    while (!valid_input) {
-                        do {
-                            std::cin >> input;
-                        } while (!std::cin);
-
-                        switch (input) {
-                            case 'w': case 'W': action = "up";      valid_input = true; break;
-                            case 'a': case 'A': action = "left";    valid_input = true; break;
-                            case 's': case 'S': action = "down";    valid_input = true; break;
-                            case 'd': case 'D': action = "right";   valid_input = true; break;
-                            case 'q': case 'Q': action = "quit";    valid_input = true; break;
-                            default: valid_input = false;
-                        }
-                        if (!valid_input) {
-                            std::cout << "Your move?";
-                        }
-                    }
-
-                    // TODO: Unpack recv_pkt into world grid, agent list, etc
-                    // We need to serialize these classes...
-                    //recv_pkt >> grid >> type_options >> item_set >> agent_set;
-
-                    //action = mTrash->SelectAction(grid, type_options, item_set, agent_set);
-                    //recv_str = "ping!";
-                    send_pkt.clear();
-                    send_pkt << action;
-
-                    if (mSocket.send(send_pkt, mIp, mPort) != Socket::Status::Done) {
-                        std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
-                        return;
-                    }
-
-                    /*
-                    if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
-                    {
-                        std::cout << "Failure to receive" << std::endl;
-                        return;
-                    }
-                    */
-
-                    /*
-                    do {
-                        std::cin >> input;
-                    } while (!std::cin && wait_for_input);
-
-                    switch (input) {
-                        case 'w': case 'W': valid_input = true;   break;
-                        case 'a': case 'A': valid_input = true;   break;
-                        case 's': case 'S': valid_input = true;   break;
-                        case 'd': case 'D': valid_input = true;   break;
-                        case 'q': case 'Q': valid_input = true;   break;
-                        default: valid_input = false;
-                    }
-
-                    // If we waited for input, but don't understand it, notify the user.
-                    if (wait_for_input && !valid_input) {
-                        std::cout << "Unknown key '" << input << "'." << std::endl;
-                    } else {
-                        if (mSocket.send(&input, 1, mIp, mPort) != Socket::Status::Done) {
-                            std::cout << "Could not connect to " << mIp << " at port " << mPort << std::endl;
-                            return;
-                        }
-
-                        if (mSocket.receive(recv_pkt, mIp, mPort) != sf::Socket::Done)
-                        {
-                            std::cout << "Failure to receive" << std::endl;
-                            return;
-                        }
-
-                        recv_pkt >> recv_str;
-                        std::cout << recv_str;
-
-                    }
-                    */
-
-                }
-
+                if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
             }
-        }; //End of ClientInterface
-    }// End of namespace NetWorth
-
-
-} // End of namespace cse491
+        }
+    }; //End of ClientInterface
+}// End of namespace NetWorth

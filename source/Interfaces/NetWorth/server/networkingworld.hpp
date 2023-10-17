@@ -25,7 +25,7 @@ namespace netWorth{
     class NetworkMazeWorld : public cse491::WorldBase {
     private:
         std::shared_ptr<netWorth::ServerInterface> m_server; /// The server that will be used to make changes to the world
-                                                  /// and send back to the client
+        /// and send back to the client
         std::string m_player_action;
 
     protected:
@@ -106,5 +106,3 @@ namespace netWorth{
 
     };
 }
-  
-

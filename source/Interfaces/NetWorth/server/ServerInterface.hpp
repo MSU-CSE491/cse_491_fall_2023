@@ -15,7 +15,6 @@
 
 #include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
-#include "ServerPlayerInterface.hpp"
 
 namespace netWorth{
     using namespace sf;
@@ -79,7 +78,7 @@ namespace netWorth{
          * @return the grid that will be sent to the client
          */
         static Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t & type_options,
-                            const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
+                                   const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
         {
             std::vector<std::string> packet_grid(grid.GetHeight());
 
@@ -101,7 +100,7 @@ namespace netWorth{
                 cse491::GridPosition pos = agent_ptr->GetPosition();
                 char c = '*';
                 if(agent_ptr->HasProperty("symbol")){
-                    c = agent_ptr->GetProperty<char>("symbol");
+                    c = (char)agent_ptr->GetProperty("symbol");
                 }
                 packet_grid[pos.CellY()][pos.CellX()] = c;
             }
