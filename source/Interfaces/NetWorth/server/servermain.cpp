@@ -35,23 +35,15 @@ int main()
 
     //Establish an initial connection
     // Receive a message from anyone
-    sf::Packet send_pkt;
-    sf::Packet recv_pkt;
-    std::string str;
-
+    sf::Packet send_pkt, recv_pkt;
     std::optional<sf::IpAddress> sender;
     unsigned short port;
-    serverInterface->InitialConnection(sender, send_pkt, recv_pkt, port, str);
+
+    if (!serverInterface->InitialConnection(sender, port)) return 1;
 
     cse491::item_set_t item_set;
     cse491::agent_set_t agent_set;
     std::string input;
-
-    // await request for map from client
-    if (serverSocket->receive(recv_pkt, sender, port) != sf::Socket::Status::Done) {
-        std::cout << "Failure to receive" << std::endl;
-        return 1;
-    }
 
     //Main game loop
     while (true) {
@@ -65,6 +57,7 @@ int main()
             std::cout << "Failure to receive" << std::endl;
             return 1;
         }
+        
         recv_pkt >> input;
         std::cout << input << std::endl;
 

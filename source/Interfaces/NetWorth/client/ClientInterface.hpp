@@ -21,8 +21,38 @@ namespace netWorth{
  * The interface of our client that will be interacting and connection with our server
  */
     using namespace sf;
+
     class ClientInterface : public NetworkingInterface {
     private:
+        std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
+        unsigned short m_dest_port;         /// the destination port (server port)
+
+        /**
+         * Get user input to be sent to server
+         * @return string corresponding to action
+         */
+        static std::string GameLoop_GetInput() {
+            bool valid_input = false;
+            std::string action;
+            char input;
+
+            while (!valid_input) {
+                std::cin >> input;
+                switch (input) {
+                    case 'w': case 'W': action = "up";      valid_input = true; break;
+                    case 'a': case 'A': action = "left";    valid_input = true; break;
+                    case 's': case 'S': action = "down";    valid_input = true; break;
+                    case 'd': case 'D': action = "right";   valid_input = true; break;
+                    case 'q': case 'Q': action = "quit";    valid_input = true; break;
+                    default: valid_input = false;
+                }
+                if (!valid_input) {
+                    std::cout << "Your move?";
+                }
+            }
+
+            return action;
+        }
 
     protected:
 
@@ -34,8 +64,8 @@ namespace netWorth{
          */
         ClientInterface(const std::string & ip_string,
                         unsigned short port) {
-            m_ip = IpAddress::resolve(ip_string);
-            m_port = port;
+            m_dest_ip = IpAddress::resolve(ip_string);
+            m_dest_port = port;
         }
 
         /**
@@ -48,23 +78,17 @@ namespace netWorth{
          * @return True if successful, false if error
          */
         bool EstablishConnection() {
-            // send ping to server
-            Packet send_pkt;
-            Packet recv_pkt;
-            std::string str = "Ping!";
-            send_pkt << str;
+            Packet send_pkt, recv_pkt;
 
-            if (m_socket.send(send_pkt, m_ip.value(), m_port) != Socket::Status::Done) {
-                std::cout << "Could not connect to " << m_ip.value() << " at port " << m_port << std::endl;
-                return false;
-            }
+            // send request message
+            send_pkt << "New client requesting connection.";
+            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return false;
 
-            // receive pong from server
-            if (m_socket.receive(recv_pkt, m_ip, m_port) != Socket::Status::Done)
-            {
-                std::cout << "Failure to receive" << std::endl;
-                return false;
-            }
+            // receive from server
+            if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return false;
+
+            // print received string (Connection established.)
+            std::string str;
             recv_pkt >> str;
             std::cout << str << std::endl;
 
@@ -75,15 +99,8 @@ namespace netWorth{
          * Game loop
          */
         void GameLoop() {
-            char input;
-            bool valid_input = false;
-
-            Packet recv_pkt;
+            Packet send_pkt, recv_pkt;
             std::string recv_str;
-            Packet send_pkt;
-
-            recv_pkt >> recv_str;
-            std::cout << recv_str;
 
             cse491::WorldGrid grid;
             cse491::type_options_t type_options;
@@ -91,55 +108,33 @@ namespace netWorth{
             cse491::agent_set_t agent_set;
             std::string action;
 
-            std::string send_str = "Game started";
-            send_pkt << send_str;
+            send_pkt << "Game started.";
 
             // ask for map
-            if (m_socket.send(send_pkt, m_ip.value(), m_port) != Socket::Status::Done) {
-                std::cout << "Could not connect to " << m_ip.value() << " at port " << m_port << std::endl;
-                return;
-            }
+            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
 
-            while (action != "quit")
-            {
-                // receive initial map
-                if (m_socket.receive(recv_pkt, m_ip, m_port) != Socket::Status::Done)
-                {
-                    std::cout << "Failure to receive" << std::endl;
-                    return;
-                }
+            while (action != "quit") {
+                // receive map
+                if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return;
+
+                // print map
                 recv_pkt >> recv_str;
                 std::cout << std::endl << recv_str;
 
-                valid_input = false;
-                while (!valid_input) {
-                    std::cin >> input;
-                    switch (input) {
-                        case 'w': case 'W': action = "up";      valid_input = true; break;
-                        case 'a': case 'A': action = "left";    valid_input = true; break;
-                        case 's': case 'S': action = "down";    valid_input = true; break;
-                        case 'd': case 'D': action = "right";   valid_input = true; break;
-                        case 'q': case 'Q': action = "quit";    valid_input = true; break;
-                        default: valid_input = false;
-                    }
-                    if (!valid_input) {
-                        std::cout << "Your move?";
-                    }
-                }
+                // get user input
+                action = GameLoop_GetInput();
 
                 // TODO: Unpack recv_pkt into world grid, agent list, etc
                 // We need to serialize these classes...
                 //recv_pkt >> grid >> type_options >> item_set >> agent_set;
 
                 //action = mTrash->SelectAction(grid, type_options, item_set, agent_set);
-                //recv_str = "ping!";
+
+                // send packet with action
                 send_pkt.clear();
                 send_pkt << action;
 
-                if (m_socket.send(send_pkt, m_ip.value(), m_port) != Socket::Status::Done) {
-                    std::cout << "Could not connect to " << m_ip.value() << " at port " << m_port << std::endl;
-                    return;
-                }
+                if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
             }
         }
     }; //End of ClientInterface

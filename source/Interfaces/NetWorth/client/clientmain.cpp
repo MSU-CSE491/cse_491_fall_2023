@@ -9,10 +9,9 @@
 //#include "../../../Worlds/MazeWorld.hpp"
 #include "ClientInterface.hpp"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   if (argc != 3) {
-    std::cout << "Must have an argument for server IP and port\nUsage: ./client [IP] [port]" << std::endl;
+    std::cerr << "Must have an argument for server IP and port\nUsage: ./client [IP] [port]" << std::endl;
     return 1;
   }
 

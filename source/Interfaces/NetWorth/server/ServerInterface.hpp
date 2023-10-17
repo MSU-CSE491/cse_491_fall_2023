@@ -16,11 +16,11 @@
 #include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
 
-
 namespace netWorth{
     using namespace sf;
 
     class NetworkMazeWorld;
+
     /**
      * The server that will be running and that allows clients to connect to
      */
@@ -40,30 +40,34 @@ namespace netWorth{
          * @param recv_pkt the packet that the server will receive initially
          * @param port port of the connection
          * @param str string for the receive packet
+         * @return true if successful
          */
-        void InitialConnection(std::optional<IpAddress> sender, sf::Packet send_pkt, sf::Packet recv_pkt, unsigned short port, std::string str){
-            if (m_socket.bind(55002) != Socket::Status::Done) {
-                std::cout << "Failed to bind socket" << std::endl;
-                return;
-            }
+        bool InitialConnection(std::optional<IpAddress> &sender, unsigned short &port){
+            Packet send_pkt, recv_pkt;
+            std::string str;
 
-            if (m_socket.receive(recv_pkt, sender, port) != Socket::Status::Done) {
-                std::cout << "Failed to receive" << std::endl;
-                return;
-            }
+            BindSocket(m_socket, 55002);
+
+            // Await client
+            if (!ReceivePacket(recv_pkt, sender, port)) return false;
 
             recv_pkt >> str;
+            std::cout << str << std::endl;
             std::cout << sender.value() << " has connected successfully." << std::endl;
 
-            if(!str.empty()) {
-                std::string msg = "Connection established.";
-                send_pkt << msg;
-                if (m_socket.send(send_pkt, sender.value(), port) != Socket::Status::Done) {
-                    std::cout << "Failed to send" << std::endl;
-                    return;
-                }
-            }
+            // Acknowledge client
+            send_pkt << "Connection established.";
+            if (!SendPacket(send_pkt, sender.value(), port)) return false;
+
+            // await request for map
+            if (!ReceivePacket(recv_pkt, sender, port)) return false;
+
+            recv_pkt >> str;
+            std::cout << str << std::endl;
+
+            return true;
         }
+
         /**
          * The grid that will be sent to the client from the server after the connection
          * so the client can start asking to make moves
@@ -120,5 +124,6 @@ namespace netWorth{
 
             return gridPacket;
         }
+
     };//End of class ServerInterface
 }//End of namespace netWorth

@@ -43,6 +43,20 @@ namespace netWorth{
         }
 
         /**
+         * Bind socket to port number
+         * @param socket Socket to be bound
+         * @param port Port number
+         * @return true if successful
+         */
+        virtual bool BindSocket(UdpSocket &socket, unsigned short port) {
+            if (socket.bind(port) != Socket::Status::Done) {
+                std::cerr << "Failed to bind socket" << std::endl;
+                return false;
+            }
+            return true;
+        }
+
+        /**
          * Sends a packet across the socket
          * @param packet the packet we want to send
          * @param destAddr the destination address we want to send to
@@ -50,28 +64,26 @@ namespace netWorth{
          * @return true if successfully sent
          */
         virtual bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
-            return m_socket.send(packet, destAddr, port) == Socket::Status::Done;
+            if (m_socket.send(packet, destAddr, port) != Socket::Status::Done) {
+                std::cerr << "Could not connect to" << destAddr << " at port " << port << std::endl;
+                return false;
+            }
+            return true;
         }
         /**
          * Starts the connection by receiving the first packet
-         * @return the IP of the server
+         * @param sender IP of sending machine
+         * @param port port number of sending machine
+         * @return received packet
          */
-        virtual IpAddress ReceivePacket(){
-            Packet packet;
-            std::optional<IpAddress> sender;
-            unsigned short port;
-            if (m_socket.receive(packet, sender, port) != Socket::Status::Done) {
-                std::cout << "Failed to receive" << std::endl;
+        virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
+            if (m_socket.receive(pkt, sender, port) != Socket::Status::Done) {
+                std::cerr << "Failed to receive" << std::endl;
+                return false;
             }
-
-            if (packet){
-                Packet messagePacket;
-                std::string message = "Pong";
-                messagePacket << message;
-                SendPacket(messagePacket, sender.value(), port);
-            }
-            return sender.value();
+            return true;
         }
+
         /**
          * Processes the packet and outputs it
          * @param packet the packet we want to output
