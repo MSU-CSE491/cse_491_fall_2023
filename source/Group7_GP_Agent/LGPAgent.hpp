@@ -9,10 +9,9 @@
 #include "../core/AgentBase.hpp"
 #include "GPAgentSensors.hpp"
 
-const int LISTSIZE = 100;
-
 namespace cowboys
 {
+    const int LISTSIZE = 100;
 
     class LGPAgent : public cse491::AgentBase
     {
@@ -21,7 +20,6 @@ namespace cowboys
         // A sensor is a function that takes in a grid and returns a value (e.g. distance to nearest agent)
 
         // For example group 1 has a function for the shortest path
-        // TODO: ADD A STAY STATEMENT WORLD
 
         std::vector<std::string> possibleInstructionsList = {};
         std::vector<std::string> actionsList = {"up", "down", "left", "right"};
@@ -34,15 +32,12 @@ namespace cowboys
         std::vector<cowboys::Sensors> sensorsList;
         std::vector<std::string> sensorsNamesList = {"getLeft", "getRight", "getUp", "getDown"};
 
-        bool hasActionOccured = false;
-
         std::random_device rd;
         std::mt19937 gen;
 
     public:
         LGPAgent(size_t id, const std::string &name) : AgentBase(id, name)
         {
-            // TODO: dont care didnt ask ignore this
             gen = std::mt19937(rd());
         }
 
@@ -66,6 +61,11 @@ namespace cowboys
             {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
+            for (auto i = 0; i < LISTSIZE; i++)
+            {
+                std::cout << get<0>(instructionsList[i]) << " ";
+            }
+            std::cout << std::endl;
         }
 
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
@@ -113,7 +113,6 @@ namespace cowboys
 
             while (i < LISTSIZE && action.empty())
             {
-                ++currentInstructionIndex;
                 if (std::find(actionsList.begin(), actionsList.end(), get<0>(instruction)) != actionsList.end())
                 {
                     action = get<0>(instruction);
@@ -127,13 +126,49 @@ namespace cowboys
                     int distance = Sensors::wallDistance(grid, *this, direction);
                     resultsList[currentInstructionIndex - 1] = distance;
                 }
-
                 else
                 {
                     // the instruction is an operation (lessthan, greaterthan, equals)
                     operation = get<0>(instruction);
+                    if (operation == "lessthan")
+                    {
+                        if (get<1>(instruction) < get<2>(instruction))
+                        {
+                            resultsList[currentInstructionIndex] = 1;
+                            ++currentInstructionIndex;
+                        }
+                        else
+                        {
+                            resultsList[currentInstructionIndex] = 0;
+                        }
+                    }
+                    else if (operation == "greaterthan")
+                    {
+                        if (get<1>(instruction) > get<2>(instruction))
+                        {
+                            resultsList[currentInstructionIndex] = 1;
+                            ++currentInstructionIndex;
+                        }
+                        else
+                        {
+                            resultsList[currentInstructionIndex] = 0;
+                        }
+                    }
+                    else if (operation == "equals")
+                    {
+                        if (get<1>(instruction) == get<2>(instruction))
+                        {
+                            resultsList[currentInstructionIndex] = 1;
+                            ++currentInstructionIndex;
+                        }
+                        else
+                        {
+                            resultsList[currentInstructionIndex] = 0;
+                        }
+                    }
                 }
 
+                ++currentInstructionIndex;
                 if (currentInstructionIndex >= instructionsList.size())
                 {
                     currentInstructionIndex = 0;
