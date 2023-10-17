@@ -6,44 +6,48 @@
  */
 
 #pragma once
-
-#include <fstream>
-
 #include "../core/WorldBase.hpp"
-#include "MazeWorld.hpp"
 
 namespace group4 {
-/**
- * Creates a world with agents and a win flag
- */
-class SecondWorld : public cse491::MazeWorld {
- private:
-  bool flag_hit = false;
-  bool run_over = false;
+    /**
+     * Creates a world with agents and a win flag
+     */
+    class SecondWorld : public cse491::WorldBase {
+    protected:
+        enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
 
- protected:
-  /// Easy access to flag CellType ID.
-  size_t flag_id;
+        /// Easy access to floor CellType ID.
+        size_t floor_id;
 
- public:
-  /**
-   * Constructor with no arguments
-   */
-  SecondWorld() {
-    // Call parent class' constructor
-    cse491::MazeWorld();
+        /// Easy access to flag CellType ID.
+        size_t flag_id;
 
-    flag_id = cse491::WorldBase::AddCellType(
-        "flag", "Goal flag for a game end state", 'g');
-    // main_grid.Read("../assets/grids/group4_maze.grid", type_options);
-    main_grid.Read("../assets/grids/second_floor.grid", type_options);
+        /// Easy access to wall CellType ID.
+        size_t wall_id;
 
+        /// Provide the agent with movement actions.
+        void ConfigAgent(cse491::AgentBase & agent) override {
+            agent.AddAction("up", MOVE_UP);
+            agent.AddAction("down", MOVE_DOWN);
+            agent.AddAction("left", MOVE_LEFT);
+            agent.AddAction("right", MOVE_RIGHT);
+        }
 
-    // // Adding power sword with id = 1; name = sword of power
-    // auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
-    // powerSword->SetPosition(3, 4);
-    // powerSword->SetProperty("Damage", 20.0);
-    // item_set.push_back(std::move(powerSword));
+    public:
+        /**
+         * Constructor with no arguments
+         */
+        SecondWorld() {
+            floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
+            flag_id = cse491::WorldBase::AddCellType("flag", "Goal flag for a game end state", 'g');
+            wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
+            main_grid.Read("../assets/grids/group4_maze.grid", type_options);
+
+            // Adding power sword with id = 1; name = sword of power
+            auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
+            powerSword->SetPosition(3, 4);
+            powerSword->SetProperty("Damage", 20.0);
+            item_set.push_back(std::move(powerSword));
 
     // // Adding fire sword with id = 2; name = Inferno Slicer
     // auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
@@ -110,43 +114,29 @@ class SecondWorld : public cse491::MazeWorld {
     ofs << "]" << std::endl;
   }
 
-  /**
-   * Allows agents to move around the maze.
-   * Also checks if the next agent position will be the win flag.
-   */
-  int DoAction(cse491::AgentBase& agent, size_t action_id) override {
-    cse491::GridPosition new_position;
-    switch (action_id) {
-      case REMAIN_STILL:
-        new_position = agent.GetPosition();
-        break;
-      case MOVE_UP:
-        new_position = agent.GetPosition().Above();
-        break;
-      case MOVE_DOWN:
-        new_position = agent.GetPosition().Below();
-        break;
-      case MOVE_LEFT:
-        new_position = agent.GetPosition().ToLeft();
-        break;
-      case MOVE_RIGHT:
-        new_position = agent.GetPosition().ToRight();
-        break;
-    }
-    if (!main_grid.IsValid(new_position)) {
-      return false;
-    }
-    if (main_grid.At(new_position) == wall_id) {
-      return false;
-    }
+        /**
+         * Allows agents to move around the maze.
+         * Also checks if the next agent position will be the win flag.
+         */
+        int DoAction(cse491::AgentBase & agent, size_t action_id) override {
+            cse491::GridPosition new_position;
+            switch (action_id) {
+            case REMAIN_STILL: new_position = agent.GetPosition(); break;
+            case MOVE_UP:      new_position = agent.GetPosition().Above(); break;
+            case MOVE_DOWN:    new_position = agent.GetPosition().Below(); break;
+            case MOVE_LEFT:    new_position = agent.GetPosition().ToLeft(); break;
+            case MOVE_RIGHT:   new_position = agent.GetPosition().ToRight(); break;
+            }
+            if (!main_grid.IsValid(new_position)) { return false; }
+            if (main_grid.At(new_position) == wall_id) { return false; }
 
-    if (main_grid.At(new_position) == flag_id) {
-      // Set win flag to true
-      std::cout << "flag found" << std::endl;
-      flag_hit = true;
-    }
+            if (main_grid.At(new_position) == flag_id) {
+                // Set win flag to true
+                std::cout << "flag found" << std::endl;
+                run_over = true;
+            }
 
-    agent.SetPosition(new_position);
+            agent.SetPosition(new_position);
 
     return true;
   }
