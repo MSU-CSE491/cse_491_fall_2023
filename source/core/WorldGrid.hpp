@@ -123,7 +123,6 @@ namespace cse491 {
       height = new_height;
     }
 
-
     // -- Read and Write functions --
     // These are the same idea as Save and Load, but they are human readable, but they
     // also require that each state has been assigned a unique character symbol.

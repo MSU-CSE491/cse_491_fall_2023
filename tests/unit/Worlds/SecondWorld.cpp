@@ -30,17 +30,31 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
 
 TEST_CASE("EntityTest")
 {
+    // Initialize world
     group4::SecondWorld world;
-    CHECK(world.GetNumItems() == 3); // there are 3 entities
 
-    // Entities:
-    // ID 1 = Damage (20.0); ID 2 = Damage, Speed, Burning Duration; ID 3 = Health, Extra Inv. Space
-    const cse491::Entity &testEntity1 = world.GetItem(1);
-    CHECK(testEntity1.HasProperty("Damage"));
-
-    // this will cause an error because the entity w/ ID 2 overwrites the damage value
-//    CHECK(testEntity1.GetProperty("Damage") == 20.0);
+    // Test adding and removing an Entity w/ properties
+    auto testEntity1 = std::make_unique<cse491::Entity>(1, "Test Entity 1");
+    testEntity1->SetPosition(1, 2);
+    testEntity1->SetProperty("Damage", 20.0);
 
 
+    CHECK(testEntity1->GetProperty("Damage") == 20.0);
+
+
+    auto testEntity2 = std::make_unique<cse491::Entity>(2, "Test Entity 2");
+    testEntity2->SetPosition(2, 3);
+    testEntity2->SetProperties("Damage", 5.5, "Fire Resistance", 2.5);
+
+    CHECK(testEntity2->GetProperty("Damage") ==  5.5);
+    CHECK(testEntity2->GetProperty("Fire Resistance") == 2.5);
+
+    auto entityID1 = world.AddEntity(testEntity1);
+    auto entityID2 = world.AddEntity(testEntity2);
+
+    CHECK(world.GetNumItems() == 2);
+
+    world.RemoveEntity(entityID1);
+    CHECK(world.GetNumItems() == 1);
 
 }
