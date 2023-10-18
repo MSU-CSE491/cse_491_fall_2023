@@ -5,122 +5,81 @@
 
 #include "Menu.hpp"
 #include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
-namespace i_2D{
-    Menu::Menu(float width, float height){
+const sf::Vector2f MENU_BUTTON_SIZE({200.f,50.f});
+namespace i_2D {
 
-        //menu[0].setFont(font);
-        menu[0].setFillColor(sf::Color::Red);
-        menu[0].setString("Play");
-        menu[0].setPosition(sf::Vector2f(width / 2, height / MAX_NUMBER_OF_ITEMS_MENU_ITEMS +1) * 1.f);
+    /**
+     * @brief initialize the buttons at the top of the window
+     */
+    void Menu::initialize() {
+        sf::Color backgroundcolor = sf::Color::Black;
+        sf::Color textcolor = sf::Color::White;
+        auto menu = std::make_shared<Button>(
+                "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
+        menu->setPosition({0,0});
+        auto inventory = std::make_shared<Button>(
+                "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
+        inventory->setPosition({200,0});
+        auto exit = std::make_shared<Button>(
+                "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
+        exit->setPosition({400,0});
 
-        //menu[1].setFont(font);
-        menu[1].setFillColor(sf::Color::White);
-        menu[1].setString("Options");
-        menu[1].setPosition(sf::Vector2f(width / 2, height / MAX_NUMBER_OF_ITEMS_MENU_ITEMS +1) * 1.f);
+        menuBar.push_back(menu);
+        menuBar.push_back(inventory);
+        menuBar.push_back(exit);
 
-        //menu[2].setFont(font);
-        menu[2].setFillColor(sf::Color::White);
-        menu[2].setString("Exit");
-        menu[2].setPosition(sf::Vector2f(width / 2, height / MAX_NUMBER_OF_ITEMS_MENU_ITEMS +1) * 1.f);
-
-        selectedItemIndex = 0;
     }
 
-    Menu::~Menu() {
-    }
-
-    void Menu::draw(sf::RenderWindow &window) {
-        for (int i = 0; i < MAX_NUMBER_OF_ITEMS_MENU_ITEMS; i++){
-            window.draw(menu[i]);
+    /**
+     * @brief draws each menu button to the window
+     *
+     * @param window the main window of the graphic interface
+     */
+    void Menu::drawto(sf::RenderWindow &window) {
+        for( const auto &button : menuBar){
+            button->drawTo(window);
         }
     }
 
-    void Menu::Start(){
-        sf::RenderWindow window(sf::VideoMode({600, 600}), "SFML WORK!");
-
-        while (window.isOpen()){
-            sf::Event event;
-
-            while (window.pollEvent(event)){
-                switch (event.type)
-                {
-                case sf::Event::Closed:
-                    window.close();
-                    break;
-                }
-            }
-        }
-
-        window.clear();
-
-        draw(window);
-
-        window.display();
-    }
-    void Menu::MoveUp(){
-        if (selectedItemIndex - 1 >= 0){
-            menu[selectedItemIndex].setFillColor(sf::Color::White);
-            selectedItemIndex--;
-            menu[selectedItemIndex].setFillColor(sf::Color::Red);
+    /**
+     * @brief check for mouse hoovering over the menu buttons
+     * change button color accordingly
+     *
+     * @param window the main window of the graphic interface
+     */
+    void Menu::HandleMouseMove(sf::RenderWindow &window) {
+        if (menuBar[0]->isMouseOver(window)){
+            menuBar[0]->setBackColor(sf::Color::Magenta);
+            menuBar[1]->setBackColor(sf::Color::Black);
+            menuBar[2]->setBackColor(sf::Color::Black);
+        }else if (menuBar[1]->isMouseOver(window)){
+            menuBar[0]->setBackColor(sf::Color::Black);
+            menuBar[1]->setBackColor(sf::Color::Magenta);
+            menuBar[2]->setBackColor(sf::Color::Black);
+        }else if (menuBar[2]->isMouseOver(window)){
+            menuBar[0]->setBackColor(sf::Color::Black);
+            menuBar[1]->setBackColor(sf::Color::Black);
+            menuBar[2]->setBackColor(sf::Color::Magenta);
+        }else{
+            menuBar[0]->setBackColor(sf::Color::Black);
+            menuBar[1]->setBackColor(sf::Color::Black);
+            menuBar[2]->setBackColor(sf::Color::Black);
         }
     }
 
-    void Menu::MoveDown(){
-        if (selectedItemIndex + 1 >= MAX_NUMBER_OF_ITEMS_MENU_ITEMS){
-            menu[selectedItemIndex].setFillColor(sf::Color::White);
-            selectedItemIndex++;
-            menu[selectedItemIndex].setFillColor(sf::Color::Red);
+    /**
+     * @brief check if the mouse click the exit button
+     * closes window accordingly
+     *
+     * @param window the main window of the graphic interface
+     */
+    void Menu::HandleMouseButtonPressed(sf::RenderWindow &window) {
+        if(menuBar[2]->isMouseOver(window)){
+            exit(0);
         }
     }
 }
-
-
-///!!! CODE LOGIC FOR MENU MOVE UP AND DOWN
-//{
-//    sf::RenderWindow window(sf::VideoMode({600, 600}), "SFML WORK!");
-//    i_2D::Menu menu();
-//
-//    while (window.isOpen()){
-//        sf::Event event;
-//
-//        while (window.pollEvent(event)){
-//            switch (event.type)
-//            {
-//            case sf::Event::KeyReleased:
-//                switch (event.key.code){
-//                case sf::KeyBoard::Up:
-//                    menu.MoveUp();
-//                    break;
-//
-//                case sf::KeyBoard::Down:
-//                    menu.MoveDOwn();
-//                    break;
-//
-//                case sf::KeyBoard::Return:
-//                    switch (menu.GetPressedItem()){
-//                    case 0:
-//                        std::cout << "Play button has been pressed" << std::endl;
-//                    case 1:
-//                        std::cout << "Option button has been pressed" << std::endl;
-//                    case 2:
-//                        window.close();
-//                        break;
-//                    }
-//                    break;
-//                }
-//            case sf::Event::Closed:
-//            window.close();
-//            break;
-//            }
-//        }
-//    }
-//
-//    window.clear();
-//
-//    draw(window);
-//
-//    window.display();
-//}
 
 

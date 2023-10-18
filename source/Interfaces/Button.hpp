@@ -22,15 +22,15 @@ namespace i_2D {
 
     public:
         Button() { };
-        Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor, sf::Color textColor) {
-            if(!mfont.loadFromFile("../assets/font/ArialNarrow7.ttf")){
+        Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Color textColor) {
+            if(!mfont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
                 std::cout << "Error loading font file" << std::endl;
             }
             text = std::make_unique<sf::Text>(mfont);
 
             text->setString(t);
             text->setFillColor(textColor);
-            text->setCharacterSize(charSize);
+//            text->setCharacterSize(charSize);
 
             button.setSize(size);
             button.setFillColor(bgColor);
@@ -41,7 +41,7 @@ namespace i_2D {
             text->setString(s);
         }
         void setMFont(){
-            if(!mfont.loadFromFile("../assets/font/ArialNarrow7.ttf")){
+            if(!mfont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
                 std::cout << "Error loading font file" << std::endl;
             }
             text = std::make_unique<sf::Text>(mfont);
