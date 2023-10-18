@@ -54,7 +54,12 @@ it failed at first with this error message:
     ```
 
 I thought that changing the raylib path would be much easier when compiling on the command line.
-I ran `emcc -o arkanoid.html arkanoid.cpp -Os -Wall C:\raylib\raylib\src\libraylib.a -I. -IC:\raylib\raylib\src -L. -LC:\raylib\raylib\src -s USE_GLFW=3 --shell-file C:\raylib\raylib\src\shell.html -DPLATFORM_WEB`
+I ran
+
+```
+emcc -o arkanoid.html arkanoid.cpp -Os -Wall C:\raylib\raylib\src\libraylib.a -I. -IC:\raylib\raylib\src -L. -LC:\raylib\raylib\src -s USE_GLFW=3 --shell-file C:\raylib\raylib\src\shell.html -DPLATFORM_WEB
+```
+
 and got this error message:
     ```
     arkanoid.cpp:119:28: error: non-constant-expression cannot be narrowed from type 'int' to 'float' in initializer list
@@ -92,33 +97,34 @@ How to test the Arkanoid example:
 ### Experience getting functions and classes working
 As stated above, I did have to change the `brickSize` initialization in order
 to compile `arkanoid.cpp` correctly. I did not have to change any other code for
-the functionality to work, but there were also a few compiler warnings: <br />
+the functionality to work, but there were also a few compiler warnings:
+
     ```
     arkanoid.cpp:62:26: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-   62 | static Player player = { 0 };
-      |                          ^
-      |                          {}
+    62 | static Player player = { 0 };
+       |                          ^
+       |                          {}
     arkanoid.cpp:63:22: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    63 | static Ball ball = { 0 };
+    63  | static Ball ball = { 0 };
         |                      ^
         |                      {}
     arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    64 | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
+    64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
         |                                                          ^
         |                                                          {}
     arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    64 | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
+    64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
         |                                                          ^
         |                                                          {}
     arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    64 | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
+    64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
         |                                                          ^
         |                                                          {}
     ```
 
 To get rid of these compiler warnings, I changed lines 62-64 of `arkanoid.cpp`
 to include curly braces around the initializations: <br />
-    ```cpp
+    ```
     static Player player = { {0} };
     static Ball ball = { {0} };
     static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { { { { 0 } } } };
@@ -129,6 +135,12 @@ I think that Raylib should be relatively easy to integrate and make changes with
 Its website mentions instructions for compiling on the command line,
 with Makefiles, and with CMake. Therefore, I could see Raylib being introduced into
 many different types of applications and many types of build systems.
+
+I noticed that the provided example Arkanoid code only allowed for movement
+with the arrow keys. I found that the `IsKeyDown()` function is being used inside
+`UpdateGame()` to check for user input. Adding more checks for
+`IsKeyDown(KEY_A)` and `IsKeyDown(KEY_D)` was very easy, so I could see that
+making code changes is relatively easy with Raylib.
 
 ### When I would recommend using Raylib
 The most obvious use case for using Raylib would be someone

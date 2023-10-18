@@ -152,9 +152,9 @@ void UpdateGame(void)
         if (!pause)
         {
             // Player movement logic
-            if (IsKeyDown(KEY_LEFT)) player.position.x -= 5;
+            if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) player.position.x -= 5;
             if ((player.position.x - player.size.x/2) <= 0) player.position.x = player.size.x/2;
-            if (IsKeyDown(KEY_RIGHT)) player.position.x += 5;
+            if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) player.position.x += 5;
             if ((player.position.x + player.size.x/2) >= screenWidth) player.position.x = screenWidth - player.size.x/2;
 
             // Ball launching logic
