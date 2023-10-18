@@ -71,13 +71,14 @@ void BiomeGenerator::generate() {
          std::random_device rd;
          std::mt19937 gen(rd());
 
-         std::uniform_int_distribution<int> distribution(height/2, height-1);
-         auto random_x = distribution(gen);
-         auto random_y = distribution(gen);
+         std::uniform_int_distribution<int> x_distribution(width/2, width-1);
+         std::uniform_int_distribution<int> y_distribution(height/2, height-1);
+         int random_x = x_distribution(gen);
+         int random_y = y_distribution(gen);
 
-         if( grid[random_x][random_y] == ' ' )
+         if( grid[random_y][random_x] == ' ' )
          {
-             grid[random_x][random_y] = keyTile;
+             grid[random_y][random_x] = keyTile;
              counter = true;
          }
      }
@@ -89,7 +90,7 @@ void BiomeGenerator::generate() {
  */
 void BiomeGenerator::placeDoorTile(const char &doorTile)
 {
-    grid[0][0] = doorTile;
+    grid[1][1] = doorTile;
 }
 
 /**
