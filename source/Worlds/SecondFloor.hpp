@@ -1,18 +1,21 @@
 /**
- * @file SecondWorld.hpp
+ * @file SecondFloor.hpp
  * @author Jayson Van Dam
- * @author Kurt LaBlanc
- * @author Satvik Ravipati
  */
 
 #pragma once
 #include "../core/WorldBase.hpp"
+#include "../Agents/PacingAgent.hpp"
+#include <nlohmann/json.hpp>
 
 namespace group4 {
 /**
  * Creates a world with agents and a win flag
+ * TODO: Integrate this class into SecondWorld by
+ * adding a constructor to SecondWorld
+ * that takes a path to a grid file.
  */
-class SecondWorld : public cse491::WorldBase {
+class SecondFloor : public cse491::WorldBase {
  protected:
   enum ActionType {
     REMAIN_STILL = 0,
@@ -43,39 +46,72 @@ class SecondWorld : public cse491::WorldBase {
   /**
    * Constructor with no arguments
    */
-  SecondWorld() {
+  SecondFloor() {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = cse491::WorldBase::AddCellType(
         "flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
-    main_grid.Read("../assets/grids/group4_maze.grid", type_options);
+    main_grid.Read("../assets/grids/second_floor.grid", type_options);
 
-    // Adding power sword with id = 1; name = sword of power
-    auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
-    powerSword->SetPosition(3, 4);
-    powerSword->SetProperty("Damage", 20.0);
-    item_set.push_back(std::move(powerSword));
-
-    // Adding fire sword with id = 2; name = Inferno Slicer
-    auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
-    infernoSlicer->SetPosition(5, 0);
-    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0,
-                                 "Burning Duration", 2.5);
-    item_set.push_back(std::move(infernoSlicer));
-
-    // Adding a piece of armor with id = 10; name = Daedric
-    auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
-    daedricArmor->SetPosition(7, 4);
-    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
-    item_set.push_back(std::move(daedricArmor));
+    const std::string input_filename = "../assets/second_floor_input.json";
+    LoadFromFile(input_filename);
   }
 
   /**
    * Destructor
    */
-  ~SecondWorld() = default;
+  ~SecondFloor() = default;
+
+  /**
+   * Loads data from a JSON file
+   * and adds agents with specified properties into the world.
+   * @param input_filename Relative path to input.json file
+   */
+  void LoadFromFile(const std::string& input_filename) {
+    std::ifstream input_file(input_filename);
+
+    if (!input_file.is_open()) {
+      std::cerr << "Error: could not open file " << input_filename << std::endl;
+      return;
+    }
+
+    nlohmann::json data;
+    try {
+      input_file >> data;
+    } catch (const nlohmann::json::parse_error& err) {
+      std::cerr << "JSON parsing error: " << err.what() << std::endl;
+      return;
+    }
+
+    for (const auto& agent : data) {
+      // May get a json.exception.type_error here if you assign to the wrong C++ type,
+      // so make sure to nail down what types things are in JSON first!
+      // My intuition is that each agent object will have:
+      // name: string (C++ std::string)
+      // x: number (C++ int)
+      // y: number (C++ int)
+      // entities: array<string> (C++ std::vector<std::string>)
+      std::string agent_name = agent.at("name");
+      int x_pos = agent.at("x");
+      int y_pos = agent.at("y");
+
+      const int BASE_MAX_HEALTH = 100;
+      int additional_max_health = 0;
+      std::vector<std::string> entities = agent.at("entities");
+
+      for (const auto& entity : entities) {
+        // TODO: How should we set the entity properties here?
+        // Just adding to MaxHealth now, but this doesn't seem very scalable.
+        if (entity == "chocolate_bar") {
+          additional_max_health = 10;
+        }
+      }
+      
+      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos).SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
+    }
+  }
 
   void UpdateWorld() override {}
 

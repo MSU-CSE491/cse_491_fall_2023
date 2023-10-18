@@ -7,3 +7,6 @@
 [submodule "third_party/PEGTL"]
 	path = third_party/PEGTL
 	url = https://github.com/taocpp/PEGTL
+[submodule "third_party/json"]
+	path = third_party/json
+	url = https://github.com/nlohmann/json.git

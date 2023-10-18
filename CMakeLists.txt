@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # all the possible executables [each team can have their own configuration]
 # copy over simple or same and change the accordingly
-set(EXECUTABLES simple sfml_example lang)
+set(EXECUTABLES simple sfml_example jsontest group4 second_floor lang)
 
 
 # setting the output path to executable
@@ -21,6 +21,17 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
 
 # moving assets to build
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+
+
+# Configure json
+set(JSON_SRC_DIR third_party/json)
+set(JSON_BUILD_DIR json_build)
+add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
 
 
 # Configure SFML
@@ -40,6 +51,7 @@ foreach(EXECUTABLE ${EXECUTABLES})
       )
     target_link_libraries(${EXECUTABLE}
       PRIVATE sfml-window sfml-audio sfml-graphics
+      nlohmann_json::nlohmann_json
       )
 endforeach()
 
