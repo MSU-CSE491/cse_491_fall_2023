@@ -58,7 +58,7 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
 
 /// Not a fan of this practice
 /// But would prefer not to use parenthesis
-#define log Log()
+
 
 /**
  * @brief Logger class with colors and team names
