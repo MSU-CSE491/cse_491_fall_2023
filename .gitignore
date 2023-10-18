@@ -21,5 +21,3 @@ cmake-build-debug-mingw-sfml
 # executable files
 *.exe
 *.out
-
-#Mui's local classes
