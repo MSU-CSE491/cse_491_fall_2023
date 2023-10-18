@@ -260,7 +260,21 @@ namespace i_2D {
             case sf::Keyboard::D:
                 action_id = GetActionID("right");
                 break;
+            case sf::Keyboard::Up:
+                action_id = GetActionID("up");
+                break;
+            case sf::Keyboard::Left:
+                action_id = GetActionID("left");
+                break;
+            case sf::Keyboard::Down:
+                action_id = GetActionID("down");
+                break;
+            case sf::Keyboard::Right:
+                action_id = GetActionID("right");
+                break;
             case sf::Keyboard::Q:
+                exit(0);
+            case sf::Keyboard::Escape:
                 exit(0);
             default:
                 break; // The user pressed an unknown key.
