@@ -1,6 +1,6 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
- * @brief Unit tests for Inventory
+ * @brief Unit tests for Item
  *
  * @author Yousif Murrani
  **/
@@ -14,7 +14,7 @@
 
 using namespace walle;
 
-TEST_CASE("Item Initialization"){
+TEST_CASE("Item Initialization", "[core]"){
 
     // create temporary item to work on
     std::shared_ptr<Item> item = std::make_shared<Item>("test", 1, 1, 1);
@@ -23,7 +23,7 @@ TEST_CASE("Item Initialization"){
     REQUIRE(item != nullptr);
 }
 
-TEST_CASE("Item Name"){
+TEST_CASE("Item Name", "[core]"){
 
     // create an item to work on
     std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
@@ -48,7 +48,7 @@ TEST_CASE("Item Name"){
     }
 }
 
-TEST_CASE("Item Level"){
+TEST_CASE("Item Level", "[core]"){
 
     // create an item to work on
     std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
@@ -73,7 +73,7 @@ TEST_CASE("Item Level"){
     }
 }
 
-TEST_CASE("Item Damage"){
+TEST_CASE("Item Damage", "[core]"){
 
     // create an item to work on
     std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
@@ -98,7 +98,7 @@ TEST_CASE("Item Damage"){
     }
 }
 
-TEST_CASE("Item Durability"){
+TEST_CASE("Item Durability", "[core]"){
 
     // create an item to work on
     std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
