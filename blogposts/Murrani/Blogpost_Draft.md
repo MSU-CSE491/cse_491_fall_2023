@@ -76,9 +76,25 @@ void Dijkstra(int graph[6][6], int src) // adjacency matrix used is 6x6
 
 ### Time/Space Complexity
 
+Here are the Time and Space complexities for Dijkstra's Algorithm:
+
 Time Complexity: O((|V| + |E|) * log(V))
 
 Space Complexity: O((|V| + |E|)) 
+
+In the formulas, 'V' represents the number of Vertices (nodes) in the graph while 'E' represents the number of 
+Edges (connections between nodes) in the weighted graph. Using these two numbers, we can calculate the Big-O notation
+of Dijkstra's Algorithm.
+
+This is best shown in this graph:
+
+![Dijkstra's Performance](dijkstras2.png)
+
+While it starts out very similar to an O(n) algorithm, we can see that it starts to curve upwards more rapidly near
+the end. This leads us to believe that it's time complexity will be somewhere between O(nlog(n)) and O(n^2),
+as shown below:
+
+<img src="bigo.jpg"  width="60%" height="30%">
 
 ### Applications
 
@@ -86,12 +102,22 @@ Space Complexity: O((|V| + |E|))
 
 ### Overview
 
+The A* (referred to as 'A-Star') Algorithm, like its predecessor Dijkstra's, is a very powerful pathfinding algorithm 
+designed to find the shortest path between a starting node and a destination node. However, unlike Dijkstra's, 
+the A* is only a Search Algorithm. Another feature that sets A* apart is its ability to use a heuristic, which is a 
+function that can help it find the solution more quickly, albeit giving up some level of accuracy and precision. This 
+algorithm was actually created as a part of the [Shakey Project](https://en.wikipedia.org/wiki/Shakey_the_robot), 
+which was building a robot that could choose its own actions. However, it has since become popular in many different 
+pathfinding uses.
 
 Here is a quick showcase of the A* Algorithm working with four different heuristics:
 
 ![A* Algorithm Example](astar1.gif)
 
-## Psuedocode
+In the Gif, from left to right, the A* method is increasingly using a heuristic that prefers points that are closer 
+to the goal. When not using a heuristic, the algorithm becomes extremely similar to Dijkstra's.
+
+## Pseudocode
 
 ```cpp
 // A* (star) Pathfinding// Initialize both open and closed list 
@@ -143,6 +169,10 @@ could be O(1), at worst it would have the time and space complexity of Dijkstraâ
 
 ## Visual Comparison
 
+Here is a quick video showing the two different algorithms' pathfinding:
+
+https://www.youtube.com/watch?v=19h1g22hby8
+
 ## Conclusion
 
 ### Summary of Findings
@@ -158,6 +188,8 @@ https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 https://favtutor.com/blogs/dijkstras-algorithm-cpp
 
 https://www.educative.io/answers/how-to-implement-dijkstras-algorithm-in-cpp
+
+https://www.happycoders.eu/algorithms/dijkstras-algorithm-java/
 
 https://en.wikipedia.org/wiki/A*_search_algorithm
 
