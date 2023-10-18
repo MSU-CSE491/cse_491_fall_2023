@@ -45,5 +45,12 @@ Question for others:
 - Integration Testing: How to test CGP and LGP agents?
 - Integration Testing: How to test GP loop?
 - Testing: How to test on training data?
+
+
+- PR Review mentions:
 - Refactor: Move Sensors up to core?? as it is agnostic to the agent type.
+  - is it useful to any other group??
+- Direction behavior: is direction behavior useful for an agent? which way an agent is pointing?
+  - should this be moved up?
+- Refactor: Refactor Experimental Macros?
   - is it useful to any other group??
