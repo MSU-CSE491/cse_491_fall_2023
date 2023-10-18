@@ -11,15 +11,26 @@
 
 namespace cowboys {
 
+    /// The separator between each parameter in the header, defining the cartesian graph.
     constexpr char HEADER_SEP = ',';
-    constexpr char GENOTYPE_SEP = ';';
-    constexpr char HEADER_END = ':';
+    /// The separator between the header and the genotype.
+    constexpr char HEADER_END = ';';
+    /// The separator between each attribute in a node.
+    constexpr char NODE_GENE_SEP = '.';
+    /// The separator between each node in the genotype.
+    constexpr char NODE_SEP = ':';
 
     namespace base64 {
-        /*
-        static std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        static std::string encode(size_t ull) {
+        /// The characters used to represent digits in base64.
+        static std::string chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+
+        /// @brief Converts a number in base10 to base64.
+        /// @param ull The number to convert.
+        /// @return The number in base64 as a string.
+        static std::string ULLToB64(size_t ull) {
             std::string result = "";
+            if (ull == 0)
+                return "0";
             while (ull > 0) {
                 result = chars[ull % 64] + result;
                 ull /= 64;
@@ -27,7 +38,10 @@ namespace cowboys {
             return result;
         }
 
-        static size_t decode(std::string num_base64) {
+        /// @brief Converts a number in base64 to base10.
+        /// @param num_base64 The number in base64 as a string.
+        /// @return The number in base10.
+        static size_t B64ToULL(std::string num_base64) {
             size_t result = 0;
             for (size_t i = 0; i < num_base64.size(); ++i) {
                 const char ch = num_base64[i];
@@ -36,7 +50,41 @@ namespace cowboys {
             }
             return result;
         }
-        */
+
+        /// @brief Converts a binary string to a base64 string.
+        /// @param binary A string of 1s and 0s representing binary.
+        /// @return The binary string in base64.
+        static std::string B2ToB64(const std::string &binary) {
+            // 2^6 = 64, so we can encode 6 bits at a time
+
+            size_t remainder = binary.size() % 6;
+            if (remainder != 0) {
+                // Pad the binary string with 0s to make it divisible by 6
+                return B2ToB64(std::string(6 - remainder, '0') + binary);
+            }
+
+            std::string result = "";
+            for (size_t i = 0; i < binary.size(); i += 6) {
+                std::string buffer = binary.substr(i, 6);
+                size_t ull = std::bitset<6>(buffer).to_ulong();
+                result += chars[ull];
+            }
+            return result;
+        }
+
+        /// @brief Converts a base64 string to a binary string.
+        /// @param base64 A string of base64 characters.
+        /// @return The base64 string in binary.
+        static std::string B64ToB2(std::string base64) {
+            std::string result = "";
+            for (size_t i = 0; i < base64.size(); ++i) {
+                const char ch = base64[i];
+                const size_t ull = chars.find(ch);
+                result += std::bitset<6>(ull).to_string();
+            }
+            // Remove leading 0s and return result: https://stackoverflow.com/a/31226728/13430191
+            return result.erase(0, std::min(result.find_first_not_of('0'), result.size() - 1));
+        }
     } // namespace base64
 
     struct CGPNodeGene {
@@ -45,6 +93,13 @@ namespace cowboys {
 
         /// The index of the function the node uses.
         size_t function_idx;
+
+        /// @brief Compare two CGPNodeGenes for equality.
+        /// @param other The other CGPNodeGene to compare to.
+        /// @return True if the two CGPNodeGenes are equal, false otherwise.
+        inline bool operator==(const CGPNodeGene &other) const {
+            return input_connections == other.input_connections && function_idx == other.function_idx;
+        }
     };
 
     struct CGPParameters {
@@ -71,6 +126,15 @@ namespace cowboys {
         /// @brief Returns the number of functional nodes in the graph.
         /// @return The number of functional nodes in the graph.
         size_t GetFunctionalNodeCount() const { return num_layers * num_nodes_per_layer + num_outputs; }
+
+        /// @brief Check if two CGPParameters are equal.
+        /// @param other The other CGPParameters to compare to.
+        /// @return True if the two CGPParameters are equal, false otherwise.
+        inline bool operator==(const CGPParameters &other) const {
+            return num_inputs == other.num_inputs && num_outputs == other.num_outputs &&
+                   num_layers == other.num_layers && num_nodes_per_layer == other.num_nodes_per_layer &&
+                   layers_back == other.layers_back;
+        }
     };
 
     class CGPGenotype {
@@ -85,6 +149,14 @@ namespace cowboys {
         std::mt19937 rng;
 
     private:
+        /// @brief Encodes the header into a string.
+        /// @return The encoded header.
+        std::string EncodeHeader() {
+            return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
+                               params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP,
+                               params.layers_back);
+        }
+
         /// @brief Decodes the header of the genotype.
         void DecodeHeader(const std::string &header) {
             // Parse header and save to member variables
@@ -109,8 +181,67 @@ namespace cowboys {
             params.layers_back = header_parts.at(4);
         }
 
-        /// @brief Decodes the genotype string. Header variables should be initialized before calling this.
-        void DecodeGenotype(const std::string & /*genotype*/) {}
+        /// @brief Encodes the genotype into a string.
+        /// @return The encoded genotype.
+        std::string EncodeGenotype() {
+            std::string genotype = "";
+            for (const CGPNodeGene &node : nodes) {
+                // Input Connections
+                genotype += base64::B2ToB64(std::string(node.input_connections.begin(), node.input_connections.end()));
+                genotype += NODE_GENE_SEP;
+                // Function index
+                genotype += base64::ULLToB64(node.function_idx);
+                // End of node
+                genotype += NODE_SEP;
+            }
+            return genotype;
+        }
+
+        /// @brief Decodes the genotype string and configures the node genes. Node gene vector should be initialized
+        /// before calling this.
+        void DecodeGenotype(const std::string &genotype) {
+            size_t node_gene_start = 0;
+            size_t node_gene_end = genotype.find(NODE_SEP, node_gene_start);
+            size_t node_idx = 0;
+            while (node_gene_end != std::string::npos) {
+                // Parse the node gene
+                std::string node_gene = genotype.substr(node_gene_start, node_gene_end - node_gene_start);
+                assert(node_idx < nodes.size());
+                auto &current_node = nodes[node_idx];
+
+                //
+                // Input Connections
+                //
+                size_t sep_pos = node_gene.find(NODE_GENE_SEP);
+                assert(sep_pos != std::string::npos);
+                std::string input_connections_b64 = node_gene.substr(0, sep_pos);
+                std::string input_connections_b2 = base64::B64ToB2(input_connections_b64);
+                auto &input_connections = current_node.input_connections;
+                // If there were leading bits that were 0 when converted to base 64, they were dropped. Add them back.
+                std::string input_connections_str = std::string(input_connections.begin(), input_connections.end());
+                assert(input_connections.size() >= input_connections_b2.size()); // Invalid genotype if this fails
+                input_connections_b2 = std::string(input_connections.size() - input_connections_b2.size(), '0') +
+                                        input_connections_b2;
+                assert(input_connections.size() == input_connections_b2.size());
+                for (size_t i = 0; i < input_connections_b2.size(); ++i) {
+                    input_connections[i] = input_connections_b2[i];
+                }
+                node_gene = node_gene.substr(sep_pos + 1);
+
+                //
+                // Function index
+                //
+                sep_pos = node_gene.find(NODE_GENE_SEP);
+                assert(sep_pos == std::string::npos); // Should be the last attribute
+                std::string function_idx_str = node_gene.substr(0, std::min(sep_pos, node_gene.size()));
+                current_node.function_idx = base64::B64ToULL(function_idx_str);
+
+                // Move to next node gene
+                node_gene_start = node_gene_end + 1;
+                node_gene_end = genotype.find(NODE_SEP, node_gene_start);
+                ++node_idx;
+            }
+        }
 
     public:
         CGPGenotype() = default;
@@ -122,7 +253,7 @@ namespace cowboys {
         /// @return This genotype.
         CGPGenotype &Configure(const std::string &encoded_genotype) {
             // Separate header and genotype
-            size_t newline_pos = encoded_genotype.find(GENOTYPE_SEP);
+            size_t newline_pos = encoded_genotype.find(HEADER_END);
             if (newline_pos == std::string::npos)
                 throw std::runtime_error("Invalid genotype: No newline character found.");
             std::string header = encoded_genotype.substr(0, newline_pos);
@@ -191,10 +322,6 @@ namespace cowboys {
 
         /// @brief Initializes an empty genotype with the cartesian graph parameters.
         void InitGenotype() {
-            // Create header
-            std::string header =
-                std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
-                            params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP, params.layers_back);
             // Clear node configurations
             nodes.clear();
 
@@ -231,6 +358,14 @@ namespace cowboys {
             }
         }
 
+        /// @brief Exports this genotype into a string representation.
+        /// @return The string representation of this genotype.
+        std::string Export() {
+            std::string header = EncodeHeader();
+            std::string genotype = EncodeGenotype();
+            return header + HEADER_END + genotype;
+        }
+
         /// @brief Sets the seed of the random number generator.
         void SetSeed(size_t seed) { rng.seed(seed); }
 
@@ -262,6 +397,21 @@ namespace cowboys {
                     node.function_idx = dist_func(rng);
                 }
             }
+        }
+
+        /// @brief Check if two CGPGenotypes are equal. CGPParameters and CGPNodeGenes should be equal.
+        /// @param other The other CGPGenotype to compare to.
+        /// @return True if the two CGPGenotypes are equal, false otherwise.
+        inline bool operator==(const CGPGenotype &other) const {
+            if (params != other.params) // Compare CGPParameters for equality
+                return false;
+            if (std::ranges::size(nodes) != std::ranges::size(other.nodes)) // # of genes should be equal
+                return false;
+            bool all_same = true;
+            for (auto it = begin(), it2 = other.begin(); it != end(); ++it, ++it2) {
+                all_same = all_same && (*it == *it2); // Compare CGPNodeGenes for equality
+            }
+            return all_same;
         }
     };
 } // namespace cowboys
