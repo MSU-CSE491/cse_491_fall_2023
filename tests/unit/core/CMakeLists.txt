@@ -15,7 +15,8 @@ set(MODULE_TYPE "core")
 
 foreach(TARGET IN LISTS TARGETS)
     add_executable(tests-unit-${MODULE_TYPE}-${TARGET} ${TARGET}.cpp
-            Inventory.cpp)
+            Inventory.cpp
+            Item.cpp)
 
     # Takes an ABSOLUTE PATH to check for file existence
     if(EXISTS "${ABSOLUTE_SOURCE_DIR}/${MODULE_TYPE}/${TARGET}.cpp")

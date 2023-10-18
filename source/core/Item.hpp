@@ -28,6 +28,8 @@ namespace walle
 
         // Setters and Getters
         const std::string &GetName() { return name; }
+
+        void SetName(std::string newName) { name = newName; }
         void SetLevel(int new_level) { level = new_level; }
         void SetDamage(int new_damage) { damage = new_damage; }
         void SetDurability(int new_durability) { durability = new_durability; }
