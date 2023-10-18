@@ -2,58 +2,15 @@
 
 #include <memory>
 #include <numeric>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <ranges>
 
 namespace cowboys {
-    using NodeFunction = double (*)(const std::vector<double> &);
-
-    /// @brief Sum all inputs.
-    /// @param inputs Vector of doubles representing the inputs.
-    /// @return The sum of all inputs.
-    double Sum(const std::vector<double> &inputs) { return std::accumulate(inputs.begin(), inputs.end(), 0.0); }
-
-    /// @brief Check if all inputs are not equal to 1.
-    /// @param inputs Vector of doubles representing the inputs.
-    /// @return 1 if all inputs are not equal to 0, 0 otherwise.
-    double And(const std::vector<double> &inputs) {
-        for (auto &input : inputs) {
-            if (input == 0.)
-                return 0.;
-        }
-        return 1.;
-    }
-
-    /// @brief Check if any of the inputs besides the first are equal to the
-    /// first input.
-    /// @param inputs Vector of doubles representing the inputs.
-    /// @return 1 if any of the inputs besides the first are equal to the first
-    /// input, 0 otherwise.
-    double AnyEq(const std::vector<double> &inputs) {
-        for (size_t i = 1; i < inputs.size(); ++i) {
-            if (inputs.at(0) == inputs.at(i))
-                return 1.;
-        }
-        return 0.;
-    }
-
-    /// @brief Check if the first input is equal to 0.
-    /// @param inputs Vector of doubles representing the inputs.
-    /// @return 1 if the first input is equal to 0 or there are no inputs, 0
-    /// otherwise.
-    double Not(const std::vector<double> &inputs) { return (inputs.size() == 0) || (inputs.at(0) == 0.) ? 1. : 0.; }
-
-    /// @brief Returns the input with index 0 if the condition (input with index
-    /// 1) is not 0.
-    /// @param inputs Vector of doubles representing the inputs.
-    /// @return The value of the input with index 0 if the condition (input with
-    /// index 1) is not 0, 0 otherwise.
-    double Gate(const std::vector<double> &inputs) { return inputs.at(1) != 0. ? inputs.at(0) : 0.; }
-
-    /// @brief A vector of all the node functions.
-    const std::vector<NodeFunction> FUNCTION_SET{Sum, And, AnyEq, Not, Gate};
+    class GraphNode;
+    using NodeInputs = std::vector<std::shared_ptr<GraphNode>>;
+    using NodeFunction = double (*)(const NodeInputs &);
 
     /// @brief A node in a decision graph.
     /// @note This should always be a shared pointer. Caching will not work otherwise.
@@ -105,12 +62,8 @@ namespace cowboys {
             double result = output;
             // Invoke function pointer if it exists
             if (function_pointer != nullptr) {
-                std::vector<double> input_values(inputs.size());
-                std::ranges::transform(inputs, input_values.begin(),
-                                       [](const auto &input) { return input->GetOutput(); });
-
                 try {
-                    result = function_pointer(input_values);
+                    result = function_pointer(inputs);
                 } catch (const std::out_of_range &e) {
                     // Don't do anything, just use the default output
                 }
@@ -162,4 +115,52 @@ namespace cowboys {
         }
         bool IsCacheValid() const { return cached_output_valid; }
     };
+
+    /// @brief Sum all inputs.
+    /// @param inputs Vector of doubles representing the inputs.
+    /// @return The sum of all inputs.
+    double Sum(const NodeInputs &inputs) {
+        return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0, std::plus{},
+                                     [](const auto &node) { return node->GetOutput(); });
+    }
+
+    /// @brief Check if all inputs are not equal to 1.
+    /// @param inputs Vector of doubles representing the inputs.
+    /// @return 1 if all inputs are not equal to 0, 0 otherwise.
+    double And(const NodeInputs &inputs) {
+        for (const auto &input : inputs) {
+            if (input->GetOutput() == 0.)
+                return 0.;
+        }
+        return 1.;
+    }
+
+    /// @brief Check if any of the inputs besides the first are equal to the
+    /// first input.
+    /// @param inputs Vector of doubles representing the inputs.
+    /// @return 1 if any of the inputs besides the first are equal to the first
+    /// input, 0 otherwise.
+    double AnyEq(const NodeInputs &inputs) {
+        for (size_t i = 1; i < inputs.size(); ++i) {
+            if (inputs.at(0)->GetOutput() == inputs.at(i)->GetOutput())
+                return 1.;
+        }
+        return 0.;
+    }
+
+    /// @brief Check if the first input is equal to 0.
+    /// @param inputs Vector of doubles representing the inputs.
+    /// @return 1 if the first input is equal to 0 or there are no inputs, 0
+    /// otherwise.
+    double Not(const NodeInputs &inputs) { return (inputs.size() == 0) || (inputs.at(0)->GetOutput() == 0.) ? 1. : 0.; }
+
+    /// @brief Returns the input with index 0 if the condition (input with index
+    /// 1) is not 0.
+    /// @param inputs Vector of doubles representing the inputs.
+    /// @return The value of the input with index 0 if the condition (input with
+    /// index 1) is not 0, 0 otherwise.
+    double Gate(const NodeInputs &inputs) { return inputs.at(1)->GetOutput() != 0. ? inputs.at(0)->GetOutput() : 0.; }
+
+    /// @brief A vector of all the node functions.
+    const std::vector<NodeFunction> FUNCTION_SET{Sum, And, AnyEq, Not, Gate};
 } // namespace cowboys

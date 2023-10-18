@@ -27,10 +27,11 @@ TEST_CASE("GraphNode", "[group7][graphnode]") {
         CHECK(node.GetInput(1)->GetOutput() == 4);
         CHECK(node.GetOutput() == 0.0);
     }
+    auto simple_add = [](const NodeInputs &inputs) { return inputs.at(0)->GetOutput() + inputs.at(1)->GetOutput(); };
     SECTION("GraphNode function pointers") {
         GraphNode node;
         // Function to sum the first two inputs
-        node.SetFunctionPointer([](const std::vector<double> &inputs) { return inputs.at(0) + inputs.at(1); });
+        node.SetFunctionPointer(simple_add);
 
         // Not enough inputs
         CHECK(node.GetOutput() == 0);
@@ -46,7 +47,7 @@ TEST_CASE("GraphNode", "[group7][graphnode]") {
         CHECK(node.GetOutput() == 7);
     }
     SECTION("GraphNode function pointer constructor") {
-        GraphNode node([](const std::vector<double> &inputs) { return inputs.at(0) + inputs.at(1); });
+        GraphNode node(simple_add);
         auto node1 = std::make_shared<GraphNode>(3);
         auto node2 = std::make_shared<GraphNode>(4);
         node.AddInput(node1);
