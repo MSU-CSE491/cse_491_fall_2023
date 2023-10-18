@@ -17,12 +17,14 @@ namespace NetWorth {
 
 class ServerPlayerInterface : public cse491::InterfaceBase {
     private:
-        std::string m_action;
 
     protected:
 
     public:
-        ServerPlayerInterface(size_t id, const std::string & name) : InterfaceBase(id, name) { }
+        ServerPlayerInterface(size_t id, const std::string & name) : InterfaceBase(id, name) {
+            SetProperty("isPlayer", true);
+        }
+
         ~ServerPlayerInterface() = default; // Already virtual from Entity
 
         // -- AgentBase overrides --

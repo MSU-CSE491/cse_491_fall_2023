@@ -25,7 +25,6 @@ int main()
     world->AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world->AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
     world->AddAgent<NetWorth::ServerPlayerInterface>("Interface").SetProperty("symbol", '@');
-    world->SetPlayerAgent();
 
     std::shared_ptr<netWorth::ServerInterface> serverInterface = std::make_shared<netWorth::ServerInterface>();
 

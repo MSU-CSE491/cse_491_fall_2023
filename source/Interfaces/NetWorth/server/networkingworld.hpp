@@ -96,10 +96,6 @@ namespace netWorth{
             return true;
         }
 
-        void SetPlayerAgent() {
-            agent_set.back()->SetProperty("isPlayer", true);
-        }
-
         void SetPlayerAction(const std::string &action) {
             m_player_action = action;
         }
