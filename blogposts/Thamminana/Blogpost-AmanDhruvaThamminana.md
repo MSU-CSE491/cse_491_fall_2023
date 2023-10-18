@@ -272,7 +272,9 @@ As I continue to develop my own logging system, I have started to incorporate so
 
 Moving beyond simple print statements, logging can be a very useful tool to level up one's programming skills.
 
-
+References:
+- https://github.com/gabime/spdlog
+- https://github.com/google/glog
 
 
 
