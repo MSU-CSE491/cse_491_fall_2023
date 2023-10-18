@@ -312,6 +312,7 @@ namespace i_2D {
     */
     void MainInterface::DrawWall(sf::RectangleShape& cellRect, sf::Texture& wallTexture, bool isVerticalWall) {
         // TODO below if the wall has to be placed vertical
+        if(isVerticalWall){}
 //        if (isVerticalWall) {
 //            sf::Transform transform;
 //            transform.rotate(270.0f, sf::Vector2f(cellPosX + cellSize / 2.0f, cellPosY + cellSize / 2.0f));
