@@ -149,9 +149,46 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
         resultsList[currentInstructionIndex - 1] = distance;
       }
 
-      else {
+      else
+      {
         // the instruction is an operation (lessthan, greaterthan, equals)
         operation = get<0>(instruction);
+        if (operation == "lessthan")
+        {
+          if (get<1>(instruction) < get<2>(instruction))
+          {
+            resultsList[currentInstructionIndex] = 1;
+            ++currentInstructionIndex;
+          }
+          else
+          {
+            resultsList[currentInstructionIndex] = 0;
+          }
+        }
+        else if (operation == "greaterthan")
+        {
+          if (get<1>(instruction) > get<2>(instruction))
+          {
+            resultsList[currentInstructionIndex] = 1;
+            ++currentInstructionIndex;
+          }
+          else
+          {
+            resultsList[currentInstructionIndex] = 0;
+          }
+        }
+        else if (operation == "equals")
+        {
+          if (get<1>(instruction) == get<2>(instruction))
+          {
+            resultsList[currentInstructionIndex] = 1;
+            ++currentInstructionIndex;
+          }
+          else
+          {
+            resultsList[currentInstructionIndex] = 0;
+          }
+        }
       }
 
       if (currentInstructionIndex >= instructionsList.size()) {
