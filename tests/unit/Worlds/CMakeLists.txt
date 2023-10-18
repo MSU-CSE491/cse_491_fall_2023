@@ -15,6 +15,6 @@ foreach(TARGET IN LISTS TARGETS)
     PRIVATE ${MAIN_SOURCE_DIR}
     )
   target_link_libraries(tests-unit-world-${TARGET}
-    PRIVATE Catch2::Catch2WithMain
+    PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json
     )
 endforeach()
