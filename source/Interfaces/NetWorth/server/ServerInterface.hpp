@@ -78,7 +78,7 @@ namespace netWorth{
          * @return the grid that will be sent to the client
          */
         static Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t & type_options,
-                            const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
+                                   const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
         {
             std::vector<std::string> packet_grid(grid.GetHeight());
 

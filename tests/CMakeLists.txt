@@ -14,6 +14,7 @@ configure_file(run_tests.sh run_tests.sh COPYONLY)
 
 # Catch2 CMake integration
 # From https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md#top
+add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
 add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 

@@ -14,6 +14,7 @@
 #include "../../../Worlds/MazeWorld.hpp"
 //#include "../NetworkInterface.hpp"
 #include "networkingworld.hpp"
+#include "ServerPlayerInterface.hpp"
 
 int main()
 {
@@ -23,7 +24,7 @@ int main()
     std::shared_ptr<netWorth::NetworkMazeWorld> world = std::make_shared<netWorth::NetworkMazeWorld>();
     world->AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world->AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    world->AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+    world->AddAgent<NetWorth::ServerPlayerInterface>("Interface").SetProperty("symbol", '@');
 
     std::shared_ptr<netWorth::ServerInterface> serverInterface = std::make_shared<netWorth::ServerInterface>();
 
@@ -57,13 +58,15 @@ int main()
             std::cout << "Failure to receive" << std::endl;
             return 1;
         }
-        
         recv_pkt >> input;
         std::cout << input << std::endl;
 
         if (input == "quit") break;
+
+        world->SetPlayerAction(input);
+        world->RunAgents();
     }
 
     return 0;
-    
+
 }
