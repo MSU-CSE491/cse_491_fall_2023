@@ -19,18 +19,13 @@ class GPAgentRegisters {
   std::vector<size_t> registers;
 
   /// Number of registers Default is 16
-  int numRegisters = 16;
 
  public:
   /**
    * Constructor for GPAgentRegisters
    * @param numRegisters
    */
-  GPAgentRegisters(int numRegisters = 16) {
-    registers.resize(numRegisters);
-    this->numRegisters = numRegisters;
-  }
-
+  GPAgentRegisters(int numRegisters = 16) : registers(numRegisters) {}
   /**
    * Destructor for GPAgentRegisters
    */
@@ -44,40 +39,36 @@ class GPAgentRegisters {
    */
   bool setRegister(size_t index, size_t value) {
     if (index >= registers.size()) {
-      //                assert(index >= registers.size());
+      assert(index >= registers.size());
       return false;
     }
+
     registers[index] = value;
     return true;
   }
 
   /**
    * @brief Get the Register object
-   * @param index
-   * @return
+   * @param index Index of the register
+   * @return std::optional<size_t> Returns the value of the register if it exists
    */
-  size_t getRegister(size_t index) {
+  std::optional<size_t> getRegister(size_t index) {
     if (index >= registers.size()) {
-      //                assert(index >= registers.size());
-      return 0;
+      return std::nullopt; // Indicates that the value is absent
     }
     return registers[index];
   }
 
+
+
   /**
    * @brief Get the number of registers
-   * @return
+   * @return size of the registers
    */
-  int getNumRegisters() { return numRegisters; }
+  int getNumRegisters() { return registers.size(); }
 
-  //        friend std::ostream &operator<<(std::ostream &os, GPAgentRegisters
-  //        registers) {
-  //            os << "registers: ";
-  //            for (int i = 0; i < registers.getNumRegisters(); ++i) {
-  //                os << registers.getRegister(i) << " ";
-  //            }
-  //            return os;
-  //        }
+  int size() { return registers.size(); }
+
 
   /**
    * @brief Iterator class for GPAgentRegisters
@@ -138,7 +129,7 @@ class GPAgentRegisters {
   iterator begin() { return iterator(0, *this); }
 
   // End iterator
-  iterator end() { return iterator(numRegisters, *this); }
+  iterator end() { return iterator(size(), *this); }
 };
 
 }  // namespace cowboys
