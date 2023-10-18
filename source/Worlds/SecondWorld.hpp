@@ -6,7 +6,9 @@
  */
 
 #pragma once
+#include "../core/Entity.hpp"
 #include "../core/WorldBase.hpp"
+#include <algorithm>
 
 namespace group4 {
 /**
@@ -31,6 +33,11 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to wall CellType ID.
   size_t wall_id;
 
+  /// Easy access to Entity char
+  const size_t entity_id = '+';
+
+  std::vector<std::unique_ptr<cse491::Entity>> inventory;
+
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
     agent.AddAction("up", MOVE_UP);
@@ -51,25 +58,6 @@ class SecondWorld : public cse491::WorldBase {
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
     main_grid.Read("../assets/grids/group4_maze.grid", type_options);
-
-    // Adding power sword with id = 1; name = sword of power
-    auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
-    powerSword->SetPosition(3, 4);
-    powerSword->SetProperty("Damage", 20.0);
-    item_set.push_back(std::move(powerSword));
-
-    // Adding fire sword with id = 2; name = Inferno Slicer
-    auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
-    infernoSlicer->SetPosition(5, 0);
-    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0,
-                                 "Burning Duration", 2.5);
-    item_set.push_back(std::move(infernoSlicer));
-
-    // Adding a piece of armor with id = 10; name = Daedric
-    auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
-    daedricArmor->SetPosition(7, 4);
-    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
-    item_set.push_back(std::move(daedricArmor));
   }
 
   /**
@@ -79,10 +67,9 @@ class SecondWorld : public cse491::WorldBase {
 
   void UpdateWorld() override {}
 
-
   /**
    * This function gives us an output.json file
-  */
+   */
   virtual void Run() override {
     while (!run_over) {
       RunAgents();
@@ -159,9 +146,73 @@ class SecondWorld : public cse491::WorldBase {
       run_over = true;
     }
 
-    agent.SetPosition(new_position);
+    if (main_grid.At(new_position) == entity_id) {
+      auto item_found = std::find_if(
+          item_set.begin(), item_set.end(),
+          [&new_position](const std::unique_ptr<cse491::Entity>& item) {
+            return item->GetPosition() == new_position;
+          });
 
+      std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
+
+      // Move the ownership of the item to the agents inventory
+      inventory.push_back(std::move(*(item_found)));
+
+      CleanEntities();
+
+      // Change the grid position to floor_id so it's not seen on the grid
+      main_grid.At(new_position) = floor_id;
+    }
+
+    agent.SetPosition(new_position);
     return true;
+  }
+
+  /**
+   * Adds an entity to the non-agent entity list
+   * @param entity The entity we are adding
+   */
+  size_t AddEntity(std::unique_ptr<cse491::Entity>& entity) {
+    // Sets the '+' as the item in grid
+    main_grid.At(entity->GetPosition()) = entity_id;
+
+    // Moves the ownership of the entity into item_set
+    size_t id = entity->GetID();
+    item_set.push_back(std::move(entity));
+    return id;
+  }
+
+  /**
+   * Cleans itemset of all null entities
+   */
+  void CleanEntities() {
+    std::erase_if(item_set,
+                  [](const std::unique_ptr<cse491::Entity>& entityPtr) {
+                    return entityPtr == nullptr;
+                  });
+  }
+
+  /**
+   * Removes an Entity from itemset (testing)
+   * @param removeID The ID of the entity we're removing
+   */
+  void RemoveEntity(size_t removeID) {
+    std::erase_if(item_set,
+                  [removeID](const std::unique_ptr<cse491::Entity>& entityPtr) {
+                    return entityPtr->GetID() == removeID;
+                  });
+
+    CleanEntities();
+  }
+
+  /**
+   * Prints the entities in item_set (testing)
+   */
+  void PrintEntities() {
+    for (const auto& elem : item_set) {
+      std::cout << elem->GetName() << "\n";
+    }
+    std::cout << std::endl;
   }
 };
 }  // namespace group4
