@@ -18,6 +18,14 @@
 namespace walle {
 
 /**
+ * Constructor (agent default)
+ * @param id unique agent id
+ * @param name name of path agent
+ * @note When this constructor is called, the agent must still be assigned a path before a call to Initialize
+ */
+PathAgent::PathAgent(size_t id, std::string const& name) : cse491::AgentBase(id, name) {}
+
+/**
  * Constructor (vector)
  * @param id unique agent id
  * @param name name of path agent
@@ -51,6 +59,12 @@ PathAgent::PathAgent(size_t id, std::string const& name,
  * @return true if so; false otherwise
  */
 bool PathAgent::Initialize() {
+  if (property_map.contains("path")) {
+    offsets_ = StrToOffsets(GetProperty<std::basic_string_view<char>>("path"));
+  }
+  else {
+    return false;
+  }
   return HasAction("move_arbitrary") && index_ >= 0 && static_cast<size_t>(index_) < offsets_.size();
 }
 

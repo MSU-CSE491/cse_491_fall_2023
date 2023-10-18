@@ -32,6 +32,7 @@ class PathAgent : public cse491::AgentBase {
 
  public:
   PathAgent() = delete;
+  PathAgent(size_t id, std::string const& name);
   PathAgent(size_t id, std::string const& name, std::vector<cse491::GridPosition> && offsets);
   PathAgent(size_t id, std::string const& name, std::string_view commands);
   ~PathAgent() override = default;
