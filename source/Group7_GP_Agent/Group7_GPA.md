@@ -1,7 +1,7 @@
 # Group 7 GP Agent
 
 
-Current progress:
+## Current progress:
 - [x] Sensors for the agent
   - [ ] provide fixes for the sensors <span style="background-color: #FF6347; color: #FFFFFF; padding: 5px; border-radius: 10px;">Fixes</span>
   - [ ] make sensors agnostic to wall type. 
@@ -12,16 +12,17 @@ Current progress:
   - [x] provide fixes for the registers <span style="background-color: #FF6347; color: #FFFFFF; padding: 5px; border-radius: 10px;">Fixes</span>
   - [x] tests for the registers
 
-Currently working on:
+## Currently working on:
 - [ ] LGP agent <span style="background-color: #66CDAA; color: #FFFFFF; padding: 5px; border-radius: 10px;">Released Experimentally</span>
     - [ ] LGP agent tests ?? 
 - [ ] CGP agent <span style="background-color: #FFFF00; color: #000000; padding: 5px; border-radius: 10px;">In Development</span> and close to experimental.
     - [ ] CGP agent unit tests  <span style="background-color: #FFFF00; color: #000000; padding: 5px; border-radius: 10px;">In Development</span> 
 - [ ] GP loop <span style="background-color: #87CEEB; color: #000000; padding: 5px; border-radius: 10px;">Started Development</span>
 - [ ] documentation 
+- [ ] Make minor modification for `GP agent base` class.
 
 
-Future work:
+## Future work:
 - [ ] GP loop
   - [ ] GP loop tests
     - [ ] unit tests
@@ -39,7 +40,7 @@ Current Plan:
 - (unsure) run each agent from different starting points to ensure that there is no starting bias??
 - (unsure) potentially start a blind run after initial approval from instructors about LGPA and CGPA.
 
-Question for others:
+## Question for others:
 - Structure for actions: are we going to have access to all the actions all of the time or will it just be a subset?
 - Expected behavior for agents: what are some exceptions for the automated agents?
 - Integration Testing: How to test CGP and LGP agents?
@@ -47,7 +48,7 @@ Question for others:
 - Testing: How to test on training data?
 
 
-- PR Review mentions:
+## PR Review mentions:
 - Refactor: Move Sensors up to core?? as it is agnostic to the agent type.
   - is it useful to any other group??
 - Direction behavior: is direction behavior useful for an agent? which way an agent is pointing?
