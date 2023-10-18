@@ -15,8 +15,8 @@ int main()
   cse491::MazeWorld world;
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-  world.AddAgent<cowboys::CGPAgent>("GP 1").SetProperty("char", 'G').SetPosition(1, 0);
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+  world.AddAgent<cowboys::CGPAgent>("GP 1").SetProperty("symbol", 'G').SetPosition(1, 0);
+  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
 
   world.Run();
 }
