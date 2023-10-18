@@ -1,8 +1,8 @@
 /**
- * This file is part of the Fall 2023, CSE 491 Course Project - Group 1 Fork - yousif_m Branch.
- * @brief A temporary item class to refer to, will be deleted and replaced later
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief A base class for all item types.
  * @note Status: PROPOSAL
- * @author Yousif Murrani
+ * @author Monika Kanphade
  **/
 
 #pragma once
@@ -11,23 +11,33 @@
 
 namespace walle
 {
+    class Item {
+    protected:
+        std::string name;
+        int level = 0;
+        int damage = 0;
+        int durability = 0;
 
-class Item
-{
-private:
-	std::string name;
-	std::string type;
-	int value;
+    public:
+        // Constructor
+        Item(const std::string &name, int level, int damage, int durability)
+                : name(name), level(level), damage(damage), durability(durability) {}
 
-public:
-	// Constructor
-	Item(const std::string &name, const std::string &type, int value)
-		: name(name), type(type), value(value) {}
+        // Destructor
+        ~Item() = default;
 
-	// Getters
-	const std::string &GetName() const { return name; }
-	const std::string &GetType() const { return type; }
-	int GetValue() const { return value; }
-};
+        // Setters and Getters
+        const std::string &GetName() { return name; }
+        void SetLevel(int new_level) { level = new_level; }
+        void SetDamage(int new_damage) { damage = new_damage; }
+        void SetDurability(int new_durability) { durability = new_durability; }
 
+        int GetLevel() const { return level; }
+        int GetDamage() const { return damage; }
+        int GetDurability() const { return durability; }
+
+        // Item functions
+        virtual void UseItem() { durability--; } // virtual for Armor and Food item classes
+
+    };
 }
