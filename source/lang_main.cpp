@@ -22,8 +22,9 @@ void traverse(const auto& node, int indent = 0){
 
 int main()
 {
-//	pegtl::memory_input in("2+test(123*5+4-6/7,abc)-wow", "src");
-	pegtl::memory_input in("var_1=2+test(123*5+4-6/7,abc)-wow\ntest(123,435,7650+8*8)\n", "src");
+/*
+//	pegtl::memory_input in("a=2+test(123*5+4-6/7,abc)-wow\n", "src");
+//	pegtl::memory_input in("var_1=2+test(123*5+4-6/7,abc)-wow\ntest(123,435,7650+8*8)\n", "src");
 	std::string s;
 	// pegtl::parse< worldlang::expression, worldlang::action > (in, s);
 	auto root = pegtl::parse_tree::parse < worldlang::program, worldlang::selector > (in);
@@ -33,4 +34,11 @@ int main()
 	} else {
 		std::cout << "Failed to match grammar!" << std::endl;
 	}
+*/
+	
+	auto code = worldlang::parse_to_code("a=2+test(123*5+4-6/7,abc)-wow\ntest(123,435,7650+8*8)\n");
+	for (auto& c : code){
+		std::cout << c.value << std::endl;
+	}
 }
+

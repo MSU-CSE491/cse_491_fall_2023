@@ -2,6 +2,7 @@
 
 // Debug
 #include <iostream>
+#include <functional>
 
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/parse_tree.hpp>
@@ -204,8 +205,81 @@ namespace worldlang{
 		>
 	>;
 	
-	// Execution
+	struct Unit {
+		enum class Type {
+			number,
+			identifier,
+			function,
+			operation,
+		} type;
+		
+		// todo: make variant?
+		std::string value;
+	};
 	
+	// Parsing final form
+	std::vector<Unit> parse_to_code(std::string program){
+		pegtl::string_input in(program, "program");
+		std::vector<Unit> out{};
+		
+		std::function<void(const std::unique_ptr<pegtl::parse_tree::node>&)> traverse =
+		[&out, &traverse](const std::unique_ptr<pegtl::parse_tree::node>& node) -> void{
+			const std::string_view& type = node->type;
+			// visit:
+			if (type == "worldlang::number"){
+				out.push_back(Unit{Unit::Type::number, node->string()});
+			} else if (type == "worldlang::identifier"){
+				out.push_back(Unit{Unit::Type::identifier, node->string()});
+			} else if (type == "worldlang::function"){
+				// arg arg arg ... argument_count function_name
+				traverse(node->children[1]);
+				// TODO: identify argument list size...
+				
+				out.push_back(Unit{Unit::Type::function, node->children[0]->string()});
+			} else if (type == "worldlang::assignment"){
+				// identifier
+				traverse(node->children.at(0));
+				// value
+				traverse(node->children.at(1));
+				// expression
+				out.push_back(Unit{Unit::Type::operation, "="});
+			} else if (type == "worldlang::mul_a"
+					|| type == "worldlang::add_a"
+					|| type == "worldlang::expression"){
+				traverse(node->children.at(0));
+				if (node->children.size() > 1){
+					traverse(node->children.at(2));
+					out.push_back(Unit{Unit::Type::operation, node->children[1]->string()});
+				}
+			} else if (type == "worldlang::expression_list"){
+				if (node->children.size()){
+					for (const auto& c : node->children){
+						traverse(c);
+					}
+				}
+			} else {
+				std::cout << "Type: " << type;
+				if (node->has_content())
+					std::cout << " Content: " << node->string();
+				std::cout << std::endl;
+				// visit all children
+				for (const auto& child : node->children){
+					traverse(child);
+				}
+			}
+		};
+		
+		auto root = pegtl::parse_tree::parse < worldlang::program, worldlang::selector > (in);
+		
+		if (root){
+			traverse(root->children[0]);
+		} else {
+			// parse error lol
+			std::cout << "lolmao" << std::endl;
+		}
+			
+		return out;
+	}
 	
 	
 } //worldlang

@@ -104,6 +104,15 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::expression, "asdf-asdf+asdf");
 		
 		PARSE_FALSE(worldlang::expression, "-iden");
-	}	
+	}
+	
+	SECTION("Program rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::program);
+		
+		PARSE_TRUE(worldlang::program, "a=3+5\n");
+		PARSE_TRUE(worldlang::program, "func(3+func2(5))\n");
+		PARSE_TRUE(worldlang::program, "b=64\nfunc(b,23)\n");
+		PARSE_TRUE(worldlang::program, "b=1+2*3/4-5\nc=(8*5)+6-7*(42/7+0)\nfunc(func2(b),func3(c))\n");
+	}
 }
 
