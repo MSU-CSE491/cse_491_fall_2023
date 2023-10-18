@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <tao/pegtl.hpp>
+#include <tao/pegtl/contrib/parse_tree.hpp>
 
 namespace pegtl = tao::pegtl;
 
@@ -133,19 +134,37 @@ namespace worldlang{
 	>
 	{};
 	
+	struct assignment : pegtl::seq<
+		identifier,
+		pegtl::one< '=' >,
+		expression
+	>
+	{};
+	
+	struct statement : pegtl::sor<
+		pegtl::seq<
+			function,
+			pegtl::opt<pegtl::eol>
+		>,
+		pegtl::seq<
+			assignment,
+			pegtl::eol
+		>
+	>
+	{};
+	
 	struct statement_list;	
 	// function()\nfunction()...
 	struct statement_list : pegtl::sor<
 		pegtl::seq<
-			function,
-			pegtl::eol,
+			statement,
 			statement_list
 		>,
-		pegtl::seq<
-			function,
-			pegtl::eol
-		>
+		statement
 	>
+	{};
+	
+	struct program : statement_list
 	{};
 	
 	// Rules
@@ -162,6 +181,28 @@ namespace worldlang{
 			std::cout << in.string() << std::endl;
 		}	
 	};
+	
+	// Selector
+	template< typename Rule >
+	using selector = tao::pegtl::parse_tree::selector< Rule,
+		tao::pegtl::parse_tree::store_content::on<
+			number,
+			identifier,
+			function,
+			expression,
+			expression_list,
+			statement,
+			statement_list,
+			program,
+			assignment,
+			op_prio_add,
+			op_prio_mul
+		>,
+		tao::pegtl::parse_tree::fold_one::on<
+			add_a,
+			mul_a
+		>
+	>;
 	
 	// Execution
 	

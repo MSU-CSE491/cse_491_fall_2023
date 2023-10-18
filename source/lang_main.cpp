@@ -22,10 +22,11 @@ void traverse(const auto& node, int indent = 0){
 
 int main()
 {
-	pegtl::memory_input in("2+test(123,abc)-wow", "src");
+//	pegtl::memory_input in("2+test(123*5+4-6/7,abc)-wow", "src");
+	pegtl::memory_input in("var_1=2+test(123*5+4-6/7,abc)-wow\ntest(123,435,7650+8*8)\n", "src");
 	std::string s;
 	// pegtl::parse< worldlang::expression, worldlang::action > (in, s);
-	auto root = pegtl::parse_tree::parse < worldlang::expression > (in);
+	auto root = pegtl::parse_tree::parse < worldlang::program, worldlang::selector > (in);
 	
 	if (root){
 		traverse(root);
