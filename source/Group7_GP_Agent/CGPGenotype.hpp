@@ -20,6 +20,9 @@ namespace cowboys {
   /// The separator between each node in the genotype.
   constexpr char NODE_SEP = ':';
 
+  /// @brief A namespace for base64 encoding and decoding. Does not convert to and from base64 in the typical way. Only
+  /// guarantees that x == b64_inv(b64(x)), aside from doubles which have problems with precision, so x ~=
+  /// b64_inv(b64(x)).
   namespace base64 {
     /// The characters used to represent digits in base64.
     static std::string chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
@@ -84,6 +87,56 @@ namespace cowboys {
       }
       // Remove leading 0s and return result: https://stackoverflow.com/a/31226728/13430191
       return result.erase(0, std::min(result.find_first_not_of('0'), result.size() - 1));
+    }
+
+    /// @brief Converts a double to a base64 string. Assumes that the stoull(to_string(value)) is possible. Only
+    /// guarantees that x ~= b64_inv(b64(x)) due to precision errors. Empirically accurate up to 4 decimal places, e.g.
+    /// round(x, 4) = round(b64_inv(b64(x)), 4).
+    /// @param value The double to convert.
+    /// @return The double in base64.
+    static std::string DoubleToB64(double value) {
+      std::string double_str = std::to_string(value);
+
+      // Sign
+      // Store if it is positive or negative using the first base64 character or the second
+      assert(chars.size() > 2);
+      char sign_b64 = value < 0 ? chars[1] : chars[0];
+      // Remove the negative sign if it exists
+      if (value < 0)
+        double_str.erase(0, 1);
+
+      // Decimal point
+      size_t decimal_loc = std::min(double_str.find('.'), double_str.size());
+      // Remove the decimal point (does nothing if decimal_loc == double_str.size())
+      double_str.erase(decimal_loc, 1);
+      // Store decimal location using 1 base64 character (arbitrary choice, assumes decimal_loc < 64)
+      char decimal_loc_b64 = chars[decimal_loc];
+
+      // ULL
+      // Take the rest of the string as a ULL
+      size_t ull = std::stoull(double_str);
+      // Convert to base64
+      std::string ull_b64 = ULLToB64(ull);
+      // Return decimal location and ULL
+      return std::string({decimal_loc_b64, sign_b64}) + ull_b64;
+    }
+
+    /// @brief Converts a base64 string to a double. See @ref DoubleToB64 for precision issues.
+    /// @param value The base64 string to convert.
+    /// @return The base64 string as a double.
+    static double B64ToDouble(const std::string &value) {
+      assert(value.size() > 0);
+      // Get decimal location
+      size_t decimal_loc = chars.find(value[0]);
+      // Get sign
+      assert(chars.size() > 2);
+      double sign = value[1] == chars[0] ? 1 : -1;
+      // Get ULL
+      std::string ull = std::to_string(B64ToULL(value.substr(2)));
+      // Insert decimal point
+      ull.insert(decimal_loc, ".");
+      // Return double
+      return sign * std::stod(ull);
     }
   } // namespace base64
 

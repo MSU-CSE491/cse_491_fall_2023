@@ -116,6 +116,21 @@ TEST_CASE("base64", "[group7][base64]") {
     CHECK(base64::B2ToB64(std::string(64, '1')) == max_encoded_ull);
     CHECK(base64::B64ToB2(max_encoded_ull) == std::string(64, '1'));
   }
+  SECTION("Double") {
+    auto rng = std::mt19937(std::random_device{}());
+    // Must avoid stoull error
+    auto min = std::numeric_limits<int32_t>::min();
+    auto max = std::numeric_limits<int32_t>::max();
+    auto dist = std::uniform_real_distribution<double>(min, max);
+    auto round = [](double d, size_t n) { return std::round(d * std::pow(10, n)) / std::pow(10, n); };
+    for (size_t i = 0; i < 100; ++i) {
+      auto d = dist(rng);
+      CHECK(round(d, 4) == round(base64::B64ToDouble(base64::DoubleToB64(d)), 4));
+    }
+    CHECK(0 == base64::B64ToDouble(base64::DoubleToB64(0)));
+    CHECK(1 == base64::B64ToDouble(base64::DoubleToB64(1)));
+    CHECK(-1 == base64::B64ToDouble(base64::DoubleToB64(-1)));
+  }
 }
 TEST_CASE("Genotype configuration", "[group7][genotype]") {
   SECTION("Export as string") {
