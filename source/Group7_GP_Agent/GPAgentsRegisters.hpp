@@ -50,16 +50,15 @@ class GPAgentRegisters {
   /**
    * @brief Get the Register object
    * @param index Index of the register
-   * @return std::optional<size_t> Returns the value of the register if it exists
+   * @return std::optional<size_t> Returns the value of the register if it
+   * exists
    */
   std::optional<size_t> getRegister(size_t index) {
     if (index >= registers.size()) {
-      return std::nullopt; // Indicates that the value is absent
+      return std::nullopt;  // Indicates that the value is absent
     }
     return registers[index];
   }
-
-
 
   /**
    * @brief Get the number of registers
@@ -68,7 +67,6 @@ class GPAgentRegisters {
   int getNumRegisters() { return registers.size(); }
 
   int size() { return registers.size(); }
-
 
   /**
    * @brief Iterator class for GPAgentRegisters
