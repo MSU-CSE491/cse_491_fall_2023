@@ -56,7 +56,7 @@ if(${BUILD_MAIN})
       PRIVATE ${CMAKE_SOURCE_DIR}/source
       )
     target_link_libraries(${EXE_NAME}
-      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
+      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
       )
     if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
       message(STATUS "Loading ${EXE_NAME}.cmake")
