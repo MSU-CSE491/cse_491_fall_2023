@@ -21,7 +21,9 @@
 #include "./GPAgentSensors.hpp"
 
 /**
- * @brief yeeeeeeeehaaaaaaaaa 🤠
+ * @brief Namespace for GPagent and its related classes
+ *
+ * @note yeeeeeeeehaaaaaaaaa 🤠
  */
 namespace cowboys {
 
