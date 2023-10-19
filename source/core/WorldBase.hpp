@@ -16,8 +16,11 @@
 #include "Data.hpp"
 #include "Entity.hpp"
 #include "WorldGrid.hpp"
+#include "../DataCollection/AgentReciever.hpp"
 
 namespace cse491 {
+
+class DataReceiver;
 
 class WorldBase {
  protected:
@@ -30,6 +33,9 @@ class WorldBase {
   agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
   bool run_over = false;   ///< Should the run end?
+  
+  std::string action; // The action that the agent is currently performing
+  std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
 
   /// Helper function that is run whenever a new agent is created.
   /// @note Override this function to provide agents with actions or other setup.
@@ -103,6 +109,9 @@ class WorldBase {
     return *agent_set.back();
   }
 
+    void SetAgentReceiver(DataCollection::AgentReceiver r) {
+      agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
+    }
 
   // -- Action Management --
 
@@ -119,8 +128,18 @@ class WorldBase {
     for (const auto &agent_ptr : agent_set) {
       size_t action_id =
           agent_ptr->SelectAction(main_grid, type_options, item_set, agent_set);
+      agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
+    }
+  }
+
+  void CollectData() {
+    if(agent_receiver != nullptr){
+      for (const auto & agent_ptr : agent_set) {
+          agent_receiver->StoreData(agent_ptr->GetName(), 
+              agent_ptr->GetPosition(), agent_ptr->GetActionResult());
+      }
     }
   }
 
@@ -133,6 +152,7 @@ class WorldBase {
     run_over = false;
     while (!run_over) {
       RunAgents();
+      CollectData();
       UpdateWorld();
     }
   }

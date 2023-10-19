@@ -9,11 +9,13 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "Data.hpp"
 #include "Entity.hpp"
 #include "GridPosition.hpp"
 #include "WorldGrid.hpp"
+#include "../DataCollection/AgentData.hpp"
 
 namespace cse491 {
 
@@ -24,6 +26,7 @@ namespace cse491 {
 
     int action_result=0;  ///< Usually a one (success) or zero (failure).
 
+    int action; // The action that the agent is currently performing
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
     ~AgentBase() = default; // Already virtual from Entity
@@ -46,12 +49,19 @@ namespace cse491 {
       return action_map.count(action_name);
     }
 
+
     /// Return an action ID *if* that action exists, otherwise return zero.
     [[nodiscard]] size_t GetActionID(const std::string & action_name) const {
       auto it = action_map.find(action_name);
       if (it == action_map.end()) return 0;
       return it->second;
     }
+
+    void storeActionMap(std::string name) {
+        DataCollection::AgentData data(name);
+        data.StoreAction(action_map);
+    }
+
 
     /// Provide a new action that this agent can take.
     virtual AgentBase & AddAction(const std::string & action_name, size_t action_id) {
