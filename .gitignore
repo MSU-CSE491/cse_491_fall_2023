@@ -13,7 +13,6 @@ cmake-build-debug-mingw-sfml
 
 # vscode settings
 .vscode/
-.github/
 
 # Vim swap files
 *.swp
