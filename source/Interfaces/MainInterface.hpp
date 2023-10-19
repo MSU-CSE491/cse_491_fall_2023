@@ -78,6 +78,8 @@ namespace i_2D {
         void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall);
 
         void DrawEmptyCell(sf::RectangleShape &cellRect);
+        
+        void DrawDefaultCell(sf::RectangleShape &cellRect);
 
         void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent, sf::Color color);
 

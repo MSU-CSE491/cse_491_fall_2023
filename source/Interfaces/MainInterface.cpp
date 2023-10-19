@@ -123,6 +123,9 @@ namespace i_2D {
                     case '@':
                         DrawAgentCell(cellRect,cell,agentTexture,sf::Color::Red);
                         break;
+                    default:
+                        DrawDefaultCell(cellRect);
+                        break;
 
                 }
             }
@@ -347,6 +350,16 @@ namespace i_2D {
      */
     void MainInterface::DrawEmptyCell(sf::RectangleShape& cellRect) {
         cellRect.setFillColor(sf::Color::Black);
+        mWindow.draw(cellRect);
+    }
+    
+    /**
+     * @brief Draw the cell with a bright pink that is hard to miss
+     *
+     * @param cellRect The rectangle shape of the cell.
+     */
+    void MainInterface::DrawDefaultCell(sf::RectangleShape& cellRect) {
+        cellRect.setFillColor(sf::Color::Magenta);
         mWindow.draw(cellRect);
     }
 
