@@ -6,3 +6,7 @@
 target_link_libraries(${EXE_NAME}
   PRIVATE  sfml-network
 )
+target_include_directories(${EXE_NAME}
+  PRIVATE ${CMAKE_SOURCE_DIR}/third_party/SFML/include
+)
+
