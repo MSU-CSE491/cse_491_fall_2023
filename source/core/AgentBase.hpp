@@ -9,6 +9,7 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "Data.hpp"
 #include "Entity.hpp"
@@ -25,6 +26,7 @@ namespace cse491 {
 
     int action_result=1;  ///< Usually a one (success) or zero (failure).
 
+    int action; // The action that the agent is currently performing
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
     ~AgentBase() = default; // Already virtual from Entity
@@ -47,6 +49,7 @@ namespace cse491 {
       return action_map.count(action_name);
     }
 
+
     /// Return an action ID *if* that action exists, otherwise return zero.
     [[nodiscard]] size_t GetActionID(const std::string & action_name) const {
       auto it = action_map.find(action_name);
@@ -54,8 +57,8 @@ namespace cse491 {
       return it->second;
     }
 
-    void storeActionMap() {
-        DataCollection::AgentData data;
+    void storeActionMap(std::string name) {
+        DataCollection::AgentData data(name);
         data.StoreAction(action_map);
     }
 

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <list>
+#include <utility>
 #include <vector>
 #include <unordered_map>
 #include "../core/GridPosition.hpp"
@@ -16,13 +17,14 @@ namespace DataCollection
         std::string name;  ///< The name of the agent.
         std::vector<int> actionIds;  ///< IDs associated with the agent's actions.
         std::vector<cse491::GridPosition> position;  ///list of grid positions.
-        std::vector<std::unordered_map<std::string, size_t>> actions;  ///< Vector of action maps.
+        std::vector<std::unordered_map<std::string,size_t>> actions;  ///< Vector of action maps.
 
     public:
         /**
          * @brief Default constructor for AgentData class.
          */
-        AgentData() = default;
+//        AgentData() = default;
+        AgentData(std::string name) : name(std::move(name)) {}
 
         /**
          * @brief Destructor for AgentData class.
@@ -61,6 +63,10 @@ namespace DataCollection
             return actions;
         }
 
+        int GetActionSize() const {
+            return actions.size();
+        }
+
         /**
          * @brief Sets the stored actions to a new set of actions.
          * @param newActions The new set of actions to be stored.
@@ -83,6 +89,10 @@ namespace DataCollection
          */
         auto GetAgentIds() const {
             return actionIds;
+        }
+
+        std::string GetName() const {
+            return name;
         }
     };
 } // namespace DataCollection

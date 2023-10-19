@@ -31,6 +31,7 @@ class DataReceiver;
     item_set_t item_set;     ///< Vector of pointers to non-agent entities
     agent_set_t agent_set;   ///< Vector of pointers to agent entities
 
+    std::string action; // The action that the agent is currently performing
     std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
 
 
@@ -135,7 +136,7 @@ class DataReceiver;
       for (const auto & agent_ptr : agent_set) {
         size_t action_id =
           agent_ptr->SelectAction(main_grid, type_options, item_set, agent_set);
-        agent_ptr->storeActionMap();
+        agent_ptr->storeActionMap(agent_ptr->GetName());
         int result = DoAction(*agent_ptr, action_id);
         agent_ptr->SetActionResult(result);
       }
@@ -143,8 +144,9 @@ class DataReceiver;
     }
 
     void CollectData() {
-      auto & agent = agent_set.at(2);
-        agent_receiver->StoreData(agent->GetPosition(), agent->GetActionResult());
+        for (const auto & agent_ptr : agent_set) {
+            agent_receiver->StoreData(agent_ptr->GetName(), agent_ptr->GetPosition(), agent_ptr->GetActionResult());
+        }
     }
 
     /// @brief UpdateWorld() is run after every agent has a turn.
