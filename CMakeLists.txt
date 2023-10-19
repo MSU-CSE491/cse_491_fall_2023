@@ -10,6 +10,16 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Test")
   set(BUILD_MAIN 0)
   set(BUILD_TESTS 1)
 endif()
+  
+# Create a function to make .cmake files simpler
+function(add_sources_to_target TARGET_NAME SOURCE_LIST)
+  foreach(CPP_SOURCE ${SOURCE_LIST})
+    message(STATUS "Loading source: ${CPP_SOURCE}")
+    target_sources(${TARGET_NAME}
+      PRIVATE ${CMAKE_SOURCE_DIR}/${CPP_SOURCE}
+      )
+  endforeach()
+endfunction() 
 
 # Set the necessary C++ flags, some of which are configuration-specific
 set(CMAKE_CXX_STANDARD 20)
@@ -34,28 +44,34 @@ if(${BUILD_MAIN})
 
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
-  file(GLOB EXECUTABLE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
-
+  file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
+  message(STATUS "List of main files to build: ${EXE_SOURCES}")
 
   # Loop through each executable and build it! 
-  foreach(EXECUTABLE_SOURCE ${EXE_NAME_SOURCE_LIST})
-      # Rip the .cpp off the end of the string
-      string(REPLACE "_main.cpp" "" EXECUTABLE_NAME ${EXECUTABLE_NAME_SOURCE})
-      # Create list of source files (currently just the one .cpp file)
-      set(SOURCE_LIST source/${EXECUTABLE_SOURCE})
-      # Create executable and link to includes / libraries
-      add_executable(${EXECUTABLE_NAME} ${SOURCE_LIST})
-      target_include_directories(${EXECUTABLE_NAME}
-        PRIVATE ${CMAKE_SOURCE_DIR}
-        )
-      target_link_libraries(${EXECUTABLE_NAME}
-        PRIVATE sfml-window sfml-audio sfml-graphics
-        )
+  foreach(EXE_SOURCE ${EXE_SOURCES})
+    # Rip the .cpp off the end of the string
+    string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
+    # Create list of source files (currently just the one .cpp file)
+    # Create executable and link to includes / libraries
+    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE})
+    target_include_directories(${EXE_NAME}
+      PRIVATE ${CMAKE_SOURCE_DIR}/source
+      )
+    target_link_libraries(${EXE_NAME}
+      PRIVATE sfml-window sfml-audio sfml-graphics
+      )
+    if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
+      message(STATUS "Loading ${EXE_NAME}.cmake")
+      include(${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
+    else()
+      message(WARNING "Cannot find ${EXE_NAME}.cmake")
+    endif()
   endforeach()
 endif()
 
 # Build the test executables, if requested
 if(${BUILD_TESTS})
+
   # Configure Catch
   set(CATCH_SRC_DIR third_party/Catch2)
   set(CATCH_BUILD_DIR catch_build)

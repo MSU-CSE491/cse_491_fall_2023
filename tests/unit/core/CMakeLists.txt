@@ -9,6 +9,13 @@ foreach(TARGET_SOURCE IN LISTS TARGET_SOURCES)
   set(EXE_NAME "${TEST_PREFIX}-${TARGET_NAME}")
   message(STATUS "Building tests for: ${EXE_NAME}")
   add_executable(${EXE_NAME} ${TARGET_SOURCE})
+    
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.cmake)
+    message(STATUS "Loading ${TARGET_NAME}.cmake")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.cmake)
+  else()
+    message(WARNING "Cannot find ${TARGET_NAME}.cmake")
+  endif()
 
   target_include_directories(${EXE_NAME}
     PRIVATE ${CMAKE_SOURCE_DIR}/source
