@@ -62,6 +62,7 @@ TEST_CASE("Genotype iterators", "[group7][genotype]") {
   }
 }
 TEST_CASE("Genotype mutation", "[group7][genotype]") {
+  // Graph should be big enough to reduce chance of false positives
   CGPGenotype genotype({10, 10, 200, 10, 10});
   SECTION("Mutate connections") {
     // Each connection will have a 0% chance of being mutated
@@ -73,29 +74,10 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
 
     // Each connection will have a 100% chance of being mutated
     genotype.MutateConnections(1.);
-    bool all_1s = true;
-    for (auto it = genotype.begin(); it != genotype.end(); ++it)
-      all_1s = all_1s && std::ranges::all_of(it->input_connections, [](char c) { return c == '1'; });
-    CHECK(all_1s);
-
-    // Each connection will have a 0% chance of being mutated
-    genotype.MutateConnections(0.);
-    all_1s = true;
-    for (auto it = genotype.begin(); it != genotype.end(); ++it)
-      all_1s = all_1s && std::ranges::all_of(it->input_connections, [](char c) { return c == '1'; });
-    CHECK(all_1s);
-
-    // Each connection will have a 50% chance of being mutated
     all_0s = true;
-    all_1s = true;
-    genotype.MutateConnections(0.5);
-    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+    for (auto it = genotype.begin(); it != genotype.end(); ++it)
       all_0s = all_0s && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
-      all_1s = all_1s && std::ranges::all_of(it->input_connections, [](char c) { return c == '1'; });
-    }
-    // These tests could fail, but it's unlikely: chance of failure = 1 / (2 ^ 196500)
     CHECK_FALSE(all_0s);
-    CHECK_FALSE(all_1s);
   }
   SECTION("Mutate functions") {
     bool all_default = true;
@@ -182,17 +164,17 @@ TEST_CASE("Genotype overloads", "[group7][genotype]") {
     CHECK(genotype != genotype2);
 
     genotype2 = CGPGenotype({7, 2, 0, 10, 3});
-    genotype2.MutateConnections(0.5);
+    genotype2.MutateConnections(1);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
     genotype2 = CGPGenotype({7, 2, 0, 10, 3});
-    genotype2.MutateFunctions(0.5, 100);
+    genotype2.MutateFunctions(1, 100);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
     genotype2 = CGPGenotype({7, 2, 0, 10, 3});
-    genotype2.MutateOutputs(0.5, -10000, 10000);
+    genotype2.MutateOutputs(1, -10000, 10000);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
   }
@@ -227,17 +209,17 @@ TEST_CASE("Genotype configuration", "[group7][genotype]") {
     //
     // These tests could fail, should be unlikely
     //
-    genotype.MutateConnections(0.5);
+    genotype.MutateConnections(1);
     CHECK_FALSE(genotype == genotype2);
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
 
-    genotype.MutateFunctions(0.5, 100);
+    genotype.MutateFunctions(1, 100);
     CHECK_FALSE(genotype == genotype2);
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
 
-    genotype.MutateOutputs(0.5, -10000, 10000);
+    genotype.MutateOutputs(1, -10000, 10000);
     CHECK_FALSE(genotype == genotype2);
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
