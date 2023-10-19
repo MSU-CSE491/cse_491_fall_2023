@@ -100,7 +100,7 @@ namespace cowboys {
       RecursiveInvalidateCache();
     }
     void AddInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
-      inputs.insert(inputs.end(), nodes.begin(), nodes.end());
+      inputs.insert(inputs.cend(), nodes.cbegin(), nodes.cend());
       RecursiveInvalidateCache();
     }
     void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {

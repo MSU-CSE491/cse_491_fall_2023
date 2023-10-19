@@ -242,7 +242,7 @@ namespace cowboys {
       std::string genotype = "";
       for (const CGPNodeGene &node : nodes) {
         // Input Connections
-        genotype += base64::B2ToB64(std::string(node.input_connections.begin(), node.input_connections.end()));
+        genotype += base64::B2ToB64(std::string(node.input_connections.cbegin(), node.input_connections.cend()));
         genotype += NODE_GENE_SEP;
         // Function index
         genotype += base64::ULLToB64(node.function_idx);
@@ -502,7 +502,7 @@ namespace cowboys {
       if (std::ranges::size(nodes) != std::ranges::size(other.nodes)) // # of genes should be equal
         return false;
       bool all_same = true;
-      for (auto it = cbegin(), it2 = other.cbegin(); it != end(); ++it, ++it2) {
+      for (auto it = cbegin(), it2 = other.cbegin(); it != cend(); ++it, ++it2) {
         all_same = all_same && (*it == *it2); // Compare CGPNodeGenes for equality
       }
       return all_same;

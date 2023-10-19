@@ -57,8 +57,8 @@ namespace cowboys {
       }
 
       // Choose the action with the highest output
-      auto max_output = std::max_element(outputs.begin(), outputs.end());
-      size_t index = std::distance(outputs.begin(), max_output);
+      auto max_output = std::max_element(outputs.cbegin(), outputs.cend());
+      size_t index = std::distance(outputs.cbegin(), max_output);
 
       // If index is out of bounds, return the last action
       size_t action = 0;

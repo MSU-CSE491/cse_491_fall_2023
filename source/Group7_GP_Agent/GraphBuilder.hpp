@@ -47,16 +47,16 @@ namespace cowboys {
 
       auto functional_nodes = decision_graph->GetFunctionalNodes();
       auto all_nodes = decision_graph->GetNodes();
-      auto nodes_it = functional_nodes.begin();
-      auto genes_it = genotype.begin();
+      auto nodes_it = functional_nodes.cbegin();
+      auto genes_it = genotype.cbegin();
       // Iterator distances should be the same
-      assert(std::distance(functional_nodes.end(), functional_nodes.begin()) ==
-             std::distance(genotype.end(), genotype.begin()));
+      assert(std::distance(functional_nodes.cend(), functional_nodes.cbegin()) ==
+             std::distance(genotype.cend(), genotype.cbegin()));
       // Get the iterator of all nodes and move it to the start of the first functional node
-      auto all_nodes_it = all_nodes.begin() + genotype.GetNumInputs();
-      for (; nodes_it != functional_nodes.end() && genes_it != genotype.end(); ++nodes_it, ++genes_it) {
+      auto all_nodes_it = all_nodes.cbegin() + genotype.GetNumInputs();
+      for (; nodes_it != functional_nodes.end() && genes_it != genotype.cend(); ++nodes_it, ++genes_it) {
         // Advance the all nodes iterator if we are at the start of a new layer
-        auto dist = std::distance(functional_nodes.begin(), nodes_it);
+        auto dist = std::distance(functional_nodes.cbegin(), nodes_it);
         if (dist != 0 && dist % genotype.GetNumNodesPerLayer() == 0) {
           std::advance(all_nodes_it, genotype.GetNumNodesPerLayer());
         }
