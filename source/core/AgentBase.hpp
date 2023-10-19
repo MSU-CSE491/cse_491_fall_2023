@@ -22,7 +22,7 @@ namespace cse491 {
     /// A map of names to IDs for each available action
     std::unordered_map<std::string, size_t> action_map;
 
-    int action_result=1;  ///< Usually a one (success) or zero (failure).
+    int action_result=0;  ///< Usually a one (success) or zero (failure).
 
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
