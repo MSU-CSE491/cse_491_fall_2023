@@ -71,8 +71,8 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
     }
 
     std::cout << std::endl;
-  }
 #endif
+  }
 
   /// @brief Encodes the actions from an agent's action map into a vector of
   /// string, representing action names.

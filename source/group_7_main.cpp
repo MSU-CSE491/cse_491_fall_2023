@@ -26,4 +26,6 @@ int main() {
 
 
     world.Run();
+
+    return 0;
 }
