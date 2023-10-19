@@ -72,7 +72,7 @@ class GPAgentRegisters {
 
   /**
    * @brief Iterator class for GPAgentRegisters
-   *
+   * TODO: Just pass in the vector Iterator
    */
   class iterator {
    private:
