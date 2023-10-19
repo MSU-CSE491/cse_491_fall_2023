@@ -61,8 +61,10 @@ namespace cowboys {
           std::advance(all_nodes_it, genotype.GetNumNodesPerLayer());
         }
 
-        auto &[connections, function_idx] = *genes_it;
+        auto &[connections, function_idx, output] = *genes_it;
         (*nodes_it)->SetFunctionPointer(function_set.at(function_idx));
+        (*nodes_it)->SetOutput(output);
+        
         // Copy the all nodes iterator and move it backwards by the number of connections
         auto nodes_it_copy = all_nodes_it;
         std::advance(nodes_it_copy, -connections.size());

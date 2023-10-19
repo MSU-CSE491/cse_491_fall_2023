@@ -14,7 +14,6 @@ using namespace cowboys;
 TEST_CASE("Genotype construction", "[group7][genotype]") {
   SECTION("Parameters constructor") {
     auto genotype = CGPGenotype({8, 4, 2, 10, 2});
-    genotype.InitGenotype();
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
 
     genotype = CGPGenotype({8, 4, 2, 10, 3});
@@ -29,7 +28,6 @@ TEST_CASE("Genotype construction", "[group7][genotype]") {
 TEST_CASE("Genotype iterators", "[group7][genotype]") {
   SECTION("Genotype iterators") {
     CGPGenotype genotype({8, 4, 2, 10, 2});
-    genotype.InitGenotype();
     auto it = genotype.begin();
     CHECK(it->input_connections.size() == 8);
     CHECK(it->function_idx == 0);
@@ -64,9 +62,8 @@ TEST_CASE("Genotype iterators", "[group7][genotype]") {
   }
 }
 TEST_CASE("Genotype mutation", "[group7][genotype]") {
-  SECTION("Genotype mutation") {
-    CGPGenotype genotype({10, 10, 200, 10, 10});
-    genotype.InitGenotype();
+  CGPGenotype genotype({10, 10, 200, 10, 10});
+  SECTION("Mutate connections") {
     // Each connection will have a 0% chance of being mutated
     genotype.MutateConnections(0.);
     bool all_0s = true;
@@ -100,6 +97,48 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK_FALSE(all_0s);
     CHECK_FALSE(all_1s);
   }
+  SECTION("Mutate functions") {
+    bool all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->function_idx == 0;
+    }
+    CHECK(all_default);
+
+    genotype.MutateFunctions(0., 100);
+    all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->function_idx == 0;
+    }
+    CHECK(all_default);
+
+    genotype.MutateFunctions(1., 100);
+    all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->function_idx == 0;
+    }
+    CHECK_FALSE(all_default);
+  }
+  SECTION("Mutate outputs") {
+    bool all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->default_output == 0;
+    }
+    CHECK(all_default);
+
+    genotype.MutateOutputs(0., -100, 100);
+    all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->default_output == 0;
+    }
+    CHECK(all_default);
+
+    genotype.MutateOutputs(1., -100, 100);
+    all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->default_output == 0;
+    }
+    CHECK_FALSE(all_default);
+  }
 }
 TEST_CASE("base64", "[group7][base64]") {
   SECTION("ULL") {
@@ -122,72 +161,83 @@ TEST_CASE("base64", "[group7][base64]") {
     auto min = std::numeric_limits<int32_t>::min();
     auto max = std::numeric_limits<int32_t>::max();
     auto dist = std::uniform_real_distribution<double>(min, max);
-    auto round = [](double d, size_t n) { return std::round(d * std::pow(10, n)) / std::pow(10, n); };
+    auto fix_double = [](double d) { return std::stod(std::to_string(d)); };
     for (size_t i = 0; i < 100; ++i) {
-      auto d = dist(rng);
-      CHECK(round(d, 4) == round(base64::B64ToDouble(base64::DoubleToB64(d)), 4));
+      auto d = fix_double(dist(rng));
+      CHECK(d == base64::B64ToDouble(base64::DoubleToB64(d)));
     }
     CHECK(0 == base64::B64ToDouble(base64::DoubleToB64(0)));
     CHECK(1 == base64::B64ToDouble(base64::DoubleToB64(1)));
     CHECK(-1 == base64::B64ToDouble(base64::DoubleToB64(-1)));
   }
 }
-TEST_CASE("Genotype configuration", "[group7][genotype]") {
-  SECTION("Export as string") {
-    // 2 input nodes, 1 output node. Only one node gene for the output node.
-    auto genotype = CGPGenotype({2, 1, 0, 0, 2});
-    CHECK(genotype.Export() == "2,1,0,0,2;0.0:");
-
-    // 2 output nodes now, so 2 node genes
-    genotype = CGPGenotype({2, 2, 0, 10, 3});
-    CHECK(genotype.Export() == "2,2,0,10,3;0.0:0.0:");
-
-    // back to 1 output node
-    // 6 input nodes, still can represent with one base64 character
-    genotype = CGPGenotype({6, 1, 0, 0, 2});
-    CHECK(genotype.Export() == "6,1,0,0,2;0.0:");
-
-    // 7 input nodes, now need 2 base64 characters
-    genotype = CGPGenotype({7, 1, 0, 0, 2});
-    CHECK(genotype.Export() == "7,1,0,0,2;00.0:");
-
-    // 2 output nodes now
-    genotype = CGPGenotype({7, 2, 0, 10, 3});
-    CHECK(genotype.Export() == "7,2,0,10,3;00.0:00.0:");
-  }
-  SECTION("Configure by exported string") {
-    std::string exported = "7,2,0,10,3;01.0:00.0:";
-    auto genotype = CGPGenotype().Configure(exported);
-
-    CHECK(genotype.GetNumInputs() == 7);
-    CHECK(genotype.GetNumOutputs() == 2);
-    CHECK(genotype.GetNumLayers() == 0);
-    CHECK(genotype.GetNumNodesPerLayer() == 10);
-    CHECK(genotype.GetLayersBack() == 3);
-
-    // Connect all possible connections
-    // ([1][63])_64 = (1 111111)_2
-    std::string all_connected_7{base64::chars.at(1), base64::chars.at(63)};
-    exported = std::format("7,2,0,10,3;{}.{}:{}.{}:", all_connected_7, base64::chars.at(1), all_connected_7,
-                           base64::chars.at(20));
-    genotype = CGPGenotype().Configure(exported);
-    bool all_1s = true;
-    for (auto it = genotype.begin(); it != genotype.end(); ++it)
-      all_1s = all_1s && std::ranges::all_of(it->input_connections, [](char c) { return c == '1'; });
-    CHECK(all_1s);
-    CHECK(genotype.begin()->function_idx == 1);
-    CHECK((++genotype.begin())->function_idx == 20);
-  }
-  SECTION("Exporting and configuration of random genotypes") {
-    CGPGenotype genotype({8, 4, 10, 10, 2});
-    genotype.MutateConnections(0.5);
-    genotype.MutateFunctions(0.5, 100);
-
-    auto genotype2 = CGPGenotype().Configure(genotype.Export());
+TEST_CASE("Genotype overloads", "[group7][genotype]") {
+  SECTION("operator==") {
+    auto genotype = CGPGenotype({7, 2, 0, 10, 3});
+    auto genotype2 = CGPGenotype({7, 2, 0, 10, 3});
     CHECK(genotype == genotype2);
 
-    // Could fail, unlikely
-    genotype2.MutateConnections(0.5);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 2});
+    CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
+
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3});
+    genotype2.MutateConnections(0.5);
+    CHECK_FALSE(genotype == genotype2);
+    CHECK(genotype != genotype2);
+
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3});
+    genotype2.MutateFunctions(0.5, 100);
+    CHECK_FALSE(genotype == genotype2);
+    CHECK(genotype != genotype2);
+
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3});
+    genotype2.MutateOutputs(0.5, -10000, 10000);
+    CHECK_FALSE(genotype == genotype2);
+    CHECK(genotype != genotype2);
+  }
+}
+TEST_CASE("Genotype configuration", "[group7][genotype]") {
+  SECTION("Exporting and configuration") {
+    CGPGenotype genotype({8, 4, 10, 10, 2});
+    auto exported = genotype.Export();
+    CGPGenotype genotype2 = CGPGenotype().Configure(exported);
+    CHECK(genotype == genotype2);
+
+    genotype.begin()->function_idx = 1;
+    CHECK_FALSE(genotype == genotype2);
+
+    genotype2.begin()->function_idx = 1;
+    CHECK(genotype == genotype2);
+
+    genotype.begin()->input_connections = std::vector<char>(8, '1');
+    CHECK_FALSE(genotype == genotype2);
+
+    genotype2.begin()->input_connections = std::vector<char>(8, '1');
+    CHECK(genotype == genotype2);
+
+    genotype.begin()->input_connections = std::vector<char>(8, '0');
+    CHECK_FALSE(genotype == genotype2);
+
+    genotype2 = CGPGenotype().Configure(genotype.Export());
+    CHECK(genotype == genotype2);
+
+    //
+    // These tests could fail, should be unlikely
+    //
+    genotype.MutateConnections(0.5);
+    CHECK_FALSE(genotype == genotype2);
+    genotype2 = CGPGenotype().Configure(genotype.Export());
+    CHECK(genotype == genotype2);
+
+    genotype.MutateFunctions(0.5, 100);
+    CHECK_FALSE(genotype == genotype2);
+    genotype2 = CGPGenotype().Configure(genotype.Export());
+    CHECK(genotype == genotype2);
+
+    genotype.MutateOutputs(0.5, -10000, 10000);
+    CHECK_FALSE(genotype == genotype2);
+    genotype2 = CGPGenotype().Configure(genotype.Export());
+    CHECK(genotype == genotype2);
   }
 }

@@ -90,8 +90,8 @@ namespace cowboys {
     }
 
     /// @brief Converts a double to a base64 string. Assumes that the stoull(to_string(value)) is possible. Only
-    /// guarantees that x ~= b64_inv(b64(x)) due to precision errors. Empirically accurate up to 4 decimal places, e.g.
-    /// round(x, 4) = round(b64_inv(b64(x)), 4).
+    /// guarantees that x ~= b64_inv(b64(x)) due to precision errors. Empirically accurate up to 3 decimal places, e.g.
+    /// round(x, 3) = round(b64_inv(b64(x)), 3).
     /// @param value The double to convert.
     /// @return The double in base64.
     static std::string DoubleToB64(double value) {
@@ -142,16 +142,20 @@ namespace cowboys {
 
   struct CGPNodeGene {
     /// The connections per node. '1' means connected, '0' means not connected.
-    std::vector<char> input_connections;
+    std::vector<char> input_connections{};
 
     /// The index of the function the node uses.
-    size_t function_idx;
+    size_t function_idx{0};
+
+    /// The default output of the node.
+    double default_output{0};
 
     /// @brief Compare two CGPNodeGenes for equality.
     /// @param other The other CGPNodeGene to compare to.
     /// @return True if the two CGPNodeGenes are equal, false otherwise.
     inline bool operator==(const CGPNodeGene &other) const {
-      return input_connections == other.input_connections && function_idx == other.function_idx;
+      return input_connections == other.input_connections && function_idx == other.function_idx &&
+             default_output == other.default_output;
     }
   };
 
@@ -242,6 +246,9 @@ namespace cowboys {
         genotype += NODE_GENE_SEP;
         // Function index
         genotype += base64::ULLToB64(node.function_idx);
+        genotype += NODE_GENE_SEP;
+        // Default output
+        genotype += base64::DoubleToB64(node.default_output);
         // End of node
         genotype += NODE_SEP;
       }
@@ -269,7 +276,7 @@ namespace cowboys {
         std::string input_connections_b2 = base64::B64ToB2(input_connections_b64);
         auto &input_connections = current_node.input_connections;
         // If there were leading bits that were 0 when converted to base 64, they were dropped. Add them back.
-        std::string input_connections_str = std::string(input_connections.begin(), input_connections.end());
+        std::string input_connections_str = std::string(input_connections.cbegin(), input_connections.cend());
         assert(input_connections.size() >= input_connections_b2.size()); // Invalid genotype if this fails
         input_connections_b2 =
             std::string(input_connections.size() - input_connections_b2.size(), '0') + input_connections_b2;
@@ -283,9 +290,17 @@ namespace cowboys {
         // Function index
         //
         sep_pos = node_gene.find(NODE_GENE_SEP);
-        assert(sep_pos == std::string::npos); // Should be the last attribute
         std::string function_idx_str = node_gene.substr(0, std::min(sep_pos, node_gene.size()));
         current_node.function_idx = base64::B64ToULL(function_idx_str);
+        node_gene = node_gene.substr(sep_pos + 1);
+
+        //
+        // Default output
+        //
+        sep_pos = node_gene.find(NODE_GENE_SEP);
+        assert(sep_pos == std::string::npos); // Should be the last attribute
+        std::string default_output_str = node_gene.substr(0, std::min(sep_pos, node_gene.size()));
+        current_node.default_output = base64::B64ToDouble(default_output_str);
 
         // Move to next node gene
         node_gene_start = node_gene_end + 1;
@@ -325,6 +340,14 @@ namespace cowboys {
       return *this;
     }
 
+    /// @brief Returns the iterator to the beginning of the node configurations.
+    /// @return The iterator to the beginning of the node configurations.
+    std::vector<CGPNodeGene>::iterator begin() { return nodes.begin(); }
+
+    /// @brief Returns the iterator to the end of the node configurations.
+    /// @return The iterator to the end of the node configurations.
+    std::vector<CGPNodeGene>::iterator end() { return nodes.end(); }
+
     /// @brief Returns the const iterator to the beginning of the node configurations.
     /// @return The const iterator to the beginning of the node configurations.
     std::vector<CGPNodeGene>::const_iterator begin() const { return nodes.begin(); }
@@ -332,6 +355,14 @@ namespace cowboys {
     /// @brief Returns the const iterator to the end of the node configurations.
     /// @return The const iterator to the end of the node configurations.
     std::vector<CGPNodeGene>::const_iterator end() const { return nodes.end(); }
+
+    /// @brief Returns the const iterator to the beginning of the node configurations.
+    /// @return The const iterator to the beginning of the node configurations.
+    std::vector<CGPNodeGene>::const_iterator cbegin() const { return nodes.cbegin(); }
+
+    /// @brief Returns the const iterator to the end of the node configurations.
+    /// @return The const iterator to the end of the node configurations.
+    std::vector<CGPNodeGene>::const_iterator cend() const { return nodes.cend(); }
 
     /// @brief Returns the number of possible connections in the graph.
     /// @return The number of possible connections in the graph.
@@ -390,8 +421,8 @@ namespace cowboys {
           }
           // Create empty connections
           std::vector<char> input_connections(num_input_connections, '0');
-          // Add the node configuration. Default function index is 0.
-          nodes.push_back({input_connections, 0});
+          // Add the node configuration. With default values
+          nodes.push_back({input_connections});
         }
       }
 
@@ -405,7 +436,7 @@ namespace cowboys {
           num_input_connections += params.num_inputs;
         }
         std::vector<char> input_connections(num_input_connections, '0');
-        nodes.push_back({input_connections, 0});
+        nodes.push_back({input_connections});
       }
     }
 
@@ -450,6 +481,23 @@ namespace cowboys {
       }
     }
 
+    /// @brief Mutates the genotype, changing the default output of nodes with probability between 0 and 1.
+    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
+    /// @param min The minimum value to generate for mutation.
+    /// @param max The maximum value to generate for mutation.
+    void MutateOutputs(double mutation_rate, double min, double max) {
+      assert(mutation_rate >= 0.0 && mutation_rate <= 1.0);
+      std::uniform_real_distribution<double> dist(0.0, 1.0);
+      std::uniform_real_distribution<double> dist_output(min, max);
+      for (CGPNodeGene &node : nodes) {
+        if (dist(rng) < mutation_rate) {
+          // Mutate the output
+          // Wrap in stod(to_string(.)) to reliably export and import from string
+          node.default_output = std::stod(std::to_string(dist_output(rng)));
+        }
+      }
+    }
+
     /// @brief Check if two CGPGenotypes are equal. CGPParameters and CGPNodeGenes should be equal.
     /// @param other The other CGPGenotype to compare to.
     /// @return True if the two CGPGenotypes are equal, false otherwise.
@@ -459,7 +507,7 @@ namespace cowboys {
       if (std::ranges::size(nodes) != std::ranges::size(other.nodes)) // # of genes should be equal
         return false;
       bool all_same = true;
-      for (auto it = begin(), it2 = other.begin(); it != end(); ++it, ++it2) {
+      for (auto it = cbegin(), it2 = other.cbegin(); it != end(); ++it, ++it2) {
         all_same = all_same && (*it == *it2); // Compare CGPNodeGenes for equality
       }
       return all_same;
