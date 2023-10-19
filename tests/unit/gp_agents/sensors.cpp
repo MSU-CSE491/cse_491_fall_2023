@@ -11,7 +11,7 @@
 #include <catch2/catch_all.hpp>
 
 // Class project
-#include "Group7_GP_Agent/agent.hpp"
+#include "Group7_GP_Agent/GPAgent.hpp"
 #include "Group7_GP_Agent/GPAgentSensors.hpp"
 
 
