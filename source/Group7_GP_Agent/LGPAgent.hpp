@@ -87,7 +87,16 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
       instructionsList.push_back(std::make_tuple(
           possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
     }
+
+#ifndef NDEBUG
+    for (auto i = 0; i < LISTSIZE; i++)
+    {
+      std::cout << get<0>(instructionsList[i]) << " ";
+    }
+
+    std::cout << std::endl;
   }
+#endif
 
   /// @brief Encodes the actions from an agent's action map into a vector of
   /// string, representing action names.
@@ -108,6 +117,7 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
       instructions.push_back(sensor);
     }
 
+
     return instructions;
   }
 
@@ -121,6 +131,17 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
     std::string operation;
     auto instruction = instructionsList[currentInstructionIndex];
     int i = 0;
+
+  #ifndef NDEBUG
+    std::cout << "=========================================" << std::endl;
+
+    Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
+    Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
+    Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
+    Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
+  #endif
+
+
 
     if (currentInstructionIndex != 0) {
       resultsList[currentInstructionIndex - 1] = action_result;
