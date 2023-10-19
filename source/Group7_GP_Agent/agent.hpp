@@ -55,17 +55,20 @@ class GPAgent : public cse491::AgentBase {
       [[maybe_unused]] const cse491::type_options_t &type_options,
       [[maybe_unused]] const cse491::item_set_t &item_set,
       [[maybe_unused]] const cse491::agent_set_t &agent_set) override {
-//// TODO: Remove this in later releases
-#ifndef NDEBUG
-    Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
-    Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
-    Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
-    Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
-#endif
+
+
+
+
 
     if (movementIndex >= predefinedMovement.size()) {
       return 0;  // do nothing if it is out of bound for defined movement
     }
+
+
+    Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
+    Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
+    Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
+    Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
 
     auto action = action_map[predefinedMovement[movementIndex++]];
     return action;
