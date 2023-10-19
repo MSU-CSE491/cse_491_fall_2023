@@ -25,12 +25,8 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wcast-align -Winfinite-recursion -Wnon-virtu
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
-
-# Configure SFML
-set(SFML_SRC_DIR third_party/SFML)
-set(SFML_BUILD_DIR sfml_build)
-add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
   
 # Place all executables in the executable directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
@@ -40,6 +36,12 @@ file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Build the main application executables, if requested
 if(${BUILD_MAIN})
+
+  # Configure all of SFML
+  set(SFML_SRC_DIR third_party/SFML)
+  set(SFML_BUILD_DIR sfml_build)
+  add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
+
 
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
@@ -75,6 +77,16 @@ if(${BUILD_TESTS})
   set(CATCH_SRC_DIR third_party/Catch2)
   set(CATCH_BUILD_DIR catch_build)
   add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
+  
+  # Configure only the networking portion of SFML
+  if(NOT ${BUILD_MAIN})
+    set(SFML_BUILD_WINDOW FALSE)
+    set(SFML_BUILD_GRAPHICS FALSE)
+    set(SFML_BUILD_AUDIO FALSE)
+    set(SFML_SRC_DIR third_party/SFML)
+    set(SFML_BUILD_DIR sfml_build)
+    add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
+  endif()
 
   # Setup CTest
   include(CTest)
