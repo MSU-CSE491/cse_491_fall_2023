@@ -206,20 +206,22 @@ TEST_CASE("Genotype configuration", "[group7][genotype]") {
 
     genotype.begin()->function_idx = 1;
     CHECK_FALSE(genotype == genotype2);
-
     genotype2.begin()->function_idx = 1;
     CHECK(genotype == genotype2);
 
     genotype.begin()->input_connections = std::vector<char>(8, '1');
     CHECK_FALSE(genotype == genotype2);
-
     genotype2.begin()->input_connections = std::vector<char>(8, '1');
     CHECK(genotype == genotype2);
 
     genotype.begin()->input_connections = std::vector<char>(8, '0');
     CHECK_FALSE(genotype == genotype2);
-
     genotype2 = CGPGenotype().Configure(genotype.Export());
+    CHECK(genotype == genotype2);
+
+    genotype.begin()->default_output = 1;
+    CHECK_FALSE(genotype == genotype2);
+    genotype2.begin()->default_output = 1;
     CHECK(genotype == genotype2);
 
     //
