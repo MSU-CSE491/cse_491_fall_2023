@@ -12,13 +12,11 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Test")
 endif()
   
 # Create a function to make .cmake files simpler
-function(add_sources_to_target TARGET_NAME SOURCE_LIST)
-  foreach(CPP_SOURCE ${SOURCE_LIST})
-    message(STATUS "Loading source: ${CPP_SOURCE}")
-    target_sources(${TARGET_NAME}
-      PRIVATE ${CMAKE_SOURCE_DIR}/${CPP_SOURCE}
-      )
-  endforeach()
+function(add_source_to_target TARGET_NAME SOURCE_PATH)
+  message(STATUS "Loading source: ${SOURCE_PATH}")
+  target_sources(${TARGET_NAME}
+    PRIVATE ${CMAKE_SOURCE_DIR}/${SOURCE_PATH}
+    )
 endfunction() 
 
 # Set the necessary C++ flags, some of which are configuration-specific
@@ -58,7 +56,7 @@ if(${BUILD_MAIN})
       PRIVATE ${CMAKE_SOURCE_DIR}/source
       )
     target_link_libraries(${EXE_NAME}
-      PRIVATE sfml-window sfml-audio sfml-graphics
+      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
       )
     if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
       message(STATUS "Loading ${EXE_NAME}.cmake")

@@ -5,6 +5,8 @@ build
 cmake-build-debug
 cmake-build-release
 cmake-build-test
+cmake-build-debug-mingw
+cmake-build-debug-mingw-sfml
 
 # clion settings
 .idea/
@@ -20,4 +22,3 @@ cmake-build-test
 # executable files
 *.exe
 *.out
-
