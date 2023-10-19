@@ -23,7 +23,6 @@ namespace cse491 {
   protected:
     /// A map of names to IDs for each available action
     std::unordered_map<std::string, size_t> action_map;
-
     int action_result=0;  ///< Usually a one (success) or zero (failure).
 
     int action; // The action that the agent is currently performing
@@ -40,7 +39,6 @@ namespace cse491 {
     // -- Entity Overrides --
 
     bool IsAgent() const override { return true; }
-
 
     // -- Action management --
 
