@@ -1,6 +1,7 @@
 # Group 7 GP Agent
 
 
+# Demo October 18th
 ## Current progress:
 - [x] Sensors for the agent
   - [ ] provide fixes for the sensors <span style="background-color: #FF6347; color: #FFFFFF; padding: 5px; border-radius: 10px;">Fixes</span>
@@ -55,3 +56,10 @@ Current Plan:
   - should this be moved up?
 - Refactor: Refactor Experimental Macros?
   - is it useful to any other group??
+
+## Notes:
+- potentially move the sensors up to core or agent base.
+- potentially move the direction behavior up to core or agent base.
+- potentially move the experimental macros up to core or agent base.
+- load and save functions for LGPA for testing.
+
