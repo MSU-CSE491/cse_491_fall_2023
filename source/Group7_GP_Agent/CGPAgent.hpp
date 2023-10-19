@@ -12,7 +12,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "GPAgent.hpp"
+#include "GPAgent_.hpp"
 #include "GraphBuilder.hpp"
 
 namespace cowboys {
@@ -31,7 +31,7 @@ namespace cowboys {
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;
 
-  class CGPAgent : public GPAgent {
+  class CGPAgent : public GPAgent_ {
   protected:
     /// The genotype for this agent.
     CGPGenotype genotype;
@@ -40,8 +40,8 @@ namespace cowboys {
     std::unique_ptr<Graph> decision_graph;
 
   public:
-    CGPAgent(size_t id, const std::string &name) : GPAgent(id, name) {}
-    CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype) : GPAgent(id, name), genotype(genotype) {}
+    CGPAgent(size_t id, const std::string &name) : GPAgent_(id, name) {}
+    CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype) : GPAgent_(id, name), genotype(genotype) {}
 
     /// @brief Setup graph.
     /// @return Success.

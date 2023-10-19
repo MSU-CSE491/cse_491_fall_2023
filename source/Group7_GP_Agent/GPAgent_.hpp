@@ -14,14 +14,14 @@
 #include <unordered_map>
 
 namespace cowboys {
-  class GPAgent : public cse491::AgentBase {
+  class GPAgent_ : public cse491::AgentBase {
   protected:
     /// A map of extra state information.
     std::unordered_map<std::string, double> extra_state;
 
   public:
-    GPAgent(size_t id, const std::string &name) : AgentBase(id, name) { extra_state["previous_action"] = 0; }
-    ~GPAgent() = default;
+    GPAgent_(size_t id, const std::string &name) : AgentBase(id, name) { extra_state["previous_action"] = 0; }
+    ~GPAgent_() = default;
 
     /// @brief Setup graph.
     /// @return Success.
