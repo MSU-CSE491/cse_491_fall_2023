@@ -1,15 +1,13 @@
 # vscode cmake build
 build
 
-# clion cmake build
-cmake-build-debug
-cmake-build-release
-cmake-build-test
-cmake-build-debug-mingw
-cmake-build-debug-mingw-sfml
+# CMake build directories
+cmake-build-*/
 
-# clion settings
+# CLion-specific files
 .idea/
+.cmake/
+*.iml
 
 # vscode settings
 .vscode/
