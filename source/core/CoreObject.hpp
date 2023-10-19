@@ -12,6 +12,33 @@
  *  Deserialize_impl() - To restore the object from a stream.
  **/
 
+/**
+ * @author @amantham20
+ * uses as attibute to mark experimental classes and functions
+ */
+#ifndef NDEBUG
+#define EXPERIMENTAL_CLASS            \
+  __attribute__((                     \
+      annotate("experimental_class"), \
+      warning(                        \
+          "This is an experimental class and should be used with caution.")))
+#define EXPERIMENTAL_FUNCTION                                              \
+  __attribute__((annotate("experimental_function"),                        \
+                 warning("This is an experimental function and should be " \
+                         "used with caution.")))
+
+#else
+
+#define EXPERIMENTAL_CLASS                                                     \
+  __attribute__((annotate("experimental_class"),                               \
+                 error("This is an experimental class and is currently being " \
+                       "worked on and should not be used in release")))
+#define EXPERIMENTAL_FUNCTION                                               \
+  __attribute__((annotate("experimental_function"),                         \
+                 error("This is an experimental function and is currently " \
+                       "being worked on and should not be used in release")))
+#endif
+
 #pragma once
 
 #include <fstream>
