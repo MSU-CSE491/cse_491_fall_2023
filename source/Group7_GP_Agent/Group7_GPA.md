@@ -58,8 +58,8 @@ Current Plan:
   - is it useful to any other group??
 
 ## Notes:
-- potentially move the sensors up to core or agent base.
+- potentially move the sensors up to core or agent base.(TBD)
 - potentially move the direction behavior up to core or agent base.
-- potentially move the experimental macros up to core or agent base.
+- ~~potentially move the experimental macros up to core or agent base.~~
 - load and save functions for LGPA for testing.
 
