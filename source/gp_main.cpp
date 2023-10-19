@@ -18,11 +18,11 @@ int main() {
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
 
     //GP agent
-    world.AddAgent<cowboys::LGPAgent>("GP 1").SetPosition(1, 0).SetProperty("char", 'G');
+    world.AddAgent<cowboys::LGPAgent>("GP 1").SetPosition(1, 0).SetProperty("symbol", 'G');
 
 
     // Human agent
-    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
 
 
     world.Run();
