@@ -32,11 +32,29 @@ TEST_CASE("Agent initialization", "[gp_agents]")
         CHECK_FALSE(registers.setRegister(20, 1)); // Should fail, as index 20 is out of bounds
     }
 
-    SECTION("Get out-of-bounds register") {
-        CHECK(registers.getRegister(20) == 0); // Should return 0, as index 20 is out of bounds
+    SECTION("Get out-of-bounds register"){
+    try {
+      auto result = registers.getRegister(20);
+      REQUIRE_FALSE(result.has_value());
+
+      #ifndef NDEBUG
+        FAIL("Should have thrown an exception");
+      #else
+      REQUIRE_FALSE(result.has_value());
+      #endif
+
+    } catch (const std::out_of_range &e) {
+      SUCCEED("Caught expected out_of_range exception: " + std::string(e.what()));
+    } catch (...) {
+      FAIL("Caught unexpected exception");
     }
 
-    SECTION("Check initial values") {
+
+  }
+
+
+
+  SECTION("Check initial values") {
         for (int i = 0; i < registers.getNumRegisters(); ++i) {
             CHECK(registers.getRegister(i) == 0); // All registers should be initialized to 0
         }
