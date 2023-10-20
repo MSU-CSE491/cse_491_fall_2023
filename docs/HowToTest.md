@@ -29,8 +29,23 @@ If that completes without errors, we can now build the files in our current dire
 cmake --build .
 ```
 
+
 That should compile the unit tests. 
 Note that this process will take a while the first time as it needs to compile Catch2. It should be much faster in subsequent builds. 
+
+### Compiling with extra source files. 
+Note that if you want to compile code that depends on additional source files (i.e., additional `.cpp` files), you need to perform one additional step before compiling.
+Specifically, you need to create an additional `.cmake` file. 
+
+The `.cmake` file should have the same base name as your test's main `.cpp`, for example, `WorldGrid.cpp` would have an accompanying `WorldGrid.cmake`. 
+
+You have free reign within this CMake file, but to add sources you will need to add lines like this (one per source file you want to add): 
+```
+add_source_to_target(${EXE_NAME} "source/Agents/PathAgent.cpp")
+```
+The `${EXE_NAME}` ***DOES NOT CHANGE***, it is a variable set in the other CMake files. You wimply need to change the string to match the path of your source file (relative to the repo's root). 
+
+Once this file is created, compilation can proceed as normal. The CMake build system will automatically detect and execute the file you just created. 
 
 ## Running tests
 
