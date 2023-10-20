@@ -121,6 +121,33 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK_FALSE(all_default);
   }
+  SECTION("Mutate default") {
+    bool all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->default_output == 0;
+      all_default = all_default && it->function_idx == 0;
+      all_default = all_default && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
+    }
+    CHECK(all_default);
+
+    genotype.MutateDefault(0.);
+    all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->default_output == 0;
+      all_default = all_default && it->function_idx == 0;
+      all_default = all_default && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
+    }
+    CHECK(all_default);
+
+    genotype.MutateDefault(1.);
+    all_default = true;
+    for (auto it = genotype.begin(); it != genotype.end(); ++it) {
+      all_default = all_default && it->default_output == 0;
+      all_default = all_default && it->function_idx == 0;
+      all_default = all_default && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
+    }
+    CHECK_FALSE(all_default);
+  }
 }
 TEST_CASE("base64", "[group7][base64]") {
   SECTION("ULL") {

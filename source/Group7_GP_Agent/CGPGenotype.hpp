@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "GraphNode.hpp"
+
 namespace cowboys {
 
   /// The separator between each parameter in the header, defining the cartesian graph.
@@ -452,6 +454,18 @@ namespace cowboys {
     /// @brief Sets the seed of the random number generator.
     void SetSeed(size_t seed) { rng.seed(seed); }
 
+    /// @brief Mutates the genotype.
+    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating a value.
+    /// @param mutation The function to use for mutating the output. The function will receive the node gene as a
+    /// parameter.
+    void Mutate(double mutation_rate, std::function<void(CGPNodeGene &)> mutation) {
+      assert(mutation_rate >= 0.0 && mutation_rate <= 1.0);
+      std::uniform_real_distribution<double> dist_mutation(0.0, 1.0);
+      for (CGPNodeGene &node : nodes)
+        if (dist_mutation(rng) < mutation_rate)
+          mutation(node);
+    }
+
     /// @brief Mutates the input connections of the genotype.
     /// @param mutation_rate The probability of mutating a connection. For a given connection, if it is chosen to be
     /// mutated, there is a 50% chance it will stay the same.
@@ -493,16 +507,12 @@ namespace cowboys {
       });
     }
 
-    /// @brief Mutates the genotype.
-    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating a value.
-    /// @param mutation The function to use for mutating the output. The function will receive the node gene as a
-    /// parameter.
-    void Mutate(double mutation_rate, std::function<void(CGPNodeGene &)> mutation) {
-      assert(mutation_rate >= 0.0 && mutation_rate <= 1.0);
-      std::uniform_real_distribution<double> dist_mutation(0.0, 1.0);
-      for (CGPNodeGene &node : nodes)
-        if (dist_mutation(rng) < mutation_rate)
-          mutation(node);
+    /// @brief Performs a mutation on the genotype with default parameters.
+    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
+    void MutateDefault(double mutation_rate) {
+      MutateConnections(mutation_rate);
+      MutateFunctions(mutation_rate, FUNCTION_SET.size());
+      MutateOutputs(mutation_rate, -1, 1);
     }
 
     /// @brief Check if two CGPGenotypes are equal. CGPParameters and CGPNodeGenes should be equal.
