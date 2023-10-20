@@ -1,5 +1,5 @@
 FLAGS_version = -std=c++20
-FLAGS_warn    = -Wall -Wextra -Wcast-align -Winfinite-recursion -Wnon-virtual-dtor -Wnull-dereference -Woverloaded-virtual -pedantic
+FLAGS_warn    = -Wall -Wextra -Wcast-align -Winfinite-recursion -Wnon-virtual-dtor -Wnull-dereference -Woverloaded-virtual -Wpedantic
 FLAGS_all     = $(FLAGS_version) $(FLAGS_warn)
 
 FLAGS_debug   = $(FLAGS_all) -g                     # Setup for running a debugger
@@ -13,6 +13,8 @@ CXX = g++
 EXECUTABLES = simple
 
 default: simple
+
+add_subdirectory(test)
 
 # Generic rule to build default version of any executable
 $(EXECUTABLES): %:

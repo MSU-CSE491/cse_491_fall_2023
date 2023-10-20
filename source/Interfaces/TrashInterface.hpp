@@ -35,14 +35,18 @@ namespace cse491 {
       // Add in the agents / entities
       for (const auto & entity_ptr : item_set) {
         GridPosition pos = entity_ptr->GetPosition();
-        symbol_grid[pos.CellY()][pos.CellX()] = '+';
+        char c = '+';
+        if (entity_ptr->HasProperty("symbol")) {
+            c = entity_ptr->GetProperty<char>("symbol");
+        }
+        symbol_grid[pos.CellY()][pos.CellX()] = c;
       }
 
       for (const auto & agent_ptr : agent_set) {
         GridPosition pos = agent_ptr->GetPosition();
         char c = '*';
-        if(agent_ptr->HasProperty("char")){
-          c = static_cast<char>(agent_ptr->GetProperty("char"));
+        if(agent_ptr->HasProperty("symbol")){
+          c = agent_ptr->GetProperty<char>("symbol");
         }
         symbol_grid[pos.CellY()][pos.CellX()] = c;
       }

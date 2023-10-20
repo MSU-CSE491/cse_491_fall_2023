@@ -53,3 +53,16 @@ For example, in place of `world.Run();` you could have:
 ```
 
 You should have access to all of the basic data in the world; we may need to expand the API to provide access if you don't have everything you need.
+
+## Compiling a main
+By default, any `.cpp` files in `/source/` (not in subdirectories) should be automatically detected and compiled with CMake (see `HowToCompile.md`).
+ 
+If your main requires other source files (i.e., other `.cpp` files), you will also need to make a `.cmake` file. 
+For example, `example.cpp` would need a `example.cmake` file. 
+
+This `.cmake` file will give you fine-grained control over the compilation process of your main file. To add extra source files, simply add new lines like so: 
+```
+add_source_to_target(${EXE_NAME} "source/Agents/PathAgent.cpp")
+```
+The `${EXE_NAME}` argument should ***NOT*** change, as it is a variable from the other CMake infrastructure. 
+You will, however, need to update the other argument, which a string to the other source file you want to compile and link against. You will need one copy of this line for each source file you need to include. 

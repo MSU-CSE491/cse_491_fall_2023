@@ -48,8 +48,8 @@ namespace i_2D {
         for (const auto &agent_ptr: agent_set) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
-            if (agent_ptr->HasProperty("char")) {
-                c = static_cast<char>(agent_ptr->GetProperty("char"));
+            if (agent_ptr->HasProperty("symbol")) {
+                c = static_cast<char>(agent_ptr->GetProperty<char>("symbol"));
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
@@ -122,6 +122,9 @@ namespace i_2D {
 
                     case '@':
                         DrawAgentCell(cellRect,cell,agentTexture,sf::Color::Red);
+                        break;
+                    default:
+                        DrawDefaultCell(cellRect);
                         break;
 
                 }
@@ -347,6 +350,16 @@ namespace i_2D {
      */
     void MainInterface::DrawEmptyCell(sf::RectangleShape& cellRect) {
         cellRect.setFillColor(sf::Color::Black);
+        mWindow.draw(cellRect);
+    }
+    
+    /**
+     * @brief Draw the cell with a bright pink that is hard to miss
+     *
+     * @param cellRect The rectangle shape of the cell.
+     */
+    void MainInterface::DrawDefaultCell(sf::RectangleShape& cellRect) {
+        cellRect.setFillColor(sf::Color::Magenta);
         mWindow.draw(cellRect);
     }
 
