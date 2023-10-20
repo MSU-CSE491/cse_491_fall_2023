@@ -3,12 +3,12 @@
 #include <bitset>
 #include <cassert>
 #include <format>
+#include <functional>
 #include <iostream>
 #include <random>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <functional>
 
 namespace cowboys {
 
@@ -476,10 +476,21 @@ namespace cowboys {
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
     /// @param min The minimum value to generate for mutation.
     /// @param max The maximum value to generate for mutation.
-    void MutateOutputs(double mutation_rate, double min, double max) {
+    void MutateOutputs(double mutation_rate, double min, double max, bool additive = true) {
       std::uniform_real_distribution<double> dist(min, max);
-      // Wrap random double in stod(to_string(.)) to reliably export and import genotype from string.
-      Mutate(mutation_rate, [this, &dist](CGPNodeGene &node) { node.default_output = std::stod(std::to_string(dist(rng))); });
+      Mutate(mutation_rate, [this, &dist, additive](CGPNodeGene &node) {
+        double mutation = std::stod(std::to_string(dist(rng)));
+        if (additive) {
+          node.default_output += mutation;
+          // Clamp to prevent overflow during genotype export
+          double min = std::numeric_limits<double>::min();
+          double max = std::numeric_limits<double>::max();
+          // Wrap random double in stod(to_string(.)) to reliably export and import genotype from string.
+          node.default_output = std::stod(std::to_string(std::clamp(node.default_output, min, max)));
+        } else {
+          node.default_output = std::stod(std::to_string(mutation));
+        }
+      });
     }
 
     /// @brief Mutates the genotype.
