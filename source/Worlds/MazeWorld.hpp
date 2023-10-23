@@ -92,6 +92,12 @@ namespace cse491 {
       return false;
       }
 
+      // Calling TarHelper function if player is either moving onto a tar tile or stuck on a tar tile
+      if( main_grid.At(new_position) == tar_id || main_grid.At(currentPosition) == tar_id)
+      {
+          return TarHelper(new_position, currentPosition, agent);
+      }
+
       // agent is moving onto a key tile and picking it up
       if( main_grid.At(new_position) == key_id )
       {
@@ -106,44 +112,54 @@ namespace cse491 {
           exit(0);
       }
 
-      // player is on tar tile and trying to move to a tar tile
-      if( main_grid.At(new_position) == tar_id && main_grid.At(currentPosition) == tar_id)
-      {
-          if( agent.GetProperty("tar_property") == 6.0 ) //player is stuck on tar
-          {
-              agent.SetProperty("tar_property", 5.0);
-              new_position = currentPosition;
-              return false;
-          }
-          else
-          {
-              agent.SetProperty("tar_property", 6.0);
-              agent.SetPosition(new_position);
-              return true;
-          }
-      }
-      // determining if player is moving onto a tar tile and setting tar property to 6.0 if so
-      if( main_grid.At(new_position) == tar_id )
-      {
-          agent.SetProperty("tar_property", 6.0);
-      }
-
-      //Determining if agent is stuck on tar or not
-      if( main_grid.At(currentPosition) == tar_id )
-      {
-          if( agent.GetProperty("tar_property") == 6.0 ) //player is stuck on tar
-          {
-              agent.SetProperty("tar_property", 5.0);
-              new_position = currentPosition;
-              return false;
-          }
-      }
-
-
       // Set the agent to its new postion.
       agent.SetPosition(new_position);
 
       return true;
+    }
+
+    bool TarHelper(GridPosition & new_position, GridPosition & currentPosition, AgentBase & agent)
+    {
+        // player is on tar tile and trying to move to a tar tile
+        if( main_grid.At(new_position) == tar_id && main_grid.At(currentPosition) == tar_id)
+        {
+            if( agent.GetProperty("tar_property") == 6.0 ) //player is stuck on tar
+            {
+                agent.SetProperty("tar_property", 5.0);
+                new_position = currentPosition;
+                return false;
+            }
+            else //player moved from a tar tile to another tar tile and is now stuck
+            {
+                agent.SetProperty("tar_property", 6.0);
+                agent.SetPosition(new_position);
+                return true;
+            }
+        }
+        // determining if player is moving onto a tar tile and setting tar property to 6.0 if so
+        if( main_grid.At(new_position) == tar_id )
+        {
+            agent.SetProperty("tar_property", 6.0);
+            agent.SetPosition(new_position);
+            return true;
+        }
+
+        //Determining if agent is stuck on tar or not
+        if( main_grid.At(currentPosition) == tar_id )
+        {
+            if( agent.GetProperty("tar_property") == 6.0 ) //player is stuck on tar
+            {
+                agent.SetProperty("tar_property", 5.0);
+                new_position = currentPosition;
+                return false;
+            }
+            if( agent.GetProperty("tar_property") == 5.0 ) //player is now free to move
+            {
+                agent.SetPosition(new_position);
+                return true;
+            }
+        }
+        return true;
     }
 
   };

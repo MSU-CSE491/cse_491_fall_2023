@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(GROUP6 source/simple_main.cpp
         source/Worlds/BiomeGenerator.cpp
-        source/Worlds/BiomeGenerator.h
+        source/Worlds/BiomeGenerator.hpp
         source/Worlds/PerlinNoise.hpp
         )
 
