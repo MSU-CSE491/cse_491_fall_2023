@@ -1,11 +1,21 @@
-# CMake build directories
-cmake-build-*/
+# vscode cmake build
+build
 
-# CLion-specific files
-.cmake/
+# clion cmake build
+cmake-build-debug
+cmake-build-release
+
+# clion settings
 .idea/
-*.iml
-../source/Worlds/Doxyfile.doxy
-../source/Worlds/html/
-../source/Worlds/latex/
-../assets/grids/
+
+# vscode settings
+.vscode/
+.github/
+
+# Vim swap files
+*.swp
+*.swo
+
+# executable files
+*.exe
+*.out
