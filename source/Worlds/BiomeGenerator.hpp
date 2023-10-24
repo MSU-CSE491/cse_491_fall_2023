@@ -69,6 +69,8 @@ private:
     unsigned int height;                  ///< Height of the grid
     std::vector<std::vector<char>> grid;  ///< Grid of all tiles
 
+    unsigned int seed;
+
 public:
     BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
     ~BiomeGenerator() = default;
@@ -76,6 +78,8 @@ public:
     void generate();
     void saveToFile(const std::string &filename) const;
     void placeSpecialTiles(const char& genericTile, const char& specialTile, double percentage);
+
+    [[nodiscard]] unsigned int getSeed() const { return  seed; }
 
     void setTiles(const char &firstTile, const char &secondTile);
     [[nodiscard]] BiomeType getBiome() const { return biome; }

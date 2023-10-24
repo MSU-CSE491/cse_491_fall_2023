@@ -19,7 +19,7 @@ using std::vector;
  * @param height The height of the grid
  * @param seed   The seed used for random number generation
  */
-BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed) : biome(biome), width(width), height(height) {
+BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed) : biome(biome), width(width), height(height), seed(seed) {
 
     if (biome == BiomeType::Maze) {
         setTiles(' ', '#');
