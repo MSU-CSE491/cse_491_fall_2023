@@ -1,7 +1,0 @@
-/build/
-/debug/
-/CMakeFiles/
-*.swp
-*.swo
-game
-../assets/grids/
