@@ -10,13 +10,15 @@
 #include "Worlds/MazeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
 
+using group6::BiomeGenerator, group6::BiomeType;
+
 int main() {
     static const unsigned int SEED = 973;
 
     BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
     biomeGenerator.generate();
 
-    srand(time(NULL));
+    srand(time(nullptr));
     auto path = biomeGenerator.clearPath();
     biomeGenerator.applyPathToGrid(path);
     biomeGenerator.saveToFile("../assets/grids/default_maze.grid");

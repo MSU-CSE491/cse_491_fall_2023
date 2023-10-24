@@ -10,6 +10,7 @@
 #include <tuple>
 #include <random>
 
+using namespace group6;
 using std::vector;
 
 /**
