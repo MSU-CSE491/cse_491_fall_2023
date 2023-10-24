@@ -4,6 +4,7 @@
  **/
 
 // Include the modules that we will be using.
+#include <ctime>
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
