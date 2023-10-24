@@ -17,41 +17,11 @@
 
 namespace group6 {
     using siv::PerlinNoise;
-    using cse491::WorldGrid;
+    using cse491::WorldGrid, cse491::GridPosition;
 
     enum class BiomeType {
         Maze,
         Grasslands
-    };
-
-    /**
-     * Holds coordinate position on the grid
-     * @param biome The biome of the grid
-     */
-    struct Point {
-        int x;    ///< The x coordinate on the grid)
-        int y;    ///< The y coordinate on the grid)
-
-        /**
-         * Creates an (x,y) coordinate point
-         * @param _x  The x-coordinate
-         * @param _y  The y-coordinate
-         */
-        Point(int _x, int _y): x(_x), y(_y) {}
-
-        /**
-         * Comparison operator between 2 equal points
-         * @param other The other point that this point is being compared to
-         * @return True if the 2 points are equal, false otherwise
-         */
-        bool operator==(const Point& other) const { return x == other.x && y == other.y; }
-
-        /**
-         * Comparison operator between 2 different points
-         * @param other The other point that this point is being compared to
-         * @return True if the 2 points are different, false otherwise
-         */
-        bool operator!=(const Point& other) const { return !(*this == other); }
     };
 
     /**
@@ -102,7 +72,7 @@ namespace group6 {
         void placeDoorTile(const size_t &doorTile);
         void placeKeyTile(const size_t &keyTile);
 
-        [[nodiscard]] std::vector<Point> clearPath() const;
-        void applyPathToGrid(const std::vector<Point>& path);
+        [[nodiscard]] std::vector<GridPosition> clearPath() const;
+        void applyPathToGrid(const std::vector<GridPosition>& path);
     };
 } // End of namespace group6

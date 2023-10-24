@@ -10,7 +10,8 @@
 #include <random>
 
 using namespace group6;
-using  cse491::CellType, cse491::type_options_t;
+using namespace cse491;
+
 using std::vector;
 
 /**
@@ -114,28 +115,27 @@ void BiomeGenerator::placeSpecialTiles(const size_t &genericTile, const size_t &
 /**
  * Clears a randomized path from the top left of the
  * grid, to any point on the rightmost side of the map
- * @return A vector of points necessary for this path
+ * @return A vector of GridPositions necessary for this path
  */
-std::vector<Point> BiomeGenerator::clearPath() const {
-    std::vector<Point> path;
+std::vector<GridPosition> BiomeGenerator::clearPath() const {
+    std::vector<GridPosition> path;
 
-    Point current(0, 0);
+    GridPosition current(0, 0);
     path.push_back(current);
 
-    while (current.x < width - 1) {
+    while (current.GetX() < width - 1) {
         int randDirection = rand() % 3; // 0: Right, 1: Up, 2: Down
 
         // Choose next point based on random direction
-        Point next = current;
+        GridPosition next = current;
         if (randDirection == 0) {
-            next.x++;
+            next = next.ToRight();
         } else if (randDirection == 1) {
-            if (next.y > 0) // Ensure within grid bounds
-                next.y--;
+            if (next.GetY() > 0) // Ensure within grid bounds
+                next = next.Above();
         } else {
-
-            if (next.y < height - 1) // Ensure within grid bounds
-                next.y++;
+            if (next.GetY() < height - 1) // Ensure within grid bounds
+                next = next.Below();
         }
 
         // If the next point is the same as the current, then we chose an invalid direction
@@ -152,11 +152,11 @@ std::vector<Point> BiomeGenerator::clearPath() const {
 /**
  * Clears the walls out of the grid, guaranteeing a path from the
  * left of the grid, to any point on the rightmost side of the map
- * @param path A vector of points necessary for this path
+ * @param path A vector of GridPositions necessary for this path
  */
-void BiomeGenerator::applyPathToGrid(const std::vector<Point> &path) {
-    for (const Point &p: path) {
-        grid.At(p.x, p.y) = floor_id;
+void BiomeGenerator::applyPathToGrid(const std::vector<GridPosition> &path) {
+    for (const GridPosition &p: path) {
+        grid.At(p.GetX(), p.GetY()) = floor_id;
     }
 }
 
