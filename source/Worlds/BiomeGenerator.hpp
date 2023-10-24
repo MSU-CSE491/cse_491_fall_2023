@@ -6,13 +6,14 @@
  */
 
 #pragma once
+
 #include <queue>
 #include <functional>
 #include <vector>
 
-
 #include "PerlinNoise.hpp"
 #include "../core/WorldGrid.hpp"
+#include "../core/Data.hpp"
 
 namespace group6 {
     using siv::PerlinNoise;
@@ -64,13 +65,26 @@ namespace group6 {
         PerlinNoise perlinNoise;              ///< The Perlin Noise procedural generation algorithm
 
         BiomeType biome;                      ///< Biome for the gird
-        std::vector<char> tiles;              ///< Vector to store tiles
 
         unsigned int width;                   ///< Width of the grid
         unsigned int height;                  ///< Height of the grid
-        std::vector<std::vector<char>> grid;  ///< Grid of all tiles
+        WorldGrid grid;                       ///< Grid of all tiles
 
-        unsigned int seed;
+        unsigned int seed;                    ///< Seed used for RNG
+
+        // TODO: Refactor so tiles are passed by reference from actual world class
+        std::vector<size_t> tiles;            ///< Vector to store tiles
+
+        size_t floor_id = 0;
+        size_t wall_id = 1;
+
+        size_t spike_id = 2;
+        size_t tar_id = 3;
+        size_t key_id = 4;
+        size_t door_id = 5;
+
+        size_t grass_id = 6;
+        size_t dirt_id = 7;
 
     public:
         BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
@@ -78,15 +92,15 @@ namespace group6 {
 
         void generate();
         void saveToFile(const std::string &filename) const;
-        void placeSpecialTiles(const char& genericTile, const char& specialTile, double percentage);
+        void placeSpecialTiles(const size_t &genericTile, const size_t &specialTile, double percentage);
 
         [[nodiscard]] unsigned int getSeed() const { return  seed; }
 
-        void setTiles(const char &firstTile, const char &secondTile);
+        void setTiles(const size_t &firstTile, const size_t &secondTile);
         [[nodiscard]] BiomeType getBiome() const { return biome; }
 
-        void placeDoorTile(const char &doorTile);
-        void placeKeyTile(const char &keyTile);
+        void placeDoorTile(const size_t &doorTile);
+        void placeKeyTile(const size_t &keyTile);
 
         [[nodiscard]] std::vector<Point> clearPath() const;
         void applyPathToGrid(const std::vector<Point>& path);
