@@ -31,7 +31,7 @@ namespace netWorth{
 
     public:
         ServerInterface() = default;
-        ~ServerInterface() = default;
+        virtual ~ServerInterface() = default;
 
         /**
          * The initial connection for the server to a client

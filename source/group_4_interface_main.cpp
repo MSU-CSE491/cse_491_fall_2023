@@ -18,22 +18,22 @@ int main()
   world.AddAgent<i_2D::MainInterface>("Interface").SetProperty<char>("symbol", '@');
 
   // Adding power sword with id = 1; name = sword of power
-  auto powerSword = std::make_unique<cse491::Entity>(1, "Sword of Power");
+  auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");
   powerSword->SetProperty("Damage", 20.0);
   powerSword->SetPosition(1, 2);
-  world.AddEntity(powerSword);
+  world.AddItem(std::move(powerSword));
 
   // Adding fire sword with id = 2; name = Inferno Slicer
-  auto infernoSlicer = std::make_unique<cse491::Entity>(2, "Inferno Slicer");
+  auto infernoSlicer = std::make_unique<cse491::ItemBase>(2, "Inferno Slicer");
   infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0, "Burning Duration", 2.5);
   infernoSlicer->SetPosition(3, 4);
-  world.AddEntity(infernoSlicer);
+  world.AddItem(std::move(infernoSlicer));
 
   // Adding a piece of armor with id = 10; name = Daedric
-  auto daedricArmor = std::make_unique<cse491::Entity>(10, "Daedric Armor");
+  auto daedricArmor = std::make_unique<cse491::ItemBase>(10, "Daedric Armor");
   daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
   daedricArmor->SetPosition(5, 0);
-  world.AddEntity(daedricArmor);
+  world.AddItem(std::move(daedricArmor));
 
   world.Run();
 }

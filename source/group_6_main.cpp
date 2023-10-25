@@ -8,7 +8,7 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/GenerativeWorld.hpp"
-#include "Worlds/BiomeGenerator.h"
+#include "Worlds/BiomeGenerator.hpp"
 
 int main() {
     static const unsigned int SEED = 973;

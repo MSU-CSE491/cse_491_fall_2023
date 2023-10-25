@@ -7,7 +7,6 @@
 #pragma once
 
 #include <cassert>
-#include <random>
 
 #include "../core/WorldBase.hpp"
 
@@ -28,10 +27,6 @@ class GenerativeWorld : public WorldBase {
   size_t grass_id;
   size_t dirt_id;
 
-  unsigned int seed; ///< Seed used for generator
-  std::mt19937 randomGenerator;
-
-
   /// Provide the agent with movement actions.
   void ConfigAgent(AgentBase & agent) override {
     agent.AddAction("up", MOVE_UP);
@@ -43,11 +38,7 @@ class GenerativeWorld : public WorldBase {
   }
 
  public:
-  /**
-   * Initializes world with cell types and random generator
-   * @param seed Seed used for RNG. Default is current time
-   */
-  explicit GenerativeWorld(unsigned int seed = time(nullptr)) : seed(seed) {
+  explicit GenerativeWorld(unsigned int seed = time(nullptr)) : WorldBase(seed) {
     floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
     wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
 
@@ -61,8 +52,6 @@ class GenerativeWorld : public WorldBase {
     dirt_id  = AddCellType("dirt", "Dirt you can walk on.", '~');
 
     main_grid.Read("../assets/grids/generated_maze.grid", type_options);
-
-    randomGenerator.seed(seed);
   }
   ~GenerativeWorld() = default;
 
@@ -85,11 +74,10 @@ class GenerativeWorld : public WorldBase {
 
     // Check if the agent is trying to move onto a spike.
     if (main_grid.At(new_position) == spike_id) {
+      std::cout << "Game over, try again!" << std::endl;
+      exit(0);  // Halting the program
 
-    std::cout << "Game over, try again!" << std::endl;
-    exit(0);  // Halting the program
-
-    return false;
+      return false;
     }
 
     // agent is moving onto a key tile and picking it up

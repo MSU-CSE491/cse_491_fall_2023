@@ -32,7 +32,7 @@ namespace netWorth{
 
     public:
         NetworkingInterface() = default;
-        ~NetworkingInterface() = default;
+        virtual ~NetworkingInterface() = default;
 
         /**
          * Receives a socket that has been connected between client and server

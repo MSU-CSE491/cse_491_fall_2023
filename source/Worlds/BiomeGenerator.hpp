@@ -1,5 +1,5 @@
 /**
- * @file BiomeGenerator.h
+ * @file BiomeGenerator.hpp
  * @author Paul Schulte, Milan Mihailovic, ChatGPT
  *
  * Uses perlin noise to create dirt and grass on a grid
@@ -58,7 +58,7 @@ struct Point {
 class BiomeGenerator {
 private:
     const double frequency = 8.0;         ///< [0.1, 64.0]
-    const int octaves = 8;                ///< [1, 16]
+    // const int octaves = 8;                ///< [1, 16]
 
     PerlinNoise perlinNoise;              ///< The Perlin Noise procedural generation algorithm
 

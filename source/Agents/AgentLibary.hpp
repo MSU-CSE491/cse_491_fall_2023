@@ -58,14 +58,14 @@ struct CompareNodes {
 /// exist
 std::vector<cse491::GridPosition> GetShortestPath(const cse491::GridPosition &start,
                                                   const cse491::GridPosition &end,
-                                                  const cse491::WorldBase *world,
-                                                  const cse491::AgentBase *agent) {
+                                                  const cse491::WorldBase &world,
+                                                  const cse491::AgentBase &agent) {
   // Generated with the help of chat.openai.com
-  const size_t rows = world->GetGrid().GetWidth();
-  const size_t cols = world->GetGrid().GetHeight();
+  const size_t rows = world.GetGrid().GetWidth();
+  const size_t cols = world.GetGrid().GetHeight();
   std::vector<cse491::GridPosition> path;
   // If the start or end is not valid then return empty list
-  if (!(world->GetGrid().IsValid(start) && world->GetGrid().IsValid(end)))
+  if (!(world.GetGrid().IsValid(start) && world.GetGrid().IsValid(end)))
     return path;
 
   // Define possible movements (up, down, left, right)
@@ -104,7 +104,7 @@ std::vector<cse491::GridPosition> GetShortestPath(const cse491::GridPosition &st
     for (int i = 0; i < 4; ++i) {
       cse491::GridPosition newPos(current->position.GetX() + dx[i], current->position.GetY() + dy[i]);
       // Check if the neighbor is within bounds and is a valid move
-      if (world->GetGrid().IsValid(newPos) && world->IsTraversable(agent, newPos)) {
+      if (world.GetGrid().IsValid(newPos) && world.IsTraversable(agent, newPos)) {
         double newG = current->g + 1;                   // Assuming a cost of 1 to move to a neighbor
         double newH = std::abs(newPos.GetX() - endNode->position.GetX()) +
             std::abs(newPos.GetY() - endNode->position.GetY()); // Manhattan distance
