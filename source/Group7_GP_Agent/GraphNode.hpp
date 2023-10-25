@@ -53,7 +53,7 @@ namespace cowboys {
     GraphNode(double default_value) : output{default_value} {}
     GraphNode(NodeFunction function) : function_pointer{function} {}
 
-    virtual double GetOutput() const {
+    double GetOutput() const {
       if (cached_output_valid)
         return cached_output;
 
