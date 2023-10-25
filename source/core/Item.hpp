@@ -17,11 +17,13 @@ namespace walle
         int level = 0;
         int damage = 0;
         int durability = 0;
+        int value = 0;
+        double weight = 0.0;
 
     public:
         // Constructor
-        Item(const std::string &name, int level, int damage, int durability)
-                : name(name), level(level), damage(damage), durability(durability) {}
+        Item(const std::string &name, int level, int damage, int durability, int value, double weight)
+                : name(name), level(level), damage(damage), durability(durability), value(value), weight(weight) {}
 
         // Destructor
         ~Item() = default;
@@ -33,10 +35,14 @@ namespace walle
         void SetLevel(int new_level) { level = new_level; }
         void SetDamage(int new_damage) { damage = new_damage; }
         void SetDurability(int new_durability) { durability = new_durability; }
+        void SetValue(int new_value) { value = new_value; }
+        void SetWeight(double new_weight) { weight = new_weight; }
 
         int GetLevel() const { return level; }
         int GetDamage() const { return damage; }
         int GetDurability() const { return durability; }
+        int GetValue() const { return value; }
+        double GetWeight() const { return weight; }
 
         // Item functions
         virtual void UseItem() { durability--; } // virtual for Armor and Food item classes

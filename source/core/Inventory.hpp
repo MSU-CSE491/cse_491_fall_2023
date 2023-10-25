@@ -128,7 +128,23 @@ namespace walle {
 			return false;
 		}
 
+        /// Calculate the total value of the items in the inventory
+        int CalculateInventoryValue(){
+            int total_value = 0;
+            for(auto item : mItems){
+                total_value += item->GetValue();
+            }
+            return total_value;
+        }
 
+        /// Calculate the total weight of the items in the inventory
+        double CalculateInventoryWeight(){
+            double total_weight = 0.0;
+            for(auto item : mItems){
+                total_weight += item->GetWeight();
+            }
+            return total_weight;
+        }
 
 
     };

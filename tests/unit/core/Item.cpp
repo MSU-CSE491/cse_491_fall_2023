@@ -17,7 +17,7 @@ using namespace walle;
 TEST_CASE("Item Initialization", "[core]"){
 
     // create temporary item to work on
-    std::shared_ptr<Item> item = std::make_shared<Item>("test", 1, 1, 1);
+    std::shared_ptr<Item> item = std::make_shared<Item>("test", 1, 1, 1, 1, 1.0);
 
     // check that it was initialized
     REQUIRE(item != nullptr);
@@ -26,7 +26,7 @@ TEST_CASE("Item Initialization", "[core]"){
 TEST_CASE("Item Name", "[core]"){
 
     // create an item to work on
-    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
 
     SECTION("Get Name"){
 
@@ -51,7 +51,7 @@ TEST_CASE("Item Name", "[core]"){
 TEST_CASE("Item Level", "[core]"){
 
     // create an item to work on
-    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
 
     SECTION("Get Level"){
 
@@ -76,7 +76,7 @@ TEST_CASE("Item Level", "[core]"){
 TEST_CASE("Item Damage", "[core]"){
 
     // create an item to work on
-    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
 
     SECTION("Get Damage"){
 
@@ -101,7 +101,7 @@ TEST_CASE("Item Damage", "[core]"){
 TEST_CASE("Item Durability", "[core]"){
 
     // create an item to work on
-    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1);
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
 
     SECTION("Get Durability"){
 
@@ -138,5 +138,55 @@ TEST_CASE("Item Durability", "[core]"){
 
         // make sure it has been affected by uses
         REQUIRE(dura == 6);
+    }
+}
+
+TEST_CASE("Item Value", "[core]"){
+
+    // create an item to work on
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
+
+    SECTION("Get Value"){
+
+        // grab item damage
+        auto value = item->GetValue();
+
+        // check item damage
+        REQUIRE(value == 1);
+    }
+
+    SECTION("Set Value"){
+
+        // set new damage and grab it
+        item->SetValue(7);
+        auto value = item->GetValue();
+
+        // check new name
+        REQUIRE(value == 7);
+    }
+}
+
+TEST_CASE("Item Weight", "[core]"){
+
+    // create an item to work on
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
+
+    SECTION("Get Weight"){
+
+        // grab item damage
+        auto weight = item->GetWeight();
+
+        // check item damage
+        REQUIRE(weight == 1);
+    }
+
+    SECTION("Set Weight"){
+
+        // set new damage and grab it
+        item->SetWeight(7.5);
+        auto weight = item->GetWeight();
+
+        // check new name
+        REQUIRE(weight == 7.5);
     }
 }
