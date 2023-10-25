@@ -15,6 +15,8 @@ foreach(TARGET IN LISTS TARGETS)
     PRIVATE ${MAIN_SOURCE_DIR}
     )
   target_link_libraries(tests-unit-world-${TARGET}
-    PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json
+    # Adding nlohmann_json::nlohmann_json gives an error when running from tests/build,
+    # so removing it for now.
+    PRIVATE Catch2::Catch2WithMain
     )
 endforeach()
