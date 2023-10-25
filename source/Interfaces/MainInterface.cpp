@@ -16,6 +16,8 @@ namespace i_2D {
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
         mMenu.initialize();
+        mTextureHolder.LoadTexture("wallTexture", "../assets/walls/wall.png");
+        mTextureHolder.LoadTexture("agentTexture", "../assets/agents/troll.png");
     }
 
     /**
@@ -112,10 +114,6 @@ namespace i_2D {
                         DrawWall(cellRect, wallTexture, isVerticalWall);
                         break;
 
-                    case ' ':
-                        DrawEmptyCell(cellRect);
-                        break;
-
                     case '*':
                         DrawAgentCell(cellRect,cell, agentTexture,sf::Color::Cyan);
                         break;
@@ -123,6 +121,11 @@ namespace i_2D {
                     case '@':
                         DrawAgentCell(cellRect,cell,agentTexture,sf::Color::Red);
                         break;
+
+                    case ' ':
+                        DrawEmptyCell(cellRect);
+                        break;
+
                     default:
                         DrawDefaultCell(cellRect);
                         break;
@@ -228,6 +231,10 @@ namespace i_2D {
 
                 } else if(event.type == sf::Event::MouseButtonPressed){
                     mMenu.HandleMouseButtonPressed(mWindow);
+
+                }else if(event.type == sf::Event::MouseWheelScrolled)
+                {
+                    HandleScroll(event);
                 }
             }
 
@@ -319,6 +326,12 @@ namespace i_2D {
         mWindow.setView(sf::View(viewArea));
     }
 
+    void HandleScroll(sf::Event::MouseWheelScrollEvent event)
+    {
+//        bool zoomIn = event.delta > 0;
+//        std::cout<<zoomIn<<std::endl;
+    }
+
 
     /**
      * @brief Draw the wall texture based on the provided parameters.
@@ -339,7 +352,7 @@ namespace i_2D {
 //        } else {
 //            mWindow.draw(cellRect);
 //        }
-        cellRect.setTexture(&wallTexture);
+        cellRect.setTexture(&mTextureHolder.GetTexture("wallTexture"));
         mWindow.draw(cellRect);
     }
 
@@ -371,7 +384,7 @@ namespace i_2D {
      * @param color The color to be set for the cell.
      */
     void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent, sf::Color color) {
-        cellRect.setTexture(&agent);
+        cellRect.setTexture(&mTextureHolder.GetTexture("agentTexture"));
         cellRect.setFillColor(color);
         cell.setFillColor(sf::Color::Black);
         mWindow.draw(cell);

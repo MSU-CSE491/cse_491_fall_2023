@@ -16,6 +16,7 @@
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
+#include "TextureHolder.hpp"
 
 
 namespace i_2D {
@@ -38,6 +39,7 @@ namespace i_2D {
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
         Menu mMenu;
+        TextureHolder mTextureHolder;
 
     public:
 
@@ -93,6 +95,8 @@ namespace i_2D {
         sf::Vector2f CalculateCellSize(const WorldGrid &grid);
 
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
+
+        void HandleScroll(sf::Event event);
     };
 
 } // End of namespace 2D
