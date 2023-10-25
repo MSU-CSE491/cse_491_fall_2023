@@ -221,3 +221,47 @@ TEST_CASE("Total Inventory Weight", "[core]"){
         REQUIRE(inventory.CalculateInventoryWeight() == 26.5);
     }
 }
+
+TEST_CASE("Inventory Full/Empty"){
+
+    // create a temp agent and get its inventory
+    cse491::AgentBase agent(1, "Test Agent");
+    walle::Inventory inventory = agent.GetInventory();
+
+    // create items to test on
+    std::shared_ptr<walle::Item> item1 = std::make_shared<Item>("sword", 2, 6, 10, 1, 6.0);
+    std::shared_ptr<walle::Item> item2 = std::make_shared<Item>("apple", 1, 0, 2, 5, 8.0);
+    std::shared_ptr<walle::Item> item3 = std::make_shared<Item>("axe", 4, 7, 12, 9, 2.5);
+    std::shared_ptr<walle::Item> item4 = std::make_shared<Item>("banana", 1, 1, 1, 6, 10.0);
+    std::shared_ptr<walle::Item> item5 = std::make_shared<Item>("sword", 2, 6, 10, 1, 6.0);
+    std::shared_ptr<walle::Item> item6 = std::make_shared<Item>("apple", 1, 0, 2, 5, 8.0);
+    std::shared_ptr<walle::Item> item7 = std::make_shared<Item>("axe", 4, 7, 12, 9, 2.5);
+    std::shared_ptr<walle::Item> item8 = std::make_shared<Item>("banana", 1, 1, 1, 6, 10.0);
+    std::shared_ptr<walle::Item> item9 = std::make_shared<Item>("sword", 2, 6, 10, 1, 6.0);
+    std::shared_ptr<walle::Item> item10 = std::make_shared<Item>("apple", 1, 0, 2, 5, 8.0);
+
+    SECTION("Inventory Empty"){
+
+        // checks that the inventory is empty
+        REQUIRE(inventory.IsEmpty() == true);
+        REQUIRE(inventory.IsFull() == false);
+    }
+
+    inventory.AddItem(item1);
+    inventory.AddItem(item2);
+    inventory.AddItem(item3);
+    inventory.AddItem(item4);
+    inventory.AddItem(item5);
+    inventory.AddItem(item6);
+    inventory.AddItem(item7);
+    inventory.AddItem(item8);
+    inventory.AddItem(item9);
+    inventory.AddItem(item10);
+
+    SECTION("Inventory Full"){
+
+        // checks that the inventory is full
+        REQUIRE(inventory.IsEmpty() == false);
+        REQUIRE(inventory.IsFull() == true);
+    }
+}

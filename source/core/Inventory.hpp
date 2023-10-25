@@ -146,6 +146,21 @@ namespace walle {
             return total_weight;
         }
 
+        /// Checks to see if the inventory is full
+        bool IsFull(){
+            if(mItems.size() == mMaxItems){
+                return true;
+            }
+            return false;
+        }
+
+        /// Checks to see if the inventory is empty
+        bool IsEmpty(){
+            if(mItems.size() == 0){
+                return true;
+            }
+            return false;
+        }
 
     };
 }
