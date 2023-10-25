@@ -51,11 +51,8 @@ namespace cowboys {
 
       // Create a default genotype if one wasn't provided
       if (genotype.GetNumFunctionalNodes() == 0) {
-        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
-        genotype.MutateDefault(0.2);
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK}).MutateDefault(0.2);
       }
-
-      CGPGenotype test = CGPGenotype().Configure(genotype.Export());
 
       // Initialize the decision graph
       decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
