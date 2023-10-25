@@ -34,8 +34,11 @@ namespace cowboys {
     /// Flag indicating whether the cached output is valid.
     mutable bool cached_output_valid{false};
 
+    /// @brief Add an output node to this node. Used for cache invalidation.
+    /// @param node The node to add as an output.
     void AddOutput(std::weak_ptr<GraphNode> node) { outputs.push_back(node); }
 
+    /// @brief Invalidates this node's cache and the caches of all nodes that depend on this node.
     void RecursiveInvalidateCache() const {
       cached_output_valid = false;
       for (auto &output : outputs) {
@@ -53,6 +56,8 @@ namespace cowboys {
     GraphNode(double default_value) : output{default_value} {}
     GraphNode(NodeFunction function) : function_pointer{function} {}
 
+    /// @brief Get the output of this node. Performs caching.
+    /// @return The output of this node.
     double GetOutput() const {
       if (cached_output_valid)
         return cached_output;
@@ -74,11 +79,16 @@ namespace cowboys {
       return result;
     }
 
+    /// @brief Set the function pointer of this node.
+    /// @param function The function for this node to use.
     void SetFunctionPointer(NodeFunction function) {
       function_pointer = function;
       RecursiveInvalidateCache();
     }
 
+    /// @brief Get the input node at the given index.
+    /// @param input_idx The index of the input node to get.
+    /// @return The input node at the given index.
     std::shared_ptr<GraphNode> GetInput(size_t input_idx) const {
       if (inputs.size() == 0) {
         // Throw error if no inputs
@@ -91,6 +101,8 @@ namespace cowboys {
         return inputs.at(input_idx);
     }
 
+    /// @brief Add an input node to this node.
+    /// @param node The node to add as an input.
     void AddInput(std::shared_ptr<GraphNode> node) {
       inputs.push_back(node);
       // Add a weak pointer to this node to the input node's outputs
@@ -101,16 +113,25 @@ namespace cowboys {
       inputs.insert(inputs.cend(), nodes.cbegin(), nodes.cend());
       RecursiveInvalidateCache();
     }
-    void SetInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
+
+    /// @brief Set the input nodes of this node.
+    /// @param nodes 
+    void SetInputs(std::vector<std::shared_ptr<GraphNode>> nodes) {
       inputs = nodes;
       RecursiveInvalidateCache();
     }
+
+    /// @brief Set the default output of this node.
+    /// @param value The new default output.
     void SetOutput(double value) {
       if (output != value) {
         output = value;
         RecursiveInvalidateCache();
       }
     }
+
+    /// @brief Check if the cached output is valid.
+    /// @return True if the cached output is valid, false otherwise.
     bool IsCacheValid() const { return cached_output_valid; }
   };
 
