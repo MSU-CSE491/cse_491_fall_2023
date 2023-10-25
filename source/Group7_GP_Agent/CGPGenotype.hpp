@@ -458,39 +458,46 @@ namespace cowboys {
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating a value.
     /// @param mutation The function to use for mutating the output. The function will receive the node gene as a
     /// parameter.
-    void Mutate(double mutation_rate, std::function<void(CGPNodeGene &)> mutation) {
+    /// @return This genotype.
+    CGPGenotype &Mutate(double mutation_rate, std::function<void(CGPNodeGene &)> mutation) {
       assert(mutation_rate >= 0.0 && mutation_rate <= 1.0);
       std::uniform_real_distribution<double> dist_mutation(0.0, 1.0);
       for (CGPNodeGene &node : nodes)
         if (dist_mutation(rng) < mutation_rate)
           mutation(node);
+      return *this;
     }
 
     /// @brief Mutates the input connections of the genotype.
     /// @param mutation_rate The probability of mutating a connection. For a given connection, if it is chosen to be
     /// mutated, there is a 50% chance it will stay the same.
-    void MutateConnections(double mutation_rate) {
+    /// @return This genotype.
+    CGPGenotype &MutateConnections(double mutation_rate) {
       std::uniform_int_distribution<size_t> dist(0, 1);
       Mutate(mutation_rate, [this, &dist](CGPNodeGene &node) {
         for (char &con : node.input_connections) {
           con = dist(rng) == 0 ? '0' : '1';
         }
       });
+      return *this;
     }
 
     /// @brief Mutates the genotype by changing the function of each node with a given probability between 0 and 1.
     /// @param mutation_rate The probability of changing the function of a node.
     /// @param num_functions The number of functions available to the nodes.
-    void MutateFunctions(double mutation_rate, size_t num_functions) {
+    /// @return This genotype.
+    CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions) {
       std::uniform_int_distribution<size_t> dist(0, num_functions - 1);
       Mutate(mutation_rate, [this, &dist](CGPNodeGene &node) { node.function_idx = dist(rng); });
+      return *this;
     }
 
     /// @brief Mutates the genotype, changing the default output of nodes with probability between 0 and 1.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
     /// @param min The minimum value to generate for mutation.
     /// @param max The maximum value to generate for mutation.
-    void MutateOutputs(double mutation_rate, double min, double max, bool additive = true) {
+    /// @return This genotype.
+    CGPGenotype &MutateOutputs(double mutation_rate, double min, double max, bool additive = true) {
       std::uniform_real_distribution<double> dist(min, max);
       Mutate(mutation_rate, [this, &dist, additive](CGPNodeGene &node) {
         double mutation = std::stod(std::to_string(dist(rng)));
@@ -505,14 +512,17 @@ namespace cowboys {
           node.default_output = std::stod(std::to_string(mutation));
         }
       });
+      return *this;
     }
 
     /// @brief Performs a mutation on the genotype with default parameters.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
-    void MutateDefault(double mutation_rate) {
+    /// @return This genotype.
+    CGPGenotype &MutateDefault(double mutation_rate) {
       MutateConnections(mutation_rate);
       MutateFunctions(mutation_rate, FUNCTION_SET.size());
       MutateOutputs(mutation_rate, -1, 1);
+      return *this;
     }
 
     /// @brief Check if two CGPGenotypes are equal. CGPParameters and CGPNodeGenes should be equal.

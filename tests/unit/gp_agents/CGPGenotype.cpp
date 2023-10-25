@@ -17,11 +17,9 @@ TEST_CASE("Genotype construction", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
 
     genotype = CGPGenotype({8, 4, 2, 10, 3});
-    genotype.InitGenotype();
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (8 + 10 + 10) * 4);
 
     genotype = CGPGenotype({8, 4, 2, 10, 10});
-    genotype.InitGenotype();
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (8 + 10 + 10) * 4);
   }
 }
@@ -190,18 +188,15 @@ TEST_CASE("Genotype overloads", "[group7][genotype]") {
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
-    genotype2 = CGPGenotype({7, 2, 0, 10, 3});
-    genotype2.MutateConnections(1);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateConnections(1);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
-    genotype2 = CGPGenotype({7, 2, 0, 10, 3});
-    genotype2.MutateFunctions(1, 100);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateFunctions(1, 100);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
-    genotype2 = CGPGenotype({7, 2, 0, 10, 3});
-    genotype2.MutateOutputs(1, -10000, 10000);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateOutputs(1, -10000, 10000);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
   }
@@ -209,8 +204,7 @@ TEST_CASE("Genotype overloads", "[group7][genotype]") {
 TEST_CASE("Genotype configuration", "[group7][genotype]") {
   SECTION("Exporting and configuration") {
     CGPGenotype genotype({8, 4, 10, 10, 2});
-    auto exported = genotype.Export();
-    CGPGenotype genotype2 = CGPGenotype().Configure(exported);
+    CGPGenotype genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
 
     genotype.begin()->function_idx = 1;
