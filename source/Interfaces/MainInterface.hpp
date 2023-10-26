@@ -16,6 +16,7 @@
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
+#include "TextureHolder.hpp"
 
 
 namespace i_2D {
@@ -37,7 +38,9 @@ namespace i_2D {
 
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
-        Menu mMenu;
+        Menu mMenu; ///< for menu class
+        TextureHolder mTextureHolder; ///< for the texture holder
+
 
     public:
 

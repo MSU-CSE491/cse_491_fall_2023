@@ -16,6 +16,8 @@ namespace i_2D {
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
         mMenu.initialize();
+        mTextureHolder.LoadTexture("wallTexture", "../assets/walls/wall.png");
+        mTextureHolder.LoadTexture("agentTexture", "../assets/agents/troll.png");
     }
 
     /**
@@ -88,8 +90,8 @@ namespace i_2D {
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
         CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
 
-        sf::Texture wallTexture, agentTexture;
-        LoadTextures(wallTexture, agentTexture);
+        sf::Texture wallTexture = mTextureHolder.GetTexture("wallTexture");
+        sf::Texture agentTexture = mTextureHolder.GetTexture("agentTexture");
 
         for (size_t iterY = 0; iterY < grid.GetHeight(); ++iterY) {
             for (size_t iterX = 0; iterX < grid.GetWidth(); ++iterX) {
