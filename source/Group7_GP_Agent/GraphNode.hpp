@@ -50,7 +50,7 @@ namespace cowboys {
 
   public:
     GraphNode() = default;
-    virtual ~GraphNode() = default;
+    ~GraphNode() = default;
 
     /// TODO: Check guidelines for this
     GraphNode(double default_value) : output{default_value} {}
