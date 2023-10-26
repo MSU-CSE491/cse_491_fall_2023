@@ -22,7 +22,7 @@ namespace DataCollection {
          * @param pos The grid position to be stored.
          * @param last_action The last action ID associated with the agent.
          */
-        void StoreData(std::string name, cse491::GridPosition pos, int last_action) {
+        void StoreData(std::string name, cse491::GridPosition pos, [[maybe_unused]] int last_action) {
             std::shared_ptr<AgentData> agent = GetAgent(name);
             agent->StorePositions(pos);
 //            agent->StoreAction(last_action);

@@ -6,16 +6,17 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
+#include <queue>
+#include <random>
 #include <string>
 #include <vector>
-#include <queue>
-#include <algorithm>
 
 #include "AgentBase.hpp"
 #include "Data.hpp"
-#include "Entity.hpp"
+#include "ItemBase.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
 
@@ -24,19 +25,28 @@ namespace cse491 {
 class DataReceiver;
 
 class WorldBase {
- protected:
-  /// This is the main grid for this world;
-  /// derived worlds may choose to have more than one grid.
-  WorldGrid main_grid;
-  type_options_t type_options; ///< Vector of types of cells in grids for this world.
+public:
+  static constexpr size_t npos = static_cast<size_t>(-1);
 
-  item_set_t item_set;     ///< Vector of pointers to non-agent entities
-  agent_set_t agent_set;   ///< Vector of pointers to agent entities
+protected:
+  /// Derived worlds may choose to have more than one grid.
+  std::unordered_map<std::string, WorldGrid> grids;
 
-  bool run_over = false;   ///< Should the run end?
+  WorldGrid & main_grid;        ///< Main grid for this world; shortcut to `grids["main"]`
+  type_options_t type_options;  ///< Vector of types of cells in grids for this world.
+
+  item_set_t item_set;          ///< Vector of pointers to non-agent entities
+  agent_set_t agent_set;        ///< Vector of pointers to agent entities
+
+  bool run_over = false;        ///< Should the run end?
   
-  std::string action; // The action that the agent is currently performing
+  std::string action;           ///< The action that the agent is currently performing
   std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
+
+  unsigned int seed;            ///< Seed used for generator
+  std::mt19937 random_gen;      ///< Random number generator
+  std::uniform_real_distribution<> uni_dist; ///< Uniform distribution of doubles, 0 to 1
+  std::normal_distribution<> norm_dist;      ///< Normal distribution; mean 0, std 1
 
   /// Helper function that is run whenever a new agent is created.
   /// @note Override this function to provide agents with actions or other setup.
@@ -53,10 +63,21 @@ class WorldBase {
     return type_options.size() - 1;
   }
 
- public:
-  WorldBase() {
+public:
+  /// Initializes world with cell types and random generator
+  /// @param seed Seed used for RNG. Use 0 for a non-deterministic result.
+  WorldBase(unsigned int seed=0)
+    : grids(), main_grid(grids["main"]), seed(seed)
+  {
     // The first cell type (ID 0) should be reserved for errors or empty spots in a grid.
     AddCellType("Unknown", "This is an invalid cell type and should not be reachable.");
+
+    // Initialize the random number generator.
+    if (seed == 0) {
+      std::random_device rd; // An expensive "true" random number generator.
+      seed = rd();           // Change the seed to a random value.
+    }
+    random_gen.seed(seed);
   }
 
   virtual ~WorldBase() = default;
@@ -70,7 +91,7 @@ class WorldBase {
   [[nodiscard]] size_t GetNumAgents() const { return agent_set.size(); }
 
   /// Return a reference to an agent with a given ID.
-  [[nodiscard]] Entity &GetItem(size_t id) {
+  [[nodiscard]] ItemBase & GetItem(size_t id) {
     assert(id < item_set.size());
     return *item_set[id];
   }
@@ -81,15 +102,59 @@ class WorldBase {
     return *agent_set[id];
   }
 
-  /// Return an editable version of the current grid for this world (main_grid by default)
-  virtual WorldGrid &GetGrid() { return main_grid; }
+  /// Return the ID of an item with a given name.
+  [[nodiscard]] size_t GetItemID(const std::string & name) {
+    for (size_t i = 0; i < item_set.size(); ++i) {
+      if (item_set[i] && item_set[i]->GetName() == name) return i;      
+    }
+    return npos;
+  }
 
-  /// Return the current grid for this world (main_grid by default)
-  virtual const WorldGrid &GetGrid() const { return main_grid; }
+  /// Return the ID of an agent with a given name.
+  [[nodiscard]] size_t GetAgentID(const std::string & name) {
+    for (size_t i = 0; i < agent_set.size(); ++i) {
+      if (agent_set[i] && agent_set[i]->GetName() == name) return i;      
+    }
+    return npos;
+  }
+  
+
+  /// Return an editable version of the current grid for this world (main_grid by default)
+  virtual WorldGrid & GetGrid() { return main_grid; }
+  virtual WorldGrid & GetGrid(const std::string & name) { return grids[name]; }
+
+  /// Return a const grid for this world (main_grid by default)
+  virtual const WorldGrid & GetGrid() const { return main_grid; }
+  virtual const WorldGrid & GetGrid(const std::string & name) const { return grids.at(name); }
 
   /// Determine if the run has ended.
   virtual bool GetRunOver() const { return run_over; }
 
+  // -- Random Number Generation --
+  unsigned int GetSeed() const { return seed; }
+ 
+  /// @brief  Return a uniform random value between 0.0 and 1.0
+  double GetRandom() { return uni_dist(random_gen); }
+
+  /// @brief  Return a uniform random value between 0.0 and max
+  double GetRandom(double max) { return GetRandom() * max; }
+
+  /// @brief  Return a uniform random value between min and max
+  double GetRandom(double min, double max) {
+    assert(max > min);
+    return min + GetRandom(max - min);
+  }
+
+  /// @brief  Return a gaussian random value with mean 0.0 and sd 1.0
+  double GetRandomNormal() { return norm_dist(random_gen); }
+
+  /// @brief  Return a gaussian random value with provided mean and sd.
+  double GetRandomNormal(double mean, double sd=1.0) {
+    assert(sd > 0);
+    return mean + norm_dist(random_gen) * sd;
+  }
+
+ 
   // -- Agent Management --
 
   /// @brief Build a new agent of the specified type
@@ -99,8 +164,9 @@ class WorldBase {
   /// @param properties Name/value pairs for any properties set at creation
   /// @return A reference to the newly created agent
   template<typename AGENT_T, typename... PROPERTY_Ts>
-  AgentBase &AddAgent(std::string agent_name = "None", PROPERTY_Ts... properties) {
+  AgentBase & AddAgent(std::string agent_name = "None", PROPERTY_Ts... properties) {
     auto agent_ptr = std::make_unique<AGENT_T>(agent_set.size(), agent_name);
+    agent_ptr->SetWorld(*this);
     agent_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
     ConfigAgent(*agent_ptr);
     if (agent_ptr->Initialize() == false) {
@@ -110,47 +176,59 @@ class WorldBase {
     return *agent_set.back();
   }
 
-    void SetAgentReceiver(DataCollection::AgentReceiver r) {
-      agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
-    }
+  void SetAgentReceiver(DataCollection::AgentReceiver r) {
+    agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
+  }
+
+  /// @brief Add a new, previously-built item
+  /// @return A reference to the newly created item
+  ItemBase & AddItem(std::unique_ptr<ItemBase> item_ptr) {
+    item_ptr->SetWorld(*this);
+    item_set.emplace_back(std::move(item_ptr));
+    return *item_set.back();
+  }
 
   /// @brief Build a new item
   /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
-  /// @param entity_name The name of this item
+  /// @param item_name The name of this item
   /// @param properties Name/value pairs for any properties set at creation
-  /// @return A reference to the newly created entity
-  template <typename... PROPERTY_Ts>
-  Entity & AddItem(std::string entity_name="None", PROPERTY_Ts... properties) {
-      auto entity_ptr = std::make_unique<Entity>(item_set.size(), entity_name);
-      entity_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
-      item_set.emplace_back(std::move(entity_ptr));
-      return *item_set.back();
+  /// @return A reference to the newly created item
+  template <typename ITEM_T=ItemBase, typename... PROPERTY_Ts>
+  ItemBase & AddItem(std::string item_name="None", PROPERTY_Ts... properties) {
+    auto item_ptr = std::make_unique<ITEM_T>(item_set.size(), item_name);
+    item_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
+    return AddItem(std::move(item_ptr));
   }
 
   /// @brief Remove an agent from the agent set
-  /// @param agent_name The name of this agent
-  /// @return None
-  void RemoveAgent(std::string agent_name="None") {
-      if (agent_name == "Interface")
-      {
-          return;
-      }
-      agent_set_t ::iterator agent_pointer =
-              std::find_if(agent_set.begin(), agent_set.end(),
-                      [&](std::unique_ptr<AgentBase> & agent){ return agent->GetName() == agent_name;}
-              );
-      agent_set.erase(std::remove(agent_set.begin(), agent_set.end(), *agent_pointer));
+  /// @param agent_id The unique ID this agent
+  /// @return A reference to this world.
+  WorldBase & RemoveAgent(size_t agent_id) {
+    agent_set[agent_id] = nullptr;
+    return *this;
   }
 
   /// @brief Remove an item from the item set
-  /// @param entity_id The ID of this entity
-  /// @return None
-  void RemoveItem(size_t entity_id) {
-      item_set_t ::iterator entity_pointer =
-          std::find_if(item_set.begin(), item_set.end(),
-              [&](std::unique_ptr<Entity>& entity) { return entity->GetID() == entity_id; }
-      );
-      item_set.erase(std::remove(item_set.begin(), item_set.end(), *entity_pointer));
+  /// @param item_id The unique ID this item
+  /// @return A reference to this world.
+  WorldBase & RemoveItem(size_t item_id) {
+    item_set[item_id] = nullptr;
+    return *this;
+  }
+  
+  /// @brief Remove an agent from the agent set by name
+  /// @param agent_name The name of this agent
+  /// @return This world
+  WorldBase & RemoveAgent(std::string agent_name="None") {
+    assert(agent_name != "Interface"); // We are not allowed to remove interfaces.
+    return RemoveAgent( GetAgentID(agent_name) );
+  }
+
+  /// @brief Remove an item from the item set by name
+  /// @param item_id The ID of this item
+  /// @return This world
+  WorldBase & RemoveItem(std::string item_name) {
+    return RemoveItem( GetItemID(item_name) );
   }
 
   // -- Action Management --
@@ -165,12 +243,13 @@ class WorldBase {
   /// @brief Step through each agent giving them a chance to take an action.
   /// @note Override this function if you want to control which grid the agents receive.
   virtual void RunAgents() {
-    for (const auto & agent_ptr : agent_set) {
+    for (size_t i=0; i < agent_set.size(); ++i) {
+      if (!agent_set[i]) continue; // Skip over deleted agents.
       size_t action_id =
-        agent_ptr->SelectAction(main_grid, type_options, item_set, agent_set);
-      agent_ptr->storeActionMap(agent_ptr->GetName());
-      int result = DoAction(*agent_ptr, action_id);
-      agent_ptr->SetActionResult(result);
+        agent_set[i]->SelectAction(main_grid, type_options, item_set, agent_set);
+      agent_set[i]->storeActionMap(agent_set[i]->GetName());
+      int result = DoAction(*agent_set[i], action_id);
+      agent_set[i]->SetActionResult(result);
     }
   }
 
@@ -222,12 +301,13 @@ class WorldBase {
     return type_options[id].symbol;
   }
 
-  /// @brief Determine if this tile is able to be walked on, defaults to every
-  /// tile is walkable
+  /// @brief Determine if this tile can be walked on, defaults to every tile is walkable
   /// @author @mdkdoc15
   /// @param pos The grid position we are checking
   /// @return If an agent should be allowed on this square
-  virtual bool IsTraversable(const AgentBase * /*agent*/, cse491::GridPosition /*pos*/) const { return true; }
+  virtual bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition /*pos*/) const {
+    return true;
+  }
 
 };
 

@@ -26,6 +26,7 @@ namespace cse491 {
     int action_result=0;  ///< Usually a one (success) or zero (failure).
 
     int action; // The action that the agent is currently performing
+
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
     ~AgentBase() = default; // Already virtual from Entity
@@ -84,6 +85,15 @@ namespace cse491 {
 
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }
+
+    /// @brief Send a notification to this agent, typically from the world.
+    /// @param message Contents of the notification
+    /// @param msg_type Category of message, such as "item_alert", "damage", or "enemy"
+    /// This function is useful to notify users of events in the world, such as them taking
+    /// damage, finding an item, etc.  The message type can potentially also provide
+    /// information to an autonomous agent assuming we come up with a standard list of types.
+    virtual void Notify(const std::string & /*message*/,
+                        const std::string & /*msg_type*/="none") { }
 
   };
 

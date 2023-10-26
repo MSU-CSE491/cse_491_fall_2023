@@ -43,6 +43,7 @@ if(${BUILD_MAIN})
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
 
+<<<<<<< HEAD
 foreach(EXECUTABLE ${EXECUTABLES})
     set(SOURCES source/${EXECUTABLE}_main.cpp source/Interfaces/MainInterface.cpp source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Container.cpp source/Interfaces/Container.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp)
     add_executable(${EXECUTABLE} ${SOURCES} source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp source/Interfaces/Menu.cpp source/Interfaces/Menu.hpp)
@@ -53,6 +54,37 @@ foreach(EXECUTABLE ${EXECUTABLES})
             PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
             )
 endforeach()
+=======
+  # Find all the main files for the various applications
+  # Currently this means any *.cpp file in the root of source
+  file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
+  message(STATUS "List of main files to build: ${EXE_SOURCES}")
+
+  # Loop through each executable and build it! 
+  foreach(EXE_SOURCE ${EXE_SOURCES})
+    # Rip the .cpp off the end of the string
+    string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
+    # Create list of source files (currently just the one .cpp file)
+    # Create executable and link to includes / libraries
+    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} source/Interfaces/TextureHolder.cpp source/Interfaces/TextureHolder.hpp)
+    target_include_directories(${EXE_NAME}
+      PRIVATE ${CMAKE_SOURCE_DIR}/source
+      )
+    target_link_libraries(${EXE_NAME}
+      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
+      )
+    if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
+      message(STATUS "Loading ${EXE_NAME}.cmake")
+      include(${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
+    else()
+      message(WARNING "Cannot find ${EXE_NAME}.cmake")
+    endif()
+  endforeach()
+endif()
+
+# Build the test executables, if requested
+if(${BUILD_TESTS})
+>>>>>>> development
 
   # Configure Catch
   set(CATCH_SRC_DIR third_party/Catch2)
