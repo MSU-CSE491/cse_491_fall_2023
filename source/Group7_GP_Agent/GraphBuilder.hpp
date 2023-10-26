@@ -4,6 +4,8 @@
 #include "Graph.hpp"
 
 namespace cowboys {
+
+  /// @brief A class for building graphs.
   class GraphBuilder {
   public:
     GraphBuilder() = default;
@@ -85,7 +87,7 @@ namespace cowboys {
     /// current_state, above_state, below_state, left_state, right_state
     /// @param action_vec Assumes that the action outputs are in the format:
     /// up, down, left, right
-    /// @return
+    /// @return The decision graph for a vertical pacer.
     std::unique_ptr<Graph> VerticalPacer() {
       auto decision_graph = std::make_unique<Graph>();
 

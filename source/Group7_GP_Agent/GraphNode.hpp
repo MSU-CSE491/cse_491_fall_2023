@@ -109,6 +109,9 @@ namespace cowboys {
       node->AddOutput(weak_from_this());
       RecursiveInvalidateCache();
     }
+
+    /// @brief Append nodes in a vector to this node's list of inputs.
+    /// @param nodes The nodes to add as inputs.
     void AddInputs(const std::vector<std::shared_ptr<GraphNode>> &nodes) {
       inputs.insert(inputs.cend(), nodes.cbegin(), nodes.cend());
       RecursiveInvalidateCache();

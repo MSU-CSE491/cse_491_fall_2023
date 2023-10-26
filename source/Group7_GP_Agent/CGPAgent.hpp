@@ -31,6 +31,7 @@ namespace cowboys {
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;
 
+  /// @brief An agent based on cartesian genetic programming.
   class CGPAgent : public GPAgent_ {
   protected:
     /// The genotype for this agent.

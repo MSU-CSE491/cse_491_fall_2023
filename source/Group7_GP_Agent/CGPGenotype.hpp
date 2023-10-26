@@ -143,8 +143,9 @@ namespace cowboys {
     }
   } // namespace base64
 
+  /// @brief Holds the representation of a cartesian graph node.
   struct CGPNodeGene {
-    /// The connections per node. '1' means connected, '0' means not connected.
+    /// The input connections of this node. '1' means connected, '0' means not connected.
     std::vector<char> input_connections{};
 
     /// The index of the function the node uses.
@@ -162,6 +163,7 @@ namespace cowboys {
     }
   };
 
+  /// @brief Holds the parameters that define the structure of a cartesian graph.
   struct CGPParameters {
     /// The number of inputs to the graph.
     size_t num_inputs;
@@ -196,6 +198,7 @@ namespace cowboys {
     }
   };
 
+  /// @brief Holds all the information that uniquely defines a cartesian graph.
   class CGPGenotype {
   protected:
     /// The parameters of the cartesian graph.
@@ -313,11 +316,15 @@ namespace cowboys {
     }
 
   public:
+    /// @brief Default constructor for the cartesian graph genotype. Will have 0 functional nodes
     CGPGenotype() = default;
+    /// @brief Constructor for the cartesian graph genotype. Initializes the genotype with the given parameters and
+    /// leaves everything default (nodes will be unconnected).
+    /// @param parameters The parameters of the cartesian graph.
     CGPGenotype(const CGPParameters &parameters) : params(parameters) { InitGenotype(); }
     ~CGPGenotype() = default;
 
-    /// @brief Configures the genotype from the encoded string.
+    /// @brief Configures this genotype from an encoded string. 
     /// @param encoded_genotype The encoded genotype.
     /// @return This genotype.
     CGPGenotype &Configure(const std::string &encoded_genotype) {

@@ -13,6 +13,7 @@
 namespace cowboys {
   using GraphLayer = std::vector<std::shared_ptr<GraphNode>>;
 
+  /// @brief A graph of nodes that can be used to make decisions.
   class Graph {
   protected:
     /// Layers of nodes in the graph.
@@ -22,6 +23,8 @@ namespace cowboys {
     Graph() = default;
     ~Graph() = default;
 
+    /// @brief Get the number of nodes in the graph.
+    /// @return The number of nodes in the graph.
     size_t GetNodeCount() const {
       size_t count = 0;
       for (const auto &layer : layers) {
@@ -30,6 +33,8 @@ namespace cowboys {
       return count;
     }
 
+    /// @brief Get the number of layers in the graph.
+    /// @return The number of layers in the graph.
     size_t GetLayerCount() const { return layers.size(); }
 
     /// @brief Makes a decision based on the inputs and the action vector.
@@ -69,6 +74,8 @@ namespace cowboys {
       return action;
     }
 
+    /// @brief Add a layer to the graph. Purely organizational, but important for CGP for determining the "layers back" parameter.
+    /// @param layer The layer of nodes to add.
     void AddLayer(const GraphLayer &layer) { layers.push_back(layer); }
 
     /// @brief Returns a vector of functional (non-input) nodes in the graph.
