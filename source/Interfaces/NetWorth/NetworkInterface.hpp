@@ -20,7 +20,7 @@ namespace netWorth{
 /**
  * TODO: Delete or incorporate
  */
-    class NetworkingInterface {
+class NetworkingInterface : public cse491::InterfaceBase {
     private:
 
     protected:
@@ -31,7 +31,7 @@ namespace netWorth{
         std::vector<std::string> m_clients; ///list of all the clients that will connect with the server
 
     public:
-        NetworkingInterface() = default;
+        NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {}
         ~NetworkingInterface() = default;
 
         /**

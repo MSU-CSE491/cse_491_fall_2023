@@ -5,22 +5,24 @@
  **/
 
 // Include the modules that we will be using.
-//#include "../../TrashInterface.hpp"
-//#include "../../../Worlds/MazeWorld.hpp"
 #include "ClientInterface.hpp"
+#include "../server/networkingworld.hpp"
 
 int main(int argc, char *argv[]) {
-  if (argc != 3) {
-    std::cerr << "Must have an argument for server IP and port\nUsage: ./client [IP] [port]" << std::endl;
-    return 1;
-  }
+    if (argc != 3) {
+        std::cerr << "Must have an argument for server IP and port\nUsage: ./client [IP] [port]" << std::endl;
+        return 1;
+    }
 
-  std::string ip_string(argv[1]);
-  unsigned short port = stoi(std::string(argv[2]));
-  netWorth::ClientInterface interface(ip_string, port);
+    std::string ip_string(argv[1]);
+    unsigned short port = stoi(std::string(argv[2]));
 
-  if (!interface.EstablishConnection()) return 1;
-  interface.GameLoop();
+    // will probably need to find a way to receive the world from the server first
+    // this will be confusing
+    netWorth::NetworkMazeWorld world;
+    world.AddAgent<netWorth::ClientInterface>("Interface", "ip", ip_string, "port", port).SetProperty("symbol", '@');
 
-  return 0;
+    // will probably need to override world Run function for multiple clients
+    world.Run();
+    return 0;
 }

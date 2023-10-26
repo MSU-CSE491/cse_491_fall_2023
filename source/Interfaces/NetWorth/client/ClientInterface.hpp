@@ -26,47 +26,17 @@ namespace netWorth{
     private:
         std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
         unsigned short m_dest_port;         /// the destination port (server port)
-
-        /**
-         * Get user input to be sent to server
-         * @return string corresponding to action
-         */
-        static std::string GameLoop_GetInput() {
-            bool valid_input = false;
-            std::string action;
-            char input;
-
-            while (!valid_input) {
-                std::cin >> input;
-                switch (input) {
-                    case 'w': case 'W': action = "up";      valid_input = true; break;
-                    case 'a': case 'A': action = "left";    valid_input = true; break;
-                    case 's': case 'S': action = "down";    valid_input = true; break;
-                    case 'd': case 'D': action = "right";   valid_input = true; break;
-                    case 'q': case 'Q': action = "quit";    valid_input = true; break;
-                    default: valid_input = false;
-                }
-                if (!valid_input) {
-                    std::cout << "Your move?";
-                }
-            }
-
-            return action;
-        }
+        bool m_established = false;
 
     protected:
 
     public:
         /**
-         * ClientInterface constructor (NetworkingInterface superclass)
-         * @param ip_string String for destination IP address, make into IpAddress object
-         * @param port Destination port number
+         * Default constructor (AgentBase)
+         * @param id agent ID
+         * @param name agent name
          */
-        ClientInterface(const std::string & ip_string,
-                        unsigned short port) {
-            m_dest_ip = IpAddress::resolve(ip_string);
-            m_dest_port = port;
-        }
+        ClientInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) {}
 
         /**
          * Default destructor
@@ -74,10 +44,22 @@ namespace netWorth{
         ~ClientInterface() = default;
 
         /**
+         * Hopefully used later
+         */
+        void ConfigAgent() {
+            m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
+            m_dest_port = GetProperty<unsigned short>("port");
+            EstablishConnection();
+        }
+
+        /**
          * Establish connection with server
          * @return True if successful, false if error
          */
         bool EstablishConnection() {
+            m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
+            m_dest_port = GetProperty<unsigned short>("port");
+
             Packet send_pkt, recv_pkt;
 
             // send request message
@@ -92,50 +74,72 @@ namespace netWorth{
             recv_pkt >> str;
             std::cout << str << std::endl;
 
+            send_pkt.clear();
+            send_pkt << "Requesting map";
+            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return false;
             return true;
         }
 
         /**
-         * Game loop
+         * Choose action for player agent
+         * @param grid
+         * @param type_options
+         * @param item_set
+         * @param agent_set
+         * @return
          */
-        void GameLoop() {
-            Packet send_pkt, recv_pkt;
-            std::string recv_str;
-
-            cse491::WorldGrid grid;
-            cse491::type_options_t type_options;
-            cse491::item_set_t item_set;
-            cse491::agent_set_t agent_set;
-            std::string action;
-
-            send_pkt << "Game started.";
-
-            // ask for map
-            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
-
-            while (action != "quit") {
-                // receive map
-                if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return;
-
-                // print map
-                recv_pkt >> recv_str;
-                std::cout << std::endl << recv_str;
-
-                // get user input
-                action = GameLoop_GetInput();
-
-                // TODO: Unpack recv_pkt into world grid, agent list, etc
-                // We need to serialize these classes...
-                //recv_pkt >> grid >> type_options >> item_set >> agent_set;
-
-                //action = mTrash->SelectAction(grid, type_options, item_set, agent_set);
-
-                // send packet with action
-                send_pkt.clear();
-                send_pkt << action;
-
-                if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
+        size_t SelectAction(const cse491::WorldGrid & grid,
+                            const cse491::type_options_t & type_options,
+                            const cse491::item_set_t & item_set,
+                            const cse491::agent_set_t & agent_set) override
+        {
+            if (!m_established) {
+                ConfigAgent();
+                m_established = true;
             }
+
+            bool wait_for_input = true;
+            sf::Packet recv_pkt;
+            std::string map;
+
+            // Receive and draw map
+            ReceivePacket(recv_pkt, m_dest_ip, m_dest_port);
+            recv_pkt >> map;
+            std::cout << map;
+
+            // Take input
+            char input;
+            do {
+                std::cin >> input;
+            } while (!std::cin && wait_for_input);
+
+            // Grab action ID
+            size_t action_id = 0;
+            std::string action_str;
+            switch (input) {
+                case 'w': case 'W': action_str = "up";      break;
+                case 'a': case 'A': action_str = "left";    break;
+                case 's': case 'S': action_str = "down";    break;
+                case 'd': case 'D': action_str = "right";   break;
+                case 'q': case 'Q': action_str = "quit";    break;
+            }
+            action_id = GetActionID(action_str);
+
+            // If we waited for input, but don't understand it, notify the user.
+            if (wait_for_input && action_id == 0 && action_str != "quit") {
+                std::cout << "Unknown key '" << input << "'." << std::endl;
+            }
+
+            // Send instruction to server
+            sf::Packet send_pkt;
+            send_pkt << action_str;
+            SendPacket(send_pkt, m_dest_ip.value(), m_dest_port);
+
+            if (action_str == "quit") exit(0);
+
+            // Do the action!
+            return action_id;
         }
+
     }; //End of ClientInterface
 }// End of namespace NetWorth

@@ -26,11 +26,16 @@ namespace netWorth{
      */
     class ServerInterface : public NetworkingInterface {
     private:
+        std::optional<sf::IpAddress> m_client_ip;
+        unsigned short m_client_port;
 
     protected:
 
     public:
-        ServerInterface() = default;
+        ServerInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) {
+            InitialConnection(m_client_ip, m_client_port);
+        }
+
         ~ServerInterface() = default;
 
         /**
@@ -46,6 +51,7 @@ namespace netWorth{
             Packet send_pkt, recv_pkt;
             std::string str;
 
+            std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
             BindSocket(m_socket, 55002);
 
             // Await client
@@ -123,6 +129,29 @@ namespace netWorth{
             gridPacket << gridString;
 
             return gridPacket;
+        }
+
+        size_t SelectAction(const cse491::WorldGrid & grid,
+                            const cse491::type_options_t & type_options,
+                            const cse491::item_set_t & item_set,
+                            const cse491::agent_set_t & agent_set) override
+        {
+            // send map to client
+            sf::Packet send_pkt = GridToPacket(grid, type_options, item_set, agent_set);
+            SendPacket(send_pkt, m_client_ip.value(), m_client_port);\
+
+            sf::Packet recv_pkt;
+            std::string input;
+
+            // receive player input
+            ReceivePacket(recv_pkt, m_client_ip, m_client_port);
+
+            recv_pkt >> input;
+            std::cout << input << std::endl;
+
+            if (input == "quit") exit(0);
+
+            return GetActionID(input);
         }
 
     };//End of class ServerInterface
