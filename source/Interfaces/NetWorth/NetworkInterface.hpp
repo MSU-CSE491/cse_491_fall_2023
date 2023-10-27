@@ -32,7 +32,6 @@ class NetworkingInterface : public cse491::InterfaceBase {
 
     public:
         NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {}
-        ~NetworkingInterface() = default;
 
         /**
          * Receives a socket that has been connected between client and server

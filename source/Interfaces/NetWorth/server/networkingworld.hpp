@@ -50,7 +50,7 @@ namespace netWorth{
             main_grid.Read(filePath, type_options);
         }
 
-        ~NetworkMazeWorld() = default;
+
 
         /**
          * Set a server to the one that is connected to the clients
@@ -85,7 +85,7 @@ namespace netWorth{
             if (!main_grid.IsValid(new_position)) { return false; }
             if (main_grid.At(new_position) == wall_id) { return false; }
 
-            // Set the agent to its new postion.
+            // Set the agent to its new position.
             agent.SetPosition(new_position);
 
             return true;

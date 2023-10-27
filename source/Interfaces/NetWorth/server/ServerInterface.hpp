@@ -36,8 +36,6 @@ namespace netWorth{
             InitialConnection(m_client_ip, m_client_port);
         }
 
-        ~ServerInterface() = default;
-
         /**
          * The initial connection for the server to a client
          * @param sender address of the sender

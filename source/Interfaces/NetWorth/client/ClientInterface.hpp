@@ -25,7 +25,7 @@ namespace netWorth{
     class ClientInterface : public NetworkingInterface {
     private:
         std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
-        unsigned short m_dest_port;         /// the destination port (server port)
+        unsigned short m_dest_port = 0;         /// the destination port (server port)
 
     protected:
 
@@ -37,25 +37,12 @@ namespace netWorth{
          */
         ClientInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) {}
 
-        /**
-         * Default destructor
-         */
-        ~ClientInterface() = default;
 
         /**
-         * Initialize interface
-         */
-        bool Initialize() {
-            m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
-            m_dest_port = GetProperty<unsigned short>("port");
-            return EstablishConnection();
-        }
-
-        /**
-         * Establish connection with server
+         * Establish connection with server, initializing interface
          * @return True if successful, false if error
          */
-        bool EstablishConnection() {
+        bool Initialize() override{
             m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
             m_dest_port = GetProperty<unsigned short>("port");
 
@@ -92,7 +79,7 @@ namespace netWorth{
                             const cse491::item_set_t & item_set,
                             const cse491::agent_set_t & agent_set) override
         {
-            bool wait_for_input = true;
+
             sf::Packet recv_pkt;
             std::string map;
 
@@ -105,7 +92,7 @@ namespace netWorth{
             char input;
             do {
                 std::cin >> input;
-            } while (!std::cin && wait_for_input);
+            } while (!std::cin);
 
             // Grab action ID
             size_t action_id = 0;
@@ -120,7 +107,7 @@ namespace netWorth{
             action_id = GetActionID(action_str);
 
             // If we waited for input, but don't understand it, notify the user.
-            if (wait_for_input && action_id == 0 && action_str != "quit") {
+            if (action_id == 0 && action_str != "quit") {
                 std::cout << "Unknown key '" << input << "'." << std::endl;
             }
 
