@@ -26,7 +26,6 @@ namespace netWorth{
     private:
         std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
         unsigned short m_dest_port;         /// the destination port (server port)
-        bool m_established = false;
 
     protected:
 
@@ -46,10 +45,11 @@ namespace netWorth{
         /**
          * Hopefully used later
          */
-        void ConfigAgent() {
+        bool Initialize() {
             m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
             m_dest_port = GetProperty<unsigned short>("port");
             EstablishConnection();
+            return true;
         }
 
         /**
@@ -93,11 +93,6 @@ namespace netWorth{
                             const cse491::item_set_t & item_set,
                             const cse491::agent_set_t & agent_set) override
         {
-            if (!m_established) {
-                ConfigAgent();
-                m_established = true;
-            }
-
             bool wait_for_input = true;
             sf::Packet recv_pkt;
             std::string map;
