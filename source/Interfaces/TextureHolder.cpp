@@ -1,7 +1,7 @@
 //
 // Created by Vincenzo on 10/18/2023.
 //
-
+#include <map>
 #include "TextureHolder.hpp"
 
 namespace i_2D
@@ -37,4 +37,73 @@ namespace i_2D
         // Return dereferenced unique_ptr found at iterator pair
         return *got->second;
     }
+
+    std::map<std::string, sf::Texture> TextureHolder::MazeTexture()
+    {
+
+        std::map<std::string, sf::Texture> textures;
+
+        // Load textures
+
+        LoadTexture("wallTexture", "../assets/walls/wall.png");
+        LoadTexture("trollTexture", "../assets/agents/troll.png");
+        LoadTexture("agentTexture", "../assets/agents/default-the-first.png");
+        textures["wall"] = GetTexture("wallTexture");
+        textures["troll"] = GetTexture("trollTexture");
+        textures["agent"] = GetTexture("agentTexture");
+        return textures;
+    }
+
+    std::map<std::string, sf::Texture> TextureHolder::SecondWorldTexture()
+    {
+
+        std::map<std::string, sf::Texture> textures;
+
+        // Load textures
+        LoadTexture("wallTexture", "../assets/walls/brick_wall-red.png");
+        LoadTexture("trollTexture", "../assets/agents/troll.png");
+        LoadTexture("agentTexture", "../assets/agents/witch-girl.png");
+        LoadTexture("armourTexture", "../assets/weapons/leather_armor.png");
+        LoadTexture("swordTexture", "../assets/weapons/longsword.png");
+        LoadTexture("axeTexture", "../assets/weapons/w_axe_war.png");
+        LoadTexture("daggerTexture", "../assets/weapons/dagger.png");
+        LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
+        LoadTexture("flagTexture", "../assets/weapons/4_Conjoined_Spikes.png");
+        textures["wall"]= GetTexture("wallTexture");
+        textures["troll"]= GetTexture("trollTexture");
+        textures["agent"]= GetTexture("agentTexture");
+        textures["armour"]= GetTexture("armourTexture");
+        textures["sword"]= GetTexture("swordTexture");
+        textures["axe"]= GetTexture("axeTexture");
+        textures["dagger"]= GetTexture("daggerTexture");
+        textures["chest"]= GetTexture("chestTexture");
+        textures["flag"]= GetTexture("flagTexture");
+        return textures;
+    }
+
+    std::map<std::string, sf::Texture> TextureHolder::ManualWorldTexture()
+    {
+
+        std::map<std::string, sf::Texture> textures;
+
+        // Load textures
+        LoadTexture("wallTexture", "../assets/walls/brick_wall.png");
+        LoadTexture("trollTexture", "../assets/agents/troll.png");
+        LoadTexture("agentTexture", "../assets/agents/witch-girl.png");
+        LoadTexture("treeTexture", "../assets/trees/tree1.png");
+        LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
+        LoadTexture("axeTexture", "../assets/weapons/w_axe_war.png");
+        LoadTexture("boatTexture", "../assets/weapons/dagger.png");
+        textures["axe1"]= GetTexture("axeTexture");
+        textures["boat"]= GetTexture("boatTexture");
+        textures["wall"]= GetTexture("wallTexture");
+        textures["troll"]= GetTexture("trollTexture");
+        textures["agent"]= GetTexture("agentTexture");
+        textures["tree"]= GetTexture("treeTexture");
+        textures["water"]= GetTexture("waterTexture");
+
+
+        return textures;
+    }
+
 }

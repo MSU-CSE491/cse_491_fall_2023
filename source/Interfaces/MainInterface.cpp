@@ -16,8 +16,8 @@ namespace i_2D {
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
         mMenu.initialize();
-        mTextureHolder.LoadTexture("wallTexture", "../assets/walls/wall.png");
-        mTextureHolder.LoadTexture("agentTexture", "../assets/agents/troll.png");
+        ChooseTexture();
+
     }
 
     /**
@@ -90,9 +90,6 @@ namespace i_2D {
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
         CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
 
-        sf::Texture wallTexture = mTextureHolder.GetTexture("wallTexture");
-        sf::Texture agentTexture = mTextureHolder.GetTexture("agentTexture");
-
         for (size_t iterY = 0; iterY < grid.GetHeight(); ++iterY) {
             for (size_t iterX = 0; iterX < grid.GetWidth(); ++iterX) {
                 float cellPosX = drawCenterX + static_cast<float>(iterX) * cellSize.x;
@@ -110,21 +107,56 @@ namespace i_2D {
                 bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
                                       (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
                 switch (symbol) {
-                    case '#':
-                        DrawWall(cellRect, wallTexture, isVerticalWall);
+
+                    case 'P':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["axe1"]);
+                        break;
+                    case 'U':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["boat"]);
                         break;
 
+                    case '#':
+                        DrawWall(cellRect, mTexturesDefault["wall"], isVerticalWall);
+                        break;
                     case ' ':
                         DrawEmptyCell(cellRect);
                         break;
 
                     case '*':
-                        DrawAgentCell(cellRect,cell, agentTexture,sf::Color::Cyan);
+                        DrawAgentCell(cellRect,cell, mTexturesDefault["troll"]);
                         break;
 
                     case '@':
-                        DrawAgentCell(cellRect,cell,agentTexture,sf::Color::Red);
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["agent"]);
                         break;
+
+                    case '+':
+                        DrawWall(cellRect, mTexturesDefault["armour"], isVerticalWall);
+                        break;
+                    case 'S':
+                        DrawAgentCell(cellRect,cell, mTexturesDefault["sword"]);
+                        break;
+
+                    case 'A':
+                        DrawAgentCell(cellRect,cell, mTexturesDefault["axe"]);
+                        break;
+
+                    case 'D':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["dagger"]);
+                        break;
+                    case 'C':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["chest"]);
+                        break;
+                    case 'g':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["flag"]);
+                        break;
+                    case '^':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["tree"]);
+                        break;
+                    case '~':
+                        DrawAgentCell(cellRect,cell,mTexturesDefault["water"]);
+                        break;
+
                     default:
                         DrawDefaultCell(cellRect);
                         break;
@@ -166,23 +198,6 @@ namespace i_2D {
         drawSpaceHeight = static_cast<float>(grid.GetHeight()) * cellSize;
         drawCenterX = (mWindow.getSize().x - drawSpaceWidth) / 2.0f;
         drawCenterY = (mWindow.getSize().y - drawSpaceHeight) / 2.0f;
-    }
-
-    /**
-     * @brief Loads the required textures for drawing the maze.
-     *
-     * @param wallTexture A reference to the wall texture to be loaded.
-     * @param trollTexture A reference to the troll texture to be loaded.
-     */
-    void MainInterface::LoadTextures(sf::Texture &wallTexture, sf::Texture &trollTexture)
-    {
-        if (!wallTexture.loadFromFile("../assets/walls/wall.png")) {
-            std::cerr << "Failed to load wall texture!" << std::endl;
-        }
-
-        if (!trollTexture.loadFromFile("../assets/agents/troll.png")) {
-            std::cerr << "Failed to load troll texture!" << std::endl;
-        }
     }
 
     /**
@@ -277,6 +292,7 @@ namespace i_2D {
             case sf::Keyboard::Right:
                 action_id = GetActionID("right");
                 break;
+
             case sf::Keyboard::Q:
                 exit(0);
             case sf::Keyboard::Escape:
@@ -372,12 +388,28 @@ namespace i_2D {
      * @param agent The agent texture.
      * @param color The color to be set for the cell.
      */
-    void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent, sf::Color color) {
+    void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent) {
         cellRect.setTexture(&agent);
-        cellRect.setFillColor(color);
         cell.setFillColor(sf::Color::Black);
         mWindow.draw(cell);
         mWindow.draw(cellRect);
+    }
+
+    void MainInterface::ChooseTexture()
+    {
+        if(GetName() == "Interface1")
+        {
+            mTexturesDefault = mTextureHolder.MazeTexture();
+        }
+        else if(GetName() == "Interface2")
+        {
+            mTexturesDefault = mTextureHolder.SecondWorldTexture();
+        }
+        else if(GetName() == "Interface3")
+        {
+            mTexturesDefault =mTextureHolder. ManualWorldTexture();
+        }
+
     }
 
 }

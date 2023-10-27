@@ -40,7 +40,7 @@ namespace i_2D {
         float const MIN_SIZE_CELL = 16; ///< Pixels
         Menu mMenu; ///< for menu class
         TextureHolder mTextureHolder; ///< for the texture holder
-
+        std::map<std::string, sf::Texture> mTexturesDefault;
 
     public:
 
@@ -84,7 +84,7 @@ namespace i_2D {
         
         void DrawDefaultCell(sf::RectangleShape &cellRect);
 
-        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent, sf::Color color);
+        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
 
         void DrawCell(sf::RectangleShape &cellRect, float cellPosX, float cellPosY);
 
@@ -96,6 +96,7 @@ namespace i_2D {
         sf::Vector2f CalculateCellSize(const WorldGrid &grid);
 
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
+        void ChooseTexture();
     };
 
 } // End of namespace 2D
