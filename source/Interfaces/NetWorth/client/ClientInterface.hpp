@@ -43,13 +43,12 @@ namespace netWorth{
         ~ClientInterface() = default;
 
         /**
-         * Hopefully used later
+         * Initialize interface
          */
         bool Initialize() {
             m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
             m_dest_port = GetProperty<unsigned short>("port");
-            EstablishConnection();
-            return true;
+            return EstablishConnection();
         }
 
         /**
