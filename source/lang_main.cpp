@@ -35,10 +35,39 @@ int main()
 		std::cout << "Failed to match grammar!" << std::endl;
 	}
 */
+	std::string program = "test()\ntest(1)\nwow=3\na=2+test(123*5+4-6/7,abc)-wow\ntest(123-a,435,7650+8*8)\n";
 	
-	auto code = worldlang::parse_to_code("a=2+test(123*5+4-6/7,abc)-wow\ntest(123,435,7650+8*8)\n");
+	auto code = worldlang::parse_to_code(program);
 	for (auto& c : code){
-		std::cout << c.value << std::endl;
+		std::cout << static_cast<int>(c.type) << ", " << c.value << std::endl;
 	}
+	
+	using worldlang::ProgramExecutor;
+	auto test = [](ProgramExecutor& pe){
+		//TODO: catch exception here? should never be needed?
+		auto count = std::get<double>(pe.popStack());
+		std::cout << "Called test with " << count << " args (note: order reversed here):\n";
+		for (int i = 0; i < count; ++i){
+			auto arg = pe.popStack();
+			if (std::holds_alternative<double>(arg)){
+				std::cout << std::get<double>(arg);	
+			} else if (std::holds_alternative<std::string>(arg)){
+				std::cout << std::get<std::string>(arg);
+			} else if (std::holds_alternative<ProgramExecutor::Identifier>(arg)){
+				std::cout << std::get<ProgramExecutor::Identifier>(arg);
+			}
+			if (i != count - 1){
+				std::cout << ", ";
+			} else {
+				std::cout << std::endl;
+			}
+		}
+		// result value
+		pe.pushStack(0.0);
+	};
+	
+	worldlang::ProgramExecutor pe;
+	pe.registerFunction("test", test);
+	pe.run(program);
 }
 
