@@ -14,7 +14,12 @@
 
 namespace cse491 {
 
+  class WorldBase;
+
   class Entity {
+  private:
+    WorldBase * world_ptr; ///< Track the world this entity is in (private to protect pointer)
+
   protected:
     const size_t id;        ///< Unique ID for this entity.
     std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
@@ -58,17 +63,16 @@ namespace cse491 {
     [[nodiscard]] size_t GetID() const { return id; }
     [[nodiscard]] const std::string & GetName() const { return name; }
     [[nodiscard]] GridPosition GetPosition() const { return position; }
+    [[nodiscard]] WorldBase & GetWorld() const { assert(world_ptr); return *world_ptr; }
 
     Entity & SetName(const std::string in_name) { name = in_name; return *this; }
     Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
     Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
+    Entity & SetWorld(WorldBase & in_world) { world_ptr = &in_world; return *this; }
 
-    /// Is this Entity actually an autonomous agent? (Overridden in AgentBase to return true)
-    virtual bool IsAgent() const { return false; }
-
-    /// Is this Entity actually a specialty Agent that's an Interface for a human player?
-    /// (Overridden in InterfaceBase to return true)
-    virtual bool IsInterface() const { return false; }
+    virtual bool IsAgent() const { return false; }     ///< Is Entity an autonomous agent?
+    virtual bool IsItem() const { return false; }      ///< Is Entity an item?
+    virtual bool IsInterface() const { return false; } ///< Is Entity an interface for a human?
 
 
     // -- Property Management --
