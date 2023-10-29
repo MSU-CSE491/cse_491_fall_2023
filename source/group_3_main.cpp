@@ -21,27 +21,27 @@ int main() {
 ////    world.Run();
 //
     // group 4 maze -1
-//    group4::SecondWorld world_1;
-//
-//    world_1.AddAgent<i_2D::MainInterface>("Interface2").SetProperty<char>("symbol", '@');
-//
-//    // Adding power sword with id = 1; name = sword of power
-//    auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");
-//    powerSword->SetProperty("Damage", 20.0);
-//    powerSword->SetPosition(1, 2);
-//    world_1.AddItem(std::move(powerSword));
-//
-//    // Adding fire sword with id = 2; name = Inferno Slicer
-//    auto infernoSlicer = std::make_unique<cse491::ItemBase>(2, "Inferno Slicer");
-//    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0, "Burning Duration", 2.5);
-//    infernoSlicer->SetPosition(3, 4);
-//
-//
-//    // Adding a piece of armor with id = 10; name = Daedric
-//    auto daedricArmor = std::make_unique<cse491::ItemBase>(10, "Daedric Armor");
-//    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
-//    daedricArmor->SetPosition(5, 0);
-//    world_1.AddItem(std::move(daedricArmor));
+    group4::SecondWorld world_1;
+
+    world_1.AddAgent<i_2D::MainInterface>("Interface2").SetProperty<char>("symbol", '@');
+
+    // Adding power sword with id = 1; name = sword of power
+    auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");
+    powerSword->SetProperty("Damage", 20.0);
+    powerSword->SetPosition(1, 2);
+    world_1.AddItem(std::move(powerSword));
+
+    // Adding fire sword with id = 2; name = Inferno Slicer
+    auto infernoSlicer = std::make_unique<cse491::ItemBase>(2, "Inferno Slicer");
+    infernoSlicer->SetProperties("Damage", 12.5, "Speed", 15.0, "Burning Duration", 2.5);
+    infernoSlicer->SetPosition(3, 4);
+
+
+    // Adding a piece of armor with id = 10; name = Daedric
+    auto daedricArmor = std::make_unique<cse491::ItemBase>(10, "Daedric Armor");
+    daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
+    daedricArmor->SetPosition(5, 0);
+    world_1.AddItem(std::move(daedricArmor));
 //    world_1.Run();
 
     cse491_team8::ManualWorld world_3;

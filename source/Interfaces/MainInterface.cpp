@@ -34,24 +34,28 @@ namespace i_2D {
                                                              const item_set_t &item_set, const agent_set_t &agent_set) {
         std::vector<std::string> symbol_grid(grid.GetHeight());
         // Load the world into the symbol_grid;
-        for (size_t y = 0; y < grid.GetHeight(); ++y) {
+        for (size_t y=0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
-            for (size_t x = 0; x < grid.GetWidth(); ++x) {
-                symbol_grid[y][x] = type_options[grid.At(x, y)].symbol;
+            for (size_t x=0; x < grid.GetWidth(); ++x) {
+                symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
             }
         }
 
         // Add in the agents / entities
-        for (const auto &entity_ptr: item_set) {
+        for (const auto & entity_ptr : item_set) {
             GridPosition pos = entity_ptr->GetPosition();
-            symbol_grid[pos.CellY()][pos.CellX()] = '+';
+            char c = '+';
+            if (entity_ptr->HasProperty("symbol")) {
+                c = entity_ptr->GetProperty<char>("symbol");
+            }
+            symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
 
-        for (const auto &agent_ptr: agent_set) {
+        for (const auto & agent_ptr : agent_set) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
-            if (agent_ptr->HasProperty("symbol")) {
-                c = static_cast<char>(agent_ptr->GetProperty<char>("symbol"));
+            if(agent_ptr->HasProperty("symbol")){
+                c = agent_ptr->GetProperty<char>("symbol");
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
@@ -86,7 +90,6 @@ namespace i_2D {
         std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_set, agent_set);
 
         sf::Vector2f cellSize = CalculateCellSize(grid);
-
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
         CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
 
@@ -97,6 +100,7 @@ namespace i_2D {
 
                 char symbol = symbol_grid[iterY][iterX];
 
+
                 sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
                 sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
                 DrawCell(cellRect, cellPosX, cellPosY);
@@ -106,62 +110,9 @@ namespace i_2D {
 
                 bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
                                       (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-                switch (symbol) {
 
-                    case 'P':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["axe1"]);
-                        break;
-                    case 'U':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["boat"]);
-                        break;
+                SwitchCellSelect(cellRect, cell,symbol, isVerticalWall);
 
-                    case '#':
-                        DrawWall(cellRect, mTexturesDefault["wall"], isVerticalWall);
-                        break;
-                    case ' ':
-                        DrawEmptyCell(cellRect);
-                        break;
-
-                    case '*':
-                        DrawAgentCell(cellRect,cell, mTexturesDefault["troll"]);
-                        break;
-
-                    case '@':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["agent"]);
-                        break;
-
-                    case '+':
-                        DrawWall(cellRect, mTexturesDefault["armour"], isVerticalWall);
-                        break;
-                    case 'S':
-                        DrawAgentCell(cellRect,cell, mTexturesDefault["sword"]);
-                        break;
-
-                    case 'A':
-                        DrawAgentCell(cellRect,cell, mTexturesDefault["axe"]);
-                        break;
-
-                    case 'D':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["dagger"]);
-                        break;
-                    case 'C':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["chest"]);
-                        break;
-                    case 'g':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["flag"]);
-                        break;
-                    case '^':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["tree"]);
-                        break;
-                    case '~':
-                        DrawAgentCell(cellRect,cell,mTexturesDefault["water"]);
-                        break;
-
-                    default:
-                        DrawDefaultCell(cellRect);
-                        break;
-
-                }
             }
         }
         // Display everything
@@ -394,22 +345,94 @@ namespace i_2D {
         mWindow.draw(cell);
         mWindow.draw(cellRect);
     }
-
+    /*
+     * This function chooses the world to load the texture for it's images
+     * and sets the current texture map for drawing
+     */
     void MainInterface::ChooseTexture()
     {
         if(GetName() == "Interface1")
         {
             mTexturesDefault = mTextureHolder.MazeTexture();
+            mTexturesCurrent = mTexturesDefault;
         }
         else if(GetName() == "Interface2")
         {
-            mTexturesDefault = mTextureHolder.SecondWorldTexture();
+            mTexturesSecondWorld = mTextureHolder.SecondWorldTexture();
+            mTexturesCurrent = mTexturesSecondWorld;
         }
         else if(GetName() == "Interface3")
         {
-            mTexturesDefault =mTextureHolder. ManualWorldTexture();
+            mTexturesManualWorld =mTextureHolder. ManualWorldTexture();
+            mTexturesCurrent = mTexturesManualWorld;
         }
 
+    }
+    /**
+     * This is a helper function for DrawGrid. jsut using the switch statement to draw the grids
+     * @param cellRect - cell for texture
+     * @param cell  - cell for the solid
+     * @param symbol  - symbol of the cell
+     * @param isVerticalWall  - to the wall
+     */
+    void MainInterface::SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall)
+    {
+        switch (symbol) {
+
+            case 'P':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["axe1"]);
+                break;
+            case 'U':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["boat"]);
+                break;
+
+            case '#':
+                DrawWall(cellRect, mTexturesCurrent["wall"], isVerticalWall);
+                break;
+            case ' ':
+                DrawEmptyCell(cellRect);
+                break;
+
+            case '*':
+                DrawAgentCell(cellRect,cell, mTexturesCurrent["troll"]);
+                break;
+
+            case '@':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["agent"]);
+                break;
+
+            case '+':
+                DrawWall(cellRect, mTexturesCurrent["armour"], isVerticalWall);
+                break;
+            case 'S':
+                DrawAgentCell(cellRect,cell, mTexturesCurrent["sword"]);
+                break;
+
+            case 'A':
+                DrawAgentCell(cellRect,cell, mTexturesCurrent["axe"]);
+                break;
+
+            case 'D':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["dagger"]);
+                break;
+            case 'C':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["chest"]);
+                break;
+            case 'g':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["flag"]);
+                break;
+            case '^':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["tree"]);
+                break;
+            case '~':
+                DrawAgentCell(cellRect,cell,mTexturesCurrent["water"]);
+                break;
+
+            default:
+                DrawDefaultCell(cellRect);
+                break;
+
+        }
     }
 
 }

@@ -41,6 +41,9 @@ namespace i_2D {
         Menu mMenu; ///< for menu class
         TextureHolder mTextureHolder; ///< for the texture holder
         std::map<std::string, sf::Texture> mTexturesDefault;
+        std::map<std::string, sf::Texture> mTexturesSecondWorld;
+        std::map<std::string, sf::Texture> mTexturesManualWorld;
+        std::map<std::string, sf::Texture> mTexturesCurrent;
 
     public:
 
@@ -97,6 +100,7 @@ namespace i_2D {
 
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
         void ChooseTexture();
+        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall);
     };
 
 } // End of namespace 2D

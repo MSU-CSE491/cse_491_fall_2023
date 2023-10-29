@@ -37,7 +37,10 @@ namespace i_2D
         // Return dereferenced unique_ptr found at iterator pair
         return *got->second;
     }
-
+    /*
+     * @brief This function loads texture for the maze world images
+     * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
+     */
     std::map<std::string, sf::Texture> TextureHolder::MazeTexture()
     {
 
@@ -53,7 +56,10 @@ namespace i_2D
         textures["agent"] = GetTexture("agentTexture");
         return textures;
     }
-
+    /*
+     * @brief This function loads texture for the second world images
+     * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
+     */
     std::map<std::string, sf::Texture> TextureHolder::SecondWorldTexture()
     {
 
@@ -80,7 +86,10 @@ namespace i_2D
         textures["flag"]= GetTexture("flagTexture");
         return textures;
     }
-
+    /*
+     * @brief This function loads texture for the manual world images
+     * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
+     */
     std::map<std::string, sf::Texture> TextureHolder::ManualWorldTexture()
     {
 
@@ -92,8 +101,8 @@ namespace i_2D
         LoadTexture("agentTexture", "../assets/agents/witch-girl.png");
         LoadTexture("treeTexture", "../assets/trees/tree1.png");
         LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
-        LoadTexture("axeTexture", "../assets/weapons/w_axe_war.png");
-        LoadTexture("boatTexture", "../assets/weapons/dagger.png");
+        LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
+        LoadTexture("boatTexture", "../assets/weapons/leather_armor.png");
         textures["axe1"]= GetTexture("axeTexture");
         textures["boat"]= GetTexture("boatTexture");
         textures["wall"]= GetTexture("wallTexture");
