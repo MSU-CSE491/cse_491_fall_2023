@@ -6,6 +6,7 @@
 // Catch2 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <string>
 
@@ -116,3 +117,107 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 	}
 }
 
+using worldlang::ProgramExecutor;
+
+// Simple function test
+void square(ProgramExecutor& pe){
+	auto count = pe.as<double>(pe.popStack());
+	if (count != 1.0){
+		pe.error("Wrong number of arguments!");
+	} else {
+		auto arg = pe.as<double>(pe.popStack());
+		pe.pushStack(arg*arg);
+	}
+}
+
+// Variable number of arguments test
+void summation(ProgramExecutor& pe){
+	auto count = pe.as<double>(pe.popStack());
+	double sum = 0;
+	for (int i = 0; i < count; ++i){
+		auto arg = pe.as<double>(pe.popStack());
+		
+		sum += arg;
+	}
+	pe.pushStack(sum);
+}
+
+// Multiple return test
+// Generates interger sequence 0,1,...,n
+void sequence(ProgramExecutor& pe){
+	auto count = pe.as<double>(pe.popStack());
+	if (count != 1.0){
+		pe.error("Wrong number of arguments!");
+	} else {
+		auto arg = pe.as<double>(pe.popStack());
+		for (int i = 0; i <= arg; ++i){
+			pe.pushStack(static_cast<double>(i));
+		}
+	}
+}
+
+// Drops "pe" into this scope
+#define PROGRAM_RUN(program) \
+	ProgramExecutor pe{};\
+	pe.registerFunction("square", square);\
+	pe.registerFunction("sum", summation);\
+	pe.registerFunction("seq", sequence);\
+	pe.run(program);\
+
+using Catch::Matchers::WithinAbs;
+
+TEST_CASE("Execution check", "[World][Language]"){
+	SECTION("Simple assignment"){
+		PROGRAM_RUN("a=5\n"){
+			CHECK(pe.var<double>("a") == 5.0);
+		}
+	}
+	
+	SECTION("Multiple simple assignments"){
+		PROGRAM_RUN("a=42\nb=63\n"){
+			CHECK(pe.var<double>("a") == 42.0);
+			CHECK(pe.var<double>("b") == 63.0);
+		}
+	}
+	
+	SECTION("Operators"){
+		PROGRAM_RUN("a=42+653\nb=675-432\nc=63*234\nd=123/57\n"){
+			CHECK(pe.var<double>("a") == 695.0);
+			CHECK(pe.var<double>("b") == 243.0);
+			CHECK(pe.var<double>("c") == 14742.0);
+			CHECK_THAT(pe.var<double>("d"), WithinAbs(2.15789, 0.00001));
+		}
+	}
+	
+	SECTION("Simple function test"){
+		PROGRAM_RUN("a=square(4)\nb=square(a)\n"){
+			CHECK(pe.var<double>("a") == 16.0);
+			CHECK(pe.var<double>("b") == 256.0);
+		}
+	}
+	
+	SECTION("Variadic function"){
+		PROGRAM_RUN("a=sum(1,2,3)\nb=sum()\nc=sum(1,2,3,4,5,6,7,8,9)\n"){
+			CHECK(pe.var<double>("a") == 6.0);
+			CHECK(pe.var<double>("b") == 0.0);
+			CHECK(pe.var<double>("c") == 45.0);
+		}
+	}
+	
+	SECTION("Multiple assignment"){
+		PROGRAM_RUN("a,b=2,6\n"){
+			CHECK(pe.var<double>("a") == 2.0);
+			CHECK(pe.var<double>("b") == 6.0);
+		}
+	}
+	
+	SECTION("Multiple return"){
+		PROGRAM_RUN("a,b,c,d,e=seq(4)\n"){
+			CHECK(pe.var<double>("a") == 0.0);
+			CHECK(pe.var<double>("b") == 1.0);
+			CHECK(pe.var<double>("c") == 2.0);
+			CHECK(pe.var<double>("d") == 3.0);
+			CHECK(pe.var<double>("e") == 4.0);
+		}
+	}
+}

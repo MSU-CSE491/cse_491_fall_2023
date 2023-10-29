@@ -155,7 +155,7 @@ namespace worldlang{
 	struct assignment : pegtl::seq<
 		identifier_list,
 		pegtl::one< '=' >,
-		expression
+		expression_list
 	>
 	{};
 	
@@ -276,12 +276,14 @@ namespace worldlang{
 				out.push_back(Unit{Unit::Type::function, node->children.at(0)->string()});
 			} else if (type == "worldlang::assignment"){
 				// identifier_list
-				auto argcount = count(node->children.at(0));
+				auto identifier_count = count(node->children.at(0));
 				traverse(node->children.at(0));
 				// value
+				// Can't check expression count here: must be done at runtime
+				// since functions may have multiple returns
 				traverse(node->children.at(1));
 				// expression
-				out.push_back(Unit{Unit::Type::number, std::to_string(argcount)});
+				out.push_back(Unit{Unit::Type::number, std::to_string(identifier_count)});
 				out.push_back(Unit{Unit::Type::operation, "="});
 			} else if (type == "worldlang::mul_a"
 					|| type == "worldlang::add_a"
@@ -322,7 +324,7 @@ namespace worldlang{
 			traverse(root->children[0]);
 		} else {
 			// parse error lol
-			std::cout << "lolmao" << std::endl;
+			std::cout << "Parse error!!" << std::endl;
 		}
 			
 		return out;
@@ -385,8 +387,14 @@ namespace worldlang{
 			return false;
 		}
 		
-		// Get a value of Value, whether it contains a value or an identifier
-		// that contains that value
+		// TODO figure out what kind of doc comments we're actually using
+		/// Get a value of Value, whether it contains a value or an identifier
+		/// that contains that value
+		/// 
+		/// Example:
+		/// If your program consists of a=5\nb=a\n
+		/// then as<double> will handle both 5 and a correctly as arguments
+		/// std::get<double> is longer and only handles 5.
 		template <typename T>
 		T as(const Value& a){
 			if (std::holds_alternative<T>(a)){
@@ -402,6 +410,15 @@ namespace worldlang{
 			return T{};
 		}
 		
+		// Gets the value of a variable
+		// Throws std::out_of_range if it is not defined
+		// Throws std::bad_variant_access if variable is wrong type
+		template <typename T>
+		T var(const std::string& name){
+			auto val = variables.at(name);
+			return std::get<T>(val);
+		}
+		
 		void error(const std::string& error){
 			if (error_message.empty()){
 				error_message = error;
@@ -413,7 +430,8 @@ namespace worldlang{
 		}
 		
 		/// Returns false if program had an error
-		bool run(std::string& program){
+		bool run(const std::string& program){
+			//TODO: program preprocessing (add newline to end, remove spaces)
 			error_message = "";
 			auto code = parse_to_code(program);
 			//TODO: check for parse success
@@ -532,6 +550,7 @@ namespace worldlang{
 						break;
 					
 					case Unit::Type::function:
+						std::cout << "Perform function " << unit.value << std::endl;
 						if (variables.count(unit.value)){
 							auto& func = variables.at(unit.value);
 							if (std::holds_alternative<Callable>(func)){
