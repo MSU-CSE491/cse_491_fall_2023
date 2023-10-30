@@ -25,8 +25,8 @@ class NetworkingInterface : public cse491::InterfaceBase {
 
     protected:
         UdpSocket m_socket; ///The socket we are going to make our connection
-        std::optional<IpAddress> m_ip; /// the local address of the machine
-        unsigned short m_port;          /// local port number of the machine
+        std::optional<IpAddress> m_ip; /// the destination IP of the machine this communicates with
+        unsigned short m_port;          /// the destination port of the machine this communicates with
         //Thought about making m_clients a shared pointer to a vector, but it'll be a vector for now
         std::vector<std::string> m_clients; ///list of all the clients that will connect with the server
 

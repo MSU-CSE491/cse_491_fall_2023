@@ -26,14 +26,12 @@ namespace netWorth{
      */
     class ServerInterface : public NetworkingInterface {
     private:
-        std::optional<sf::IpAddress> m_client_ip;
-        unsigned short m_client_port;
 
     protected:
 
     public:
         ServerInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) {
-            InitialConnection(m_client_ip, m_client_port);
+            InitialConnection(m_ip, m_port);
         }
 
         /**
@@ -129,6 +127,14 @@ namespace netWorth{
             return gridPacket;
         }
 
+        /**
+         * Choose action for player agent (mirror client agent)
+         * @param grid
+         * @param type_options
+         * @param item_set
+         * @param agent_set
+         * @return
+         */
         size_t SelectAction(const cse491::WorldGrid & grid,
                             const cse491::type_options_t & type_options,
                             const cse491::item_set_t & item_set,
@@ -136,14 +142,13 @@ namespace netWorth{
         {
             // send map to client
             sf::Packet send_pkt = GridToPacket(grid, type_options, item_set, agent_set);
-            SendPacket(send_pkt, m_client_ip.value(), m_client_port);\
+            SendPacket(send_pkt, m_ip.value(), m_port);
 
             sf::Packet recv_pkt;
             std::string input;
 
             // receive player input
-            ReceivePacket(recv_pkt, m_client_ip, m_client_port);
-
+            ReceivePacket(recv_pkt, m_ip, m_port);
             recv_pkt >> input;
             std::cout << input << std::endl;
 

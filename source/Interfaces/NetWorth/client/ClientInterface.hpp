@@ -24,8 +24,6 @@ namespace netWorth{
 
     class ClientInterface : public NetworkingInterface {
     private:
-        std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
-        unsigned short m_dest_port = 0;         /// the destination port (server port)
 
     protected:
 
@@ -43,26 +41,28 @@ namespace netWorth{
          * @return True if successful, false if error
          */
         bool Initialize() override{
-            m_dest_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
-            m_dest_port = GetProperty<unsigned short>("port");
+            m_ip = sf::IpAddress::resolve(GetProperty<std::string>("ip"));
+            m_port = GetProperty<unsigned short>("port");
 
             Packet send_pkt, recv_pkt;
+            std::string str;
 
             // send request message
             send_pkt << "New client requesting connection.";
-            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return false;
+            if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 
             // receive from server
-            if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return false;
+            if (!ReceivePacket(recv_pkt, m_ip, m_port)) return false;
 
             // print received string (Connection established.)
-            std::string str;
             recv_pkt >> str;
             std::cout << str << std::endl;
 
+            // request map to start send/receive loop
             send_pkt.clear();
             send_pkt << "Requesting map";
-            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return false;
+            if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
+
             return true;
         }
 
@@ -80,14 +80,15 @@ namespace netWorth{
                             const cse491::agent_set_t & agent_set) override
         {
 
-            sf::Packet recv_pkt;
+            sf::Packet send_pkt, recv_pkt;
             std::string map;
 
             // Receive and draw map
-            ReceivePacket(recv_pkt, m_dest_ip, m_dest_port);
+            ReceivePacket(recv_pkt, m_ip, m_port);
             recv_pkt >> map;
             std::cout << map;
 
+            // TODO: Work with group 3 interface, grab input from there then send to server
             // Take input
             char input;
             do {
@@ -112,9 +113,8 @@ namespace netWorth{
             }
 
             // Send instruction to server
-            sf::Packet send_pkt;
             send_pkt << action_str;
-            SendPacket(send_pkt, m_dest_ip.value(), m_dest_port);
+            SendPacket(send_pkt, m_ip.value(), m_port);
 
             if (action_str == "quit") exit(0);
 

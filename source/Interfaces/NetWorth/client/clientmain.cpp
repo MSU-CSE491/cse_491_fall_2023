@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
 
     // will probably need to find a way to receive the world from the server first
     // this will be confusing
+    // receive initial world, set of agents, etc?? probably in ClientInterface Initialize instead of ping/pong
     netWorth::NetworkMazeWorld world;
     world.AddAgent<netWorth::ClientInterface>("Interface", "ip", ip_string, "port", port).SetProperty("symbol", '@');
 
