@@ -37,20 +37,27 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
   }
   SECTION("Cartesian graph mutated") {
     std::vector<size_t> actions(NUM_OUTPUTS, 0);
+    std::vector<double> inputs(INPUT_SIZE, 0);
     for (size_t i = 0; i < NUM_OUTPUTS; ++i)
       actions.at(i) = i;
     GraphBuilder builder;
+    bool choose_same_action = true;
+    int action = -1;
+
+    // Test that the graph is not always choosing the same action when mutated with different seeds
     size_t iterations = 100;
-    bool choose_first_action_only = true;
     for (size_t i = 0; i < iterations; ++i) {
       CGPGenotype genotype({INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       genotype.SetSeed(i);
       genotype.MutateDefault(1);
       auto graph = builder.CartesianGraph(genotype, FUNCTION_SET);
-      auto action_to_take = graph->MakeDecision(std::vector<double>(INPUT_SIZE, 1.0), actions);
-      choose_first_action_only = choose_first_action_only && action_to_take == actions.at(0);
+      auto action_to_take = graph->MakeDecision(inputs, actions);
+      if (action == -1) {
+        action = action_to_take;
+      }
+      choose_same_action = choose_same_action && (action_to_take == action);
     }
-    // Can fail when using random seeds, but should be very unlikely
-    CHECK(!choose_first_action_only);
+    // Could fail, but should be very unlikely
+    CHECK_FALSE(choose_same_action);
   }
 }

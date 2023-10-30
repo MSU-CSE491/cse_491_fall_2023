@@ -26,11 +26,8 @@ namespace cowboys {
     /// @brief Get the number of nodes in the graph.
     /// @return The number of nodes in the graph.
     size_t GetNodeCount() const {
-      size_t count = 0;
-      for (const auto &layer : layers) {
-        count += layer.size();
-      }
-      return count;
+      return std::accumulate(layers.cbegin(), layers.cend(), 0,
+                             [](size_t sum, const auto &layer) { return sum + layer.size(); });
     }
 
     /// @brief Get the number of layers in the graph.
@@ -69,12 +66,13 @@ namespace cowboys {
       size_t action = 0;
       if (index >= actions.size())
         action = actions.back();
-      else
+      else // Otherwise, return the action at the index
         action = actions.at(index);
       return action;
     }
 
-    /// @brief Add a layer to the graph. Purely organizational, but important for CGP for determining the "layers back" parameter.
+    /// @brief Add a layer to the graph. Purely organizational, but important for CGP for determining the "layers back"
+    /// parameter.
     /// @param layer The layer of nodes to add.
     void AddLayer(const GraphLayer &layer) { layers.push_back(layer); }
 
@@ -83,9 +81,7 @@ namespace cowboys {
     std::vector<std::shared_ptr<GraphNode>> GetFunctionalNodes() const {
       std::vector<std::shared_ptr<GraphNode>> functional_nodes;
       for (size_t i = 1; i < layers.size(); ++i) {
-        for (auto &node : layers[i]) {
-          functional_nodes.push_back(node);
-        }
+        functional_nodes.insert(functional_nodes.cend(), layers.at(i).cbegin(), layers.at(i).cend());
       }
       return functional_nodes;
     }
@@ -95,9 +91,7 @@ namespace cowboys {
     std::vector<std::shared_ptr<GraphNode>> GetNodes() const {
       std::vector<std::shared_ptr<GraphNode>> all_nodes;
       for (auto &layer : layers) {
-        for (auto &node : layer) {
-          all_nodes.push_back(node);
-        }
+        all_nodes.insert(all_nodes.cend(), layer.cbegin(), layer.cend());
       }
       return all_nodes;
     }
