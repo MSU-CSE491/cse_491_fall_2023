@@ -217,7 +217,7 @@ class SecondWorld : public cse491::WorldBase {
       auto item_found = std::find_if(
           item_set.begin(), item_set.end(),
           [&new_position](const std::unique_ptr<cse491::Entity>& item) {
-            return item->GetPosition() == new_position;
+            return item && item->GetPosition() == new_position;
           });
 
       std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
@@ -277,6 +277,7 @@ class SecondWorld : public cse491::WorldBase {
    */
   void PrintEntities() {
     for (const auto& elem : item_set) {
+      if (!elem) continue;
       std::cout << elem->GetName() << "\n";
     }
     std::cout << std::endl;

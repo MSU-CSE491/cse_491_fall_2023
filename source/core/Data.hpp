@@ -22,9 +22,9 @@ namespace cse491 {
   /// @brief Available CellTypes will be passed around as a vector of options.
   using type_options_t = std::vector<CellType>;
 
-  class Entity;
+  class ItemBase;
   /// @brief Sets of items will be represented as vectors of pointers to the base class
-  using item_set_t = std::vector<std::unique_ptr<Entity>>;
+  using item_set_t = std::vector<std::unique_ptr<ItemBase>>;
 
   class AgentBase;
   /// @brief Sets of agents will be represented as vectors of pointers to the base class
