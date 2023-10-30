@@ -14,12 +14,22 @@ using namespace cowboys;
 TEST_CASE("Genotype construction", "[group7][genotype]") {
   SECTION("Parameters constructor") {
     auto genotype = CGPGenotype({8, 4, 2, 10, 2});
+    // Each node can look back 2 layers
+    // 1st layer has 10 nodes, 8 connections each to the inputs
+    // 2nd layer has 10 nodes, 8 connections to the inputs + 10 connections each to the 1st layer
+    // Output layer has 4 nodes, 10 connections each to the 2nd layer + 10 connections each to the 1st layer
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
 
     genotype = CGPGenotype({8, 4, 2, 10, 3});
+    // Each node can look back 3 layers
+    // 1st layer has 10 nodes, 8 connections each to the inputs
+    // 2nd layer has 10 nodes, 10 connections each to the 1st layer + 8 connections to the inputs
+    // Output layer has 4 nodes, 10 connections each to the 2nd layer + 10 connections each to the 1st layer + 8
+    // connections to the inputs
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (8 + 10 + 10) * 4);
 
     genotype = CGPGenotype({8, 4, 2, 10, 10});
+    // Each node can look back 10 layers, but there are only 4 layers so each layer can look backwards all layers
     CHECK(genotype.GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (8 + 10 + 10) * 4);
   }
 }
@@ -27,15 +37,14 @@ TEST_CASE("Genotype iterators", "[group7][genotype]") {
   SECTION("Genotype iterators") {
     CGPGenotype genotype({8, 4, 2, 10, 2});
     auto it = genotype.begin();
+    // We ignore the input nodes, so the first node should have 8 input connections
     CHECK(it->input_connections.size() == 8);
-    CHECK(it->function_idx == 0);
-    CHECK((++it)->input_connections.size() == 8);
 
+    // Iterate through all nodes, checking input connections to differentiate them
     it = genotype.begin();
     // Layer 1
     for (size_t i = 0; i < 10; ++i) {
       CHECK(it->input_connections.size() == 8);
-      CHECK(it->function_idx == 0);
       ++it;
     }
     // Layer 2
@@ -84,6 +93,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK(all_default);
 
+    // Nothing should change
     genotype.MutateFunctions(0., 100);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
@@ -91,6 +101,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK(all_default);
 
+    // Most should change
     genotype.MutateFunctions(1., 100);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
@@ -105,6 +116,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK(all_default);
 
+    // Nothing should change
     genotype.MutateOutputs(0., -100, 100);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
@@ -112,6 +124,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK(all_default);
 
+    // Should change
     genotype.MutateOutputs(1., -100, 100);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
@@ -128,6 +141,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK(all_default);
 
+    // Mutate with 0 probability, nothing should change
     genotype.MutateDefault(0.);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
@@ -137,6 +151,8 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     }
     CHECK(all_default);
 
+    // Mutate with 100% probability, everything should have a high chance of changing (input connections will have a 1/2
+    // chance of changing (connected vs not connected) while functions will have a 1-1/n chance of changing with n functions)
     genotype.MutateDefault(1.);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {

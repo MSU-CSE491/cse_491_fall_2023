@@ -15,10 +15,9 @@ using namespace cowboys;
 TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
   constexpr size_t INPUT_SIZE = 10;
   constexpr size_t NUM_OUTPUTS = 10;
-  constexpr size_t NUM_LAYERS = 2;
-  constexpr size_t NUM_NODES_PER_LAYER = 10;
-  constexpr size_t NUM_NODE_INPUTS = 10;
-  constexpr size_t LAYERS_BACK = 2;
+  constexpr size_t NUM_LAYERS = 2; // Middle layers, does not include input or output layers
+  constexpr size_t NUM_NODES_PER_LAYER = 10; // Nodes per middle layer
+  constexpr size_t LAYERS_BACK = 2; // How many layers back a node can connect to
   SECTION("Cartesian Graph construction") {
     GraphBuilder builder;
 
