@@ -23,7 +23,7 @@ namespace cowboys {
       // Input layer
       GraphLayer input_layer;
       for (size_t i = 0; i < genotype.GetNumInputs(); ++i) {
-        input_layer.push_back(std::make_shared<GraphNode>(0));
+        input_layer.emplace_back(std::make_shared<GraphNode>(0));
       }
       decision_graph->AddLayer(input_layer);
 
@@ -31,7 +31,7 @@ namespace cowboys {
       for (size_t i = 0; i < genotype.GetNumLayers(); ++i) {
         GraphLayer layer;
         for (size_t j = 0; j < genotype.GetNumNodesPerLayer(); ++j) {
-          layer.push_back(std::make_shared<GraphNode>(0));
+          layer.emplace_back(std::make_shared<GraphNode>(0));
         }
         decision_graph->AddLayer(layer);
       }
@@ -39,7 +39,7 @@ namespace cowboys {
       // Action layer
       GraphLayer output_layer;
       for (size_t i = 0; i < genotype.GetNumOutputs(); ++i) {
-        output_layer.push_back(std::make_shared<GraphNode>(0));
+        output_layer.emplace_back(std::make_shared<GraphNode>(0));
       }
       decision_graph->AddLayer(output_layer);
 
