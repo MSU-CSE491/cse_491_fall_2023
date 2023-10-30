@@ -23,7 +23,7 @@ namespace walle
         int value = 0;
         double weight = 0.0;
 
-        Inventory* inventory;
+        Inventory* inventory = nullptr;
 
     public:
         // Constructor

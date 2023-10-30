@@ -10,6 +10,8 @@
 #include <catch2/catch_all.hpp>
 
 // class project
+#include "core/Inventory.hpp"
+#include "core/AgentBase.hpp"
 #include "core/Item.hpp"
 
 using namespace walle;
@@ -188,5 +190,29 @@ TEST_CASE("Item Weight", "[core]"){
 
         // check new name
         REQUIRE(weight == 7.5);
+    }
+}
+
+TEST_CASE("Item Inventory", "[core]"){
+
+    // create a temp agent and get its inventory
+    cse491::AgentBase agent(1, "Test Agent");
+    walle::Inventory inventory = agent.GetInventory();
+
+    // create an item to work on
+    std::shared_ptr<Item> item = std::make_shared<Item>("test1", 1, 1, 1, 1, 1.0);
+
+    SECTION("No Inventory"){
+
+        // check that the item is not part of an inventory to start
+        REQUIRE(item->GetInventory() == nullptr);
+    }
+
+    inventory.AddItem(item);
+
+    SECTION("Get Inventory"){
+
+        // check that the items inventory has been set
+        REQUIRE(item->GetInventory() == &inventory);
     }
 }
