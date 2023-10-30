@@ -6,9 +6,12 @@
  */
 
 #pragma once
+#include <algorithm>
+
 #include "../core/Entity.hpp"
 #include "../core/WorldBase.hpp"
-#include <algorithm>
+#include "../Agents/PacingAgent.hpp"
+#include <nlohmann/json.hpp>
 
 namespace group4 {
 /**
@@ -53,17 +56,81 @@ class SecondWorld : public cse491::WorldBase {
   SecondWorld() {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
-    flag_id = cse491::WorldBase::AddCellType(
-        "flag", "Goal flag for a game end state", 'g');
+    flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
     main_grid.Read("../assets/grids/group4_maze.grid", type_options);
   }
 
   /**
+   * Constructor with grid and agent file names
+   * @param grid_filename Relative path to grid file
+   * @param agent_filename Relative path to agent input.json file
+   */
+  SecondWorld(std::string grid_filename, std::string agent_filename) {
+    floor_id =
+        AddCellType("floor", "Floor that you can easily walk over.", ' ');
+    flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
+    wall_id = AddCellType(
+        "wall", "Impenetrable wall that you must find a way around.", '#');
+    main_grid.Read(grid_filename, type_options);
+
+    LoadFromFile(agent_filename);
+  }
+
+  /**
    * Destructor
    */
   ~SecondWorld() = default;
+
+  /**
+   * Loads data from a JSON file
+   * and adds agents with specified properties into the world.
+   * @param input_filename Relative path to input.json file
+   */
+  void LoadFromFile(const std::string& input_filename) {
+    std::ifstream input_file(input_filename);
+
+    if (!input_file.is_open()) {
+      std::cerr << "Error: could not open file " << input_filename << std::endl;
+      return;
+    }
+
+    nlohmann::json data;
+    try {
+      input_file >> data;
+    } catch (const nlohmann::json::parse_error& err) {
+      std::cerr << "JSON parsing error: " << err.what() << std::endl;
+      return;
+    }
+
+    for (const auto& agent : data) {
+      // May get a json.exception.type_error here if you assign to the wrong C++ type,
+      // so make sure to nail down what types things are in JSON first!
+      // My intuition is that each agent object will have:
+      // name: string (C++ std::string)
+      // x: number (C++ int)
+      // y: number (C++ int)
+      // entities: array<string> (C++ std::vector<std::string>)
+      std::string agent_name = agent.at("name");
+      int x_pos = agent.at("x");
+      int y_pos = agent.at("y");
+
+      const int BASE_MAX_HEALTH = 100;
+      int additional_max_health = 0;
+      std::vector<std::string> entities = agent.at("entities");
+
+      for (const auto& entity : entities) {
+        // TODO: How should we set the entity properties here?
+        // Just adding to MaxHealth now, but this doesn't seem very scalable.
+        if (entity == "chocolate_bar") {
+          additional_max_health = 10;
+        }
+      }
+      
+      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos).SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
+    }
+  }
 
   void UpdateWorld() override {}
 

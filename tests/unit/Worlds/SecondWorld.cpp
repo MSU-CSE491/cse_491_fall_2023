@@ -26,6 +26,21 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
     CHECK(grid.IsValid(22, 0));
     CHECK(!grid.IsValid(23, 0));
   }
+
+  SECTION("World with second_floor grid") {
+    group4::SecondWorld world("../assets/grids/second_floor.grid", "../assets/second_floor_input.json");
+    cse491::WorldGrid grid = world.GetGrid();
+    CHECK(grid.GetWidth() == 50);
+    CHECK(grid.GetHeight() == 44);
+    CHECK(grid.GetNumCells() == 2200);
+    CHECK(grid.IsValid(0, 0));
+    CHECK(grid.IsValid(0, 43));
+    CHECK(!grid.IsValid(0, 44));
+    CHECK(!grid.IsValid(-1, -1));
+
+    CHECK(grid.IsValid(49, 0));
+    CHECK(!grid.IsValid(50, 0));
+  }
 }
 
 TEST_CASE("EntityTest")
