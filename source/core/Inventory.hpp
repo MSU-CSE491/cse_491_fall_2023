@@ -61,6 +61,7 @@ namespace walle {
 		bool AddItem(std::shared_ptr<Item> item){
 			if(mItemCount < mMaxItems){
 				mItems.push_back(item);
+                item->SetInventory(this);
 				mItemCount++;
 				return true;
 			}

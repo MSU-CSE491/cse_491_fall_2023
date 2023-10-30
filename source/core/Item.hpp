@@ -11,6 +11,9 @@
 
 namespace walle
 {
+
+    class Inventory;
+
     class Item {
     protected:
         std::string name;
@@ -19,6 +22,8 @@ namespace walle
         int durability = 0;
         int value = 0;
         double weight = 0.0;
+
+        Inventory* inventory;
 
     public:
         // Constructor
@@ -37,12 +42,14 @@ namespace walle
         void SetDurability(int new_durability) { durability = new_durability; }
         void SetValue(int new_value) { value = new_value; }
         void SetWeight(double new_weight) { weight = new_weight; }
+        void SetInventory(walle::Inventory* inv) { inventory = inv; }
 
         int GetLevel() const { return level; }
         int GetDamage() const { return damage; }
         int GetDurability() const { return durability; }
         int GetValue() const { return value; }
         double GetWeight() const { return weight; }
+        Inventory* GetInventory() const { return inventory; }
 
         // Item functions
         virtual void UseItem() { durability--; } // virtual for Armor and Food item classes
