@@ -8,7 +8,6 @@
 #pragma once
 #include <algorithm>
 
-#include "../core/Entity.hpp"
 #include "../core/WorldBase.hpp"
 #include "../Agents/PacingAgent.hpp"
 #include <nlohmann/json.hpp>
@@ -39,7 +38,7 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to Entity char
   const size_t entity_id = '+';
 
-  std::vector<std::unique_ptr<cse491::Entity>> inventory;
+  std::vector<std::unique_ptr<cse491::ItemBase>> inventory;
 
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
@@ -214,9 +213,10 @@ class SecondWorld : public cse491::WorldBase {
     }
 
     if (main_grid.At(new_position) == entity_id) {
+      std::cout << "found entity id " << entity_id << std::endl;
       auto item_found = std::find_if(
           item_set.begin(), item_set.end(),
-          [&new_position](const std::unique_ptr<cse491::Entity>& item) {
+          [&new_position](const std::unique_ptr<cse491::ItemBase>& item) {
             return item && item->GetPosition() == new_position;
           });
 
@@ -236,26 +236,12 @@ class SecondWorld : public cse491::WorldBase {
   }
 
   /**
-   * Adds an entity to the non-agent entity list
-   * @param entity The entity we are adding
-   */
-  size_t AddEntity(std::unique_ptr<cse491::Entity>& entity) {
-    // Sets the '+' as the item in grid
-    main_grid.At(entity->GetPosition()) = entity_id;
-
-    // Moves the ownership of the entity into item_set
-    size_t id = entity->GetID();
-    item_set.push_back(std::move(entity));
-    return id;
-  }
-
-  /**
    * Cleans itemset of all null entities
    */
   void CleanEntities() {
     std::erase_if(item_set,
-                  [](const std::unique_ptr<cse491::Entity>& entityPtr) {
-                    return entityPtr == nullptr;
+                  [](const std::unique_ptr<cse491::ItemBase>& item_ptr) {
+                    return item_ptr == nullptr;
                   });
   }
 
@@ -265,8 +251,8 @@ class SecondWorld : public cse491::WorldBase {
    */
   void RemoveEntity(size_t removeID) {
     std::erase_if(item_set,
-                  [removeID](const std::unique_ptr<cse491::Entity>& entityPtr) {
-                    return entityPtr->GetID() == removeID;
+                  [removeID](const std::unique_ptr<cse491::ItemBase>& item_ptr) {
+                    return item_ptr->GetID() == removeID;
                   });
 
     CleanEntities();

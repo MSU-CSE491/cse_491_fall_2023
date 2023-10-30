@@ -45,14 +45,15 @@ set(JSON_SRC_DIR third_party/json)
 set(JSON_BUILD_DIR json_build)
 add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
 
+if (${BUILD_MAIN})
 
   # Configure all of SFML
   set(SFML_SRC_DIR third_party/SFML)
   set(SFML_BUILD_DIR sfml_build)
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
-# Configure PEGTL
-set(PEGTL_INCLUDE_DIR third_party/PEGTL/include)
+  # Configure PEGTL
+  set(PEGTL_INCLUDE_DIR third_party/PEGTL/include)
 
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
@@ -67,7 +68,7 @@ set(PEGTL_INCLUDE_DIR third_party/PEGTL/include)
     # Create executable and link to includes / libraries
     add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} source/Interfaces/TextureHolder.cpp source/Interfaces/TextureHolder.hpp)
     target_include_directories(${EXE_NAME}
-      PRIVATE ${CMAKE_SOURCE_DIR}/source
+      PRIVATE ${CMAKE_SOURCE_DIR}/source ${PEGTL_INCLUDE_DIR}
       )
     target_link_libraries(${EXE_NAME}
       PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
