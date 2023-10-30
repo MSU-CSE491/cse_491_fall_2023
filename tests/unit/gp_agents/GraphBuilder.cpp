@@ -45,7 +45,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
     for (size_t i = 0; i < iterations; ++i) {
       CGPGenotype genotype({INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       genotype.SetSeed(i);
-      genotype.MutateConnections(0.5).MutateFunctions(0.5, FUNCTION_SET.size());
+      genotype.MutateDefault(1);
       auto graph = builder.CartesianGraph(genotype, FUNCTION_SET);
       auto action_to_take = graph->MakeDecision(std::vector<double>(INPUT_SIZE, 1.0), actions);
       choose_first_action_only = choose_first_action_only && action_to_take == actions.at(0);
