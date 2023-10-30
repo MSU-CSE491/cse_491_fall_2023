@@ -12,6 +12,7 @@ set(JSON_SRC_DIR ../third_party/json)
 set(JSON_BUILD_DIR json_build)
 
 set(MAIN_SOURCE_DIR ../source)
+set(PEGTL_INCLUDE_DIR ../third_party/PEGTL/include)
 
 configure_file(run_tests.sh run_tests.sh COPYONLY)
 
