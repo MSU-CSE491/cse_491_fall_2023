@@ -21,9 +21,10 @@ namespace i_2D
         ~TextureHolder() = default;
         void LoadTexture(std::string id, std::string file_name);
         const sf::Texture& GetTexture(std::string id);
-        std::map<std::string, sf::Texture> MazeTexture();
-        std::map<std::string, sf::Texture> SecondWorldTexture();
-        std::map<std::string, sf::Texture> ManualWorldTexture();
+        std::map<char, sf::Texture> MazeTexture();
+        std::map<char, sf::Texture> SecondWorldTexture();
+        std::map<char, sf::Texture> ManualWorldTexture();
+        std::map<char, sf::Texture> GenerativeWorldTexture();
     };
 }
 

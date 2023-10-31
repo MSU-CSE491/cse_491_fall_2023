@@ -38,32 +38,32 @@ namespace i_2D
         return *got->second;
     }
     /*
-     * @brief This function loads texture for the maze world images
+     * @brief This function loads texture for the maze world images - Default maze
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
-    std::map<std::string, sf::Texture> TextureHolder::MazeTexture()
+    std::map<char, sf::Texture> TextureHolder::MazeTexture()
     {
 
-        std::map<std::string, sf::Texture> textures;
+        std::map<char, sf::Texture> textures;
 
         // Load textures
 
         LoadTexture("wallTexture", "../assets/walls/wall.png");
         LoadTexture("trollTexture", "../assets/agents/troll.png");
         LoadTexture("agentTexture", "../assets/agents/default-the-first.png");
-        textures["wall"] = GetTexture("wallTexture");
-        textures["troll"] = GetTexture("trollTexture");
-        textures["agent"] = GetTexture("agentTexture");
+        textures['#'] = GetTexture("wallTexture");
+        textures['*'] = GetTexture("trollTexture");
+        textures['@'] = GetTexture("agentTexture");
         return textures;
     }
     /*
-     * @brief This function loads texture for the second world images
+     * @brief This function loads texture for the second world images group 4
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
-    std::map<std::string, sf::Texture> TextureHolder::SecondWorldTexture()
+    std::map<char, sf::Texture> TextureHolder::SecondWorldTexture()
     {
 
-        std::map<std::string, sf::Texture> textures;
+        std::map<char, sf::Texture> textures;
 
         // Load textures
         LoadTexture("wallTexture", "../assets/walls/brick_wall-red.png");
@@ -75,25 +75,25 @@ namespace i_2D
         LoadTexture("daggerTexture", "../assets/weapons/dagger.png");
         LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
         LoadTexture("flagTexture", "../assets/weapons/4_Conjoined_Spikes.png");
-        textures["wall"]= GetTexture("wallTexture");
-        textures["troll"]= GetTexture("trollTexture");
-        textures["agent"]= GetTexture("agentTexture");
-        textures["armour"]= GetTexture("armourTexture");
-        textures["sword"]= GetTexture("swordTexture");
-        textures["axe"]= GetTexture("axeTexture");
-        textures["dagger"]= GetTexture("daggerTexture");
-        textures["chest"]= GetTexture("chestTexture");
-        textures["flag"]= GetTexture("flagTexture");
+        textures['#'] = GetTexture("wallTexture");
+        textures['*'] = GetTexture("trollTexture");
+        textures['@'] = GetTexture("agentTexture");
+        textures['+'] = GetTexture("armourTexture");
+        textures['S'] = GetTexture("swordTexture");
+        textures['A'] = GetTexture("axeTexture");
+        textures['D'] = GetTexture("daggerTexture");
+        textures['C'] = GetTexture("chestTexture");
+        textures['g'] = GetTexture("flagTexture");
         return textures;
     }
     /*
-     * @brief This function loads texture for the manual world images
+     * @brief This function loads texture for the manual world images group 8
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
-    std::map<std::string, sf::Texture> TextureHolder::ManualWorldTexture()
+    std::map<char, sf::Texture> TextureHolder::ManualWorldTexture()
     {
 
-        std::map<std::string, sf::Texture> textures;
+        std::map<char, sf::Texture> textures;
 
         // Load textures
         LoadTexture("wallTexture", "../assets/walls/brick_wall.png");
@@ -103,14 +103,41 @@ namespace i_2D
         LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
         LoadTexture("boatTexture", "../assets/weapons/leather_armor.png");
-        textures["axe1"]= GetTexture("axeTexture");
-        textures["boat"]= GetTexture("boatTexture");
-        textures["wall"]= GetTexture("wallTexture");
-        textures["troll"]= GetTexture("trollTexture");
-        textures["agent"]= GetTexture("agentTexture");
-        textures["tree"]= GetTexture("treeTexture");
-        textures["water"]= GetTexture("waterTexture");
+        textures['P'] = GetTexture("axeTexture");
+        textures['U'] = GetTexture("boatTexture");
+        textures['#'] = GetTexture("wallTexture");
+        textures['*'] = GetTexture("trollTexture");
+        textures['@'] = GetTexture("agentTexture");
+        textures['^'] = GetTexture("treeTexture");
+        textures['~'] = GetTexture("waterTexture");
 
+
+        return textures;
+    }
+    /*
+     * @brief This function loads texture for the generative world images group 6
+     * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
+     */
+    std::map<char, sf::Texture> TextureHolder::GenerativeWorldTexture()
+    {
+
+        std::map<char, sf::Texture> textures;
+
+        // Load textures
+        LoadTexture("wallTexture", "../assets/walls/stone_wall02.png");
+        LoadTexture("trollTexture", "../assets/agents/troll.png");
+        LoadTexture("agentTexture", "../assets/agents/Character_03_Front.png");
+        LoadTexture("tarTexture", "../assets/Ground_tiles/tar.jpg");
+        LoadTexture("doorTexture", "../assets/walls/castledoors.png");
+        LoadTexture("spikeTexture", "../assets/weapons/Individual_Spike.png");
+        LoadTexture("keyTexture", "../assets/weapons/key.png");
+        textures['X'] = GetTexture("spikeTexture");
+        textures['O'] = GetTexture("tarTexture");
+        textures['#'] = GetTexture("wallTexture");
+        textures['*'] = GetTexture("trollTexture");
+        textures['@'] = GetTexture("agentTexture");
+        textures['D'] = GetTexture("doorTexture");
+        textures['K'] = GetTexture("keyTexture");
 
         return textures;
     }

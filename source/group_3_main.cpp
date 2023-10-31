@@ -8,22 +8,22 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/MainInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
-
-#include "Interfaces/Menu.hpp"
 #include "Worlds/SecondWorld.hpp"
 #include "Worlds/ManualWorld.hpp"
+#include "Worlds/BiomeGenerator.hpp"
+#include "Worlds/GenerativeWorld.hpp"
 
 int main() {
 //    cse491::MazeWorld world;
 //    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
 //    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
-//    world.AddAgent<i_2D::MainInterface>("Interface").SetProperty<char>("symbol", '@');
-////    world.Run();
+//    world.AddAgent<i_2D::MainInterface>("Interface1").SetProperty<char>("symbol", '@');
+//    world.Run();
 //
-    // group 4 maze -1
+//     group 4 maze -1
     group4::SecondWorld world_1;
 
-    world_1.AddAgent<i_2D::MainInterface>("Interface2").SetProperty<char>("symbol", '@');
+    world_1.AddAgent<i_2D::MainInterface>("Interface").SetProperty<char>("symbol", '@');
 
     // Adding power sword with id = 1; name = sword of power
     auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");
@@ -42,7 +42,23 @@ int main() {
     daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
     daedricArmor->SetPosition(5, 0);
     world_1.AddItem(std::move(daedricArmor));
-//    world_1.Run();
+    world_1.Run();
+
+    static const unsigned int SEED = 973;
+    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
+    biomeGenerator.generate();
+
+    srand(time(NULL));
+    auto path = biomeGenerator.clearPath();
+    biomeGenerator.applyPathToGrid(path);
+    biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
+
+    cse491::GenerativeWorld world_2(SEED);
+    world_2.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+    world_2.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
+    world_2.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
+
+    world_2.Run();
 
     cse491_team8::ManualWorld world_3;
     world_3.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);

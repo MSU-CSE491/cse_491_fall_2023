@@ -59,6 +59,7 @@ namespace i_2D {
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
+
         return symbol_grid;
     }
 
@@ -71,7 +72,7 @@ namespace i_2D {
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
         float cellSizeWide = mWindow.getSize().x / grid.GetWidth();
         float cellSizeTall = mWindow.getSize().y / grid.GetHeight();
-        float cellSize = std::min(cellSizeWide, cellSizeTall);
+        float cellSize = std::min(cellSizeWide, cellSizeTall) ;
         return sf::Vector2f(cellSize, cellSize);
     }
 
@@ -103,7 +104,7 @@ namespace i_2D {
 
                 sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
                 sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
-                DrawCell(cellRect, cellPosX, cellPosY);
+                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
                 cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
@@ -111,7 +112,7 @@ namespace i_2D {
                 bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
                                       (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
 
-                SwitchCellSelect(cellRect, cell,symbol, isVerticalWall);
+                SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
 
             }
         }
@@ -119,19 +120,6 @@ namespace i_2D {
         mMenu.drawto(mWindow);
         mWindow.display();
     }
-
-    /**
-     * @brief Draws a cell at the given position.
-     *
-     * @param cellRect  The rectangle representing the cell.
-     * @param cellPosX  The x-coordinate of the cell's position.
-     * @param cellPosY  The y-coordinate of the cell's position.
-     */
-    void MainInterface::DrawCell(sf::RectangleShape &cellRect, float cellPosX, float cellPosY)
-    {
-        cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-    }
-
     /**
      * @brief Calculates the total drawing space based on the grid dimensions and cell size and also the center position of the drawing space.
      *
@@ -149,21 +137,6 @@ namespace i_2D {
         drawSpaceHeight = static_cast<float>(grid.GetHeight()) * cellSize;
         drawCenterX = (mWindow.getSize().x - drawSpaceWidth) / 2.0f;
         drawCenterY = (mWindow.getSize().y - drawSpaceHeight) / 2.0f;
-    }
-
-    /**
-    * @brief Updates the graphical representation of the maze grid.
-    *
-    * @param grid         The WorldGrid representing the maze.
-    * @param type_options The type options for symbols.
-    * @param item_set     The set of items in the maze.
-    * @param agent_set    The set of agents in the maze.
-    */
-    void MainInterface::UpdateGrid(const WorldGrid &grid,
-                                   const type_options_t &type_options,
-                                   const item_set_t &item_set,
-                                   const agent_set_t &agent_set) {
-        DrawGrid(grid, type_options, item_set, agent_set);
     }
 
     /**
@@ -199,7 +172,7 @@ namespace i_2D {
                 }
             }
 
-            UpdateGrid(grid, type_options, item_set, agent_set);
+            DrawGrid(grid, type_options, item_set, agent_set);
         }
 
         return 0;
@@ -356,7 +329,7 @@ namespace i_2D {
             mTexturesDefault = mTextureHolder.MazeTexture();
             mTexturesCurrent = mTexturesDefault;
         }
-        else if(GetName() == "Interface2")
+        else if(GetName() == "Interface")
         {
             mTexturesSecondWorld = mTextureHolder.SecondWorldTexture();
             mTexturesCurrent = mTexturesSecondWorld;
@@ -365,6 +338,11 @@ namespace i_2D {
         {
             mTexturesManualWorld =mTextureHolder. ManualWorldTexture();
             mTexturesCurrent = mTexturesManualWorld;
+        }
+        else if(GetName() == "Interface2")
+        {
+            mTexturesGenerativeWorld =mTextureHolder. GenerativeWorldTexture();
+            mTexturesCurrent = mTexturesGenerativeWorld;
         }
 
     }
@@ -378,60 +356,15 @@ namespace i_2D {
     void MainInterface::SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall)
     {
         switch (symbol) {
-
-            case 'P':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["axe1"]);
-                break;
-            case 'U':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["boat"]);
-                break;
-
-            case '#':
-                DrawWall(cellRect, mTexturesCurrent["wall"], isVerticalWall);
-                break;
             case ' ':
                 DrawEmptyCell(cellRect);
                 break;
-
-            case '*':
-                DrawAgentCell(cellRect,cell, mTexturesCurrent["troll"]);
+            case '#':
+                DrawWall(cellRect, mTexturesCurrent[symbol], isVerticalWall);
                 break;
-
-            case '@':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["agent"]);
-                break;
-
-            case '+':
-                DrawWall(cellRect, mTexturesCurrent["armour"], isVerticalWall);
-                break;
-            case 'S':
-                DrawAgentCell(cellRect,cell, mTexturesCurrent["sword"]);
-                break;
-
-            case 'A':
-                DrawAgentCell(cellRect,cell, mTexturesCurrent["axe"]);
-                break;
-
-            case 'D':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["dagger"]);
-                break;
-            case 'C':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["chest"]);
-                break;
-            case 'g':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["flag"]);
-                break;
-            case '^':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["tree"]);
-                break;
-            case '~':
-                DrawAgentCell(cellRect,cell,mTexturesCurrent["water"]);
-                break;
-
             default:
-                DrawDefaultCell(cellRect);
+                DrawAgentCell(cellRect, cell, mTexturesCurrent[symbol]);
                 break;
-
         }
     }
 

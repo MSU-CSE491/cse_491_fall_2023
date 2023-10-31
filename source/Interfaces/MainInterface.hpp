@@ -40,10 +40,11 @@ namespace i_2D {
         float const MIN_SIZE_CELL = 16; ///< Pixels
         Menu mMenu; ///< for menu class
         TextureHolder mTextureHolder; ///< for the texture holder
-        std::map<std::string, sf::Texture> mTexturesDefault;
-        std::map<std::string, sf::Texture> mTexturesSecondWorld;
-        std::map<std::string, sf::Texture> mTexturesManualWorld;
-        std::map<std::string, sf::Texture> mTexturesCurrent;
+        std::map<char, sf::Texture> mTexturesDefault;
+        std::map<char, sf::Texture> mTexturesSecondWorld;
+        std::map<char, sf::Texture> mTexturesManualWorld;
+        std::map<char, sf::Texture> mTexturesGenerativeWorld;
+        std::map<char, sf::Texture> mTexturesCurrent;
 
     public:
 
@@ -61,11 +62,6 @@ namespace i_2D {
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_set_t &item_set, const agent_set_t &agent_set);
 
-
-        void UpdateGrid(const WorldGrid &grid,
-                        const type_options_t &type_options,
-                        const item_set_t &item_set,
-                        const agent_set_t &agent_set);
         /**
          * @brief Initializes the main interface.
          *
@@ -84,14 +80,11 @@ namespace i_2D {
         void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall);
 
         void DrawEmptyCell(sf::RectangleShape &cellRect);
-        
+
         void DrawDefaultCell(sf::RectangleShape &cellRect);
 
         void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
 
-        void DrawCell(sf::RectangleShape &cellRect, float cellPosX, float cellPosY);
-
-        void LoadTextures(sf::Texture &wallTexture, sf::Texture &trollTexture);
 
         void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth, float &drawSpaceHeight,
                                 float &drawCenterX, float &drawCenterY);
