@@ -1,16 +1,16 @@
 # vscode cmake build
 build
 
-# clion cmake build
-cmake-build-debug
-cmake-build-release
+# CMake build directories
+cmake-build-*/
 
-# clion settings
+# CLion-specific files
 .idea/
+.cmake/
+*.iml
 
 # vscode settings
 .vscode/
-.github/
 
 # Vim swap files
 *.swp

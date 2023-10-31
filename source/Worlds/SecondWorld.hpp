@@ -6,9 +6,11 @@
  */
 
 #pragma once
-#include "../core/Entity.hpp"
-#include "../core/WorldBase.hpp"
 #include <algorithm>
+
+#include "../core/WorldBase.hpp"
+#include "../Agents/PacingAgent.hpp"
+#include <nlohmann/json.hpp>
 
 namespace group4 {
 /**
@@ -36,7 +38,7 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to Entity char
   const size_t entity_id = '+';
 
-  std::vector<std::unique_ptr<cse491::Entity>> inventory;
+  std::vector<std::unique_ptr<cse491::ItemBase>> inventory;
 
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
@@ -53,17 +55,81 @@ class SecondWorld : public cse491::WorldBase {
   SecondWorld() {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
-    flag_id = cse491::WorldBase::AddCellType(
-        "flag", "Goal flag for a game end state", 'g');
+    flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
     main_grid.Read("../assets/grids/group4_maze.grid", type_options);
   }
 
   /**
+   * Constructor with grid and agent file names
+   * @param grid_filename Relative path to grid file
+   * @param agent_filename Relative path to agent input.json file
+   */
+  SecondWorld(std::string grid_filename, std::string agent_filename) {
+    floor_id =
+        AddCellType("floor", "Floor that you can easily walk over.", ' ');
+    flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
+    wall_id = AddCellType(
+        "wall", "Impenetrable wall that you must find a way around.", '#');
+    main_grid.Read(grid_filename, type_options);
+
+    LoadFromFile(agent_filename);
+  }
+
+  /**
    * Destructor
    */
   ~SecondWorld() = default;
+
+  /**
+   * Loads data from a JSON file
+   * and adds agents with specified properties into the world.
+   * @param input_filename Relative path to input.json file
+   */
+  void LoadFromFile(const std::string& input_filename) {
+    std::ifstream input_file(input_filename);
+
+    if (!input_file.is_open()) {
+      std::cerr << "Error: could not open file " << input_filename << std::endl;
+      return;
+    }
+
+    nlohmann::json data;
+    try {
+      input_file >> data;
+    } catch (const nlohmann::json::parse_error& err) {
+      std::cerr << "JSON parsing error: " << err.what() << std::endl;
+      return;
+    }
+
+    for (const auto& agent : data) {
+      // May get a json.exception.type_error here if you assign to the wrong C++ type,
+      // so make sure to nail down what types things are in JSON first!
+      // My intuition is that each agent object will have:
+      // name: string (C++ std::string)
+      // x: number (C++ int)
+      // y: number (C++ int)
+      // entities: array<string> (C++ std::vector<std::string>)
+      std::string agent_name = agent.at("name");
+      int x_pos = agent.at("x");
+      int y_pos = agent.at("y");
+
+      const int BASE_MAX_HEALTH = 100;
+      int additional_max_health = 0;
+      std::vector<std::string> entities = agent.at("entities");
+
+      for (const auto& entity : entities) {
+        // TODO: How should we set the entity properties here?
+        // Just adding to MaxHealth now, but this doesn't seem very scalable.
+        if (entity == "chocolate_bar") {
+          additional_max_health = 10;
+        }
+      }
+      
+      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos).SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
+    }
+  }
 
   void UpdateWorld() override {}
 
@@ -147,10 +213,11 @@ class SecondWorld : public cse491::WorldBase {
     }
 
     if (main_grid.At(new_position) == entity_id) {
+      std::cout << "found entity id " << entity_id << std::endl;
       auto item_found = std::find_if(
           item_set.begin(), item_set.end(),
-          [&new_position](const std::unique_ptr<cse491::Entity>& item) {
-            return item->GetPosition() == new_position;
+          [&new_position](const std::unique_ptr<cse491::ItemBase>& item) {
+            return item && item->GetPosition() == new_position;
           });
 
       std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
@@ -169,26 +236,12 @@ class SecondWorld : public cse491::WorldBase {
   }
 
   /**
-   * Adds an entity to the non-agent entity list
-   * @param entity The entity we are adding
-   */
-  size_t AddEntity(std::unique_ptr<cse491::Entity>& entity) {
-    // Sets the '+' as the item in grid
-    main_grid.At(entity->GetPosition()) = entity_id;
-
-    // Moves the ownership of the entity into item_set
-    size_t id = entity->GetID();
-    item_set.push_back(std::move(entity));
-    return id;
-  }
-
-  /**
    * Cleans itemset of all null entities
    */
   void CleanEntities() {
     std::erase_if(item_set,
-                  [](const std::unique_ptr<cse491::Entity>& entityPtr) {
-                    return entityPtr == nullptr;
+                  [](const std::unique_ptr<cse491::ItemBase>& item_ptr) {
+                    return item_ptr == nullptr;
                   });
   }
 
@@ -198,8 +251,8 @@ class SecondWorld : public cse491::WorldBase {
    */
   void RemoveEntity(size_t removeID) {
     std::erase_if(item_set,
-                  [removeID](const std::unique_ptr<cse491::Entity>& entityPtr) {
-                    return entityPtr->GetID() == removeID;
+                  [removeID](const std::unique_ptr<cse491::ItemBase>& item_ptr) {
+                    return item_ptr->GetID() == removeID;
                   });
 
     CleanEntities();
@@ -210,6 +263,7 @@ class SecondWorld : public cse491::WorldBase {
    */
   void PrintEntities() {
     for (const auto& elem : item_set) {
+      if (!elem) continue;
       std::cout << elem->GetName() << "\n";
     }
     std::cout << std::endl;
