@@ -94,7 +94,7 @@ public:
 
   /// Return the taxicab distance between two grid positions
   [[nodiscard]] double Distance(const GridPosition &gp) const {
-    return std::abs(x - gp.x) + std::abs(y - gp.x);
+    return std::abs(x - gp.x) + std::abs(y - gp.y);
   }
 };
 

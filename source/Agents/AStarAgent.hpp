@@ -60,6 +60,7 @@ public:
    */
   void RecalculatePath() {
     path = GetShortestPath(GetPosition(), goal_position, GetWorld(), *this);
+    path.pop_back();
     current_move_num = 0;
   }
   /// Choose the action to take a step in the appropriate direction.

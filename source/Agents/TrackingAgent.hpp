@@ -28,7 +28,7 @@ private:
   PathAgent path_agent;
   AStarAgent tracking_agent;
   cse491::GridPosition startPos;
-  std::unique_ptr<AgentBase> target;
+  Entity *target;
   // Possible states TO_START, TRACKING, and PATH
   std::string state = "TO_START"; // TODO REFACTOR TO ENUM?
   double tracking_distance = 50;
@@ -40,6 +40,14 @@ public:
   TrackingAgent() = delete;
 
   /**
+   * Constructor
+   * @param id unique agent id
+   * @param name name of path agent
+   */
+  TrackingAgent(size_t id, std::string const &name)
+      : PathAgent(id, name), path_agent(id, name + "Path"),
+        tracking_agent(id, name + "A*") {}
+  /**
    * Constructor (vector)
    * @param id unique agent id
    * @param name name of path agent
@@ -50,10 +58,7 @@ public:
                 std::vector<cse491::GridPosition> &&offsets)
       : PathAgent(id, name, std::move(offsets)),
         path_agent(id, name + "Path", std::move(offsets)),
-        tracking_agent(id, name + "A*") {
-    path_agent.SetWorld(GetWorld());
-    tracking_agent.SetWorld(GetWorld());
-  }
+        tracking_agent(id, name + "A*") {}
   /**
    * Constructor
    * @param id unique agent id
@@ -75,7 +80,14 @@ public:
    * Verifies that it can currently index into a valid offset
    * @return true if so; false otherwise
    */
-  bool Initialize() override { return path_agent.Initialize(); }
+  bool Initialize() override {
+    if (property_map.contains("path")) {
+      path_agent.SetProperty("path",
+                             GetProperty<std::basic_string_view<char>>("path"));
+    }
+
+    return path_agent.Initialize();
+  }
 
   size_t SelectAction(cse491::WorldGrid const &grid,
                       cse491::type_options_t const &type,
@@ -86,7 +98,8 @@ public:
     path_agent.SetPosition(GetPosition());
     tracking_agent.SetPosition(GetPosition());
 
-    if (GetPosition().Distance(target->GetPosition()) < tracking_distance) {
+    if (target != nullptr &&
+        GetPosition().Distance(target->GetPosition()) < tracking_distance) {
       // We are close enough, follow the target
       state = "TRACKING";
       tracking_agent.SetGoalPosition(target->GetPosition());
@@ -99,6 +112,7 @@ public:
       if (position == startPos) {
         // We have made it back to start pos, time to start "patrolling again"
         state = "PATH";
+        path_agent.ResetIndex();
         return path_agent.SelectAction(grid, type, item_set, agent_set);
       }
       state = "TO_START";
@@ -149,8 +163,8 @@ public:
    * @param agent we want to track
    * @return self
    */
-  TrackingAgent &SetTarget(std::unique_ptr<AgentBase> &&agent) {
-    target = std::move(agent);
+  TrackingAgent &SetTarget(Entity *agent) {
+    target = agent;
     return *this;
   }
 
@@ -161,6 +175,20 @@ public:
    */
   TrackingAgent &SetTrackingDistance(double dist) {
     tracking_distance = dist;
+    return *this;
+  }
+
+  /**
+   * Set both the world for our currernt agent and the agents it is a part of
+   * @param in_world
+   * @return
+   */
+  TrackingAgent &SetWorld(cse491::WorldBase &in_world) override {
+    Entity::SetWorld(in_world);
+    tracking_agent.SetWorld(in_world);
+    path_agent.SetWorld(GetWorld());
+    GetWorld().ConfigAgent(tracking_agent);
+    GetWorld().ConfigAgent(path_agent);
     return *this;
   }
 };

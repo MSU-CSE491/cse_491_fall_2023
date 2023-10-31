@@ -6,6 +6,7 @@
 #include <map>
 #include <queue>
 #include <regex>
+#include <sstream>
 #include <tuple>
 #include <vector>
 
@@ -59,7 +60,7 @@ struct CompareNodes {
 /// @param end Ending position for the search
 /// @return vector of A* path from start to end, empty vector if no path
 /// exist
-std::vector<cse491::GridPosition>
+inline std::vector<cse491::GridPosition>
 GetShortestPath(const cse491::GridPosition &start,
                 const cse491::GridPosition &end, const cse491::WorldBase &world,
                 const cse491::AgentBase &agent) {
@@ -150,7 +151,8 @@ GetShortestPath(const cse491::GridPosition &start,
  * @note this includes when a negative integer is passed as `steps`. If a zero
  * is used, treated as the default (one)
  */
-std::vector<cse491::GridPosition> StrToOffsets(std::string_view commands) {
+inline std::vector<cse491::GridPosition>
+StrToOffsets(std::string_view commands) {
   std::vector<cse491::GridPosition> positions;
 
   // Regex capturing groups logically mean the following:
