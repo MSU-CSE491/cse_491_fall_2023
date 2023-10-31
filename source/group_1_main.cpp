@@ -5,20 +5,22 @@
  **/
 
 // Include the modules that we will be using.
-#include "Agents/PacingAgent.hpp"
 #include "Agents/AStarAgent.hpp"
+#include "Agents/PathAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
 int main() {
   cse491::MazeWorld world;
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
-  auto & astar_agent = 
-      static_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar 1"));
-  astar_agent.SetPosition(7, 3);
-  astar_agent.SetGoalPosition(7, 8);
-  astar_agent.RecalculatePath();
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+  auto &entity =
+      world.AddAgent<walle::PathAgent>("Looper").SetPosition(6, 0).SetProperty(
+          "symbol", '$');
+  assert(dynamic_cast<walle::PathAgent *>(&entity));
+  auto &looper = static_cast<walle::PathAgent &>(entity);
+  looper.SetProperty<std::basic_string_view<char>>("path", "e 4s w 4n");
+  looper.Initialize();
+  world.AddAgent<cse491::TrashInterface>("Interface")
+      .SetProperty("symbol", '@');
 
   world.Run();
 }
