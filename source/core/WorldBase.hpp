@@ -35,8 +35,9 @@ protected:
   WorldGrid & main_grid;        ///< Main grid for this world; shortcut to `grids["main"]`
   type_options_t type_options;  ///< Vector of types of cells in grids for this world.
 
-  item_set_t item_set;          ///< Vector of pointers to non-agent entities
-  agent_set_t agent_set;        ///< Vector of pointers to agent entities
+  item_map_t item_map;          ///< Map of IDs to pointers to non-agent entities
+  agent_map_t agent_map;        ///< Map of IDs to pointers to agent entities
+  size_t last_entity_id = 0;     ///< The last Entity ID used; increment at each creation
 
   bool run_over = false;        ///< Should the run end?
   
@@ -47,6 +48,9 @@ protected:
   std::mt19937 random_gen;      ///< Random number generator
   std::uniform_real_distribution<> uni_dist; ///< Uniform distribution of doubles, 0 to 1
   std::normal_distribution<> norm_dist;      ///< Normal distribution; mean 0, std 1
+
+  /// Helper function to set the next entity id.
+  size_t NextEntityID() { return ++last_entity_id; }
 
   /// Helper function that is run whenever a new agent is created.
   /// @note Override this function to provide agents with actions or other setup.
@@ -85,35 +89,35 @@ public:
   // -- Accessors --
 
   /// Get the total number of NON-agent entities
-  [[nodiscard]] size_t GetNumItems() const { return item_set.size(); }
+  [[nodiscard]] size_t GetNumItems() const { return item_map.size(); }
 
   /// Get the total number of AGENT entities
-  [[nodiscard]] size_t GetNumAgents() const { return agent_set.size(); }
+  [[nodiscard]] size_t GetNumAgents() const { return agent_map.size(); }
 
   /// Return a reference to an agent with a given ID.
   [[nodiscard]] ItemBase & GetItem(size_t id) {
-    assert(id < item_set.size());
-    return *item_set[id];
+    assert(item_map.count(id));
+    return *item_map[id];
   }
 
   /// Return a reference to an agent with a given ID.
-  [[nodiscard]] AgentBase &GetAgent(size_t id) {
-    assert(id < agent_set.size());
-    return *agent_set[id];
+  [[nodiscard]] AgentBase & GetAgent(size_t id) {
+    assert(agent_map.count(id));
+    return *agent_map[id];
   }
 
   /// Return the ID of an item with a given name.
   [[nodiscard]] size_t GetItemID(const std::string & name) {
-    for (size_t i = 0; i < item_set.size(); ++i) {
-      if (item_set[i] && item_set[i]->GetName() == name) return i;      
+    for (auto & [id, ptr] : item_map) {
+      if (ptr->GetName() == name) return id;
     }
     return npos;
   }
 
   /// Return the ID of an agent with a given name.
   [[nodiscard]] size_t GetAgentID(const std::string & name) {
-    for (size_t i = 0; i < agent_set.size(); ++i) {
-      if (agent_set[i] && agent_set[i]->GetName() == name) return i;      
+    for (auto & [id, ptr] : agent_map) {
+      if (ptr->GetName() == name) return id;
     }
     return npos;
   }
@@ -165,15 +169,16 @@ public:
   /// @return A reference to the newly created agent
   template<typename AGENT_T, typename... PROPERTY_Ts>
   AgentBase & AddAgent(std::string agent_name = "None", PROPERTY_Ts... properties) {
-    auto agent_ptr = std::make_unique<AGENT_T>(agent_set.size(), agent_name);
+    const size_t agent_id = NextEntityID();
+    auto agent_ptr = std::make_unique<AGENT_T>(agent_id, agent_name);
     agent_ptr->SetWorld(*this);
     agent_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
     ConfigAgent(*agent_ptr);
     if (agent_ptr->Initialize() == false) {
       std::cerr << "Failed to initialize agent '" << agent_name << "'." << std::endl;
     }
-    agent_set.emplace_back(std::move(agent_ptr));
-    return *agent_set.back();
+    agent_map[agent_id] = std::move(agent_ptr);
+    return *agent_map[agent_id];
   }
 
   void SetAgentReceiver(DataCollection::AgentReceiver r) {
@@ -183,9 +188,12 @@ public:
   /// @brief Add a new, previously-built item
   /// @return A reference to the newly created item
   ItemBase & AddItem(std::unique_ptr<ItemBase> item_ptr) {
+    assert(item_ptr);                // item_ptr must not be null.
+    assert(item_ptr->GetID() != 0);  // item_ptr must have had a non-zero ID assigned.
     item_ptr->SetWorld(*this);
-    item_set.emplace_back(std::move(item_ptr));
-    return *item_set.back();
+    size_t item_id = item_ptr->GetID();
+    item_map[item_id] = std::move(item_ptr);
+    return *item_map[item_id];
   }
 
   /// @brief Build a new item
@@ -195,28 +203,28 @@ public:
   /// @return A reference to the newly created item
   template <typename ITEM_T=ItemBase, typename... PROPERTY_Ts>
   ItemBase & AddItem(std::string item_name="None", PROPERTY_Ts... properties) {
-    auto item_ptr = std::make_unique<ITEM_T>(item_set.size(), item_name);
+    auto item_ptr = std::make_unique<ITEM_T>(NextEntityID(), item_name);
     item_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
     return AddItem(std::move(item_ptr));
   }
 
-  /// @brief Remove an agent from the agent set
+  /// @brief Remove an agent from the agent map
   /// @param agent_id The unique ID this agent
   /// @return A reference to this world.
   WorldBase & RemoveAgent(size_t agent_id) {
-    agent_set[agent_id] = nullptr;
+    agent_map.erase(agent_id);
     return *this;
   }
 
-  /// @brief Remove an item from the item set
+  /// @brief Remove an item from the item map
   /// @param item_id The unique ID this item
   /// @return A reference to this world.
   WorldBase & RemoveItem(size_t item_id) {
-    item_set[item_id] = nullptr;
+    item_map.erase(item_id);
     return *this;
   }
   
-  /// @brief Remove an agent from the agent set by name
+  /// @brief Remove an agent from the agent map by name
   /// @param agent_name The name of this agent
   /// @return This world
   WorldBase & RemoveAgent(std::string agent_name="None") {
@@ -224,7 +232,7 @@ public:
     return RemoveAgent( GetAgentID(agent_name) );
   }
 
-  /// @brief Remove an item from the item set by name
+  /// @brief Remove an item from the item map by name
   /// @param item_id The ID of this item
   /// @return This world
   WorldBase & RemoveItem(std::string item_name) {
@@ -243,21 +251,21 @@ public:
   /// @brief Step through each agent giving them a chance to take an action.
   /// @note Override this function if you want to control which grid the agents receive.
   virtual void RunAgents() {
-    for (size_t i=0; i < agent_set.size(); ++i) {
-      if (!agent_set[i]) continue; // Skip over deleted agents.
-      size_t action_id =
-        agent_set[i]->SelectAction(main_grid, type_options, item_set, agent_set);
-      agent_set[i]->storeActionMap(agent_set[i]->GetName());
-      int result = DoAction(*agent_set[i], action_id);
-      agent_set[i]->SetActionResult(result);
+    for (auto & [id, agent_ptr] : agent_map) {
+      size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      agent_ptr->storeActionMap(agent_ptr->GetName());
+      int result = DoAction(*agent_ptr, action_id);
+      agent_ptr->SetActionResult(result);
     }
   }
 
   void CollectData() {
-    if(agent_receiver != nullptr){
-      for (const auto & agent_ptr : agent_set) {
-          agent_receiver->StoreData(agent_ptr->GetName(), 
-              agent_ptr->GetPosition(), agent_ptr->GetActionResult());
+    if (agent_receiver != nullptr) {
+      for (const auto & [id, agent_ptr] : agent_map) {
+        agent_receiver->StoreData(
+          agent_ptr->GetName(), 
+          agent_ptr->GetPosition(), agent_ptr->GetActionResult()
+        );
       }
     }
   }

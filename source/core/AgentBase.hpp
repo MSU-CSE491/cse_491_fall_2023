@@ -75,8 +75,8 @@ namespace cse491 {
     [[nodiscard]] virtual size_t SelectAction(
         [[maybe_unused]] const WorldGrid & grid,
         [[maybe_unused]] const type_options_t & type_options,
-        [[maybe_unused]] const item_set_t & item_set,
-        [[maybe_unused]] const agent_set_t & agent_set
+        [[maybe_unused]] const item_map_t & item_map,
+        [[maybe_unused]] const agent_map_t & agent_map
       )
     { return 0; }
 
