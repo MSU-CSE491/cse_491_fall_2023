@@ -2,11 +2,6 @@
 
 // Debug
 #include <iostream>
-#include <functional>
-
-#include <map>
-#include <stack>
-#include <variant>
 
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/parse_tree.hpp>
@@ -38,6 +33,9 @@ namespace worldlang{
 	{};
 	
 	// identifier list
+	// Contains one or more identifiers.
+	// This matches expressions such as
+	// "name" or "a,b,c".
 	struct identifier_list;	
 	struct identifier_list : pegtl::sor<
 		pegtl::seq<
@@ -48,20 +46,12 @@ namespace worldlang{
 		identifier
 	>
 	{};
-
 	
-	// Match an operator
-	struct any_operator : pegtl::sor<
-		pegtl::one < '+', '-', '*', '/' >,
-//		pegtl::one < '&', '|', '^' >,
-		TAO_PEGTL_KEYWORD("&&"),
-		TAO_PEGTL_KEYWORD("||")
-	>
-	{};
-	
+	// Match operators of same priority as addition
 	struct op_prio_add : pegtl::one< '+', '-' >
 	{};
 	
+	// Match operators of same priority as multiplication
 	struct op_prio_mul : pegtl::one< '*', '/' >
 	{};
 	
@@ -70,6 +60,8 @@ namespace worldlang{
 	struct expression_list;	
 	
 	// Function call
+	// Matches expressions of form
+	// "id(arg1,arg2,...)" or "id()"
 	struct function : pegtl::seq<
 		identifier,
 		pegtl::one< '(' >,
@@ -78,7 +70,12 @@ namespace worldlang{
 	>
 	{};
 	
-	// Match single value	
+	// Match an expression or element representing a single value
+	// examples: 5,(-38),myvar1,myfunc1(7)
+	// Note that functions can technically return multiple values or none,
+	// so this isn't perfect.
+	// Expressions within parentheses is also counted as an element to allow
+	// for recursion, so "(3+5+8)" is a valid element
 	struct element : pegtl::sor<
 		function,
 		identifier,
@@ -90,7 +87,9 @@ namespace worldlang{
 		>
 	>
 	{};
-
+	
+	// Matches one multiplication expression or a single element
+	// "a*b" or "c"
 	struct mul_a : pegtl::sor<
 		pegtl::seq<
 			element,
@@ -102,6 +101,8 @@ namespace worldlang{
 	{};
 	
 	struct mul;
+	// Recursively matches multiplication operations
+	// Ex. "1*4", "a*b*c"
 	struct mul : pegtl::sor<
 		pegtl::seq<
 			mul_a,
@@ -112,7 +113,8 @@ namespace worldlang{
 	>
 	{};
 	
-	// Hope this works lol
+	// Matches one addition expression or a multiplication subexpression
+	// "a+b" or "a+b*c", with "b*c" as the subexpression
 	struct add_a : pegtl::sor<
 		pegtl::seq<
 			mul,
@@ -123,6 +125,9 @@ namespace worldlang{
 	>
 	{};	
 	
+	// Matches entire addition expression
+	// Because this is currently the top level of expression, it matches any
+	// expression as well.
 	struct add;
 	struct add : pegtl::sor<
 		pegtl::seq<
@@ -134,14 +139,15 @@ namespace worldlang{
 	>
 	{};
 	
-	// Expressions:
-	// expr :=  add | e <op> e | e <op> expr
+	// Match an expression intended to evaluate to a single value.
 	struct expression : pegtl::sor<
 		add	
 	>
 	{};
 	
-	struct expression_list;	
+	struct expression_list;
+	// A list of expressions. Can contain one or more expressions (not zero!)
+	// "123,345+456,func(3)+6*8"
 	struct expression_list : pegtl::sor<
 		pegtl::seq<
 			expression,
@@ -152,6 +158,8 @@ namespace worldlang{
 	>
 	{};
 	
+	// Assignment expression
+	// "var=value", or "var,vars=val1,val2", etc.
 	struct assignment : pegtl::seq<
 		identifier_list,
 		pegtl::one< '=' >,
@@ -260,30 +268,32 @@ namespace worldlang{
 			} else if (type == "worldlang::identifier"){
 				out.push_back(Unit{Unit::Type::identifier, node->string()});
 			} else if (type == "worldlang::function"){
-				// arg arg arg ... argument_count function_name
+				// (operator_endargs) arg arg arg function_name
+				out.push_back(Unit{Unit::Type::operation, "endargs"});
 				if (node->children.size() > 1)
 					traverse(node->children[1]);
-				// TODO: identify argument list size...
-				// expression_list or expression child
+/*				// expression_list or expression child
 				int argcount = 0;
 				if (node->children.size() == 1){
 					argcount = 0;
 				} else {
 					argcount = count(node->children.at(1));
-				}
+				}*/
 				
-				out.push_back(Unit{Unit::Type::number, std::to_string(argcount)});
+//				out.push_back(Unit{Unit::Type::number, std::to_string(argcount)});
 				out.push_back(Unit{Unit::Type::function, node->children.at(0)->string()});
 			} else if (type == "worldlang::assignment"){
 				// identifier_list
-				auto identifier_count = count(node->children.at(0));
+//				auto identifier_count = count(node->children.at(0));
+				out.push_back(Unit{Unit::Type::operation, "endargs"});
 				traverse(node->children.at(0));
 				// value
 				// Can't check expression count here: must be done at runtime
 				// since functions may have multiple returns
+				out.push_back(Unit{Unit::Type::operation, "endargs"});
 				traverse(node->children.at(1));
 				// expression
-				out.push_back(Unit{Unit::Type::number, std::to_string(identifier_count)});
+//				out.push_back(Unit{Unit::Type::number, std::to_string(identifier_count)});
 				out.push_back(Unit{Unit::Type::operation, "="});
 			} else if (type == "worldlang::mul_a"
 					|| type == "worldlang::add_a"
@@ -330,252 +340,4 @@ namespace worldlang{
 		return out;
 	}
 	
-//	class ProgramExecutor;
-	
-	class ProgramExecutor {
-	// Internal types
-	public:
-		using Callable = std::function<void(ProgramExecutor&)>;
-		
-		struct Identifier : std::string {}; 
-		
-		using Value = std::variant < double, std::string, Callable, Identifier >;
-		
-	// Execution state
-	private:
-		/// Variables
-		std::map < std::string, Value > variables;
-		
-		/// Execution stack
-		std::stack < Value > stack;
-		
-		/// Error message
-		std::string error_message{};
-		
-	// Public methods
-	public:
-		/// Constructor
-		ProgramExecutor() = default;
-		
-		void registerFunction(std::string name, Callable callable){
-			variables.insert_or_assign(name, callable);
-		}
-		
-		Value popStack(){
-			auto v = stack.top();
-			stack.pop();
-			return v;
-		}
-		
-		void pushStack(Value v){
-			stack.push(v);
-		}
-		
-		// check whether or not this Value contains the expected type
-		template <typename T>
-		bool has(const Value& a){
-			if (std::holds_alternative<T>(a)){
-				return true;
-			} else if (std::holds_alternative<Identifier>(a)){
-				try {
-					auto val = variables.at(static_cast<std::string>(std::get<Identifier>(a)));
-					return std::holds_alternative<T>(val);
-				} catch(const std::out_of_range& e) {
-					error("Variable does not exist!");
-				}
-			}
-			return false;
-		}
-		
-		// TODO figure out what kind of doc comments we're actually using
-		/// Get a value of Value, whether it contains a value or an identifier
-		/// that contains that value
-		/// 
-		/// Example:
-		/// If your program consists of a=5\nb=a\n
-		/// then as<double> will handle both 5 and a correctly as arguments
-		/// std::get<double> is longer and only handles 5.
-		template <typename T>
-		T as(const Value& a){
-			if (std::holds_alternative<T>(a)){
-				return std::get<T>(a);
-			} else if (std::holds_alternative<Identifier>(a)){
-				auto val = variables.at(static_cast<std::string>(std::get<Identifier>(a)));
-				if (std::holds_alternative<T>(val)){
-					return std::get<T>(val);
-				}
-			}
-			// error if conversion fails
-			error("Type error in as()!");
-			return T{};
-		}
-		
-		// Gets the value of a variable
-		// Throws std::out_of_range if it is not defined
-		// Throws std::bad_variant_access if variable is wrong type
-		template <typename T>
-		T var(const std::string& name){
-			auto val = variables.at(name);
-			return std::get<T>(val);
-		}
-		
-		void error(const std::string& error){
-			if (error_message.empty()){
-				error_message = error;
-			}
-		}
-		
-		std::string getErrorMessage(){
-			return error_message;
-		}
-		
-		/// Returns false if program had an error
-		bool run(const std::string& program){
-			//TODO: program preprocessing (add newline to end, remove spaces)
-			error_message = "";
-			auto code = parse_to_code(program);
-			//TODO: check for parse success
-			
-			size_t index = 0;
-			while (error_message.empty() && index < code.size()){
-				auto& unit = code.at(index);
-				switch (unit.type){
-					case Unit::Type::number:
-						std::cout << "Push number " << unit.value << std::endl;
-						try {
-							pushStack(std::stod(unit.value));
-						} catch (const std::invalid_argument& e) {
-							error("Failed to convert number!");
-						} catch (const std::out_of_range& e){
-							error("Number too big!");
-						}
-						break;
-					
-					case Unit::Type::identifier:
-						std::cout << "Push identifier " << unit.value << std::endl;
-						pushStack(Identifier{unit.value});
-						break;
-					
-					case Unit::Type::operation:
-						// perform operation!
-						std::cout << "Perform operation " << unit.value << std::endl;
-						if (std::string{"+-*/"}.find(unit.value) != std::string::npos){
-							// binary expressions
-							auto b = popStack();
-							auto a = popStack();
-							if (unit.value == "+"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) + as<double>(b));
-								} else if (has<std::string>(a) && has<std::string>(b)){
-									pushStack(as<std::string>(a) + as<std::string>(b));
-								} else {
-									error("Runtime type error (plus)");
-								}
-							} else if (unit.value == "-"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) - as<double>(b));
-								} else {
-									error("Runtime type error (minus)");
-								}
-							} else if (unit.value == "*"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) * as<double>(b));
-								} else if (has<std::string>(a) && has<double>(b)){
-									std::string n;
-									double c = as<double>(b);
-									for (int i = 0; i < c; ++i){
-										n += as<std::string>(a);
-									}
-									pushStack(n);
-								} else {
-									error("Runtime type error (times)");
-								}
-							} else if (unit.value == "/"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) / as<double>(b));
-								} else {
-									error("Runtime type error (divide)");
-								}
-							}
-						} else if (unit.value == "="){
-							// number of arguments
-							auto count = std::get<double>(popStack());
-							// values to assign
-							std::vector< Value > values;
-							// identifiers to assign to
-							std::vector< Identifier > identifiers;
-							//ex. a,b,c=1,2,3
-							// v: 3 2 1
-							// i: c b a
-							std::cout << "Assignment of #" << count << std::endl;
-							
-							for (int i = 0; i < count; ++i){
-								values.push_back(popStack());
-							}
-							for (int i = 0; i < count; ++i){
-								auto v = popStack();
-								if (std::holds_alternative<Identifier>(v)){
-									identifiers.push_back(std::get<Identifier>(v));
-								} else {
-									error("Tried to assign to non-identifier type");
-									goto break_interpreter_loop;
-								}
-							}
-							
-							// upon reaching this point, values and identifiers
-							// are the same length and contain valid items.
-							for (int i = 0; i < count; ++i){
-								auto a = identifiers[i];
-								auto b = values[i];
-								
-								if (!std::holds_alternative<Identifier>(b)){
-									variables.insert_or_assign(static_cast<std::string>(a), b);
-								} else {
-									// exception if variable b does not exist
-									try {
-										auto& b_var = variables.at(static_cast<std::string>(std::get<Identifier>(b)));
-										variables.insert_or_assign(static_cast<std::string>(a), b_var);
-									} catch (const std::out_of_range& e){
-										error("Variable did not exist!");
-									}
-								}
-							}
-						} else if (unit.value == "endline"){
-							// clear stack on end of line
-							while (stack.size())
-								popStack();
-						} else {
-							error("Unknown operation '" + unit.value + "'");
-						}
-						break;
-					
-					case Unit::Type::function:
-						std::cout << "Perform function " << unit.value << std::endl;
-						if (variables.count(unit.value)){
-							auto& func = variables.at(unit.value);
-							if (std::holds_alternative<Callable>(func)){
-								std::get<Callable>(func)(*this);
-							} else {
-								error("Not a callable object!");
-							}
-							break;
-						} else {
-							error("Function does not exist!");
-						}
-						break;
-					
-					default:
-						error("Unknown code unit '" + unit.value +"'!");
-				}
-				index++;
-			}
-			break_interpreter_loop:
-			std::cout << "Program execution ends" << std::endl;
-			if (!error_message.empty()){
-				std::cout << "With error: " << error_message << std::endl;
-			}
-			
-			return error_message.empty();
-		}
-	};
 } //worldlang

@@ -12,6 +12,7 @@
 
 // Class project
 #include "Worlds/Language.hpp"
+#include "Worlds/ProgramExecutor.hpp"
 
 // PEGTL grammar check
 #include <tao/pegtl/contrib/analyze.hpp>
@@ -121,21 +122,21 @@ using worldlang::ProgramExecutor;
 
 // Simple function test
 void square(ProgramExecutor& pe){
-	auto count = pe.as<double>(pe.popStack());
-	if (count != 1.0){
+	auto args = pe.popArgs();
+	if (args.size() != 1.0){
 		pe.error("Wrong number of arguments!");
 	} else {
-		auto arg = pe.as<double>(pe.popStack());
+		auto arg = pe.as<double>(args[0]);
 		pe.pushStack(arg*arg);
 	}
 }
 
 // Variable number of arguments test
 void summation(ProgramExecutor& pe){
-	auto count = pe.as<double>(pe.popStack());
+	auto args = pe.popArgs();
 	double sum = 0;
-	for (int i = 0; i < count; ++i){
-		auto arg = pe.as<double>(pe.popStack());
+	for (int i = 0; i < args.size(); ++i){
+		auto arg = pe.as<double>(args[i]);
 		
 		sum += arg;
 	}
@@ -145,12 +146,12 @@ void summation(ProgramExecutor& pe){
 // Multiple return test
 // Generates interger sequence 0,1,...,n
 void sequence(ProgramExecutor& pe){
-	auto count = pe.as<double>(pe.popStack());
-	if (count != 1.0){
+	auto args = pe.popArgs();
+//	auto count = pe.as<double>(pe.popStack());
+	if (args.size() != 1.0){
 		pe.error("Wrong number of arguments!");
 	} else {
-		auto arg = pe.as<double>(pe.popStack());
-		for (int i = 0; i <= arg; ++i){
+		for (int i = 0; i <= pe.as<double>(args.at(0)); ++i){
 			pe.pushStack(static_cast<double>(i));
 		}
 	}
@@ -166,7 +167,7 @@ void sequence(ProgramExecutor& pe){
 
 using Catch::Matchers::WithinAbs;
 
-TEST_CASE("Execution check", "[World][Language]"){
+TEST_CASE("Program execution correct", "[World][Language]"){
 	SECTION("Simple assignment"){
 		PROGRAM_RUN("a=5\n"){
 			CHECK(pe.var<double>("a") == 5.0);
@@ -220,4 +221,31 @@ TEST_CASE("Execution check", "[World][Language]"){
 			CHECK(pe.var<double>("e") == 4.0);
 		}
 	}
+	
+	SECTION("Multiple return into multiple args"){
+		PROGRAM_RUN("a=sum(seq(5))\n"){
+			CHECK(pe.var<double>("a") == 15.0);
+		}
+	}
+}
+
+TEST_CASE("Program execution errors", "[World][Langauge]"){
+	SECTION("Error check for wrong number of arguments"){
+		PROGRAM_RUN("seq()\n"){
+			CHECK(!pe.getErrorMessage().empty());
+		}
+	}
+	
+	SECTION("Error on wrong number of values (low)"){
+		PROGRAM_RUN("a,b=1\n"){
+			CHECK(!pe.getErrorMessage().empty());
+		}
+	}
+	
+	SECTION("Error on wrong number of values (high)"){
+		PROGRAM_RUN("a,b=1,2,3\n"){
+			CHECK(!pe.getErrorMessage().empty());
+		}
+	}
+
 }
