@@ -3,6 +3,8 @@
 // Debug
 #include <iostream>
 
+#include <functional>
+
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/parse_tree.hpp>
 

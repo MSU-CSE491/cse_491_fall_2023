@@ -6,6 +6,7 @@
 
 // Include the modules that we will be using.
 #include "Worlds/Language.hpp"
+#include "Worlds/ProgramExecutor.hpp"
 // Used to build the parse tree
 #include <tao/pegtl/contrib/parse_tree.hpp>
 
@@ -45,10 +46,11 @@ int main()
 	using worldlang::ProgramExecutor;
 	auto test = [](ProgramExecutor& pe){
 		//TODO: catch exception here? should never be needed?
-		auto count = std::get<double>(pe.popStack());
+		auto args = pe.popArgs();
+		auto count = args.size();
 		std::cout << "Called test with " << count << " args (note: order reversed here):\n";
 		for (int i = 0; i < count; ++i){
-			auto arg = pe.popStack();
+			auto arg = args[0];
 			if (std::holds_alternative<double>(arg)){
 				std::cout << std::get<double>(arg);	
 			} else if (std::holds_alternative<std::string>(arg)){
