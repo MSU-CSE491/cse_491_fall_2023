@@ -33,8 +33,10 @@ namespace i_2D {
      * @return A vector of strings representing the maze grid.
      */
     std::vector<std::string> MainInterface::CreateVectorMaze(
-            const WorldGrid &grid, const type_options_t &type_options,
-            const item_map_t &item_map, const agent_map_t &agent_map)
+
+      const WorldGrid &grid, const type_options_t &type_options,
+      const item_map_t &item_map, const agent_map_t &agent_map)
+
     {
         std::vector<std::string> symbol_grid(grid.GetHeight());
         // Load the world into the symbol_grid;
@@ -47,8 +49,9 @@ namespace i_2D {
 
         // Add in the agents / items
         for (const auto & [id, item_ptr] : item_map) {
-            GridPosition pos = item_ptr->GetPosition();
-            symbol_grid[pos.CellY()][pos.CellX()] = '+';
+
+          GridPosition pos = item_ptr->GetPosition();
+          symbol_grid[pos.CellY()][pos.CellX()] = '+';
         }
 
         for (const auto & [id, agent_ptr] : agent_map) {
@@ -80,14 +83,14 @@ namespace i_2D {
     *
     * @param grid         The WorldGrid representing the maze.
     * @param type_options The type options for symbols.
-    * @param item_set     The set of items in the maze.
-    * @param agent_set    The set of agents in the maze.
+    * @param item_map     The map of ids to items in the maze.
+    * @param agent_map    The map of ids to agents in t
     */
-    void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_set_t &item_set, const agent_set_t &agent_set)
+    void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_map_t &item_map, const agent_map_t &agent_map)
     {
         mWindow.clear(sf::Color::White);
 
-        std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_set, agent_set);
+        std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
 
         sf::Vector2f cellSize = CalculateCellSize(grid);
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
@@ -138,17 +141,18 @@ namespace i_2D {
     }
 
     /**
+
     * @brief Handles user input for selecting actions.
     *
     * @param grid         The WorldGrid representing the maze.
     * @param type_options The type options for symbols.
-    * @param item_set     The set of items in the maze.
-    * @param agent_set    The set of agents in the maze.
+    * @param item_map     The map of ids to items in the maze.
+    * @param agent_map    The map of ids to agents in the maze.
     */
     size_t MainInterface::SelectAction(const WorldGrid &grid,
                                        const type_options_t &type_options,
-                                       const item_set_t &item_set,
-                                       const agent_set_t &agent_set) {
+                                       const item_map_t &item_map,
+                                       const agent_map_t &agent_map) {
         while (mWindow.isOpen()) {
             sf::Event event;
             while (mWindow.pollEvent(event)) {
@@ -174,7 +178,9 @@ namespace i_2D {
                 }
             }
 
+
             DrawGrid(grid, type_options, item_set, agent_set);
+
         }
 
         return 0;

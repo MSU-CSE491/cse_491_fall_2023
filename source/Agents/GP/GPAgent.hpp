@@ -55,8 +55,8 @@ class GPAgent : public cse491::AgentBase {
   size_t SelectAction(
       [[maybe_unused]] const cse491::WorldGrid &grid,
       [[maybe_unused]] const cse491::type_options_t &type_options,
-      [[maybe_unused]] const cse491::item_set_t &item_set,
-      [[maybe_unused]] const cse491::agent_set_t &agent_set) override {
+      [[maybe_unused]] const cse491::item_map_t &item_map,
+      [[maybe_unused]] const cse491::agent_map_t &agent_map) override {
     if (movementIndex >= predefinedMovement.size()) {
       return 0;  // do nothing if it is out of bound for defined movement
     }

@@ -109,8 +109,8 @@ cse491::GridPosition PathAgent::UpdateAndGetNextPos(bool increment) {
  */
 size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
                                cse491::type_options_t const& /* type_options*/,
-                               cse491::item_set_t const& /* item_set*/,
-                               cse491::agent_set_t const& /* agent_set*/) {
+                               cse491::item_map_t const& /* item_map*/,
+                               cse491::agent_map_t const& /* agent_map*/) {
   assert(HasAction("move_arbitrary"));
   return action_map["move_arbitrary"];
 }
