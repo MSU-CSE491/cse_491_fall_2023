@@ -20,6 +20,11 @@
 namespace walle {
 
 /**
+ * Used to keep track of what action we are currently taking
+ */
+enum state { TO_START = 0, TRACKING, PATH };
+
+/**
  * Agent that switches between  user-defined custom movement pattern and
  * tracking a given agent
  */
@@ -28,9 +33,9 @@ private:
   PathAgent path_agent;
   AStarAgent tracking_agent;
   cse491::GridPosition startPos;
-  Entity *target;
+  Entity *target = nullptr;
   // Possible states TO_START, TRACKING, and PATH
-  std::string state = "TO_START"; // TODO REFACTOR TO ENUM?
+  int state = state::TO_START;
   double tracking_distance = 50;
 
 public:
@@ -56,7 +61,7 @@ public:
    */
   TrackingAgent(size_t id, std::string const &name,
                 std::vector<cse491::GridPosition> &&offsets)
-      : PathAgent(id, name, std::move(offsets)),
+      : PathAgent(id, name, offsets),
         path_agent(id, name + "Path", std::move(offsets)),
         tracking_agent(id, name + "A*") {}
   /**
@@ -93,7 +98,6 @@ public:
                       cse491::type_options_t const &type,
                       cse491::item_set_t const &item_set,
                       cse491::agent_set_t const &agent_set) override {
-
     // Make sure both of our agents are at our same position
     path_agent.SetPosition(GetPosition());
     tracking_agent.SetPosition(GetPosition());
@@ -101,25 +105,27 @@ public:
     if (target != nullptr &&
         GetPosition().Distance(target->GetPosition()) < tracking_distance) {
       // We are close enough, follow the target
-      state = "TRACKING";
+      state = state::TRACKING;
       tracking_agent.SetGoalPosition(target->GetPosition());
       tracking_agent.RecalculatePath();
       return tracking_agent.SelectAction(grid, type, item_set, agent_set);
     }
     // We are not close enough to track we either need to return to start pos or
     // follow path
-    if (state != "PATH") {
+    if (state != state::PATH) {
       if (position == startPos) {
         // We have made it back to start pos, time to start "patrolling again"
-        state = "PATH";
+        state = state::PATH;
         path_agent.ResetIndex();
         return path_agent.SelectAction(grid, type, item_set, agent_set);
       }
-      state = "TO_START";
+      state = state::TO_START;
+      // Calculate path back to start position
       if (tracking_agent.GetGoalPosition() != startPos) {
         tracking_agent.SetGoalPosition(startPos);
         tracking_agent.RecalculatePath();
       }
+      // Take step towards start position
       return tracking_agent.SelectAction(grid, type, item_set, agent_set);
     }
     // Keep patrolling
@@ -143,7 +149,7 @@ public:
    * @return self
    */
   TrackingAgent &SetStartPosition(cse491::GridPosition gp) {
-    startPos = std::move(gp);
+    startPos = gp;
     return *this;
   }
 

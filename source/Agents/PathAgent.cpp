@@ -33,7 +33,7 @@ PathAgent::PathAgent(size_t id, std::string const &name)
  * @attention The sequence of offsets must not be empty
  */
 PathAgent::PathAgent(size_t id, std::string const &name,
-                     std::vector<cse491::GridPosition> &&offsets)
+                     std::vector<cse491::GridPosition> offsets)
     : cse491::AgentBase(id, name), offsets_(offsets) {
   if (offsets_.empty()) {
     throw std::invalid_argument("Sequence of input offsets must not be empty");
