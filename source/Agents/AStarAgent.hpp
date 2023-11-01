@@ -18,20 +18,12 @@ class AStarAgent : public cse491::AgentBase {
   cse491::GridPosition goal_position;           ///< Where the agent wants to end up
   int recalculate_after_x_turns = 100;          ///< How often agent recalculates moves
   int current_move_num = 0;                     ///< What move # we are currently on
-  const cse491::WorldBase *world = nullptr;     ///< What world this agent is a part of
 
  public:
   AStarAgent(size_t id, const std::string &name) : AgentBase(id, name) {
   }
 
   ~AStarAgent() = default;
-
-  /**
-   * @brief Set the word object
-   *
-   * @param world world this agent is a part of
-   */
-  void SetWorld(const cse491::WorldBase *const _world) { this->world = _world; }
 
   /// @brief This agent needs a specific set of actions to function.
   /// @return Success.
@@ -68,18 +60,14 @@ class AStarAgent : public cse491::AgentBase {
    * @brief Update the path to go to goal position
    */
   void RecalculatePath() {
-    path = GetShortestPath(GetPosition(), goal_position, world, this);
+    path = GetShortestPath(GetPosition(), goal_position, GetWorld(), *this);
     current_move_num = 0;
   }
   /// Choose the action to take a step in the appropriate direction.
   size_t SelectAction(const cse491::WorldGrid & /*grid*/,
                       const cse491::type_options_t & /* type_options*/,
-                      const cse491::item_set_t & /* item_set*/,
-                      const cse491::agent_set_t & /* agent_set*/) override {
-    if (world == nullptr) {
-      // Do nothing if the agent doesn't know about its world
-      return 0;
-    }
+                      const cse491::item_map_t & /* item_map*/,
+                      const cse491::agent_map_t & /* agent_map*/) override {
     // We are taking an action so another turn has passed
     ++current_move_num;
     // If the last step failed, or we need a new path the then regenerate the path
