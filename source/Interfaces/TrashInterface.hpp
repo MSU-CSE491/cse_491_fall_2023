@@ -108,6 +108,12 @@ namespace cse491 {
       // Do the action!
       return action_id;
     }
+
+    void Notify(const std::string & message,
+                const std::string & /*msg_type*/="none") override
+    {
+      std::cout << message << std::endl;
+    }
   };
 
 } // End of namespace cse491
