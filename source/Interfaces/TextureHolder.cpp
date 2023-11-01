@@ -1,7 +1,11 @@
 //
 // Created by Vincenzo on 10/18/2023.
 //
+<<<<<<< HEAD
 #include <map>
+=======
+
+>>>>>>> 81c7c47a08ea2f16faf018ab7be0c3fc29f80742
 #include "TextureHolder.hpp"
 
 namespace i_2D
@@ -37,6 +41,7 @@ namespace i_2D
         // Return dereferenced unique_ptr found at iterator pair
         return *got->second;
     }
+
     /*
      * @brief This function loads texture for the maze world images - Default maze
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture

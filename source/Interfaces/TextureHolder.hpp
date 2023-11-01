@@ -3,7 +3,10 @@
 //
 
 #pragma once
+<<<<<<< HEAD
 #include <map>
+=======
+>>>>>>> 81c7c47a08ea2f16faf018ab7be0c3fc29f80742
 #include "SFML/Graphics.hpp"
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
@@ -25,6 +28,7 @@ namespace i_2D
         std::map<char, sf::Texture> SecondWorldTexture();
         std::map<char, sf::Texture> ManualWorldTexture();
         std::map<char, sf::Texture> GenerativeWorldTexture();
+
     };
 }
 

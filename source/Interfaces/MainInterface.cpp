@@ -16,8 +16,8 @@ namespace i_2D {
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
         mMenu.initialize();
-        ChooseTexture();
 
+        ChooseTexture();
     }
 
     /**
@@ -111,7 +111,6 @@ namespace i_2D {
 
                 bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
                                       (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-
                 SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
 
             }
@@ -169,6 +168,10 @@ namespace i_2D {
 
                 } else if(event.type == sf::Event::MouseButtonPressed){
                     mMenu.HandleMouseButtonPressed(mWindow);
+
+                }else if(event.type == sf::Event::MouseWheelScrolled)
+                {
+                    HandleScroll(event);
                 }
             }
 
@@ -261,6 +264,12 @@ namespace i_2D {
         mWindow.setView(sf::View(viewArea));
     }
 
+    void HandleScroll(sf::Event::MouseWheelScrollEvent event)
+    {
+//        bool zoomIn = event.delta > 0;
+//        std::cout<<zoomIn<<std::endl;
+    }
+
 
     /**
      * @brief Draw the wall texture based on the provided parameters.
@@ -281,7 +290,7 @@ namespace i_2D {
 //        } else {
 //            mWindow.draw(cellRect);
 //        }
-        cellRect.setTexture(&wallTexture);
+        cellRect.setTexture(&mTextureHolder.GetTexture("wallTexture"));
         mWindow.draw(cellRect);
     }
 
@@ -312,8 +321,10 @@ namespace i_2D {
      * @param agent The agent texture.
      * @param color The color to be set for the cell.
      */
+
     void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent) {
         cellRect.setTexture(&agent);
+
         cell.setFillColor(sf::Color::Black);
         mWindow.draw(cell);
         mWindow.draw(cellRect);

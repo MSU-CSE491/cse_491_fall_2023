@@ -38,6 +38,7 @@ namespace i_2D {
 
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
+
         Menu mMenu; ///< for menu class
         TextureHolder mTextureHolder; ///< for the texture holder
         std::map<char, sf::Texture> mTexturesDefault;
@@ -92,8 +93,10 @@ namespace i_2D {
         sf::Vector2f CalculateCellSize(const WorldGrid &grid);
 
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
+
         void ChooseTexture();
         void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall);
+
     };
 
 } // End of namespace 2D
