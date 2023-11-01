@@ -78,6 +78,18 @@ namespace cse491 {
     [[nodiscard]] GridPosition operator+(GridPosition in) const {
       return GetOffset(in.x, in.y);
     }
+
+    [[nodiscard]] double Distance(GridPosition pos2) const {
+      const double dist1 = x - pos2.x;
+      const double dist2 = y - pos2.y;
+      return sqrt(dist1*dist1 + dist2*dist2);
+    }
+
+    [[nodiscard]] double IsNear(GridPosition pos2, double max_dist=1.0) const {
+      const double dist1 = x - pos2.x;
+      const double dist2 = y - pos2.y;
+      return (dist1*dist1 + dist2*dist2) <= (max_dist * max_dist);
+    }
   };
 
 } // End of namespace cse491
