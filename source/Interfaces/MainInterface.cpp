@@ -39,26 +39,30 @@ namespace i_2D {
 
     {
         std::vector<std::string> symbol_grid(grid.GetHeight());
+
         // Load the world into the symbol_grid;
-        for (size_t y = 0; y < grid.GetHeight(); ++y) {
+        for (size_t y=0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
-            for (size_t x = 0; x < grid.GetWidth(); ++x) {
-                symbol_grid[y][x] = type_options[grid.At(x, y)].symbol;
+            for (size_t x=0; x < grid.GetWidth(); ++x) {
+                symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
             }
         }
 
-        // Add in the agents / items
+        // Add in the agents / entities
         for (const auto & [id, item_ptr] : item_map) {
-
-          GridPosition pos = item_ptr->GetPosition();
-          symbol_grid[pos.CellY()][pos.CellX()] = '+';
+            GridPosition pos = item_ptr->GetPosition();
+            char c = '+';
+            if (item_ptr->HasProperty("symbol")) {
+                c = item_ptr->GetProperty<char>("symbol");
+            }
+            symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
 
         for (const auto & [id, agent_ptr] : agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
-            if (agent_ptr->HasProperty("symbol")) {
-                c = static_cast<char>(agent_ptr->GetProperty<char>("symbol"));
+            if(agent_ptr->HasProperty("symbol")){
+                c = agent_ptr->GetProperty<char>("symbol");
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
@@ -178,8 +182,7 @@ namespace i_2D {
                 }
             }
 
-
-            DrawGrid(grid, type_options, item_set, agent_set);
+            DrawGrid(grid, type_options, item_map, agent_map);
 
         }
 

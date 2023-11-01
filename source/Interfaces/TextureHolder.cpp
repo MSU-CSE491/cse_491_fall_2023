@@ -75,7 +75,7 @@ namespace i_2D
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war.png");
         LoadTexture("daggerTexture", "../assets/weapons/dagger.png");
         LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
-        LoadTexture("flagTexture", "../assets/weapons/4_Conjoined_Spikes.png");
+        LoadTexture("flagTexture", "../assets/weapons/flag.png");
         textures['#'] = GetTexture("wallTexture");
         textures['*'] = GetTexture("trollTexture");
         textures['@'] = GetTexture("agentTexture");
@@ -103,7 +103,7 @@ namespace i_2D
         LoadTexture("treeTexture", "../assets/trees/tree1.png");
         LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
-        LoadTexture("boatTexture", "../assets/weapons/leather_armor.png");
+        LoadTexture("boatTexture", "../assets/weapons/Boat_color1_2.png");
         textures['P'] = GetTexture("axeTexture");
         textures['U'] = GetTexture("boatTexture");
         textures['#'] = GetTexture("wallTexture");
