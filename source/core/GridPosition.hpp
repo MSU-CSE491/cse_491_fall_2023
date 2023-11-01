@@ -10,6 +10,7 @@
 #include <cassert>
 #include <compare>    // For operator<=>
 #include <cstddef>    // For size_t
+#include <cmath>      // For sqrt
 
 namespace cse491 {
 
