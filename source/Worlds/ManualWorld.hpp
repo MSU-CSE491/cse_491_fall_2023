@@ -4,6 +4,9 @@
  * @note Status: PROPOSAL
  **/
 
+/// REVIEW UPDATES
+/// * Many functions that used to take item or agent pointers now take references!
+
 #pragma once
 
 #include <cassert>
@@ -51,15 +54,17 @@ namespace cse491_team8 {
     /// @return None
     void GenerateMoveSets()
     {
-        for (auto& agent : agent_set)
+        for (auto & [id, agent_ptr] : agent_map)
         {
-            auto agent_strength = agent->GetProperty<int>("Strength");
-            if (agent->GetName() == "Interface")
+            auto agent_strength = agent_ptr->GetProperty<int>("Strength");
+            if (agent_ptr->GetName() == "Interface")
             {
-                std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)},
-                        {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
-                        {"Health", std::make_tuple('h', 0.25)}};
-                agent->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+                std::map<std::string, std::tuple<char, double>> move_set = {
+                    {"Attack", std::make_tuple('d', 1.0)},
+                    {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
+                    {"Health", std::make_tuple('h', 0.25)}};
+                // agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+                agent_ptr->SetProperty("MoveSet", move_set);
                 continue;
             }
             std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)}};
@@ -83,7 +88,7 @@ namespace cse491_team8 {
             {
                 move_set["Buff"] = std::make_tuple('s', 0.5);
             }
-            agent->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+            agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
         }
     }
 
@@ -92,10 +97,10 @@ namespace cse491_team8 {
     /// @param agent The player agent
     /// Gets the damage of the NPC agent
     /// @return The damage of the NPC
-    int OtherAction(const std::unique_ptr<cse491::AgentBase> & other_agent, const std::unique_ptr<cse491::AgentBase> & agent)
+    int OtherAction(cse491::AgentBase & other_agent, cse491::AgentBase & agent)
     {
         int other_damage = 0;
-        std::map<std::string, std::tuple<char, double>> move_set = other_agent->GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
+        std::map<std::string, std::tuple<char, double>> move_set = other_agent.GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
         auto iterator = move_set.begin();
         int random = rand() % move_set.size();
         std::advance(iterator, random);
@@ -104,33 +109,28 @@ namespace cse491_team8 {
         std::tuple<char, double> move_info = iterator->second;
         char stat_char = std::get<0>(move_info);
         double stat_modification = std::get<1>(move_info);
-        if (stat_char == 'd')
-        {
-            other_damage = static_cast<int>(other_agent->GetProperty<int>("Strength") * stat_modification);
+        if (stat_char == 'd') {
+            other_damage = static_cast<int>(other_agent.GetProperty<int>("Strength") * stat_modification);
         }
-        if (stat_char == 'h')
-        {
-            other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") +
-                    static_cast<int>(other_agent->GetProperty<int>("Max_Health") * stat_modification));
-            if (other_agent->GetProperty<int>("Health") > other_agent->GetProperty<int>("Max_Health"))
-            {
-                other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Max_Health"));
-            }
+        if (stat_char == 'h') {
+          other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Health") +
+                  static_cast<int>(other_agent.GetProperty<int>("Max_Health") * stat_modification));
+          if (other_agent.GetProperty<int>("Health") > other_agent.GetProperty<int>("Max_Health"))
+          {
+              other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Max_Health"));
+          }
         }
-        if (stat_char == 's')
-        {
-            if (stat_modification < 0)
-            {
-                int agent_strength = agent->GetProperty<int>("Strength");
-                int new_strength = static_cast<int>(agent_strength - abs(stat_modification) * agent_strength);
-                agent->SetProperty<int>("Strength", new_strength);
-            }
-            else
-            {
-                int other_agent_strength = other_agent->GetProperty<int>("Strength");
-                int new_strength_other = static_cast<int>(other_agent_strength + abs(stat_modification) * other_agent_strength);
-                other_agent->SetProperty<int>("Strength", new_strength_other);
-            }
+        if (stat_char == 's') {
+          if (stat_modification < 0) {
+            int agent_strength = agent.GetProperty<int>("Strength");
+            int new_strength = static_cast<int>(agent_strength - abs(stat_modification) * agent_strength);
+            agent.SetProperty<int>("Strength", new_strength);
+          }
+          else {
+            int other_agent_strength = other_agent.GetProperty<int>("Strength");
+            int new_strength_other = static_cast<int>(other_agent_strength + abs(stat_modification) * other_agent_strength);
+            other_agent.SetProperty<int>("Strength", new_strength_other);
+          }
         }
         return other_damage;
     }
@@ -141,34 +141,33 @@ namespace cse491_team8 {
     /// Prints the stronger agent and removes the weaker
     /// @see RemoveAgent
     /// @return None
-    void StrengthCheck(const std::unique_ptr<cse491::AgentBase> & other_agent, 
-                     const std::unique_ptr<cse491::AgentBase> & agent) {
+    void StrengthCheck(cse491::AgentBase & other_agent, cse491::AgentBase & agent) {
         // User Input for Player Decision
         bool won = false;
         bool run = false;
         char input;
-        while (other_agent->GetProperty<int>("Health") > 0 && agent->GetProperty<int>("Health") > 0)
+        while (other_agent.GetProperty<int>("Health") > 0 && agent.GetProperty<int>("Health") > 0)
         {
             bool valid_input = true;
-            std::cout << "Your Health: " << agent->GetProperty<int>("Health") << " Your Strength: " <<
-                    agent->GetProperty<int>("Strength") << " Their Health: " <<
-                            other_agent->GetProperty<int>("Health") << " Their Strength: " <<
-                                    other_agent->GetProperty<int>("Strength") << std::endl;
+            std::cout << "Your Health: " << agent.GetProperty<int>("Health") << " Your Strength: " <<
+                    agent.GetProperty<int>("Strength") << " Their Health: " <<
+                            other_agent.GetProperty<int>("Health") << " Their Strength: " <<
+                                    other_agent.GetProperty<int>("Strength") << std::endl;
             std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
             std::cout << "Your Attack: ";
             std::cin >> input;
             int damage = 0;
             switch (input) {
-            case 'a': case 'A': damage = agent->GetProperty<int>("Strength");    break;
-            case 's': case 'S': damage = static_cast<int>(agent->GetProperty<int>("Strength") * 1.5);  break;
+            case 'a': case 'A': damage = agent.GetProperty<int>("Strength");    break;
+            case 's': case 'S': damage = static_cast<int>(agent.GetProperty<int>("Strength") * 1.5);  break;
             case 'r': case 'R': won = false; run = true; break;
-            case 'h': case 'H': agent->SetProperty<int>("Health",
-                    agent->GetProperty<int>("Health") + static_cast<int>(agent->GetProperty<int>("Max_Health") * 0.25)); break;
+            case 'h': case 'H': agent.SetProperty<int>("Health",
+                    agent.GetProperty<int>("Health") + static_cast<int>(agent.GetProperty<int>("Max_Health") * 0.25)); break;
             default: valid_input = false; break;
             }
-            if (agent->GetProperty<int>("Health") > agent->GetProperty<int>("Max_Health"))
+            if (agent.GetProperty<int>("Health") > agent.GetProperty<int>("Max_Health"))
             {
-                agent->SetProperty<int>("Health", agent->GetProperty<int>("Max_Health"));
+                agent.SetProperty<int>("Health", agent.GetProperty<int>("Max_Health"));
             }
             if (!valid_input)
             {
@@ -182,34 +181,34 @@ namespace cse491_team8 {
             // Process the Player's Move and the Agent's Move
             if (run)
             {
-                agent->SetProperty<int>("Health", agent->GetProperty<int>("Health") - other_damage);
+                agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - other_damage);
                 break;
             }
-            other_agent->SetProperty<int>("Health", other_agent->GetProperty<int>("Health") - damage);
-            if (other_agent->GetProperty<int>("Health") <= 0)
+            other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Health") - damage);
+            if (other_agent.GetProperty<int>("Health") <= 0)
             {
                 won = true;
                 break;
             }
-            agent->SetProperty<int>("Health", agent->GetProperty<int>("Health") - other_damage);
-            if (agent->GetProperty<int>("Health") <= 0)
+            agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - other_damage);
+            if (agent.GetProperty<int>("Health") <= 0)
             {
                 break;
             }
         }
 
-        std::string other_agent_name = other_agent->GetName();
+        std::string other_agent_name = other_agent.GetName();
 
         if (!won) {
             if (run)
             {
                 std::cout << "You ran away, this means you don't gain health or strength and any battle damage stays!" << "\n";
             }
-            if (agent->GetName() == "Interface" && agent->GetProperty<int>("Health") <= 0)
+            if (agent.GetName() == "Interface" && agent.GetProperty<int>("Health") <= 0)
             {
                 while (true)
                 {
-                    std::cout << other_agent_name << " has beat " << agent->GetName() << "\n";
+                    std::cout << other_agent_name << " has beat " << agent.GetName() << "\n";
                     std::cout << "You Lost..." << "\n";
                     std::cout << "Would You Like To Continue? Y or N? ";
                     char repeat_input;
@@ -220,9 +219,9 @@ namespace cse491_team8 {
                     }
                     else if (repeat_input == 'Y')
                     {
-                        agent->SetProperty<int>("Health", 20);
-                        agent->SetProperty<int>("Strength", 7);
-                        agent->SetPosition(40, 3);
+                        agent.SetProperty<int>("Health", 20);
+                        agent.SetProperty<int>("Strength", 7);
+                        agent.SetPosition(40, 3);
                         break;
                     }
                     else
@@ -232,15 +231,15 @@ namespace cse491_team8 {
                     }
                 }
             }
-            this->RemoveAgent(agent->GetName()); // If the agent is the interface, this does nothing
+            this->RemoveAgent(agent.GetName()); // If the agent is the interface, this does nothing
         }
         else {
-        std::cout << agent->GetName() << " has beat " << other_agent->GetName() << "\n";
+        std::cout << agent.GetName() << " has beat " << other_agent.GetName() << "\n";
         // Gain the Agent's strength that you beat
-        agent->SetProperty<int>("Strength",
-                agent->GetProperty<int>("Strength") + other_agent->GetProperty<int>("Strength"));
-        cse491::GridPosition other_position = other_agent->GetPosition();
-        this->RemoveAgent(other_agent->GetName());
+        agent.SetProperty<int>("Strength",
+                agent.GetProperty<int>("Strength") + other_agent.GetProperty<int>("Strength"));
+        cse491::GridPosition other_position = other_agent.GetPosition();
+        this->RemoveAgent(other_agent.GetName());
 
         // get the loot dropped from the agent
         int random = rand() % 10;
@@ -279,7 +278,7 @@ namespace cse491_team8 {
         this->AddItem(loot, "symbol", symbol).SetPosition(x, y);
 
         // set the entity's _action_ property to have _num_action_ uses
-        for (const auto& entity : item_set)
+        for (const auto& [id, entity] : item_map)
         {
             if (entity->GetPosition() == other_position)
             {
@@ -298,17 +297,17 @@ namespace cse491_team8 {
     /// @param agent The agent to look around
     /// @see StrengthCheck
     /// @return true if an agent was found, else false
-    bool CheckAround(const std::unique_ptr<cse491::AgentBase> & agent)
+    bool CheckAround(cse491::AgentBase & agent)
     {
-      auto new_position = agent->GetPosition();
-      for (auto& other_agent : agent_set)
+      auto new_position = agent.GetPosition();
+      for (auto & [id, agent2_ptr] : agent_map)
       {
-        if (other_agent->GetPosition() == new_position.Above() ||
-            other_agent->GetPosition() == new_position.Below() ||
-            other_agent->GetPosition() == new_position.ToLeft() ||
-            other_agent->GetPosition() == new_position.ToRight())
+        if (agent2_ptr->GetPosition() == new_position.Above() ||
+            agent2_ptr->GetPosition() == new_position.Below() ||
+            agent2_ptr->GetPosition() == new_position.ToLeft() ||
+            agent2_ptr->GetPosition() == new_position.ToRight())
         {
-          StrengthCheck(other_agent, agent);
+          StrengthCheck(*agent2_ptr, agent);
           return true;
         }
       }
@@ -319,11 +318,11 @@ namespace cse491_team8 {
     /// Finds an interface agent and calls CheckAround
     void HandleNeighbors()
     {
-      for (const auto& agent : agent_set)
+      for (const auto& [id, agent_ptr] : agent_map)
       {
-        if (agent->IsInterface())
+        if (agent_ptr->IsInterface())
         {
-          CheckAround(agent);
+          CheckAround(*agent_ptr);
           break;
         }
       }
@@ -349,34 +348,32 @@ namespace cse491_team8 {
     /// @param new_position New position of the agent to check if an item is there.
     /// @return Nothing
     void DoActionAttemptItemPickup(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
-      for (size_t i = 0; i < GetNumItems(); i++)
-      {
-        auto const& entity = GetItem(i);
-        if (entity.GetPosition() == new_position)
+      for (const auto & [id, item_ptr] : item_map) {
+        if (item_ptr->GetPosition() == new_position)
         {
           std::string uses_property = "";
-          if (entity.GetName() == "Stick") { uses_property = "Hit"; }
-          if (entity.GetName() == "Sword") { uses_property = "Hit"; }
-          if (entity.GetName() == "Boat") { uses_property = "Swim"; }
-          if (entity.GetName() == "Axe")  { uses_property = "Chop"; }
+          if (item_ptr->GetName() == "Stick") { uses_property = "Hit"; }
+          if (item_ptr->GetName() == "Sword") { uses_property = "Hit"; }
+          if (item_ptr->GetName() == "Boat") { uses_property = "Swim"; }
+          if (item_ptr->GetName() == "Axe")  { uses_property = "Chop"; }
 
           if (uses_property != "")
           {
             if (agent.HasProperty(uses_property))
             {
-              agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
+              agent.SetProperty(uses_property, item_ptr->GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
             }
             else
             {
-              agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property));
+              agent.SetProperty(uses_property, item_ptr->GetProperty<int>(uses_property));
             }
           }
 
-          std::cout << "Picked up the " << entity.GetName() << "!\n"
+          std::cout << "Picked up the " << item_ptr->GetName() << "!\n"
                     << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
 
           // remove it from the board
-          RemoveItem(entity.GetID());
+          RemoveItem(item_ptr->GetID());
 
           break;
         }

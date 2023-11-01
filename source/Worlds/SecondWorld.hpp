@@ -170,7 +170,6 @@ class SecondWorld : public cse491::WorldBase {
       } else {
         ofs << "  }," << std::endl;
       }
-
       index++;
     }
     ofs << "]" << std::endl;
@@ -270,3 +269,4 @@ class SecondWorld : public cse491::WorldBase {
   }
 };
 }  // namespace group4
+

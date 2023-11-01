@@ -44,7 +44,8 @@ class PathAgent : public cse491::AgentBase {
 
   cse491::GridPosition UpdateAndGetNextPos(bool increment = true);
 
-  size_t SelectAction(cse491::WorldGrid const&, cse491::type_options_t const&, cse491::item_set_t const&, cse491::agent_set_t const&) override;
+  size_t SelectAction(cse491::WorldGrid const&, cse491::type_options_t const&,
+                      cse491::item_map_t const&, cse491::agent_map_t const&) override;
 
   PathAgent& SetPath(std::vector<cse491::GridPosition> && offsets, size_t start_index = 0);
   PathAgent& SetPath(std::string_view commands, size_t start_index = 0);

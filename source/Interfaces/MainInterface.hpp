@@ -49,17 +49,20 @@ namespace i_2D {
         ~MainInterface() = default;
 
 
-        std::vector<std::string> CreateVectorMaze(const WorldGrid &grid, const type_options_t &type_options,
-                                                  const item_set_t &item_set, const agent_set_t &agent_set) ;
+        std::vector<std::string> CreateVectorMaze(
+          const WorldGrid &grid,
+          const type_options_t &type_options,
+          const item_map_t &item_map,
+          const agent_map_t &agent_map) ;
 
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
-                      const item_set_t &item_set, const agent_set_t &agent_set);
+                      const item_map_t &item_map, const agent_map_t &agent_map);
 
 
         void UpdateGrid(const WorldGrid &grid,
                         const type_options_t &type_options,
-                        const item_set_t &item_set,
-                        const agent_set_t &agent_set);
+                        const item_map_t &item_map,
+                        const agent_map_t &agent_map);
         /**
          * @brief Initializes the main interface.
          *
@@ -70,8 +73,8 @@ namespace i_2D {
         }
         size_t SelectAction(const WorldGrid &grid,
                             const type_options_t &type_options,
-                            const item_set_t &item_set,
-                            const agent_set_t &agent_set) override;
+                            const item_map_t &item_map,
+                            const agent_map_t &agent_map) override;
 
         size_t HandleKeyEvent(const sf::Event &event);
 
