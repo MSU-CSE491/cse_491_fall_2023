@@ -5,17 +5,20 @@
  **/
 
 // Include the modules that we will be using.
+#include <ctime>
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
+
+using namespace group6;
 
 int main() {
     static const unsigned int SEED = 973;
     BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
     biomeGenerator.generate();
 
-    srand(time(NULL));
+    srand(time(nullptr));
     auto path = biomeGenerator.clearPath();
     biomeGenerator.applyPathToGrid(path);
     biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
