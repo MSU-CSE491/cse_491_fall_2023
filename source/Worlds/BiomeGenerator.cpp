@@ -168,14 +168,14 @@ void BiomeGenerator::saveToFile(const std::string &filename) const {
     type_options_t types = type_options_t();
 
     //TODO: Remove when refactoring
-    types.push_back(CellType("floor", "Floor that you can easily walk over.", ' '));
-    types.push_back(CellType("wall", "Impenetrable wall that you must find a way around.", '#'));
-    types.push_back(CellType("spike", "Dangerous spike that resets the game.", 'X'));
-    types.push_back(CellType("tar", "Slow tile that makes you take two steps to get through it", 'O'));
-    types.push_back(CellType("key", "item that can be picked up to unlock door and escape maze", 'K'));
-    types.push_back(CellType("door", "Door that can be walked through only with possession of key to leave maze", 'D'));
-    types.push_back(CellType("grass", "Grass you can walk on.", 'M'));
-    types.push_back(CellType("dirt", "Dirt you can walk on.", '~'));
+    types.push_back(CellType{"floor", "Floor that you can easily walk over.", ' '});
+    types.push_back(CellType{"wall", "Impenetrable wall that you must find a way around.", '#'});
+    types.push_back(CellType{"spike", "Dangerous spike that resets the game.", 'X'});
+    types.push_back(CellType{"tar", "Slow tile that makes you take two steps to get through it", 'O'});
+    types.push_back(CellType{"key", "item that can be picked up to unlock door and escape maze", 'K'});
+    types.push_back(CellType{"door", "Door that can be walked through only with possession of key to leave maze", 'D'});
+    types.push_back(CellType{"grass", "Grass you can walk on.", 'M'});
+    types.push_back(CellType{"dirt", "Dirt you can walk on.", '~'});
 
     grid.Write(filename, types);
 }

@@ -32,7 +32,7 @@ add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
 foreach(EXECUTABLE ${EXECUTABLES})
     set(SOURCES source/${EXECUTABLE}_main.cpp
-            source/group_6_main.cpp)
+            source/Worlds/BiomeGenerator.cpp)
     add_executable(${EXECUTABLE} ${SOURCES})
     target_include_directories(${EXECUTABLE}
       PRIVATE ${MAIN_SOURCE_DIR}
