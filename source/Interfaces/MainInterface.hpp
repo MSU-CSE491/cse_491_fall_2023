@@ -57,8 +57,11 @@ namespace i_2D {
         ~MainInterface() = default;
 
 
-        std::vector<std::string> CreateVectorMaze(const WorldGrid &grid, const type_options_t &type_options,
-                                                  const item_set_t &item_set, const agent_set_t &agent_set) ;
+        std::vector<std::string> CreateVectorMaze(
+                const WorldGrid &grid,
+                const type_options_t &type_options,
+                const item_map_t &item_map,
+                const agent_map_t &agent_map) ;
 
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_set_t &item_set, const agent_set_t &agent_set);

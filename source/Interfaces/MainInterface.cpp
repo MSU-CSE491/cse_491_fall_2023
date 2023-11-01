@@ -3,7 +3,9 @@
  * @date: 10/03/2023
  * MainInterface class creates a window and displays the default maze grid
  */
+#include <map>
 #include "MainInterface.hpp"
+
 
 namespace i_2D {
     /**
@@ -25,41 +27,38 @@ namespace i_2D {
      *
      * @param grid         The WorldGrid representing the maze.
      * @param type_options The type options for symbols.
-     * @param item_set     The set of items in the maze.
-     * @param agent_set    The set of agents in the maze.
+     * @param item_map     The map of ids to items in the maze.
+     * @param agent_map    The map of ids to agents in the maze.
      *
      * @return A vector of strings representing the maze grid.
      */
-    std::vector<std::string> MainInterface::CreateVectorMaze(const WorldGrid &grid, const type_options_t &type_options,
-                                                             const item_set_t &item_set, const agent_set_t &agent_set) {
+    std::vector<std::string> MainInterface::CreateVectorMaze(
+            const WorldGrid &grid, const type_options_t &type_options,
+            const item_map_t &item_map, const agent_map_t &agent_map)
+    {
         std::vector<std::string> symbol_grid(grid.GetHeight());
         // Load the world into the symbol_grid;
-        for (size_t y=0; y < grid.GetHeight(); ++y) {
+        for (size_t y = 0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
-            for (size_t x=0; x < grid.GetWidth(); ++x) {
-                symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
+            for (size_t x = 0; x < grid.GetWidth(); ++x) {
+                symbol_grid[y][x] = type_options[grid.At(x, y)].symbol;
             }
         }
 
-        // Add in the agents / entities
-        for (const auto & entity_ptr : item_set) {
-            GridPosition pos = entity_ptr->GetPosition();
-            char c = '+';
-            if (entity_ptr->HasProperty("symbol")) {
-                c = entity_ptr->GetProperty<char>("symbol");
-            }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+        // Add in the agents / items
+        for (const auto & [id, item_ptr] : item_map) {
+            GridPosition pos = item_ptr->GetPosition();
+            symbol_grid[pos.CellY()][pos.CellX()] = '+';
         }
 
-        for (const auto & agent_ptr : agent_set) {
+        for (const auto & [id, agent_ptr] : agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
-            if(agent_ptr->HasProperty("symbol")){
-                c = agent_ptr->GetProperty<char>("symbol");
+            if (agent_ptr->HasProperty("symbol")) {
+                c = static_cast<char>(agent_ptr->GetProperty<char>("symbol"));
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
-
         return symbol_grid;
     }
 
