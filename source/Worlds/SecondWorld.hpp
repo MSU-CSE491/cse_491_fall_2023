@@ -149,10 +149,10 @@ class SecondWorld : public cse491::WorldBase {
     ofs << "[" << std::endl;
     size_t index = 0;
 
-    for (const auto& other_agent : agent_set) {
-      auto new_position = other_agent->GetPosition();
+    for (const auto& [agent_id, agent_ptr] : agent_map) {
+      auto new_position = agent_ptr->GetPosition();
 
-      std::string agent_name = other_agent->GetName();
+      std::string agent_name = agent_ptr->GetName();
 
       double x_pos = new_position.GetX();
       double y_pos = new_position.GetY();
@@ -165,7 +165,7 @@ class SecondWorld : public cse491::WorldBase {
       ofs << "    \"x\": " << x_pos << "," << std::endl;
       ofs << "    \"y\": " << y_pos << std::endl;
 
-      if (index == agent_set.size() - 1) {
+      if (index == agent_map.size() - 1) {
         ofs << "  }" << std::endl;
       } else {
         ofs << "  }," << std::endl;
@@ -213,18 +213,18 @@ class SecondWorld : public cse491::WorldBase {
 
     if (main_grid.At(new_position) == entity_id) {
       std::cout << "found entity id " << entity_id << std::endl;
-      auto item_found = std::find_if(
-          item_set.begin(), item_set.end(),
-          [&new_position](const std::unique_ptr<cse491::ItemBase>& item) {
-            return item && item->GetPosition() == new_position;
-          });
+      auto items_found = FindItemsAt(new_position, 0);
+      if (items_found.empty()) {
+        agent.Notify("Warning: there is no item here", "item_alert");
+      }
+      auto item_found = items_found.at(0);
 
-      std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
+      agent.Notify("You found " + std::to_string(item_found) + "!", "item_alert");
 
       // Move the ownership of the item to the agents inventory
-      inventory.push_back(std::move(*(item_found)));
+//      inventory.push_back(std::move(*(item_found)));
 
-      CleanEntities();
+//      CleanEntities();
 
       // Change the grid position to floor_id so it's not seen on the grid
       main_grid.At(new_position) = floor_id;
@@ -238,10 +238,10 @@ class SecondWorld : public cse491::WorldBase {
    * Cleans itemset of all null entities
    */
   void CleanEntities() {
-    std::erase_if(item_set,
-                  [](const std::unique_ptr<cse491::ItemBase>& item_ptr) {
-                    return item_ptr == nullptr;
-                  });
+//    std::erase_if(item_map,
+//                  [](auto id, const auto& item_ptr) {
+//                    return item_ptr == nullptr;
+//                  });
   }
 
   /**
@@ -249,21 +249,23 @@ class SecondWorld : public cse491::WorldBase {
    * @param removeID The ID of the entity we're removing
    */
   void RemoveEntity(size_t removeID) {
-    std::erase_if(item_set,
-                  [removeID](const std::unique_ptr<cse491::ItemBase>& item_ptr) {
-                    return item_ptr->GetID() == removeID;
-                  });
-
-    CleanEntities();
+//    std::erase_if(item_map,
+//                  [removeID](auto id, const auto& item_ptr) {
+//                    return item_ptr->GetID() == removeID;
+//                  });
+//
+//    CleanEntities();
   }
 
   /**
    * Prints the entities in item_set (testing)
    */
   void PrintEntities() {
-    for (const auto& elem : item_set) {
-      if (!elem) continue;
-      std::cout << elem->GetName() << "\n";
+    for (const auto& [id, item_ptr] : item_map) {
+      if (!item_ptr) {
+        continue;
+      }
+      std::cout << item_ptr->GetName() << "\n";
     }
     std::cout << std::endl;
   }
