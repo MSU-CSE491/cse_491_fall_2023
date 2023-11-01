@@ -42,19 +42,6 @@ if(${BUILD_MAIN})
   set(SFML_BUILD_DIR sfml_build)
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
-
-<<<<<<< HEAD
-foreach(EXECUTABLE ${EXECUTABLES})
-    set(SOURCES source/${EXECUTABLE}_main.cpp source/Interfaces/MainInterface.cpp source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Container.cpp source/Interfaces/Container.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp)
-    add_executable(${EXECUTABLE} ${SOURCES} source/Interfaces/Component.cpp source/Interfaces/Component.hpp source/Interfaces/Button.cpp source/Interfaces/Button.hpp source/Interfaces/Menu.cpp source/Interfaces/Menu.hpp)
-    target_include_directories(${EXECUTABLE}
-            PRIVATE ${MAIN_SOURCE_DIR}
-            )
-    target_link_libraries(${EXECUTABLE}
-            PRIVATE sfml-window sfml-audio sfml-graphics sfml-system
-            )
-endforeach()
-=======
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
   file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
@@ -84,7 +71,6 @@ endif()
 
 # Build the test executables, if requested
 if(${BUILD_TESTS})
->>>>>>> development
 
   # Configure Catch
   set(CATCH_SRC_DIR third_party/Catch2)
