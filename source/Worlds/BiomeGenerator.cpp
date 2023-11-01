@@ -8,7 +8,7 @@
 #include <set>
 #include <tuple>
 #include <random>
-#include "BiomeGenerator.h"
+#include "BiomeGenerator.hpp"
 
 using std::vector;
 

@@ -80,72 +80,33 @@ namespace group4 {
             }
 
             if (main_grid.At(new_position) == entity_id) {
+              for (auto it = item_map.begin(); it != item_map.end(); ++it) {
+                auto & item = *(it->second);
+                if (item.GetPosition() == new_position) {
+                  std::cout << "You found " << item.GetName() << "!" << std::endl;
 
-                auto item_found = std::find_if(item_set.begin(), item_set.end(), [&new_position]
-                                (const std::unique_ptr<cse491::Entity>& item) {
-                            return item->GetPosition() == new_position;
-                        });
+                  // Move the ownership of the item to the agents inventory
+                  inventory.push_back(std::move(it->second));
 
-                std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
-
-                // Move the ownership of the item to the agents inventory
-                inventory.push_back(std::move(*(item_found)));
-
-                CleanEntities();
-
-                // Change the grid position to floor_id so it's not seen on the grid
-                main_grid.At(new_position) = floor_id;
-
+                  // Change the grid position to floor_id so it's not seen on the grid
+                  main_grid.At(new_position) = floor_id;
+                  break;
+                }
+              }
             }
 
             agent.SetPosition(new_position);
             return true;
         }
 
-        /**
-         * Adds an entity to the non-agent entity list
-         * @param entity The entity we are adding
-         */
-        size_t AddEntity(std::unique_ptr<cse491::Entity> &entity) {
-            // Sets the '+' as the item in grid
-            main_grid.At(entity->GetPosition()) = entity_id;
-
-            // Moves the ownership of the entity into item_set
-            size_t id = entity->GetID();
-            item_set.push_back(std::move(entity));
-            return id;
-        }
 
         /**
-         * Cleans itemset of all null entities
-         */
-        void CleanEntities() {
-            std::erase_if(item_set, [] (const std::unique_ptr<cse491::Entity> &entityPtr) {
-                return entityPtr == nullptr;
-            });
-
-        }
-
-        /**
-         * Removes an Entity from itemset (testing)
-         * @param removeID The ID of the entity we're removing
-         */
-        void RemoveEntity(size_t removeID) {
-            std::erase_if(item_set, [removeID] (const std::unique_ptr<cse491::Entity> &entityPtr) {
-                return entityPtr->GetID() == removeID;
-            });
-
-            CleanEntities();
-        }
-
-
-        /**
-         * Prints the entities in item_set (testing)
+         * Prints the entities in item_map (testing)
          */
         void PrintEntities() {
-            for (const auto &elem : item_set)
+            for (const auto & elem : item_map)
             {
-                std::cout << elem->GetName() << "\n";
+                std::cout << elem.second->GetName() << "\n";
             }
             std::cout << std::endl;
         }

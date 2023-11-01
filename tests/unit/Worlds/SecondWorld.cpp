@@ -28,34 +28,34 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
   }
 }
 
-TEST_CASE("EntityTest")
+TEST_CASE("Item Test")
 {
     // Initialize world
     group4::SecondWorld world;
 
-    // Test adding and removing an Entity w/ properties
-    auto testEntity1 = std::make_unique<cse491::Entity>(1, "Test Entity 1");
-    testEntity1->SetPosition(1, 2);
-    testEntity1->SetProperty("Damage", 20.0);
+    // Test adding and removing an Item  w/ properties
+    auto testItem1 = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
+    testItem1->SetPosition(1, 2);
+    testItem1->SetProperty("Damage", 20.0);
 
-    CHECK(testEntity1->GetProperty("Damage") == 20.0);
+    CHECK(testItem1->GetProperty("Damage") == 20.0);
 
-    auto testEntity2 = std::make_unique<cse491::Entity>(2, "Test Entity 2");
-    testEntity2->SetPosition(2, 3);
-    testEntity2->SetProperties("Damage", 5.5, "Fire Resistance", 2.5);
+    auto testItem2 = std::make_unique<cse491::ItemBase>(2, "Test Item  2");
+    testItem2->SetPosition(2, 3);
+    testItem2->SetProperties("Damage", 5.5, "Fire Resistance", 2.5);
 
-    CHECK(testEntity2->GetProperty("Damage") ==  5.5);
-    CHECK(testEntity2->GetProperty("Fire Resistance") == 2.5);
+    CHECK(testItem2->GetProperty("Damage") ==  5.5);
+    CHECK(testItem2->GetProperty("Fire Resistance") == 2.5);
 
-    testEntity2->RemoveProperty("Fire Resistance");
-    CHECK(!testEntity2->HasProperty("Fire Resistance"));
+    testItem2->RemoveProperty("Fire Resistance");
+    CHECK(!testItem2->HasProperty("Fire Resistance"));
 
-    auto entityID1 = world.AddEntity(testEntity1);
-    auto entityID2 = world.AddEntity(testEntity2);
+    auto & item = world.AddItem(std::move(testItem1));
+    world.AddItem(std::move(testItem2));
 
     CHECK(world.GetNumItems() == 2);
 
-    world.RemoveEntity(entityID1);
+    world.RemoveItem(item.GetID());
 
     CHECK(world.GetNumItems() == 1);
 

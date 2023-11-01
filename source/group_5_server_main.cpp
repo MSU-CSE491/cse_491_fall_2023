@@ -42,8 +42,8 @@ int main()
 
     if (!serverInterface->InitialConnection(sender, port)) return 1;
 
-    cse491::item_set_t item_set;
-    cse491::agent_set_t agent_set;
+    cse491::item_map_t item_map;
+    cse491::agent_map_t agent_map;
     std::string input;
 
     //Main game loop

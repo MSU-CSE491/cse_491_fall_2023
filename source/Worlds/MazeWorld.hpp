@@ -62,7 +62,7 @@ class MazeWorld : public WorldBase {
   }
 
   /// Can walk on all tiles except for walls
-  bool IsTraversable(const AgentBase * /*agent*/, cse491::GridPosition pos) const override {
+  bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
     return main_grid.At(pos) != wall_id;
   }
 };
