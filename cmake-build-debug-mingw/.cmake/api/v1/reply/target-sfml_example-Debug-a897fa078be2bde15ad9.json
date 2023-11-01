@@ -1,0 +1,325 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "executable/sfml_example.exe"
+		},
+		{
+			"path" : "executable/sfml_example.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"set_target_properties",
+			"find_package",
+			"include_directories",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt",
+			"third_party/SFML/src/SFML/Audio/CMakeLists.txt",
+			"third_party/SFML/cmake/Modules/FindVorbis.cmake",
+			"third_party/SFML/src/SFML/Window/CMakeLists.txt",
+			"third_party/SFML/src/SFML/Graphics/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 39,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 43,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 83,
+				"parent" : 3
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 87,
+				"parent" : 3
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 72,
+				"parent" : 3
+			},
+			{
+				"file" : 2,
+				"parent" : 6
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 42,
+				"parent" : 7
+			},
+			{
+				"file" : 3
+			},
+			{
+				"command" : 1,
+				"file" : 3,
+				"line" : 283,
+				"parent" : 9
+			},
+			{
+				"command" : 1,
+				"file" : 3,
+				"line" : 312,
+				"parent" : 9
+			},
+			{
+				"command" : 1,
+				"file" : 3,
+				"line" : 327,
+				"parent" : 9
+			},
+			{
+				"file" : 4
+			},
+			{
+				"command" : 1,
+				"file" : 4,
+				"line" : 121,
+				"parent" : 13
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 29,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 40,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fdiagnostics-color=always"
+				},
+				{
+					"fragment" : "-std=gnu++20"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "SFML_STATIC"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 15,
+					"path" : "/Users/mihai/Desktop/CSE"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "C:/Users/mihai/Desktop/CSE 491/GROUP6/491/GROUP6/third_party/SFML/extlibs/headers"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "C:/Users/mihai/Desktop/CSE 491/GROUP6/."
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/mihai/Desktop/CSE 491/GROUP6/third_party/SFML/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "sfml-system::@43cfb1d9579758b3f7fa"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "sfml-graphics::@cba4ec84bede296d0817"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "sfml-window::@69611329a35ef42634e8"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "sfml-audio::@f3eb3c9c269912819710"
+		}
+	],
+	"id" : "sfml_example::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "sfml_build\\lib\\libsfml-window-s-d.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "sfml_build\\lib\\libsfml-audio-s-d.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "sfml_build\\lib\\libsfml-graphics-s-d.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libopenal32.a\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libFLAC.a\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libvorbisfile.a\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libvorbisenc.a\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libvorbis.a\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 8,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libogg.a\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "sfml_build\\lib\\libsfml-window-s-d.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 10,
+				"fragment" : "sfml_build\\lib\\libsfml-system-s-d.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "-lopengl32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 12,
+				"fragment" : "-lwinmm",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 12,
+				"fragment" : "-lgdi32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 14,
+				"fragment" : "\"C:\\Users\\mihai\\Desktop\\CSE 491\\GROUP6\\third_party\\SFML\\extlibs\\libs-mingw\\x64\\libfreetype.a\"",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "sfml_example",
+	"nameOnDisk" : "sfml_example.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/sfml_example_main.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Worlds/BiomeGenerator.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}
