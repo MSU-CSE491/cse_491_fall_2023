@@ -94,15 +94,21 @@ public:
   /// Get the total number of AGENT entities
   [[nodiscard]] size_t GetNumAgents() const { return agent_map.size(); }
 
+  /// Does an item with the provided ID exist?
+  [[nodiscard]] bool HasItem(size_t id) const { return item_map.count(id); }
+
+  /// Does an agent with the provided ID exist?
+  [[nodiscard]] bool HasAgent(size_t id) const { return agent_map.count(id); }
+
   /// Return a reference to an agent with a given ID.
   [[nodiscard]] ItemBase & GetItem(size_t id) {
-    assert(item_map.count(id));
+    assert(HasItem(id));
     return *item_map[id];
   }
 
   /// Return a reference to an agent with a given ID.
   [[nodiscard]] AgentBase & GetAgent(size_t id) {
-    assert(agent_map.count(id));
+    assert(HasAgent(id));
     return *agent_map[id];
   }
 
@@ -135,6 +141,8 @@ public:
   virtual bool GetRunOver() const { return run_over; }
 
   // -- Random Number Generation --
+
+  /// @brief  Get the seed used to initialize this RNG
   unsigned int GetSeed() const { return seed; }
  
   /// @brief  Return a uniform random value between 0.0 and 1.0
@@ -185,7 +193,7 @@ public:
     agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
   }
 
-  /// @brief Add a new, previously-built item
+  /// @brief Add a new, already-built item
   /// @return A reference to the newly created item
   ItemBase & AddItem(std::unique_ptr<ItemBase> item_ptr) {
     assert(item_ptr);                // item_ptr must not be null.
@@ -196,7 +204,7 @@ public:
     return *item_map[item_id];
   }
 
-  /// @brief Build a new item
+  /// @brief Build a new item and add it
   /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
   /// @param item_name The name of this item
   /// @param properties Name/value pairs for any properties set at creation
@@ -238,6 +246,7 @@ public:
   WorldBase & RemoveItem(std::string item_name) {
     return RemoveItem( GetItemID(item_name) );
   }
+  
 
   // -- Action Management --
 
@@ -309,11 +318,65 @@ public:
     return type_options[id].symbol;
   }
 
+
+  // -- Grid Analysis Helpers --
+
+  /// @brief Lookup IDs for all items at a given grid position.
+  /// @param pos Grid position to look up.
+  /// @param grid_id ID of grid we are examining (default: main grid)
+  /// @return A vector of item IDs at the target position.
+  [[nodiscard]] virtual std::vector<size_t> FindItemsAt(GridPosition pos, size_t grid_id=0) const {
+    std::vector<size_t> item_ids;
+    for (const auto & [id, item_ptr] : item_map) {
+      if (item_ptr->IsOnGrid(grid_id) && item_ptr->GetPosition() == pos) item_ids.push_back(id);
+    }
+    return item_ids;
+  }
+
+  /// @brief Lookup IDs for all agents at a given grid position.
+  /// @param pos Grid position to look up.
+  /// @return A vector of agent IDs at the target position.
+  [[nodiscard]] virtual std::vector<size_t> FindAgentsAt(GridPosition pos, size_t grid_id=0) const {
+    std::vector<size_t> agent_ids;
+    for (const auto & [id, agent_ptr] : agent_map) {
+      if (agent_ptr->IsOnGrid(grid_id) && agent_ptr->GetPosition() == pos) agent_ids.push_back(id);
+    }
+    return agent_ids;
+  }
+
+  /// @brief Lookup IDs for all items near a given grid position.
+  /// @param pos Grid position to look up.
+  /// @param dist Maximum distance away from pos for an item to be included.
+  /// @return A vector of item IDs within dist of the target position.
+  [[nodiscard]] virtual std::vector<size_t> FindItemsNear(GridPosition pos, double dist=1.0, size_t grid_id=0) const {
+    std::vector<size_t> item_ids;
+    for (const auto & [id, item_ptr] : item_map) {
+      if (item_ptr->IsOnGrid(grid_id) && item_ptr->GetPosition().IsNear(pos, dist)) {
+        item_ids.push_back(id);
+      }
+    }
+    return item_ids;
+  }
+
+  /// @brief Lookup IDs for all agents near a given grid position.
+  /// @param pos Grid position to look up.
+  /// @param dist Maximum distance away from pos for an agent to be included.
+  /// @return A vector of agent IDs within dist of the target position.
+  [[nodiscard]] virtual std::vector<size_t> FindAgentsNear(GridPosition pos, double dist=1.0, size_t grid_id=0) const {
+    std::vector<size_t> agent_ids;
+    for (const auto & [id, agent_ptr] : agent_map) {
+      if (agent_ptr->IsOnGrid(grid_id) && agent_ptr->GetPosition().IsNear(pos, dist)) {
+        agent_ids.push_back(id);
+      }
+    }
+    return agent_ids;
+  }
+
   /// @brief Determine if this tile can be walked on, defaults to every tile is walkable
   /// @author @mdkdoc15
   /// @param pos The grid position we are checking
   /// @return If an agent should be allowed on this square
-  virtual bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition /*pos*/) const {
+  [[nodiscard]] virtual bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition /*pos*/) const {
     return true;
   }
 
