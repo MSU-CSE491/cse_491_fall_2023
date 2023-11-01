@@ -29,6 +29,8 @@ namespace cse491_team8 {
     size_t bridge_id; ///< Easy access to bridge CellType ID.
     size_t rock_id;   ///< Easy access to rock CellType ID.
 
+    bool reset_run = false;   ///< Should the run reset?
+
     /// Provide the agent with movement actions.
     void ConfigAgent(cse491::AgentBase & agent) override {
       agent.AddAction("up", MOVE_UP);
@@ -206,22 +208,25 @@ namespace cse491_team8 {
             }
             if (agent.GetName() == "Interface" && agent.GetProperty<int>("Health") <= 0)
             {
+                std::cout << other_agent_name << " has beat " << agent.GetName() << "\n";
+                std::cout << "You Lost..." << "\n";
                 while (true)
                 {
-                    std::cout << other_agent_name << " has beat " << agent.GetName() << "\n";
-                    std::cout << "You Lost..." << "\n";
                     std::cout << "Would You Like To Continue? Y or N? ";
                     char repeat_input;
                     std::cin >> repeat_input;
-                    if (repeat_input == 'N')
+                    if (repeat_input == 'N' || repeat_input == 'n')
                     {
-                        exit(0);
+                        run_over = true;
+                        break;
                     }
-                    else if (repeat_input == 'Y')
+                    else if (repeat_input == 'Y' || repeat_input == 'y')
                     {
-                        agent.SetProperty<int>("Health", 20);
-                        agent.SetProperty<int>("Strength", 7);
+                        agent.SetProperty<int>("Strength", 15);
+                        agent.SetProperty<int>("Health", 15);
+                        agent.SetProperty<int>("Direction", 0);
                         agent.SetPosition(40, 3);
+                        reset_run = true;
                         break;
                     }
                     else
@@ -231,7 +236,7 @@ namespace cse491_team8 {
                     }
                 }
             }
-            this->RemoveAgent(agent.GetName()); // If the agent is the interface, this does nothing
+            // this->RemoveAgent(agent.GetName()); // If the agent is the interface, this does nothing
         }
         else {
         std::cout << agent.GetName() << " has beat " << other_agent.GetName() << "\n";
@@ -337,7 +342,8 @@ namespace cse491_team8 {
     void Run() override
     {
       run_over = false;
-      while (!run_over) {
+      reset_run = false;
+      while (!run_over && !reset_run) {
         RunAgents();
         UpdateWorld();
       }
@@ -528,6 +534,8 @@ namespace cse491_team8 {
 
       return true;
     }
+
+    bool GetResetRun() { return reset_run; }
 
   };
 
