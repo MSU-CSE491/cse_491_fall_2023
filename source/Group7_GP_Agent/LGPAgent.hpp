@@ -15,7 +15,7 @@
 namespace cowboys {
 const int LISTSIZE = 100;
 
-EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
+ class LGPAgent : public cse491::AgentBase {
  protected:
   // A dictionary of actions and a dictionary of sensors
   // A sensor is a function that takes in a grid and returns a value (e.g.
@@ -40,7 +40,7 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
   std::mt19937 gen;
 
  public:
-  EXPERIMENTAL_FUNCTION LGPAgent(size_t id, const std::string &name)
+   LGPAgent(size_t id, const std::string &name)
       : AgentBase(id, name) {
     gen = std::mt19937(rd());
   }
@@ -49,13 +49,13 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
 
   /// @brief This agent needs a specific set of actions to function.
   /// @return Success.
-  EXPERIMENTAL_FUNCTION bool Initialize() override {
+   bool Initialize() override {
     possibleInstructionsList = EncodeActions(action_map, sensorsNamesList);
     GenerateRandomActionList();
     return true;
   }
 
-  EXPERIMENTAL_FUNCTION void GenerateRandomActionList() {
+   void GenerateRandomActionList() {
     // generate a random list of actions
     std::uniform_int_distribution<size_t> dist(
         0, possibleInstructionsList.size() - 1);
@@ -78,7 +78,7 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
   /// string, representing action names.
   /// @param action_map The action map from the agent.
   /// @return A vector of strings, representing action names.
-  EXPERIMENTAL_FUNCTION static std::vector<std::string> EncodeActions(
+   static std::vector<std::string> EncodeActions(
       const std::unordered_map<std::string, size_t> &action_map,
       const std::vector<std::string> &sensorsNamesList) {
     std::vector<std::string> instructions;
@@ -96,7 +96,7 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
     return instructions;
   }
 
-  EXPERIMENTAL_FUNCTION size_t
+   size_t
   SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
                [[maybe_unused]] const cse491::type_options_t &type_options,
                [[maybe_unused]] const cse491::item_set_t &item_set,
@@ -108,12 +108,12 @@ EXPERIMENTAL_CLASS class LGPAgent : public cse491::AgentBase {
     int i = 0;
 
 #ifndef NDEBUG
-    std::cout << "=========================================" << std::endl;
-
-    Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
-    Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
-    Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
-    Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
+//    std::cout << "=========================================" << std::endl;
+//
+//    Sensors::wallDistance(grid, *this, SensorDirection::LEFT);
+//    Sensors::wallDistance(grid, *this, SensorDirection::RIGHT);
+//    Sensors::wallDistance(grid, *this, SensorDirection::ABOVE);
+//    Sensors::wallDistance(grid, *this, SensorDirection::BELOW);
 #endif
 
     if (currentInstructionIndex != 0) {

@@ -34,7 +34,7 @@ class Sensors {
    */
   [[maybe_unused]] static void debugPosition(const std::string &printstring) {
 #ifndef NDEBUG
-    std::cout << printstring << std::endl;
+//    std::cout << printstring << std::endl;
 #endif
   }
 
