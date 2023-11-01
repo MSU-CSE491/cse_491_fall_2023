@@ -35,16 +35,16 @@ namespace cse491 {
     [[nodiscard]] bool IsOwnedByAgent() const { return owner_type == OwnerType::AGENT; }
     [[nodiscard]] bool IsOwned() const { return IsOwnedByItem() || IsOwnedByAgent(); }
     [[nodiscard]] bool IsOnGrid(size_t grid_id) const {
-      return owner_type == IsOnGrid() && owner_id == grid_id;
+      return IsOnGrid() && owner_id == grid_id;
     }
     [[nodiscard]] bool IsOwnedByItem(size_t item_id) const {
-      return owner_type == IsOwnedByItem() && owner_id == item_id;
+      return IsOwnedByItem() && owner_id == item_id;
     }
     [[nodiscard]] bool IsOwnedByAgent(size_t agent_id) const {
-      return owner_type == IsOwnedByAgent() && owner_id == agent_id;
+      return IsOwnedByAgent() && owner_id == agent_id;
     }
     [[nodiscard]] bool IsOwnedBy(size_t entity_id) const {
-      return owner_type == IsOwned() && owner_id == entity_id;
+      return IsOwned() && owner_id == entity_id;
     }
     [[nodiscard]] size_t GetOwnerID() const { return owner_id; }
 
