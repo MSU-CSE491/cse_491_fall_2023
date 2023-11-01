@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "executable/tests-unit-core-WorldGrid.exe"
+			"path" : "executable/tests-unit-core-Data.exe"
 		},
 		{
-			"path" : "executable/tests-unit-core-WorldGrid.pdb"
+			"path" : "executable/tests-unit-core-Data.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -140,14 +140,14 @@
 	[
 		{
 			"backtrace" : 2,
-			"id" : "Catch2::@b86e813a14c06e258310"
+			"id" : "Catch2WithMain::@b86e813a14c06e258310"
 		},
 		{
 			"backtrace" : 2,
-			"id" : "Catch2WithMain::@b86e813a14c06e258310"
+			"id" : "Catch2::@b86e813a14c06e258310"
 		}
 	],
-	"id" : "tests-unit-core-WorldGrid::@0d314efc6e162b91513d",
+	"id" : "tests-unit-core-Data::@0d314efc6e162b91513d",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -177,8 +177,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "tests-unit-core-WorldGrid",
-	"nameOnDisk" : "tests-unit-core-WorldGrid.exe",
+	"name" : "tests-unit-core-Data",
+	"nameOnDisk" : "tests-unit-core-Data.exe",
 	"paths" : 
 	{
 		"build" : "tests/unit/core",
@@ -199,7 +199,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "tests/unit/core/WorldGrid.cpp",
+			"path" : "tests/unit/core/Data.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

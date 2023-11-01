@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "executable/simple.exe"
+			"path" : "executable/group_6.exe"
 		},
 		{
-			"path" : "executable/simple.pdb"
+			"path" : "executable/group_6.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -182,18 +182,18 @@
 		},
 		{
 			"backtrace" : 2,
-			"id" : "sfml-graphics::@cba4ec84bede296d0817"
+			"id" : "sfml-window::@69611329a35ef42634e8"
 		},
 		{
 			"backtrace" : 2,
-			"id" : "sfml-window::@69611329a35ef42634e8"
+			"id" : "sfml-graphics::@cba4ec84bede296d0817"
 		},
 		{
 			"backtrace" : 2,
 			"id" : "sfml-audio::@f3eb3c9c269912819710"
 		}
 	],
-	"id" : "simple::@6890427a1f51a3e7e1df",
+	"id" : "group_6::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -288,8 +288,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "simple",
-	"nameOnDisk" : "simple.exe",
+	"name" : "group_6",
+	"nameOnDisk" : "group_6.exe",
 	"paths" : 
 	{
 		"build" : ".",
@@ -311,7 +311,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "source/simple_main.cpp",
+			"path" : "source/group_6_main.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
