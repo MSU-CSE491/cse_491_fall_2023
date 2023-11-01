@@ -211,50 +211,35 @@ class SecondWorld : public cse491::WorldBase {
       run_over = true;
     }
 
-    if (main_grid.At(new_position) == entity_id) {
-      std::cout << "found entity id " << entity_id << std::endl;
-      auto items_found = FindItemsAt(new_position, 0);
-      if (items_found.empty()) {
-        agent.Notify("Warning: there is no item here", "item_alert");
-      }
-      auto item_found = items_found.at(0);
+    // TODO: we need to tell the world which level we're on so we know which grid to look at for items
+    auto items_found = FindItemsAt(new_position, 0);
+    // If there are items at this position
+    if (!items_found.empty()) {
+        auto& item_found = GetItem(items_found.at(0));
 
-      agent.Notify("You found " + std::to_string(item_found) + "!", "item_alert");
+        // Item is a chest
+        if (item_found.HasProperty("Chest")) {
+            // TODO: Check to see if the chest is empty, if !empty -> move them to agent's inventory
 
-      // Move the ownership of the item to the agents inventory
-//      inventory.push_back(std::move(*(item_found)));
+            agent.Notify("You found a chest!", "item_alert");
 
-//      CleanEntities();
+        } else {
+            agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
 
-      // Change the grid position to floor_id so it's not seen on the grid
-      main_grid.At(new_position) = floor_id;
+            // Transfer ownership to agent
+            item_found.SetOwner(agent);
+
+            // Removes item from item_map
+            RemoveItem(item_found.GetID());
+
+            // Change the grid position to floor_id, so it's not seen on the grid
+            main_grid.At(new_position) = floor_id;
+        }
+
     }
 
     agent.SetPosition(new_position);
     return true;
-  }
-
-  /**
-   * Cleans itemset of all null entities
-   */
-  void CleanEntities() {
-//    std::erase_if(item_map,
-//                  [](auto id, const auto& item_ptr) {
-//                    return item_ptr == nullptr;
-//                  });
-  }
-
-  /**
-   * Removes an Entity from itemset (testing)
-   * @param removeID The ID of the entity we're removing
-   */
-  void RemoveEntity(size_t removeID) {
-//    std::erase_if(item_map,
-//                  [removeID](auto id, const auto& item_ptr) {
-//                    return item_ptr->GetID() == removeID;
-//                  });
-//
-//    CleanEntities();
   }
 
   /**
