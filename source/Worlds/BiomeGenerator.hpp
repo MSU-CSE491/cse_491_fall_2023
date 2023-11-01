@@ -1,5 +1,5 @@
 /**
- * @file BiomeGenerator.h
+ * @file BiomeGenerator.hpp
  * @author Paul Schulte, Milan Mihailovic, ChatGPT
  *
  * Uses perlin noise to create dirt and grass on a grid
