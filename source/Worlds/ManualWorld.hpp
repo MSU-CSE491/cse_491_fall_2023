@@ -348,34 +348,32 @@ namespace cse491_team8 {
     /// @param new_position New position of the agent to check if an item is there.
     /// @return Nothing
     void DoActionAttemptItemPickup(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
-      for (size_t i = 0; i < GetNumItems(); i++)
-      {
-        auto const& entity = GetItem(i);
-        if (entity.GetPosition() == new_position)
+      for (const auto & [id, item_ptr] : item_map) {
+        if (item_ptr->GetPosition() == new_position)
         {
           std::string uses_property = "";
-          if (entity.GetName() == "Stick") { uses_property = "Hit"; }
-          if (entity.GetName() == "Sword") { uses_property = "Hit"; }
-          if (entity.GetName() == "Boat") { uses_property = "Swim"; }
-          if (entity.GetName() == "Axe")  { uses_property = "Chop"; }
+          if (item_ptr->GetName() == "Stick") { uses_property = "Hit"; }
+          if (item_ptr->GetName() == "Sword") { uses_property = "Hit"; }
+          if (item_ptr->GetName() == "Boat") { uses_property = "Swim"; }
+          if (item_ptr->GetName() == "Axe")  { uses_property = "Chop"; }
 
           if (uses_property != "")
           {
             if (agent.HasProperty(uses_property))
             {
-              agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
+              agent.SetProperty(uses_property, item_ptr->GetProperty<int>(uses_property) + agent.GetProperty<int>(uses_property));
             }
             else
             {
-              agent.SetProperty(uses_property, entity.GetProperty<int>(uses_property));
+              agent.SetProperty(uses_property, item_ptr->GetProperty<int>(uses_property));
             }
           }
 
-          std::cout << "Picked up the " << entity.GetName() << "!\n"
+          std::cout << "Picked up the " << item_ptr->GetName() << "!\n"
                     << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
 
           // remove it from the board
-          RemoveItem(entity.GetID());
+          RemoveItem(item_ptr->GetID());
 
           break;
         }
