@@ -7,16 +7,32 @@
 
 #pragma once
 #include <algorithm>
-
-#include "../core/WorldBase.hpp"
-#include "../Agents/PacingAgent.hpp"
 #include <nlohmann/json.hpp>
 
+#include "../Agents/PacingAgent.hpp"
+#include "../core/WorldBase.hpp"
+
 namespace group4 {
+/// @brief Filename for the first floor grid file
+const std::string FIRST_FLOOR_FILENAME = "../assets/grids/group4_maze.grid";
+
+/// @brief Filename for the second floor grid file
+const std::string SECOND_FLOOR_FILENAME = "../assets/grids/second_floor.grid";
+
+/// @brief Filename for the last floor grid file
+const std::string FINAL_FLOOR_FILENAME = SECOND_FLOOR_FILENAME;
+
 /**
  * Creates a world with agents and a win flag
  */
 class SecondWorld : public cse491::WorldBase {
+ private:
+  /// @brief File name for this world grid. Switched when the player gets to the next level.
+  std::string world_filename = "";
+
+  /// @brief File name for agent input JSON file.
+  std::string agents_filename = "";
+
  protected:
   enum ActionType {
     REMAIN_STILL = 0,
@@ -38,8 +54,6 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to Entity char
   const size_t entity_id = '+';
 
-  std::vector<std::unique_ptr<cse491::ItemBase>> inventory;
-
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
     agent.AddAction("up", MOVE_UP);
@@ -52,13 +66,13 @@ class SecondWorld : public cse491::WorldBase {
   /**
    * Constructor with no arguments
    */
-  SecondWorld() {
+  SecondWorld() : world_filename(FIRST_FLOOR_FILENAME) {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
-    main_grid.Read("../assets/grids/group4_maze.grid", type_options);
+    main_grid.Read(FIRST_FLOOR_FILENAME, type_options);
   }
 
   /**
@@ -66,7 +80,7 @@ class SecondWorld : public cse491::WorldBase {
    * @param grid_filename Relative path to grid file
    * @param agent_filename Relative path to agent input.json file
    */
-  SecondWorld(std::string grid_filename, std::string agent_filename) {
+  SecondWorld(std::string grid_filename, std::string agent_filename) : world_filename(grid_filename), agents_filename(agent_filename) {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
@@ -88,6 +102,7 @@ class SecondWorld : public cse491::WorldBase {
    * @param input_filename Relative path to input.json file
    */
   void LoadFromFile(const std::string& input_filename) {
+
     std::ifstream input_file(input_filename);
 
     if (!input_file.is_open()) {
@@ -103,19 +118,20 @@ class SecondWorld : public cse491::WorldBase {
       return;
     }
 
+    /// The base max health for an agent.
+    /// Can be added to by giving the agent specific items,
+    /// such as "chocolate_bar", that are specified below.
+    const int BASE_MAX_HEALTH = 100;
     for (const auto& agent : data) {
-      // May get a json.exception.type_error here if you assign to the wrong C++ type,
-      // so make sure to nail down what types things are in JSON first!
-      // My intuition is that each agent object will have:
-      // name: string (C++ std::string)
-      // x: number (C++ int)
-      // y: number (C++ int)
-      // entities: array<string> (C++ std::vector<std::string>)
+      // May get a json.exception.type_error here if you assign to the wrong C++
+      // type, so make sure to nail down what types things are in JSON first! My
+      // intuition is that each agent object will have: name: string (C++
+      // std::string) x: number (C++ int) y: number (C++ int) entities:
+      // array<string> (C++ std::vector<std::string>)
       std::string agent_name = agent.at("name");
       int x_pos = agent.at("x");
       int y_pos = agent.at("y");
 
-      const int BASE_MAX_HEALTH = 100;
       int additional_max_health = 0;
       std::vector<std::string> entities = agent.at("entities");
 
@@ -126,8 +142,10 @@ class SecondWorld : public cse491::WorldBase {
           additional_max_health = 10;
         }
       }
-      
-      AddAgent<cse491::PacingAgent>(agent_name).SetPosition(x_pos, y_pos).SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
+
+      AddAgent<cse491::PacingAgent>(agent_name)
+          .SetPosition(x_pos, y_pos)
+          .SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
     }
   }
 
@@ -208,34 +226,44 @@ class SecondWorld : public cse491::WorldBase {
     if (main_grid.At(new_position) == flag_id) {
       // Set win flag to true
       std::cout << "flag found" << std::endl;
+
+      agent.Notify("Leaving " + world_filename, "world_switched");
+
+      if (world_filename == FIRST_FLOOR_FILENAME) {
+        // TODO: should not set run_over to true here. Should just switch to the next floor.
+        agent.Notify("Going to " + SECOND_FLOOR_FILENAME, "world_switched");
+      } else if (world_filename == FINAL_FLOOR_FILENAME) {
+        agent.Notify("Congrats, you won the game!", "congrats_msg");
+      }
       run_over = true;
     }
 
-    // TODO: we need to tell the world which level we're on so we know which grid to look at for items
+    // TODO: we need to tell the world which level we're on so we know which
+    // grid to look at for items
     auto items_found = FindItemsAt(new_position, 0);
     // If there are items at this position
     if (!items_found.empty()) {
-        auto& item_found = GetItem(items_found.at(0));
+      auto& item_found = GetItem(items_found.at(0));
 
-        // Item is a chest
-        if (item_found.HasProperty("Chest")) {
-            // TODO: Check to see if the chest is empty, if !empty -> move them to agent's inventory
+      // Item is a chest
+      if (item_found.HasProperty("Chest")) {
+        // TODO: Check to see if the chest is empty, if !empty -> move them to
+        // agent's inventory
 
-            agent.Notify("You found a chest!", "item_alert");
+        agent.Notify("You found a chest!", "item_alert");
 
-        } else {
-            agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
+      } else {
+        agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
 
-            // Transfer ownership to agent
-            item_found.SetOwner(agent);
+        // Transfer ownership to agent
+        item_found.SetOwner(agent);
 
-            // Removes item from item_map
-            RemoveItem(item_found.GetID());
+        // Removes item from item_map
+        RemoveItem(item_found.GetID());
 
-            // Change the grid position to floor_id, so it's not seen on the grid
-            main_grid.At(new_position) = floor_id;
-        }
-
+        // Change the grid position to floor_id, so it's not seen on the grid
+        main_grid.At(new_position) = floor_id;
+      }
     }
 
     agent.SetPosition(new_position);
@@ -256,4 +284,3 @@ class SecondWorld : public cse491::WorldBase {
   }
 };
 }  // namespace group4
-
