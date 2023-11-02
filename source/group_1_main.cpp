@@ -19,6 +19,6 @@ int main() {
   looper.Initialize();
   auto &player = world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
   looper.SetTarget(&player);
-  looper.SetTrackingDistance(1000);
+  looper.SetTrackingDistance(4);
   world.Run();
 }

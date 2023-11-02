@@ -63,6 +63,11 @@ public:
     path.pop_back();
     current_move_num = 0;
   }
+
+  [[nodiscard]] cse491::GridPosition GetNextPosition() override {
+    return !path.empty() ? path.back() : GetPosition();
+  }
+
   /// Choose the action to take a step in the appropriate direction.
   size_t SelectAction(const cse491::WorldGrid & /*grid*/,
                       const cse491::type_options_t & /* type_options*/,

@@ -124,11 +124,19 @@ class TrackingAgent : public cse491::AgentBase {
     switch (state_) {
       // Tracking can transition only to Returning
       case TrackingState::TRACKING: {
-        // Tracked target moved out of range
-        if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) >= tracking_distance_) {
-          state_ = TrackingState::RETURNING_TO_START;
-          std::get<AStarAgent>(inner_).SetGoalPosition(start_pos_);
+        // Reached goal position
+        if (GetPosition() == std::get<AStarAgent>(inner_).GetGoalPosition()) {
+          // Target is still in range of goal position
+          if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
+            std::get<AStarAgent>(inner_).SetGoalPosition(target_->GetPosition());
+          }
+          // Target moved out of range of goal position, return to start
+          else {
+            state_ = TrackingState::RETURNING_TO_START;
+            std::get<AStarAgent>(inner_).SetGoalPosition(start_pos_);
+          }
           std::get<AStarAgent>(inner_).RecalculatePath();
+          std::get<AStarAgent>(inner_).SetActionResult(1);
         }
         break;
       }
@@ -140,13 +148,14 @@ class TrackingAgent : public cse491::AgentBase {
           state_ = TrackingState::TRACKING;
           std::get<AStarAgent>(inner_).SetGoalPosition(target_->GetPosition());
           std::get<AStarAgent>(inner_).RecalculatePath();
+          std::get<AStarAgent>(inner_).SetActionResult(1);
         }
 
         // Returned to the beginning, start patrolling again
         else if (GetPosition() == start_pos_) {
           state_ = TrackingState::PATROLLING;
           inner_.emplace<PathAgent>(id, name);
-          std::get<AStarAgent>(inner_).SetPosition(GetPosition());
+          std::get<PathAgent>(inner_).SetPosition(GetPosition());
           std::get<PathAgent>(inner_).SetPath(std::vector(offsets_));
           changed_internal_agent = true;
         }
@@ -159,9 +168,11 @@ class TrackingAgent : public cse491::AgentBase {
         if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
           state_ = TrackingState::TRACKING;
           inner_.emplace<AStarAgent>(id, name);
+          // Set internal AStarAgent's position to the outer position
           std::get<AStarAgent>(inner_).SetPosition(GetPosition());
           std::get<AStarAgent>(inner_).SetGoalPosition(target_->GetPosition());
           std::get<AStarAgent>(inner_).RecalculatePath();
+          std::get<AStarAgent>(inner_).SetActionResult(1);
           changed_internal_agent = true;
         }
         break;
@@ -188,13 +199,32 @@ class TrackingAgent : public cse491::AgentBase {
     return pos;
   }
 
+  template <TrackingAgentInner Agent>
+  size_t SelectInnerAction(Agent & agent, cse491::WorldGrid const &grid,
+                           cse491::type_options_t const &type,
+                           cse491::item_set_t const &item_set,
+                           cse491::agent_set_t const &agent_set) {
+    return agent.SelectAction(grid, type, item_set, agent_set);
+  }
+
+  template<>
+  size_t SelectInnerAction<AStarAgent>(AStarAgent & agent, cse491::WorldGrid const &grid,
+                           cse491::type_options_t const &type,
+                           cse491::item_set_t const &item_set,
+                           cse491::agent_set_t const &agent_set) {
+    auto next_pos = agent.GetNextPosition();
+    auto res = agent.SelectAction(grid, type, item_set, agent_set);
+    agent.SetPosition(next_pos);
+    return res;
+  }
+
   size_t SelectAction(cse491::WorldGrid const &grid,
                       cse491::type_options_t const &type,
                       cse491::item_set_t const &item_set,
                       cse491::agent_set_t const &agent_set) override {
     UpdateState();
     return std::visit([&]<TrackingAgentInner Agent>(Agent& agent) {
-      return agent.SelectAction(grid, type, item_set, agent_set);
+      return SelectInnerAction(agent, grid, type, item_set, agent_set);
     },
   inner_);
   }
