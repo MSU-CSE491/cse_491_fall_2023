@@ -67,8 +67,7 @@ public:
       new_position = agent.GetPosition().ToRight();
       break;
     case MOVE_ARBITRARY:
-      new_position =
-          dynamic_cast<walle::PathAgent &>(agent).UpdateAndGetNextPos(true);
+      new_position = agent.GetNextPosition();
       break;
     }
 

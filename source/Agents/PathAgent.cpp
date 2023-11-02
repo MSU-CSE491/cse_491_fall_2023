@@ -11,8 +11,6 @@
 #include <string_view>
 #include <vector>
 
-#include "../core/AgentBase.hpp"
-#include "../core/GridPosition.hpp"
 namespace walle {
 
 /**
@@ -32,9 +30,8 @@ PathAgent::PathAgent(size_t id, std::string const &name)
  * @param offsets collection of offsets to move the agent
  * @attention The sequence of offsets must not be empty
  */
-PathAgent::PathAgent(size_t id, std::string const &name,
-                     std::vector<cse491::GridPosition> offsets)
-    : cse491::AgentBase(id, name), offsets_(offsets) {
+PathAgent::PathAgent(size_t id, std::string const &name, std::vector<cse491::GridPosition> offsets)
+    : cse491::AgentBase(id, name), offsets_(std::move(offsets)) {
   if (offsets_.empty()) {
     throw std::invalid_argument("Sequence of input offsets must not be empty");
   }
@@ -47,8 +44,7 @@ PathAgent::PathAgent(size_t id, std::string const &name,
  * @param commands sequence of commands to be interpreted as offsets
  * @attention The sequence of offsets must not be empty
  */
-PathAgent::PathAgent(size_t id, std::string const &name,
-                     std::string_view commands)
+PathAgent::PathAgent(size_t id, std::string const &name, std::string_view commands)
     : cse491::AgentBase(id, name), offsets_(StrToOffsets(commands)) {
   if (offsets_.empty()) {
     throw std::invalid_argument("Sequence of input offsets must not be empty");
@@ -98,7 +94,7 @@ void PathAgent::DecrementIndex() {
  * Retrieves the position of the agent after applying the current offset
  * @return next position of the agent
  */
-cse491::GridPosition PathAgent::GetNextPos() const {
+cse491::GridPosition PathAgent::CalcNextPos() const {
   return offsets_[index_] + GetPosition();
 }
 
@@ -111,13 +107,21 @@ cse491::GridPosition PathAgent::GetNextPos() const {
  * @return
  */
 cse491::GridPosition PathAgent::UpdateAndGetNextPos(bool increment) {
-  auto next_pos = GetNextPos();
+  auto next_pos = CalcNextPos();
   if (increment) {
     IncrementIndex();
   } else {
     DecrementIndex();
   }
   return next_pos;
+}
+
+/**
+ * Overrides AgentBase GetNextPosition to retrieve the calculated next position
+ * @return next position to move the path agent in
+ */
+cse491::GridPosition PathAgent::GetNextPosition() {
+  return UpdateAndGetNextPos(true);
 }
 
 /**
@@ -140,8 +144,7 @@ size_t PathAgent::SelectAction(cse491::WorldGrid const & /* grid*/,
  * @attention throws an `std::invalid_argument` when an invalid start index is
  * provided
  */
-PathAgent &PathAgent::SetPath(std::vector<cse491::GridPosition> &&offsets,
-                              size_t start_index) {
+PathAgent &PathAgent::SetPath(std::vector<cse491::GridPosition> &&offsets, size_t start_index) {
   offsets_ = offsets;
   index_ = static_cast<int>(start_index);
   if (static_cast<size_t>(index_) >= offsets_.size()) {
@@ -178,8 +181,6 @@ int PathAgent::GetIndex() const { return index_; }
  * Returns an immutable reference to this agent's current path
  * @return sequence of offsets
  */
-std::vector<cse491::GridPosition> const &PathAgent::GetPath() const {
-  return offsets_;
-}
+std::vector<cse491::GridPosition> const &PathAgent::GetPath() const { return offsets_; }
 
 } // namespace walle

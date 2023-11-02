@@ -44,9 +44,12 @@ public:
 
   void IncrementIndex();
   void DecrementIndex();
-  [[nodiscard]] cse491::GridPosition GetNextPos() const;
+
+  [[nodiscard]] cse491::GridPosition CalcNextPos() const;
 
   virtual cse491::GridPosition UpdateAndGetNextPos(bool increment);
+
+  [[nodiscard]] cse491::GridPosition GetNextPosition() override;
 
   size_t SelectAction(cse491::WorldGrid const &, cse491::type_options_t const &,
                       cse491::item_set_t const &,
