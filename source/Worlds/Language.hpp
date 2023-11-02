@@ -11,10 +11,6 @@
 namespace pegtl = tao::pegtl;
 
 namespace worldlang{
-	
-	struct grammar : pegtl::must< pegtl::eof >
-	{};
-	
 	// Equivalent regex
 	// \-?[0-9]+(.[0-9]+)?
 	struct number : pegtl::seq < 
@@ -26,6 +22,15 @@ namespace worldlang{
 			pegtl::one< '.' >,
 			pegtl::plus< pegtl::digit >
 		>
+	>
+	{};
+	
+	struct string : pegtl::seq<
+		pegtl::one< '"' >,
+		pegtl::star<
+			pegtl::not_one<'"'>
+		>,
+		pegtl::one< '"' >
 	>
 	{};
 	
@@ -82,6 +87,7 @@ namespace worldlang{
 		function,
 		identifier,
 		number,
+		string,
 		pegtl::seq<
 			pegtl::one< '(' >,
 			expression,
@@ -177,7 +183,8 @@ namespace worldlang{
 		pegtl::seq<
 			assignment,
 			pegtl::eol
-		>
+		>,
+		pegtl::eol
 	>
 	{};
 	
@@ -215,6 +222,7 @@ namespace worldlang{
 	using selector = tao::pegtl::parse_tree::selector< Rule,
 		tao::pegtl::parse_tree::store_content::on<
 			number,
+			string,
 			function,
 			identifier,
 			identifier_list,
@@ -236,6 +244,7 @@ namespace worldlang{
 	struct Unit {
 		enum class Type {
 			number,
+			string,
 			identifier,
 			function,
 			operation,
@@ -269,6 +278,9 @@ namespace worldlang{
 				out.push_back(Unit{Unit::Type::number, node->string()});
 			} else if (type == "worldlang::identifier"){
 				out.push_back(Unit{Unit::Type::identifier, node->string()});
+			} else if (type == "worldlang::string"){
+				std::cout << "String?: " << node->string() << "\n";
+				out.push_back(Unit{Unit::Type::string, node->string().substr(1,node->string().size()-2)});
 			} else if (type == "worldlang::function"){
 				// (operator_endargs) arg arg arg function_name
 				out.push_back(Unit{Unit::Type::operation, "endargs"});

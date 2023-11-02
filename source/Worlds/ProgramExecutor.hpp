@@ -1,4 +1,8 @@
+#pragma once
+
 #include "Language.hpp"
+
+#include "core/WorldBase.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -19,10 +23,10 @@ namespace worldlang {
 	// Execution state
 	private:
 		/// Variables
-		std::map < std::string, Value > variables;
+		std::map < std::string, Value > variables{};
 		
 		/// Execution stack
-		std::stack < Value > stack;
+		std::stack < Value > stack{};
 		
 		/// Error message
 		std::string error_message{};
@@ -31,6 +35,23 @@ namespace worldlang {
 	public:
 		/// Constructor
 		ProgramExecutor() = default;
+		
+		/// Constructor with function registration
+		ProgramExecutor(cse491::WorldBase& world) : ProgramExecutor(){
+			// Load world grid from file
+			registerFunction("loadWorld", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
+				world.GetGrid().Read(as<std::string>(args.at(0)), world.GetCellTypes());
+			});
+			// Get the size of the world
+			registerFunction("getWorldSize", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 0) { error("Wrong number of arguments!"); return; }
+				pe.pushStack(static_cast<double>(world.GetGrid().GetWidth()));
+				pe.pushStack(static_cast<double>(world.GetGrid().GetHeight()));
+			});
+		}
 		
 		void registerFunction(std::string name, Callable callable){
 			variables.insert_or_assign(name, callable);
@@ -49,6 +70,7 @@ namespace worldlang {
 			} while (!(has<Identifier>(values.back()) 
 					&& static_cast<std::string>(as<Identifier>(values.back())) == "__INTERNAL_ENDARGS"));
 			values.pop_back(); // don't keep that one
+			std::ranges::reverse(values);
 			return values;
 		}
 		
@@ -91,7 +113,7 @@ namespace worldlang {
 				}
 			}
 			// error if conversion fails
-			error("Type error in as()!");
+			error(std::string{"Type error in as()! Expected "}+typeid(T).name());
 			return T{};
 		}
 		
@@ -114,6 +136,17 @@ namespace worldlang {
 			return error_message;
 		}
 		
+		bool runFile(const std::string& filename){
+			std::ifstream in{filename};
+			std::string s;
+			std::string filedata;
+			while (getline(in, s))
+				filedata += s + '\n';
+			// probably works idk
+			std::cout << "Program from file: " << filedata << std::endl;
+			return run(filedata);
+		}
+		
 		/// Returns false if program had an error
 		bool run(const std::string& program){
 			//TODO: program preprocessing (add newline to end, remove spaces)
@@ -134,6 +167,11 @@ namespace worldlang {
 						} catch (const std::out_of_range& e){
 							error("Number too big!");
 						}
+						break;
+					
+					case Unit::Type::string:
+						std::cout << "Push string " << unit.value << std::endl;
+						pushStack(unit.value);
 						break;
 					
 					case Unit::Type::identifier:
@@ -208,7 +246,7 @@ namespace worldlang {
 							
 							// upon reaching this point, values and identifiers
 							// are the same length and contain valid items.
-							for (int i = 0; i < identifiers.size(); ++i){
+							for (size_t i = 0; i < identifiers.size(); ++i){
 								auto a = identifiers[i];
 								auto b = values[i];
 								
@@ -243,11 +281,11 @@ namespace worldlang {
 							if (std::holds_alternative<Callable>(func)){
 								std::get<Callable>(func)(*this);
 							} else {
-								error("Not a callable object!");
+								error(unit.value + " is not a callable object!");
 							}
 							break;
 						} else {
-							error("Function does not exist!");
+							error("Function " + unit.value + " does not exist!");
 						}
 						break;
 					

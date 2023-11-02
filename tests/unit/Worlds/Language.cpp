@@ -45,7 +45,16 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::number, "-0.4")
 		PARSE_FALSE(worldlang::number, "abcd");
 	}
-
+	
+	SECTION("String rule"){
+		PEGTL_GRAMMAR_CHECK(worldlang::string);
+		
+		PARSE_TRUE(worldlang::string, "\"1234\"");
+		PARSE_TRUE(worldlang::string, "\"agasad\"");
+		PARSE_TRUE(worldlang::string, "\"74s76\"");
+		PARSE_FALSE(worldlang::string, "abcdef");
+	}
+	
 	SECTION("Identifier rule"){
 		PEGTL_GRAMMAR_CHECK(worldlang::identifier);
 		
@@ -104,8 +113,16 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::expression, "(3+-5)+Name");
 		PARSE_TRUE(worldlang::expression, "(((3))+36+dd)+5");
 		PARSE_TRUE(worldlang::expression, "asdf-asdf+asdf");
+		PARSE_TRUE(worldlang::expression, "\"A\"+\"B\"");
 		
 		PARSE_FALSE(worldlang::expression, "-iden");
+	}
+	
+	SECTION("Assignment rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::assignment);
+		PARSE_TRUE(worldlang::expression, "a=(((3))+5)+5");
+		PARSE_TRUE(worldlang::expression, "b=4-6+5");
+		PARSE_TRUE(worldlang::expression, "b=\"STR\"");
 	}
 	
 	SECTION("Program rules"){
@@ -225,6 +242,20 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 	SECTION("Multiple return into multiple args"){
 		PROGRAM_RUN("a=sum(seq(5))\n"){
 			CHECK(pe.var<double>("a") == 15.0);
+		}
+	}
+	
+	SECTION("Allow blank lines"){
+		PROGRAM_RUN("a=5\n\nb=5\n"){
+			CHECK(pe.var<double>("a") == 5.0);
+			CHECK(pe.var<double>("b") == 5.0);
+		}
+	}
+	
+	SECTION("String assignment + empty string"){
+		PROGRAM_RUN("S=\"Hello, World!\"\nE=\"\"\n"){
+			CHECK(pe.var<std::string>("S") == "Hello, World!");
+			CHECK(pe.var<std::string>("E") == "");
 		}
 	}
 }
