@@ -13,8 +13,8 @@
 #include <SFML/Network/UdpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
 
-#include "../NetworkInterface.hpp"
-#include "networkingworld.hpp"
+#include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "Interfaces/NetWorth/server/networkingworld.hpp"
 
 namespace netWorth{
     using namespace sf;
@@ -30,9 +30,11 @@ namespace netWorth{
     protected:
 
     public:
+
         ServerInterface(size_t id, const std::string & name) : NetworkingInterface(id, name) {
             InitialConnection(m_ip, m_port);
         }
+
 
         /**
          * The initial connection for the server to a client
@@ -75,12 +77,12 @@ namespace netWorth{
          * so the client can start asking to make moves
          * @param grid the grid to send to the server
          * @param type_options different cell types of the world
-         * @param item_set the items that may be apart of the grid
-         * @param agent_set the agents that may be apart of the grid
+         * @param item_map the items that may be apart of the grid
+         * @param agent_map the agents that may be apart of the grid
          * @return the grid that will be sent to the client
          */
         static Packet GridToPacket(const cse491::WorldGrid & grid, const cse491::type_options_t & type_options,
-                                   const cse491::item_set_t & item_set, const cse491::agent_set_t & agent_set)
+                                   const cse491::item_map_t & item_map, const cse491::agent_map_t & agent_map)
         {
             std::vector<std::string> packet_grid(grid.GetHeight());
 
@@ -93,12 +95,12 @@ namespace netWorth{
             }
 
             // Add in the agents / entities
-            for (const auto & entity_ptr : item_set) {
+            for (const auto & [id, entity_ptr] : item_map) {
                 cse491::GridPosition pos = entity_ptr->GetPosition();
                 packet_grid[pos.CellY()][pos.CellX()] = '+';
             }
 
-            for (const auto & agent_ptr : agent_set) {
+            for (const auto & [id, agent_ptr] : agent_map) {
                 cse491::GridPosition pos = agent_ptr->GetPosition();
                 char c = '*';
                 if(agent_ptr->HasProperty("symbol")){
@@ -137,8 +139,8 @@ namespace netWorth{
          */
         size_t SelectAction(const cse491::WorldGrid & grid,
                             const cse491::type_options_t & type_options,
-                            const cse491::item_set_t & item_set,
-                            const cse491::agent_set_t & agent_set) override
+                            const cse491::item_map_t & item_set,
+                            const cse491::agent_map_t & agent_set) override
         {
             // send map to client
             sf::Packet send_pkt = GridToPacket(grid, type_options, item_set, agent_set);

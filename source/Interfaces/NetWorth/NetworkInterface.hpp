@@ -33,6 +33,7 @@ class NetworkingInterface : public cse491::InterfaceBase {
     public:
         NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {}
 
+
         /**
          * Receives a socket that has been connected between client and server
          * @return the udp socket
@@ -48,6 +49,7 @@ class NetworkingInterface : public cse491::InterfaceBase {
          * @return true if successful
          */
         virtual bool BindSocket(UdpSocket &socket, unsigned short port) {
+            std::cout << "Binding socket on port: " << port << std::endl;
             if (socket.bind(port) != Socket::Status::Done) {
                 std::cerr << "Failed to bind socket" << std::endl;
                 return false;

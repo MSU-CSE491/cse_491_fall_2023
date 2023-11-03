@@ -13,8 +13,8 @@
 #include <SFML/Network/Packet.hpp>
 #include <memory>
 
-#include "../NetworkInterface.hpp"
-#include "../../TrashInterface.hpp"
+#include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "Interfaces/TrashInterface.hpp"
 
 namespace netWorth{
 /**
@@ -76,12 +76,13 @@ namespace netWorth{
          */
         size_t SelectAction(const cse491::WorldGrid & grid,
                             const cse491::type_options_t & type_options,
-                            const cse491::item_set_t & item_set,
-                            const cse491::agent_set_t & agent_set) override
+                            const cse491::item_map_t & item_set,
+                            const cse491::agent_map_t & agent_set) override
         {
 
             sf::Packet send_pkt, recv_pkt;
             std::string map;
+
 
             // Receive and draw map
             ReceivePacket(recv_pkt, m_ip, m_port);
@@ -95,6 +96,7 @@ namespace netWorth{
                 std::cin >> input;
             } while (!std::cin);
 
+
             // Grab action ID
             size_t action_id = 0;
             std::string action_str;
@@ -104,6 +106,7 @@ namespace netWorth{
                 case 's': case 'S': action_str = "down";    break;
                 case 'd': case 'D': action_str = "right";   break;
                 case 'q': case 'Q': action_str = "quit";    break;
+
             }
             action_id = GetActionID(action_str);
 

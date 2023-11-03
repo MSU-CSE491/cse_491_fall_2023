@@ -14,7 +14,7 @@
 
 #include "ServerInterface.hpp"
 
-const std::string filePath = "../../../../../../assets/grids/default_maze.grid";
+const std::string filePath = "../assets/grids/default_maze.grid";
 
 namespace netWorth{
 
@@ -65,7 +65,7 @@ namespace netWorth{
          * @return the grid packet
          */
         Packet GetGridPacket(){
-            Packet gridPacket = m_server->GridToPacket(GetGrid(), GetCellTypes(), item_set, agent_set);
+            Packet gridPacket = m_server->GridToPacket(GetGrid(), GetCellTypes(), item_map, agent_map);
             return gridPacket;
         }
 
