@@ -86,21 +86,6 @@ namespace cowboys {
       RecursiveInvalidateCache();
     }
 
-    /// @brief Get the input node at the given index.
-    /// @param input_idx The index of the input node to get.
-    /// @return The input node at the given index.
-    std::shared_ptr<GraphNode> GetInput(size_t input_idx) const {
-      if (inputs.size() == 0) {
-        // Throw error if no inputs
-        throw std::runtime_error("No inputs");
-      }
-      if (input_idx >= inputs.size())
-        // Return last input if out of bounds
-        return inputs.back();
-      else
-        return inputs.at(input_idx);
-    }
-
     /// @brief Add an input node to this node.
     /// @param node The node to add as an input.
     void AddInput(std::shared_ptr<GraphNode> node) {
