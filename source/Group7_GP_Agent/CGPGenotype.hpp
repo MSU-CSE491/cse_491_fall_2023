@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 
+//#include <format>
+#include <sstream>
+
 #include "GraphNode.hpp"
 
 namespace cowboys {
@@ -214,8 +217,12 @@ namespace cowboys {
     /// @brief Encodes the header into a string.
     /// @return The encoded header.
     std::string EncodeHeader() {
-      return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
-                         params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP, params.layers_back);
+//      return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
+//                         params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP, params.layers_back);
+      std::ostringstream stream;
+      stream << params.num_inputs << HEADER_SEP << params.num_outputs << HEADER_SEP << params.num_layers << HEADER_SEP
+             << params.num_nodes_per_layer << HEADER_SEP << params.layers_back;
+      return stream.str();
     }
 
     /// @brief Decodes the header of the genotype.
@@ -231,10 +238,15 @@ namespace cowboys {
       }
       header_parts.push_back(std::stoull(header.substr(start_pos)));
 
+//      if (header_parts.size() != 5)
+//        throw std::runtime_error(
+//            std::format("Invalid genotype: Header should have 5 parameters but found {}.", header_parts.size()));
       if (header_parts.size() != 5)
-        throw std::runtime_error(
-            std::format("Invalid genotype: Header should have 5 parameters but found {}.", header_parts.size()));
-
+      {
+        std::ostringstream oss;
+        oss << "Invalid genotype: Header should have 5 parameters but found " << header_parts.size() << ".";
+        throw std::runtime_error(oss.str());
+      }
       params.num_inputs = header_parts.at(0);
       params.num_outputs = header_parts.at(1);
       params.num_layers = header_parts.at(2);
