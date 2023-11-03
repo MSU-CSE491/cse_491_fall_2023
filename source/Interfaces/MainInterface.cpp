@@ -76,8 +76,8 @@ namespace i_2D {
      * @return sf::Vector2f The size of each cell as a 2D vector.
      */
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
-        float cellSizeWide = mWindow.getSize().x / grid.GetWidth();
-        float cellSizeTall = mWindow.getSize().y / grid.GetHeight();
+        float cellSizeWide = mWindow.getSize().x / (mRenderRange*2);
+        float cellSizeTall = mWindow.getSize().y / (mRenderRange*2);
         float cellSize = std::min(cellSizeWide, cellSizeTall) ;
         return sf::Vector2f(cellSize, cellSize);
     }
@@ -92,32 +92,57 @@ namespace i_2D {
     */
     void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_map_t &item_map, const agent_map_t &agent_map)
     {
+        // Check player's position
+        mPlayerPosition = sf::Vector2i (this->position.GetX(), this->position.GetY());
+
+        // Clear old drawing
         mWindow.clear(sf::Color::White);
 
+        // Create a symbol representation of the world
         std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
 
+        // Determine size of an individual cell for this frame
         sf::Vector2f cellSize = CalculateCellSize(grid);
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
         CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
 
-        for (size_t iterY = 0; iterY < grid.GetHeight(); ++iterY) {
-            for (size_t iterX = 0; iterX < grid.GetWidth(); ++iterX) {
-                float cellPosX = drawCenterX + static_cast<float>(iterX) * cellSize.x;
-                float cellPosY = drawCenterY + static_cast<float>(iterY) * cellSize.y;
+        sf::Vector2i startPos(mPlayerPosition.x - mRenderRange, mPlayerPosition.y - mRenderRange);
+        sf::Vector2f endPos(mPlayerPosition.x + mRenderRange, mPlayerPosition.y + mRenderRange);
 
-                char symbol = symbol_grid[iterY][iterX];
+        for (int iterY = -mRenderRange; iterY < mRenderRange; ++iterY) {
+            for (int iterX = -mRenderRange; iterX < mRenderRange; ++iterX) {
 
+                // Position of the rectangle
+                float cellPosX = drawCenterX + iterX * cellSize.x;
+                float cellPosY = drawCenterY + iterY * cellSize.y;
 
+                // Symbol to use for texture
+                int readLocY = mPlayerPosition.y+iterY;
+                int readLocX = mPlayerPosition.x+iterX;
+
+                // Create the rectangle
                 sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
                 sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
                 cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
-                bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
-                                      (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-                SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
+                //bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
+                (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
+                bool isVerticalWall = false;
+
+                // Check range and apply texture if allowed
+                if(readLocY < 0 || readLocX < 0 || readLocX >= 23 || readLocY >= 9)
+                {
+                    // Draw black
+                    DrawDefaultCell(cellRect);
+                }
+                else
+                {
+                    // Draw texture
+                    char symbol = symbol_grid[readLocY][readLocX];
+                    SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
+                }
 
             }
         }
@@ -138,10 +163,10 @@ namespace i_2D {
     void MainInterface::CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth,
                                            float &drawSpaceHeight, float &drawCenterX, float &drawCenterY)
     {
-        drawSpaceWidth = static_cast<float>(grid.GetWidth()) * cellSize;
-        drawSpaceHeight = static_cast<float>(grid.GetHeight()) * cellSize;
-        drawCenterX = (mWindow.getSize().x - drawSpaceWidth) / 2.0f;
-        drawCenterY = (mWindow.getSize().y - drawSpaceHeight) / 2.0f;
+        drawSpaceWidth = static_cast<float>(mRenderRange) * cellSize;
+        drawSpaceHeight = static_cast<float>(mRenderRange) * cellSize;
+        drawCenterX = (mWindow.getSize().x) / 2.0f;
+        drawCenterY = (mWindow.getSize().y) / 2.0f;
     }
 
     /**

@@ -47,6 +47,10 @@ namespace i_2D {
         std::map<char, sf::Texture> mTexturesGenerativeWorld;
         std::map<char, sf::Texture> mTexturesCurrent;
 
+        sf::Vector2i mPlayerPosition = sf::Vector2i(0,0);
+        int mRenderRange = 10;
+        bool mFullView = false;
+
     public:
 
         MainInterface(size_t id, const std::string &name) ;
