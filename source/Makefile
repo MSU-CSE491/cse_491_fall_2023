@@ -10,7 +10,7 @@ FLAGS_grumpy  = $(FLAGS_all) -Wconversion -Weffc++  # Some extra picky warnings
 CXX = g++
 
 # List of all available executables
-EXECUTABLES = simple
+EXECUTABLES = simple simple_cgp
 
 default: simple
 
