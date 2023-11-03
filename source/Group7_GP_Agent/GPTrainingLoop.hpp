@@ -1,10 +1,14 @@
-#include <vector>
 
 #pragma once
 
 #include "../core/AgentBase.hpp"
 #include "../core/WorldBase.hpp"
 #include "../Group7_GP_Agent/GPAgent.hpp"
+
+#include <thread>
+#include <iostream>
+#include <vector>
+
 
 namespace cowboys
 {
@@ -48,22 +52,65 @@ public:
     }
 
     void run(size_t numGenerations,
-             size_t numberOfTurns = 100)
+             size_t numberOfTurns = 100,
+             size_t maxThreads = 0)
     {
 
         // number of arenas
 
         for(size_t generation = 0; generation < numGenerations; ++generation)
         {
-            for(size_t arena = 0; arena < environments.size(); ++arena)
+//            for(size_t arena = 0; arena < environments.size(); ++arena)
+//            {
+//                for(size_t turn = 0; turn < numberOfTurns; turn++)
+//                {
+//                    environments[arena]->RunAgents();
+//                    environments[arena]->UpdateWorld();
+//                }
+//            }
+
+//            std::vector<std::thread> threads;
+//
+//            for (size_t arena = 0; arena < environments.size(); ++arena)
+//            {
+//                threads.emplace_back(&GPTrainingLoop::runArena, this, arena, numberOfTurns);
+//            }
+
+
+            std::vector<std::thread> threads;
+
+            for (size_t arena = 0; arena < environments.size(); ++arena)
             {
-                for(size_t turn = 0; turn < numberOfTurns; turn++)
+                if (maxThreads == 0 || threads.size() < maxThreads)
                 {
-                    environments[arena]->RunAgents();
-                    environments[arena]->UpdateWorld();
+                    threads.emplace_back(&GPTrainingLoop::runArena, this, arena, numberOfTurns);
+                }
+                else
+                {
+                    // Wait for one of the existing threads to finish
+                    threads[0].join();
+                    threads.erase(threads.begin());
+                    threads.emplace_back(&GPTrainingLoop::runArena, this, arena, numberOfTurns);
                 }
             }
 
+            // Wait for all threads to finish
+            for (auto& thread : threads)
+            {
+                thread.join();
+            }
+
+//            std::cout << "Generation " << generation << " complete" << std::endl;
+
+        }
+    }
+
+    void runArena(size_t arena, size_t numberOfTurns)
+    {
+        for (size_t turn = 0; turn < numberOfTurns; turn++)
+        {
+            environments[arena]->RunAgents();
+            environments[arena]->UpdateWorld();
         }
     }
 

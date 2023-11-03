@@ -3,6 +3,8 @@
 #include "Group7_GP_Agent/LGPAgent.hpp"
 #include "Worlds/MazeWorld.hpp"
 
+#include <chrono>
+
 
 #include <vector>
 
@@ -14,15 +16,20 @@ int main() {
 //    world.AddAgent<cowboys::LGPAgent>("GP 1").SetPosition(1, 0).SetProperty("symbol", 'G');
 
 
+    auto start_time = std::chrono::high_resolution_clock::now();
 
 
     cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
     loop.initialize(5, 100);
+
     loop.run(100, 100);
 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
-
+    auto seconds = duration.count() / 1000000.0;
+    std::cout << "Time taken by function: " << seconds << " seconds" << std::endl;
 
     return  0;
 }

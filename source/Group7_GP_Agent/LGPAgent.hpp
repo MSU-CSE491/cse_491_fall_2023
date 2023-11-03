@@ -66,11 +66,11 @@ const int LISTSIZE = 100;
     }
 
 #ifndef NDEBUG
-    for (auto i = 0; i < LISTSIZE; i++) {
-      std::cout << get<0>(instructionsList[i]) << " ";
-    }
-
-    std::cout << std::endl;
+//    for (auto i = 0; i < LISTSIZE; i++) {
+//      std::cout << get<0>(instructionsList[i]) << " ";
+//    }
+//
+//    std::cout << std::endl;
   }
 #endif
 
