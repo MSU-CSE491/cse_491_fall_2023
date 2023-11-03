@@ -52,7 +52,8 @@ namespace cowboys {
 
       // Create a default genotype if one wasn't provided
       if (genotype.GetNumFunctionalNodes() == 0) {
-        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK}).MutateDefault(0.2);
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK})
+                       .MutateDefault(0.2);
       }
 
       // Initialize the decision graph
@@ -70,6 +71,13 @@ namespace cowboys {
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
     const CGPGenotype &GetGenotype() const { return genotype; }
+
+    /// @brief Mutate this agent.
+    /// @param mutation_rate The mutation rate.
+    void Mutate(double mutation_rate) override {
+      genotype.MutateDefault(mutation_rate);
+      Initialize();
+    }
   };
 
 } // End of namespace cowboys

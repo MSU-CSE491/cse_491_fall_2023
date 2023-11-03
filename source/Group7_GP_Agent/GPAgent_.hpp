@@ -44,6 +44,10 @@ namespace cowboys {
     /// @brief Get a map of extra state information
     /// @return Map of extra state information
     const std::unordered_map<std::string, double> GetExtraState() const { return extra_state; }
+
+    /// @brief Mutate this agent.
+    /// @param mutation_rate The mutation rate. Between 0 and 1.
+    virtual void Mutate(double mutation_rate) = 0;
   };
 
 } // End of namespace cowboys
