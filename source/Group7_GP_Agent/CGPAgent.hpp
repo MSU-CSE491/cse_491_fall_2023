@@ -12,6 +12,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <random>
+
 #include "GPAgent_.hpp"
 #include "GraphBuilder.hpp"
 
@@ -40,23 +42,38 @@ namespace cowboys {
     /// The decision graph for this agent.
     std::unique_ptr<Graph> decision_graph;
 
+
+
   public:
     CGPAgent(size_t id, const std::string &name) : GPAgent_(id, name) {}
     CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype)
         : GPAgent_(id, name), genotype(genotype) {}
 
-    /// @brief Setup graph.
-    /// @return Success.
-    bool Initialize() override {
+
+    void printAgent() override {
+      std::cout << "Genotype: " << genotype.Export() << std::endl;
+    }
+
+    void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
-      // Create a default genotype if one wasn't provided
-      if (genotype.GetNumFunctionalNodes() == 0) {
-        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK}).MutateDefault(0.2);
-      }
+      const std::string oldexport= genotype.Export();
+      genotype.MutateDefault(mutation);
+      const std::string newexport= genotype.Export();
 
       // Initialize the decision graph
       decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
+    }
+    /// @brief Setup graph.
+    /// @return Success.
+    bool Initialize() override {
+      //grab the time to seed the genotype
+      auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+      genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
+      genotype.SetSeed(seed);
+
+      MutateAgent();
       return true;
     }
 
@@ -66,6 +83,9 @@ namespace cowboys {
       size_t action_to_take = decision_graph->MakeDecision(inputs, EncodeActions(action_map));
       return action_to_take;
     }
+
+
+
 
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
