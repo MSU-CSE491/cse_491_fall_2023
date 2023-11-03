@@ -3,6 +3,8 @@
 #include "Group7_GP_Agent/LGPAgent.hpp"
 #include "Worlds/MazeWorld.hpp"
 
+#include "Group7_GP_Agent/CGPAgent.hpp"
+
 #include <chrono>
 
 
@@ -19,10 +21,13 @@ int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
-    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
+    cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop;
 
-    loop.initialize(5, 100);
+//    loop.initialize(20, 200);
+//
+//    loop.run(100, 100);
 
+    loop.initialize(10, 1000);
     loop.run(100, 100);
 
     auto end_time = std::chrono::high_resolution_clock::now();
@@ -30,6 +35,10 @@ int main() {
 
     auto seconds = duration.count() / 1000000.0;
     std::cout << "Time taken by function: " << seconds << " seconds" << std::endl;
+
+
+//    cowboys::CGPAgent agent(0, "GP 1");
+
 
     return  0;
 }
