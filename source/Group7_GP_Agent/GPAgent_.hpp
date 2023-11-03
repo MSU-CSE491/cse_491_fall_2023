@@ -44,6 +44,13 @@ namespace cowboys {
     /// @brief Get a map of extra state information
     /// @return Map of extra state information
     const std::unordered_map<std::string, double> GetExtraState() const { return extra_state; }
+
+    //
+    virtual void MutateAgent(double mutation = 0.8) = 0;
+
+
+
+    virtual void printAgent() {};
   };
 
 } // End of namespace cowboys
