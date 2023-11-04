@@ -164,7 +164,7 @@ public:
             std::cout << "Best Agent Final Position: " << bestAgentPosition.GetX()  << "," << bestAgentPosition.GetY()  << std::endl;
             std::cout << "------------------------------------------------------------------" << std::endl;
 
-            
+
             GpLoopMutateHelper();
 
 
@@ -194,10 +194,6 @@ public:
       const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
 
-      std::sort(sortedAgents.begin(), sortedAgents.end(), [&](const std::pair<int, int> &a, const std::pair<int, int> &b) {
-          return TEMPAgentFitness[a.first][a.second] < TEMPAgentFitness[b.first][b.second];
-      });
-
       double averageEliteFitness = 0;
       for(size_t i = 0; i < ELITE_POPULATION_SIZE; i++){
         auto [arenaIDX, agentIDX] = sortedAgents[i];
@@ -205,6 +201,13 @@ public:
       }
 
       std::cout << " --- average elite percent " << averageEliteFitness << "------ " << std::endl;
+
+
+      std::sort(sortedAgents.begin(), sortedAgents.end(), [&](const std::pair<int, int> &a, const std::pair<int, int> &b) {
+          return TEMPAgentFitness[a.first][a.second] < TEMPAgentFitness[b.first][b.second];
+      });
+
+
 
       const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * ( 1 - UNFIT_POPULATION_PERCENT));
       const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
