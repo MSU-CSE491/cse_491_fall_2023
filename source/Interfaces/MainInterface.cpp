@@ -6,8 +6,8 @@
 #include <map>
 #include "MainInterface.hpp"
 
-
 namespace i_2D {
+
     /**
      * @brief Constructs a `MainInterface` object.
      *
@@ -17,7 +17,13 @@ namespace i_2D {
     MainInterface::MainInterface(size_t id, const std::string &name) : InterfaceBase(id, name),
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
-        mMenu.initialize();
+        ///Font for all objects
+        if(!mFont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
+            std::cout << "Error loading font file" << std::endl;
+        }
+        mMessageBoard = std::make_unique<MessageBoard>(mFont);
+        mTextBox = std::make_unique<TextBox>(mFont);
+        mMenu.initialize(mFont);
 
         ChooseTexture();
     }
@@ -148,6 +154,8 @@ namespace i_2D {
         }
         // Display everything
         mMenu.drawto(mWindow);
+        mTextBox->DrawTo(mWindow);
+        mMessageBoard->drawTo(mWindow);
         mWindow.display();
     }
     /**
@@ -184,12 +192,26 @@ namespace i_2D {
                                        const agent_map_t &agent_map) {
         while (mWindow.isOpen()) {
             sf::Event event;
+
+//            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
+//                if(!mTextBox->IsSelected()) {
+//                    mTextBox->SetSelected(true);
+//                }else{
+//                    mMessageBoard->Send(mTextBox->GetText());
+//                    mTextBox->SetString("");
+//                    mTextBox->SetSelected(false);
+//                }
+//            }else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
+//                mTextBox->SetSelected(false);
+//            }
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
                     exit(0);
 
-                } else if (event.type == sf::Event::KeyPressed) {
+                }else if (event.type == sf::Event::TextEntered){
+                    mTextBox->TypedOn(event);
+                }else if (event.type == sf::Event::KeyPressed) {
                     return HandleKeyEvent(event);
 
                 } else if(event.type == sf::Event::Resized) {
@@ -228,16 +250,35 @@ namespace i_2D {
     size_t MainInterface::HandleKeyEvent(const sf::Event& event) {
         size_t action_id = 0;
         switch (event.key.code) {
+            case sf::Keyboard::Enter:
+                if(!mTextBox->IsSelected()) {
+                    mTextBox->SetSelected(true);
+                }else{
+                    mMessageBoard->Send(mTextBox->GetText());
+                    mTextBox->SetString("");
+                    mTextBox->SetSelected(false);
+                }
+                break;
+            case sf::Keyboard::Escape:
+                if(mTextBox->IsSelected()) {
+                    mTextBox->SetSelected(false);
+                    mTextBox->SetString("");
+                }
+                break;
             case sf::Keyboard::W:
+                if(mTextBox->IsSelected())break;
                 action_id = GetActionID("up");
                 break;
             case sf::Keyboard::A:
+                if(mTextBox->IsSelected())break;
                 action_id = GetActionID("left");
                 break;
             case sf::Keyboard::S:
+                if(mTextBox->IsSelected())break;
                 action_id = GetActionID("down");
                 break;
             case sf::Keyboard::D:
+                if(mTextBox->IsSelected())break;
                 action_id = GetActionID("right");
                 break;
             case sf::Keyboard::Up:
@@ -255,8 +296,8 @@ namespace i_2D {
 
             case sf::Keyboard::Q:
                 exit(0);
-            case sf::Keyboard::Escape:
-                exit(0);
+//            case sf::Keyboard::Escape:
+//                exit(0);
             default:
                 break; // The user pressed an unknown key.
         }

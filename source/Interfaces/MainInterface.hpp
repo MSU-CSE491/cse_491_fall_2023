@@ -13,15 +13,19 @@
 #include <sstream>
 #include "Button.hpp"
 #include "Menu.hpp"
+#include <memory>
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
 #include "TextureHolder.hpp"
+#include "TextBox.h"
+#include "MessageBoard.h"
 
 
 namespace i_2D {
 
     using namespace cse491;
+
 
     /**
     * @class MainInterface
@@ -40,6 +44,9 @@ namespace i_2D {
         float const MIN_SIZE_CELL = 16; ///< Pixels
 
         Menu mMenu; ///< for menu class
+        sf::Font mFont; ///< one font for all objects using font
+        std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
+        std::unique_ptr<MessageBoard> mMessageBoard;
         TextureHolder mTextureHolder; ///< for the texture holder
         std::map<char, sf::Texture> mTexturesDefault;
         std::map<char, sf::Texture> mTexturesSecondWorld;
@@ -104,6 +111,12 @@ namespace i_2D {
         void ChooseTexture();
         void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall);
 
+        void Notify(const std::string & message,
+                    const std::string & /*msg_type*/="none") override
+        {
+            std::cout << message << std::endl;
+            mMessageBoard->Send(message);
+        }
     };
 
 } // End of namespace 2D

@@ -13,22 +13,19 @@ namespace i_2D {
     /**
      * @brief initialize the buttons at the top of the window
      */
-    void Menu::initialize() {
+    void Menu::initialize(const sf::Font &font) {
         sf::Color backgroundcolor = sf::Color::Black;
         sf::Color textcolor = sf::Color::White;
-        auto menu = std::make_shared<Button>(
-                "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
-        menu->setPosition({0,0});
-        auto inventory = std::make_shared<Button>(
-                "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
-        inventory->setPosition({200,0});
-        auto exit = std::make_shared<Button>(
-                "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
-        exit->setPosition({400,0});
 
-        menuBar.push_back(menu);
-        menuBar.push_back(inventory);
-        menuBar.push_back(exit);
+        menuBar.emplace_back(std::make_unique<Button>(
+                "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        menuBar[0]->setPosition({0,0});
+        menuBar.emplace_back(std::make_unique<Button>(
+                "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        menuBar[1]->setPosition({200,0});
+        menuBar.emplace_back(std::make_unique<Button>(
+                "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        menuBar[2]->setPosition({400,0});
 
     }
 

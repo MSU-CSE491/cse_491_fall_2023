@@ -16,30 +16,30 @@ namespace i_2D {
     class Button {
     private:
         sf::RectangleShape button;
-        sf::Font mfont;
         std::unique_ptr<sf::Text> text;
 
 
     public:
-        Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Color textColor);
+        Button(const std::string &t, sf::Vector2f size, sf::Color bgColor,
+               sf::Color textColor, const sf::Font &font);
 
         /**
          * @brief set the string of the button
          *
          * @param s label of the button
          */
-        void setString(std::string s){
+        void setString(const std::string &s){
             text->setString(s);
         }
 
-        void setMFont();
+        void setMFont(const sf::Font &font);
 
         /**
          * @brief set the font of the button
          *
          * @param font
          */
-        void setFont(sf::Font &font) {
+        void setFont(const sf::Font &font) {
             text->setFont(font);
         }
 

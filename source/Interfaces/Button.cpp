@@ -6,11 +6,9 @@
 #include "Button.hpp"
 
 /// Constructor
-i_2D::Button::Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Color textColor) {
-    if(!mfont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
-        std::cout << "Error loading font file" << std::endl;
-    }
-    text = std::make_unique<sf::Text>(mfont);
+i_2D::Button::Button(const std::string &t, sf::Vector2f size, sf::Color bgColor,
+                     sf::Color textColor, const sf::Font &font) {
+    text = std::make_unique<sf::Text>(font);
 
     text->setString(t);
     text->setFillColor(textColor);
@@ -22,11 +20,8 @@ i_2D::Button::Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Co
 /**
  * @brief set the font of the button
  */
-void i_2D::Button::setMFont() {
-    if(!mfont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
-        std::cout << "Error loading font file" << std::endl;
-    }
-    text = std::make_unique<sf::Text>(mfont);
+void i_2D::Button::setMFont(const sf::Font &font) {
+    text = std::make_unique<sf::Text>(font);
 }
 
 /**

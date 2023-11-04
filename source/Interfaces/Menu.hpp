@@ -18,10 +18,10 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
     class Menu {
     private:
         /// Top menubar on the window
-        std::vector<std::shared_ptr<Button>> menuBar;
+        std::vector<std::unique_ptr<Button>> menuBar;
 
     public:
-        void initialize();
+        void initialize(const sf::Font &font);
 
         void drawto(sf::RenderWindow &window);
 
