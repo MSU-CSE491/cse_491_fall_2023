@@ -16,6 +16,11 @@
 //#include <algorithm>
 
 
+#ifdef __APPLE__
+#include <Metal/Metal.h>
+#endif
+
+
 namespace cowboys
 {
 
@@ -195,7 +200,7 @@ public:
 
 
       double averageEliteFitness = 0;
-      for(size_t i = 0; i < ELITE_POPULATION_SIZE; i++){
+      for(int i = 0; i < ELITE_POPULATION_SIZE; i++){
         auto [arenaIDX, agentIDX] = sortedAgents[i];
         averageEliteFitness += TEMPAgentFitness[arenaIDX][agentIDX];
       }
@@ -213,7 +218,7 @@ public:
       const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
 
-      for(size_t i = MIDDLE_MUTATE_STARTBOUND; i < MIDDLE_MUTATE_ENDBOUND; i++){
+      for(int i = MIDDLE_MUTATE_STARTBOUND; i < MIDDLE_MUTATE_ENDBOUND; i++){
         auto [arenaIDX, agentIDX] = sortedAgents[i];
         agents[arenaIDX][agentIDX]->MutateAgent(0.6);
 
@@ -222,10 +227,10 @@ public:
         }
       }
 
-      int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
+//      int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
       for(size_t i = MIDDLE_MUTATE_ENDBOUND; i < sortedAgents.size(); i++){
         auto [arenaIDX, agentIDX] = sortedAgents[i];
-        auto eliteINDEX = rand() % ELITE_POPULATION_SIZE;
+//        auto eliteINDEX = rand() % ELITE_POPULATION_SIZE;
 
         agents[arenaIDX][agentIDX]->MutateAgent(0.9);
       }
