@@ -71,8 +71,8 @@ public:
   /// Choose the action to take a step in the appropriate direction.
   size_t SelectAction(const cse491::WorldGrid & /*grid*/,
                       const cse491::type_options_t & /* type_options*/,
-                      const cse491::item_set_t & /* item_set*/,
-                      const cse491::agent_set_t & /* agent_set*/) override {
+                      const cse491::item_map_t & /* item_map*/,
+                      const cse491::agent_map_t & /* agent_map*/) override {
     // We are taking an action so another turn has passed
     ++current_move_num;
     // If the last step failed, or we need a new path the then regenerate the

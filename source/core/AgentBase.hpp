@@ -21,6 +21,8 @@ namespace cse491 {
 
   class AgentBase : public Entity {
   protected:
+    size_t grid_id=0;       ///< Which grid is this agent on?
+
     /// A map of names to IDs for each available action
     std::unordered_map<std::string, size_t> action_map;
     int action_result=0;  ///< Usually a one (success) or zero (failure).
@@ -30,6 +32,9 @@ namespace cse491 {
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
     ~AgentBase() = default; // Already virtual from Entity
+
+    [[nodiscard]] size_t GetGridID() const { return grid_id; }
+    [[nodiscard]] bool IsOnGrid(size_t in_grid_id) const { return grid_id == in_grid_id; }
 
     // -- World Interactions --
 
@@ -77,8 +82,8 @@ namespace cse491 {
     [[nodiscard]] virtual size_t SelectAction(
         [[maybe_unused]] const WorldGrid & grid,
         [[maybe_unused]] const type_options_t & type_options,
-        [[maybe_unused]] const item_set_t & item_set,
-        [[maybe_unused]] const agent_set_t & agent_set
+        [[maybe_unused]] const item_map_t & item_map,
+        [[maybe_unused]] const agent_map_t & agent_map
       )
     { return 0; }
 

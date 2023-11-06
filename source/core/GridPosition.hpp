@@ -8,8 +8,9 @@
 #pragma once
 
 #include <cassert>
-#include <compare> // For operator<=>
-#include <cstddef> // For size_t
+#include <compare>    // For operator<=>
+#include <cstddef>    // For size_t
+#include <cmath>      // For sqrt
 
 namespace cse491 {
 
@@ -92,9 +93,25 @@ public:
     return GetOffset(in.x, in.y);
   }
 
-  /// Return the taxicab distance between two grid positions
-  [[nodiscard]] double Distance(const GridPosition &gp) const {
-    return std::abs(x - gp.x) + std::abs(y - gp.y);
+  [[nodiscard]] double Distance(GridPosition pos2) const {
+    const double dist1 = x - pos2.x;
+    const double dist2 = y - pos2.y;
+    return sqrt(dist1*dist1 + dist2*dist2);
+  }
+
+  /// @brief  Manhattan distance between grid positions
+  /// @param pos2 Position to compare to
+  /// @return Manhattan distance
+  [[nodiscard]] double MDistance(GridPosition pos2) const {
+    const double dist1 = x - pos2.x;
+    const double dist2 = y - pos2.y;
+    return abs(dist1) + abs(dist2);
+  }
+
+  [[nodiscard]] bool IsNear(GridPosition pos2, double max_dist=1.0) const {
+    const double dist1 = x - pos2.x;
+    const double dist2 = y - pos2.y;
+    return (dist1*dist1 + dist2*dist2) <= (max_dist * max_dist);
   }
 };
 

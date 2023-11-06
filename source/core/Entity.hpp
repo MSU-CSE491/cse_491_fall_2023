@@ -20,11 +20,10 @@ class Entity {
 private:
   WorldBase *world_ptr; ///< Track the world this entity is in (private to
                         ///< protect pointer)
-
-protected:
-  const size_t id;  ///< Unique ID for this entity.
-  std::string name; ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
-  GridPosition position; ///< Where on the grid is this entity?
+  protected:
+    const size_t id=0;      ///< Unique ID for this entity (zero is use for "no ID")
+    std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
+    GridPosition position;  ///< Where on the grid is this entity?
 
   struct PropertyBase {
     virtual ~PropertyBase() {}

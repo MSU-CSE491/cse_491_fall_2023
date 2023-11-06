@@ -182,7 +182,7 @@ class TrackingAgent : public cse491::AgentBase {
     if (changed_internal_agent) {
       // Reset world configuration
       std::visit([&in_world = GetWorld()]<TrackingAgentInner Agent>(Agent& agent) {
-        in_world.ConfigAgent(agent);
+        std::as_const(in_world).ConfigAgent(agent);
         agent.SetWorld(in_world);
       },
       inner_);
@@ -202,16 +202,16 @@ class TrackingAgent : public cse491::AgentBase {
   template <TrackingAgentInner Agent>
   size_t SelectInnerAction(Agent & agent, cse491::WorldGrid const &grid,
                            cse491::type_options_t const &type,
-                           cse491::item_set_t const &item_set,
-                           cse491::agent_set_t const &agent_set) {
+                           cse491::item_map_t const &item_set,
+                           cse491::agent_map_t const &agent_set) {
     return agent.SelectAction(grid, type, item_set, agent_set);
   }
 
   template<>
   size_t SelectInnerAction<AStarAgent>(AStarAgent & agent, cse491::WorldGrid const &grid,
                            cse491::type_options_t const &type,
-                           cse491::item_set_t const &item_set,
-                           cse491::agent_set_t const &agent_set) {
+                           cse491::item_map_t const &item_set,
+                           cse491::agent_map_t const &agent_set) {
     auto next_pos = agent.GetNextPosition();
     auto res = agent.SelectAction(grid, type, item_set, agent_set);
     agent.SetPosition(next_pos);
@@ -220,8 +220,8 @@ class TrackingAgent : public cse491::AgentBase {
 
   size_t SelectAction(cse491::WorldGrid const &grid,
                       cse491::type_options_t const &type,
-                      cse491::item_set_t const &item_set,
-                      cse491::agent_set_t const &agent_set) override {
+                      cse491::item_map_t const &item_set,
+                      cse491::agent_map_t const &agent_set) override {
     UpdateState();
     return std::visit([&]<TrackingAgentInner Agent>(Agent& agent) {
       return SelectInnerAction(agent, grid, type, item_set, agent_set);
@@ -277,7 +277,8 @@ class TrackingAgent : public cse491::AgentBase {
    */
   TrackingAgent& SetWorld(cse491::WorldBase &in_world) override {
     Entity::SetWorld(in_world);
-    std::visit([&in_world]<TrackingAgentInner Agent>(Agent& agent) { in_world.ConfigAgent(agent); }, inner_);
+    std::visit([&in_world]<TrackingAgentInner Agent>(Agent& agent) {
+      std::as_const(in_world).ConfigAgent(agent); }, inner_);
     return *this;
   }
 };

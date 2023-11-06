@@ -80,20 +80,19 @@ namespace group4 {
             }
 
             if (main_grid.At(new_position) == entity_id) {
+              for (auto it = item_map.begin(); it != item_map.end(); ++it) {
+                auto & item = *(it->second);
+                if (item.GetPosition() == new_position) {
+                  std::cout << "You found " << item.GetName() << "!" << std::endl;
 
-                auto item_found = std::find_if(item_set.begin(), item_set.end(), [&new_position]
-                                (const std::unique_ptr<cse491::ItemBase> & item) {
-                            return item && item->GetPosition() == new_position;
-                        });
+                  // Move the ownership of the item to the agents inventory
+                  inventory.push_back(std::move(it->second));
 
-                std::cout << "You found " << (*item_found)->GetName() << "!" << std::endl;
-
-                // Move the ownership of the item to the agents inventory
-                inventory.push_back(std::move(*(item_found)));
-
-                // Change the grid position to floor_id so it's not seen on the grid
-                main_grid.At(new_position) = floor_id;
-
+                  // Change the grid position to floor_id so it's not seen on the grid
+                  main_grid.At(new_position) = floor_id;
+                  break;
+                }
+              }
             }
 
             agent.SetPosition(new_position);
@@ -102,13 +101,12 @@ namespace group4 {
 
 
         /**
-         * Prints the entities in item_set (testing)
+         * Prints the entities in item_map (testing)
          */
         void PrintEntities() {
-            for (const auto &elem : item_set)
+            for (const auto & elem : item_map)
             {
-                if (!elem) continue;
-                std::cout << elem->GetName() << "\n";
+                std::cout << elem.second->GetName() << "\n";
             }
             std::cout << std::endl;
         }
