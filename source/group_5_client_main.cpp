@@ -7,9 +7,8 @@
 // Include the modules that we will be using.
 
 #include "Interfaces/NetWorth/client/ClientInterface.hpp"
-#include "Interfaces/NetWorth/server/networkingworld.hpp"
-
-
+#include "Worlds/MazeWorld.hpp"
+#include "Agents/PacingAgent.hpp"
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -22,11 +21,12 @@ int main(int argc, char *argv[]) {
 
     // will probably need to find a way to receive the world from the server first
     // this will be confusing
-    // receive initial world, set of agents, etc?? probably in ClientInterface Initialize instead of ping/pong
-    netWorth::NetworkMazeWorld world;
+    // receive initial world, set of agents, etc?? This will have to be separate from ClientInterface
+    cse491::MazeWorld world;
     world.AddAgent<netWorth::ClientInterface>("Interface", "ip", ip_string, "port", port).SetProperty("symbol", '@');
+    //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+    //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
 
-    // will probably need to override world Run function for multiple clients
     world.Run();
     return 0;
 }
