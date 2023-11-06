@@ -66,11 +66,12 @@ namespace cowboys {
     /// @brief Mutate this agent.
     /// @param mutation_rate The mutation rate.
     void MutateAgent(double mutation_rate) override {
-      // Create a default genotype if one wasn't provided
+      // Create a default genotype if it is empty
       if (genotype.GetNumFunctionalNodes() == 0) {
-        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK})
-                       .MutateDefault(mutation_rate);
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       }
+
+      genotype.MutateDefault(mutation_rate);
 
       // Initialize the decision graph
       decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
