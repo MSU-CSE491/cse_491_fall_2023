@@ -57,23 +57,21 @@ namespace cowboys {
     void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
-      const std::string oldexport= genotype.Export();
-      genotype.MutateDefault(mutation);
-      const std::string newexport= genotype.Export();
 
-      // Initialize the decision graph
+      genotype.MutateDefault(mutation);
+
       decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
     }
     /// @brief Setup graph.
     /// @return Success.
     bool Initialize() override {
-      //grab the time to seed the genotype
-      auto seed = std::chrono::system_clock::now().time_since_epoch().count();
 
-      genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
-      genotype.SetSeed(seed);
-
-      MutateAgent();
+      // Create a default genotype if none was provided in the constructor
+      if (genotype.GetNumFunctionalNodes() == 0) {
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
+      }
+      // Mutate the beginning genotype, might not want this.
+      MutateAgent(0.2);
 
       return true;
     }
@@ -91,19 +89,7 @@ namespace cowboys {
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
     const CGPGenotype &GetGenotype() const { return genotype; }
-
-//    /// @brief Mutate this agent.
-//    /// @param mutation_rate The mutation rate.
-//    void MutateAgent(double mutation_rate) override {
-//      // Create a default genotype if one wasn't provided
-//      if (genotype.GetNumFunctionalNodes() == 0) {
-//        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK})
-//                       .MutateDefault(mutation_rate);
-//      }
-//
-//      // Initialize the decision graph
-//      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
-//    }
+    
 
     /// @brief Copies the genotype and behavior of another CGPAgent into this agent.
     /// @param other The CGPAgent to copy.
