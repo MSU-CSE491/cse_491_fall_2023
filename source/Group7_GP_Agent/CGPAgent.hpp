@@ -70,6 +70,8 @@ namespace cowboys {
       if (genotype.GetNumFunctionalNodes() == 0) {
         genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       }
+
+      genotype.SetSeed(rand());
       // Mutate the beginning genotype, might not want this.
       MutateAgent(0.2);
 
@@ -89,7 +91,7 @@ namespace cowboys {
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
     const CGPGenotype &GetGenotype() const { return genotype; }
-    
+
 
     /// @brief Copies the genotype and behavior of another CGPAgent into this agent.
     /// @param other The CGPAgent to copy.
