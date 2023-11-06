@@ -218,20 +218,29 @@ class SecondWorld : public cse491::WorldBase {
       return false;
     }
 
-    if (main_grid.At(new_position) == flag_id) {
+    if ((main_grid.At(new_position) == flag_id) && (agent.GetName() == "Interface")) {
       // Set win flag to true
       std::cout << "flag found" << std::endl;
 
       agent.Notify("Leaving " + world_filename, "world_switched");
 
       if (world_filename == FIRST_FLOOR_FILENAME) {
-        // TODO: should not set run_over to true here. Should just switch to the
-        // next floor.
         agent.Notify("Going to " + SECOND_FLOOR_FILENAME, "world_switched");
+
+        world_filename = SECOND_FLOOR_FILENAME;
+        agents_filename = "../assets/second_floor_input.json";
+
+        // Need to clear item_map so that items don't stay for the next floor.
+        item_map.clear();
+
+        // Resetting the current new_position to the top left of the new grid.
+        new_position = cse491::GridPosition(0, 0);
+        main_grid.Read(SECOND_FLOOR_FILENAME, type_options);
+        LoadFromFile(agents_filename);
       } else if (world_filename == FINAL_FLOOR_FILENAME) {
         agent.Notify("Congrats, you won the game!", "congrats_msg");
+        run_over = true;
       }
-      run_over = true;
     }
 
     // TODO: we need to tell the world which level we're on so we know which
