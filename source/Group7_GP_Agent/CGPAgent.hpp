@@ -48,16 +48,7 @@ namespace cowboys {
     /// @brief Setup graph.
     /// @return Success.
     bool Initialize() override {
-      auto graph_builder = GraphBuilder();
-
-      // Create a default genotype if one wasn't provided
-      if (genotype.GetNumFunctionalNodes() == 0) {
-        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK})
-                       .MutateDefault(0.2);
-      }
-
-      // Initialize the decision graph
-      decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
+      MutateAgent(0.2);
       return true;
     }
 
@@ -74,9 +65,29 @@ namespace cowboys {
 
     /// @brief Mutate this agent.
     /// @param mutation_rate The mutation rate.
-    void Mutate(double mutation_rate) override {
-      genotype.MutateDefault(mutation_rate);
-      Initialize();
+    void MutateAgent(double mutation_rate) override {
+      // Create a default genotype if one wasn't provided
+      if (genotype.GetNumFunctionalNodes() == 0) {
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK})
+                       .MutateDefault(mutation_rate);
+      }
+
+      // Initialize the decision graph
+      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
+    }
+
+    /// @brief Copies the genotype and behavior of another CGPAgent into this agent.
+    /// @param other The CGPAgent to copy.
+    void Configure(const CGPAgent &other) {
+      genotype = other.GetGenotype();
+      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
+    }
+
+    /// @brief Copy the behavior of another agent into this agent.
+    /// @param other The agent to copy.
+    void Copy(const GPAgent_ &other) override {
+      assert(dynamic_cast<const CGPAgent *>(&other) != nullptr);
+      Configure(dynamic_cast<const CGPAgent &>(other));
     }
   };
 

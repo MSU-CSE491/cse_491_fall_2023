@@ -50,7 +50,6 @@ TEST_CASE("Graph", "[group7][graph]") {
     GraphBuilder builder;
     auto graph = builder.CartesianGraph(genotype, FUNCTION_SET);
     auto action = graph->MakeDecision({1, 2, 3, 4, 5, 6, 7, 8}, {1, 2, 3, 4});
-    std::cout << action << std::endl;
 
     bool all_same = true;
     for (size_t i = 0; i < 10; ++i) {

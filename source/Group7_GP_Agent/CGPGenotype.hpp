@@ -166,17 +166,16 @@ namespace cowboys {
   /// @brief Holds the parameters that define the structure of a cartesian graph.
   struct CGPParameters {
     /// The number of inputs to the graph.
-    size_t num_inputs;
+    size_t num_inputs{0};
     /// The number of outputs from the graph.
-    size_t num_outputs;
+    size_t num_outputs{0};
     /// The number of middle layers in the graph.
-    size_t num_layers;
+    size_t num_layers{0};
     /// The number of nodes per middle layer.
-    size_t num_nodes_per_layer;
+    size_t num_nodes_per_layer{0};
     /// The number of layers backward that a node can connect to.
-    size_t layers_back;
+    size_t layers_back{0};
 
-    /// Default constructor
     CGPParameters() = default;
 
     /// Constructor for the cartesian graph parameters.
@@ -213,7 +212,7 @@ namespace cowboys {
   private:
     /// @brief Encodes the header into a string.
     /// @return The encoded header.
-    std::string EncodeHeader() {
+    std::string EncodeHeader() const {
       return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
                          params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP, params.layers_back);
     }
@@ -244,7 +243,7 @@ namespace cowboys {
 
     /// @brief Encodes the genotype into a string.
     /// @return The encoded genotype.
-    std::string EncodeGenotype() {
+    std::string EncodeGenotype() const {
       std::string genotype = "";
       for (const CGPNodeGene &node : nodes) {
         // Input Connections
@@ -322,9 +321,37 @@ namespace cowboys {
     /// leaves everything default (nodes will be unconnected).
     /// @param parameters The parameters of the cartesian graph.
     CGPGenotype(const CGPParameters &parameters) : params(parameters) { InitGenotype(); }
-    ~CGPGenotype() = default;
 
-    /// @brief Configures this genotype from an encoded string. 
+    // Rule of 5
+    ~CGPGenotype() = default;
+    /// @brief Copy constructor for the cartesian graph genotype.
+    /// @param other The other cartesian graph genotype to copy from.
+    CGPGenotype(const CGPGenotype &other) {
+      Configure(other.Export());
+    }
+    /// @brief Copy assignment operator for the cartesian graph genotype.
+    /// @param other The other cartesian graph genotype to copy from.
+    /// @return This cartesian graph genotype.
+    CGPGenotype &operator=(const CGPGenotype &other) {
+      Configure(other.Export());
+      return *this;
+    }
+    /// @brief Move constructor for the cartesian graph genotype.
+    /// @param other The other cartesian graph genotype to move from.
+    CGPGenotype(CGPGenotype &&other) noexcept {
+      params = other.params;
+      nodes = std::move(other.nodes);
+    }
+    /// @brief Move assignment operator for the cartesian graph genotype.
+    /// @param other The other cartesian graph genotype to move from.
+    /// @return This cartesian graph genotype.
+    CGPGenotype &operator=(CGPGenotype &&other) noexcept {
+      params = other.params;
+      nodes = std::move(other.nodes);
+      return *this;
+    }
+
+    /// @brief Configures this genotype from an encoded string.
     /// @param encoded_genotype The encoded genotype.
     /// @return This genotype.
     CGPGenotype &Configure(const std::string &encoded_genotype) {
@@ -452,7 +479,7 @@ namespace cowboys {
 
     /// @brief Exports this genotype into a string representation.
     /// @return The string representation of this genotype.
-    std::string Export() {
+    std::string Export() const {
       std::string header = EncodeHeader();
       std::string genotype = EncodeGenotype();
       return header + HEADER_END + genotype;

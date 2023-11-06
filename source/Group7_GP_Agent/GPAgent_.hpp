@@ -6,12 +6,13 @@
 
 #pragma once
 
-#include "../core/AgentBase.hpp"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <string>
 #include <unordered_map>
+
+#include "../core/AgentBase.hpp"
 
 namespace cowboys {
   class GPAgent_ : public cse491::AgentBase {
@@ -47,7 +48,11 @@ namespace cowboys {
 
     /// @brief Mutate this agent.
     /// @param mutation_rate The mutation rate. Between 0 and 1.
-    virtual void Mutate(double mutation_rate) = 0;
+    virtual void MutateAgent(double mutation_rate) = 0;
+
+    /// @brief Copy the behavior of another agent into this agent.
+    /// @param other The agent to copy. Should be the same type.
+    virtual void Copy(const GPAgent_ &other) = 0;
   };
 
 } // End of namespace cowboys
