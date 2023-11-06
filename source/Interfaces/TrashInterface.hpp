@@ -20,7 +20,7 @@ namespace cse491 {
 
     // -- Helper Functions --
     void DrawGrid(const WorldGrid & grid, const type_options_t & type_options,
-                  const item_set_t & item_set, const agent_set_t & agent_set)
+                  const item_map_t & item_map, const agent_map_t & agent_map)
     {
       std::vector<std::string> symbol_grid(grid.GetHeight());
 
@@ -33,12 +33,16 @@ namespace cse491 {
       }
 
       // Add in the agents / entities
-      for (const auto & entity_ptr : item_set) {
-        GridPosition pos = entity_ptr->GetPosition();
-        symbol_grid[pos.CellY()][pos.CellX()] = '+';
+      for (const auto & [id, item_ptr] : item_map) {
+        GridPosition pos = item_ptr->GetPosition();
+        char c = '+';
+        if (item_ptr->HasProperty("symbol")) {
+            c = item_ptr->GetProperty<char>("symbol");
+        }
+        symbol_grid[pos.CellY()][pos.CellX()] = c;
       }
 
-      for (const auto & agent_ptr : agent_set) {
+      for (const auto & [id, agent_ptr] : agent_map) {
         GridPosition pos = agent_ptr->GetPosition();
         char c = '*';
         if(agent_ptr->HasProperty("symbol")){
@@ -74,11 +78,11 @@ namespace cse491 {
 
     size_t SelectAction(const WorldGrid & grid,
                         const type_options_t & type_options,
-                        const item_set_t & item_set,
-                        const agent_set_t & agent_set) override
+                        const item_map_t & item_map,
+                        const agent_map_t & agent_map) override
     {
       // Update the current state of the world.
-      DrawGrid(grid, type_options, item_set, agent_set);
+      DrawGrid(grid, type_options, item_map, agent_map);
 
       // See if there are any keys waiting in standard input (wait if needed)
       char input;
@@ -103,6 +107,12 @@ namespace cse491 {
 
       // Do the action!
       return action_id;
+    }
+
+    void Notify(const std::string & message,
+                const std::string & /*msg_type*/="none") override
+    {
+      std::cout << message << std::endl;
     }
   };
 
