@@ -9,6 +9,7 @@
 #include <string>
 
 #include "AgentBase.hpp"
+#include "ItemBase.hpp"
 
 namespace cse491 {
 
