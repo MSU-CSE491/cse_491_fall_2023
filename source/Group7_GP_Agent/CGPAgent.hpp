@@ -48,6 +48,11 @@ namespace cowboys {
     /// @brief Setup graph.
     /// @return Success.
     bool Initialize() override {
+      // Create a default genotype if none was provided in the constructor
+      if (genotype.GetNumFunctionalNodes() == 0) {
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
+      }
+      // Mutate the beginning genotype, might not want this.
       MutateAgent(0.2);
       return true;
     }
@@ -66,11 +71,6 @@ namespace cowboys {
     /// @brief Mutate this agent.
     /// @param mutation_rate The mutation rate.
     void MutateAgent(double mutation_rate) override {
-      // Create a default genotype if it is empty
-      if (genotype.GetNumFunctionalNodes() == 0) {
-        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
-      }
-
       genotype.MutateDefault(mutation_rate);
 
       // Initialize the decision graph
