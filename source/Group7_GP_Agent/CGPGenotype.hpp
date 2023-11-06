@@ -216,7 +216,7 @@ namespace cowboys {
     /// @brief Encodes the header into a string.
     /// @return The encoded header.
 
-    std::string EncodeHeader() {
+    std::string EncodeHeader() const {
 //      return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
 //                         params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP, params.layers_back);
       std::ostringstream stream;

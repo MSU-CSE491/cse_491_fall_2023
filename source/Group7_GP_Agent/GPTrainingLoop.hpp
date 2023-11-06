@@ -212,10 +212,14 @@ public:
 
 
       std::sort(sortedAgents.begin(), sortedAgents.end(), [&](const std::pair<int, int> &a, const std::pair<int, int> &b) {
-          return TEMPAgentFitness[a.first][a.second] < TEMPAgentFitness[b.first][b.second];
+          return TEMPAgentFitness[a.first][a.second] > TEMPAgentFitness[b.first][b.second];
       });
 
 
+//      for (int i = 0; i < ELITE_POPULATION_SIZE; i++){
+//        auto [arenaIDX, agentIDX] = sortedAgents[i];
+//        std::cout << "-" << i <<  "elite:" << "[" << TEMPAgentFitness[arenaIDX][agentIDX] <<"]" ;
+//      }
 
       const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * ( 1 - UNFIT_POPULATION_PERCENT));
       const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
@@ -226,20 +230,80 @@ public:
         agents[arenaIDX][agentIDX]->MutateAgent(0.6);
 
         if ( i % (sortedAgents.size() / 10) == 0){
-          std::cout << " --- mutation " << i << " complete " << (i * 1.0/ sortedAgents.size()) << std::endl;
+          std::cout << " --- mutation " << " complete " << (i * 1.0/ sortedAgents.size()) << std::endl;
         }
       }
 
-//      int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
+      int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
       for(size_t i = MIDDLE_MUTATE_ENDBOUND; i < sortedAgents.size(); i++){
         auto [arenaIDX, agentIDX] = sortedAgents[i];
-//        auto eliteINDEX = rand() % ELITE_POPULATION_SIZE;
+        auto eliteINDEX = rand() % ELITE_POPULATION_SIZE;
+
+
+        auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
+        agents[arenaIDX][agentIDX]->Copy(* agents[eliteArenaIDX][eliteAgentIDX]);
 
         agents[arenaIDX][agentIDX]->MutateAgent(0.9);
       }
-
+//      printGrids();
 
       std::cout << " --- mutation complete --- " << std::endl;
+    }
+
+
+    void printgrid(int arena)
+    {
+      auto & grid = environments[arena]->GetGrid();
+      std::vector<std::string> symbol_grid(grid.GetHeight());
+
+
+      const auto & type_options = environments[arena]->GetCellTypes();
+      // Load the world into the symbol_grid;
+      for (size_t y=0; y < grid.GetHeight(); ++y) {
+        symbol_grid[y].resize(grid.GetWidth());
+        for (size_t x=0; x < grid.GetWidth(); ++x) {
+          symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
+        }
+      }
+
+
+//      // Add in the agents / entities
+//      for (const auto & entity_ptr : item_set) {
+//        cse491::GridPosition pos = entity_ptr->GetPosition();
+//        symbol_grid[pos.CellY()][pos.CellX()] = '+';
+//      }
+
+
+      const auto & agent_set = agents[arena];
+      for (const auto & agent_ptr : agent_set) {
+        cse491::GridPosition pos = agent_ptr->GetPosition();
+        char c = '*';
+        if(agent_ptr->HasProperty("symbol")){
+          c = agent_ptr->template GetProperty<char>("symbol");
+        }
+        symbol_grid[pos.CellY()][pos.CellX()] = c;
+      }
+
+      // Print out the symbol_grid with a box around it.
+      std::cout << '+' << std::string(grid.GetWidth(),'-') << "+\n";
+      for (const auto & row : symbol_grid) {
+        std::cout << "|";
+        for (char cell : row) {
+          // std::cout << ' ' << cell;
+          std::cout << cell;
+        }
+        std::cout << "|\n";
+      }
+    }
+
+
+    void printGrids()
+    {
+      for (size_t arena = 0; arena < environments.size(); ++arena)
+      {
+        std::cout << "Arena " << arena << std::endl;
+        printgrid(arena);
+      }
     }
 
 
