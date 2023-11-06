@@ -64,12 +64,12 @@ class AStarAgent : public cse491::AgentBase {
    * Returns if the agent has a world
    * @return
    */
-  bool HasWorld() {
-      if(world !=nullptr){
-          return true;
-      }
-      return false;
-  }
+//  bool HasWorld() {
+//      if(world !=nullptr){
+//          return true;
+//      }
+//      return false;
+//  }
 
   /**
    * Gets the size of the current path

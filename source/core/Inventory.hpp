@@ -75,18 +75,18 @@ namespace walle {
 		 * @param item to be dropped
 		 * @return bool if operation worked
 		 */
-		bool DropItem(std::shared_ptr<Item> item){
-			// find items location in mItems
-			auto it = std::remove(mItems.begin(), mItems.end(), item);
-
-			// if its an item, delete it
-			if(it != mItems.end()){
-				mItems.erase(it);
-				mItemCount--;
-				return true;
-			}
-			return false;
-		}
+//		bool DropItem(std::shared_ptr<Item> item){
+//			// find items location in mItems
+//			auto it = std::remove(mItems.begin(), mItems.end(), item);
+//
+//			// if its an item, delete it
+//			if(it != mItems.end()){
+//				mItems.erase(it);
+//				mItemCount--;
+//				return true;
+//			}
+//			return false;
+//		}
 
 		/**
 		 * Checks if the agent has an item
@@ -118,16 +118,16 @@ namespace walle {
 		}
 
 		/// Transfer a specific item to a new inventory
-		bool TransferItem(std::shared_ptr<Item> item, Inventory& newInventory){
-			if(HasItem(item)){
-				if(newInventory.AddItem(item)){
-					DropItem(item);
-					return true;
-				}
-				return false;
-			}
-			return false;
-		}
+//		bool TransferItem(std::shared_ptr<Item> item, Inventory& newInventory){
+//			if(HasItem(item)){
+//				if(newInventory.AddItem(item)){
+//					DropItem(item);
+//					return true;
+//				}
+//				return false;
+//			}
+//			return false;
+//		}
 
         /// Calculate the total value of the items in the inventory
         int CalculateInventoryValue(){
