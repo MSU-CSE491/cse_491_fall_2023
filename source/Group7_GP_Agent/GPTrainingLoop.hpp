@@ -13,12 +13,8 @@
 #include <iostream>
 #include <vector>
 #include <ranges>
+#include <cmath>
 //#include <algorithm>
-
-
-#ifdef __APPLE__
-#include <Metal/Metal.h>
-#endif
 
 
 namespace cowboys
@@ -88,18 +84,10 @@ public:
 
 
 
-    void ComputeFitness() {
-
-    }
-
     void run(size_t numGenerations,
              size_t numberOfTurns = 100,
              size_t maxThreads = 0)
     {
-
-        // number of arenas
-
-
 
         for(size_t generation = 0; generation < numGenerations; ++generation)
         {
@@ -131,22 +119,18 @@ public:
             }
 
 
+            std::cout.flush();
+
+
             // calculate fitness
-            for(size_t arena = 0; arena < environments.size(); ++arena)
-            {
-              TEMPAgentFitness.emplace_back(std::vector<double>());
-              for(size_t a = 0; a < agents[arena].size(); ++a)
-                {
-                    double fitness = simpleFitnessFunction(*agents[arena][a], TEMPinitialAgentPositions[arena][a]);
-                    TEMPAgentFitness[arena].push_back(fitness);
-                }
-            }
+            ComputeFitness();
 
             // print average fitness
             double averageFitness = 0;
             double maxFitness = 0;
 
             std::pair<int, int> bestAgent = std::make_pair(-1, -1);
+            int countMaxAgents = 0;
             for(size_t arena = 0; arena < environments.size(); ++arena)
             {
               for(size_t a = 0; a < agents[arena].size(); ++a)
@@ -155,6 +139,11 @@ public:
                     if(TEMPAgentFitness[arena][a] > maxFitness) {
                       maxFitness = TEMPAgentFitness[arena][a];
                       bestAgent = std::make_pair(arena, a);
+                      countMaxAgents = 1;
+                    }
+
+                    if (abs(TEMPAgentFitness[arena][a] - maxFitness) < 0.001){
+                      countMaxAgents++;
                     }
                 }
             }
@@ -167,6 +156,7 @@ public:
             std::cout << "Best agent: AGENT[" << bestAgent.first << "," << bestAgent.second << "] "<< std::endl;
             cse491::GridPosition bestAgentPosition = agents[bestAgent.first][bestAgent.second]->GetPosition();
             std::cout << "Best Agent Final Position: " << bestAgentPosition.GetX()  << "," << bestAgentPosition.GetY()  << std::endl;
+            std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
             std::cout << "------------------------------------------------------------------" << std::endl;
 
 
@@ -178,6 +168,19 @@ public:
           std::cout << "  ========= =========" << std::endl;
 
         }
+    }
+
+
+    void ComputeFitness(){
+      for(size_t arena = 0; arena < environments.size(); ++arena)
+      {
+        TEMPAgentFitness.emplace_back(std::vector<double>());
+        for(size_t a = 0; a < agents[arena].size(); ++a)
+        {
+          double fitness = simpleFitnessFunction(*agents[arena][a], TEMPinitialAgentPositions[arena][a]);
+          TEMPAgentFitness[arena].push_back(fitness);
+        }
+      }
     }
 
 
