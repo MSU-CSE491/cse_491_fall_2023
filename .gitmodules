@@ -4,7 +4,3 @@
 [submodule "third_party/SFML"]
 	path = third_party/SFML
 	url = https://github.com/SFML/SFML.git
-[submodule "third_party/tinyxml2"]
-    path = third_party/tinyxml2
-    url = https://github.com/leethomason/tinyxml2.git
-    branch = 9.0.0
