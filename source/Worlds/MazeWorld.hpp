@@ -28,10 +28,10 @@ namespace cse491 {
     }
 
   public:
-    MazeWorld() {
+    MazeWorld(std::string pFilename = "default_maze.grid") : WorldBase() {
       floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
       wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
-      main_grid.Read("../assets/grids/default_maze.grid", type_options);
+      main_grid.Read("../assets/grids/" + pFilename, type_options);
     }
     ~MazeWorld() = default;
 
