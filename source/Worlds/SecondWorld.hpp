@@ -27,7 +27,8 @@ const std::string FINAL_FLOOR_FILENAME = SECOND_FLOOR_FILENAME;
  */
 class SecondWorld : public cse491::WorldBase {
  private:
-  /// @brief File name for this world grid. Switched when the player gets to the next level.
+  /// @brief File name for this world grid. Switched when the player gets to the
+  /// next level.
   std::string world_filename = "";
 
   /// @brief File name for agent input JSON file.
@@ -80,7 +81,8 @@ class SecondWorld : public cse491::WorldBase {
    * @param grid_filename Relative path to grid file
    * @param agent_filename Relative path to agent input.json file
    */
-  SecondWorld(std::string grid_filename, std::string agent_filename) : world_filename(grid_filename), agents_filename(agent_filename) {
+  SecondWorld(std::string grid_filename, std::string agent_filename)
+      : world_filename(grid_filename), agents_filename(agent_filename) {
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
@@ -102,7 +104,6 @@ class SecondWorld : public cse491::WorldBase {
    * @param input_filename Relative path to input.json file
    */
   void LoadFromFile(const std::string& input_filename) {
-
     std::ifstream input_file(input_filename);
 
     if (!input_file.is_open()) {
@@ -165,27 +166,27 @@ class SecondWorld : public cse491::WorldBase {
 
   /**
    * This function gives us an output.json file using nlohmann::json library
-  */
+   */
   void SaveToFile() {
-  nlohmann::json output_data; // json to store the data being outputted
+    nlohmann::json output_data;  // json to store the data being outputted
 
-  for (const auto& [agent_id, agent_ptr] : agent_map) {
-    auto new_position = agent_ptr->GetPosition();
-    std::string agent_name = agent_ptr->GetName();
-    double x_pos = new_position.GetX();
-    double y_pos = new_position.GetY();
+    for (const auto& [agent_id, agent_ptr] : agent_map) {
+      auto new_position = agent_ptr->GetPosition();
+      std::string agent_name = agent_ptr->GetName();
+      double x_pos = new_position.GetX();
+      double y_pos = new_position.GetY();
 
-    nlohmann::json agent_data; // json for each agent
-    agent_data["name"] = agent_name;
-    agent_data["x"] = x_pos;
-    agent_data["y"] = y_pos;
+      nlohmann::json agent_data;  // json for each agent
+      agent_data["name"] = agent_name;
+      agent_data["x"] = x_pos;
+      agent_data["y"] = y_pos;
 
-    output_data.push_back(agent_data); // add it to the json array
+      output_data.push_back(agent_data);  // add it to the json array
+    }
+
+    std::ofstream ofs("output.json");  // save it to a file called output.json
+    ofs << output_data.dump(2);        // indentation
   }
-
-  std::ofstream ofs("output.json"); //save it to a file called output.json
-  ofs << output_data.dump(2); // indentation
-}
 
   /**
    * Allows agents to move around the maze.
@@ -224,7 +225,8 @@ class SecondWorld : public cse491::WorldBase {
       agent.Notify("Leaving " + world_filename, "world_switched");
 
       if (world_filename == FIRST_FLOOR_FILENAME) {
-        // TODO: should not set run_over to true here. Should just switch to the next floor.
+        // TODO: should not set run_over to true here. Should just switch to the
+        // next floor.
         agent.Notify("Going to " + SECOND_FLOOR_FILENAME, "world_switched");
       } else if (world_filename == FINAL_FLOOR_FILENAME) {
         agent.Notify("Congrats, you won the game!", "congrats_msg");
