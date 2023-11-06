@@ -6,12 +6,13 @@
 
 #pragma once
 
-#include "../core/AgentBase.hpp"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <string>
 #include <unordered_map>
+
+#include "../core/AgentBase.hpp"
 
 namespace cowboys {
   class GPAgent_ : public cse491::AgentBase {
@@ -45,12 +46,17 @@ namespace cowboys {
     /// @return Map of extra state information
     const std::unordered_map<std::string, double> GetExtraState() const { return extra_state; }
 
-    //
-    virtual void MutateAgent(double mutation = 0.8) = 0;
 
+    /// @brief Mutate this agent.
+    /// @param mutation_rate The mutation rate. Between 0 and 1.
+    virtual void MutateAgent(double mutation_rate = 0.8) = 0;
 
+    /// @brief Copy the behavior of another agent into this agent.
+    /// @param other The agent to copy. Should be the same type.
+    virtual void Copy(const GPAgent_ &other) = 0;
 
     virtual void printAgent() {};
+
   };
 
 } // End of namespace cowboys

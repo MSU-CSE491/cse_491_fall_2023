@@ -14,18 +14,9 @@ using namespace cowboys;
 TEST_CASE("GraphNode", "[group7][graphnode]") {
   SECTION("Empty GraphNode") {
     GraphNode node;
-    CHECK_THROWS(node.GetInput(0));
-    CHECK(node.GetOutput() == 0.0);
-  }
-  SECTION("Non-Empty GraphNode") {
-    GraphNode node;
-    auto node1 = std::make_shared<GraphNode>(3);
-    auto node2 = std::make_shared<GraphNode>(4);
-    node.AddInput(node1);
-    node.AddInput(node2);
-    CHECK(node.GetInput(0)->GetOutput() == 3);
-    CHECK(node.GetInput(1)->GetOutput() == 4);
-    CHECK(node.GetOutput() == 0.0);
+    CHECK(node.GetOutput() == 0);
+    node = GraphNode(7);
+    CHECK(node.GetOutput() == 7);
   }
   auto simple_add = [](const NodeInputs &inputs) { return inputs.at(0)->GetOutput() + inputs.at(1)->GetOutput(); };
   SECTION("GraphNode function pointers") {

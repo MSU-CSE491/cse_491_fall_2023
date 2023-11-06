@@ -74,6 +74,7 @@ namespace cowboys {
       genotype.SetSeed(seed);
 
       MutateAgent();
+
       return true;
     }
 
@@ -90,6 +91,33 @@ namespace cowboys {
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
     const CGPGenotype &GetGenotype() const { return genotype; }
+
+    /// @brief Mutate this agent.
+    /// @param mutation_rate The mutation rate.
+    void MutateAgent(double mutation_rate) override {
+      // Create a default genotype if one wasn't provided
+      if (genotype.GetNumFunctionalNodes() == 0) {
+        genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK})
+                       .MutateDefault(mutation_rate);
+      }
+
+      // Initialize the decision graph
+      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
+    }
+
+    /// @brief Copies the genotype and behavior of another CGPAgent into this agent.
+    /// @param other The CGPAgent to copy.
+    void Configure(const CGPAgent &other) {
+      genotype = other.GetGenotype();
+      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
+    }
+
+    /// @brief Copy the behavior of another agent into this agent.
+    /// @param other The agent to copy.
+    void Copy(const GPAgent_ &other) override {
+      assert(dynamic_cast<const CGPAgent *>(&other) != nullptr);
+      Configure(dynamic_cast<const CGPAgent &>(other));
+    }
   };
 
 } // End of namespace cowboys

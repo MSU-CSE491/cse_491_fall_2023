@@ -261,4 +261,9 @@ TEST_CASE("Genotype configuration", "[group7][genotype]") {
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
   }
+  SECTION("Copy constructor"){
+    CGPGenotype genotype({8, 4, 10, 10, 2});
+    CGPGenotype genotype2(genotype);
+    CHECK(genotype == genotype2);
+  }
 }
