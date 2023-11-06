@@ -160,38 +160,32 @@ class SecondWorld : public cse491::WorldBase {
       UpdateWorld();
     }
 
-    std::string filename = "output.json";
-
-    std::ofstream ofs(filename);
-
-    ofs << "[" << std::endl;
-    size_t index = 0;
-
-    for (const auto& [agent_id, agent_ptr] : agent_map) {
-      auto new_position = agent_ptr->GetPosition();
-
-      std::string agent_name = agent_ptr->GetName();
-
-      double x_pos = new_position.GetX();
-      double y_pos = new_position.GetY();
-
-      ofs << "  {" << std::endl;
-      ofs << "    \"name\": "
-          << "\"" << agent_name << "\""
-          << ",\n";
-
-      ofs << "    \"x\": " << x_pos << "," << std::endl;
-      ofs << "    \"y\": " << y_pos << std::endl;
-
-      if (index == agent_map.size() - 1) {
-        ofs << "  }" << std::endl;
-      } else {
-        ofs << "  }," << std::endl;
-      }
-      index++;
-    }
-    ofs << "]" << std::endl;
+    SaveToFile();
   }
+
+  /**
+   * This function gives us an output.json file using nlohmann::json library
+  */
+  void SaveToFile() {
+  nlohmann::json output_data; // json to store the data being outputted
+
+  for (const auto& [agent_id, agent_ptr] : agent_map) {
+    auto new_position = agent_ptr->GetPosition();
+    std::string agent_name = agent_ptr->GetName();
+    double x_pos = new_position.GetX();
+    double y_pos = new_position.GetY();
+
+    nlohmann::json agent_data; // json for each agent
+    agent_data["name"] = agent_name;
+    agent_data["x"] = x_pos;
+    agent_data["y"] = y_pos;
+
+    output_data.push_back(agent_data); // add it to the json array
+  }
+
+  std::ofstream ofs("output.json"); //save it to a file called output.json
+  ofs << output_data.dump(2); // indentation
+}
 
   /**
    * Allows agents to move around the maze.
