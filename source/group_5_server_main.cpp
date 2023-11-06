@@ -14,7 +14,7 @@ int main() {
     netWorth::NetworkMazeWorld world;
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@');a
+    world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@');
 
     // will probably need to override world Run function for multiple clients
     // assuming we use NetworkMazeWorld rather than MazeWorld
