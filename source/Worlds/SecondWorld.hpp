@@ -256,15 +256,15 @@ class SecondWorld : public cse491::WorldBase {
           // TODO: If we are able to set the ownership of the items to the chest,
           //  we should be able to check what item's the chest owns, rather than checking to see what items are on that GridPosition
 
-           if (!chest.GetOwnedItems().empty()) {
-               agent.Notify("You found a chest that contains: {}", "item_alert");
-               agent.Notify("If you would like all the items, enter '0'; otherwise enter the number seperated by a comma for which item(s) you would like!", "item_alert");
-
-               // TODO: If the agent's inventory is full, prompt player they can remove items if they want to
-               agent.Nofity("It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
-           } else {
-               agent.Notify("The chest is empty! Do you want to store any items in here?", "item_alert");
-           }
+//           if (!chest.GetOwnedItems().empty()) {
+//               agent.Notify("You found a chest that contains: {}", "item_alert");
+//               agent.Notify("If you would like all the items, enter '0'; otherwise enter the number seperated by a comma for which item(s) you would like!", "item_alert");
+//
+//               // TODO: If the agent's inventory is full, prompt player they can remove items if they want to
+//               agent.Nofity("It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
+//           } else {
+//               agent.Notify("The chest is empty! Do you want to store any items in here?", "item_alert");
+//           }
 
       } else {
           // TODO: We should also check to see if the inventory is full, if so, agent cannot pickup item and is notified
