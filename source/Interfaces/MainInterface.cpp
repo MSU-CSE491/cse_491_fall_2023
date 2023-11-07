@@ -3,7 +3,9 @@
  * @date: 10/03/2023
  * MainInterface class creates a window and displays the default maze grid
  */
+#include <map>
 #include "MainInterface.hpp"
+
 
 namespace i_2D {
     /**
@@ -16,6 +18,8 @@ namespace i_2D {
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
         mMenu.initialize();
+
+        ChooseTexture();
     }
 
     /**
@@ -29,8 +33,10 @@ namespace i_2D {
      * @return A vector of strings representing the maze grid.
      */
     std::vector<std::string> MainInterface::CreateVectorMaze(
+
       const WorldGrid &grid, const type_options_t &type_options,
       const item_map_t &item_map, const agent_map_t &agent_map)
+
     {
         std::vector<std::string> symbol_grid(grid.GetHeight());
         // Load the world into the symbol_grid;
@@ -43,6 +49,7 @@ namespace i_2D {
 
         // Add in the agents / items
         for (const auto & [id, item_ptr] : item_map) {
+
           GridPosition pos = item_ptr->GetPosition();
           symbol_grid[pos.CellY()][pos.CellX()] = '+';
         }
@@ -67,7 +74,7 @@ namespace i_2D {
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
         float cellSizeWide = mWindow.getSize().x / grid.GetWidth();
         float cellSizeTall = mWindow.getSize().y / grid.GetHeight();
-        float cellSize = std::min(cellSizeWide, cellSizeTall);
+        float cellSize = std::min(cellSizeWide, cellSizeTall) ;
         return sf::Vector2f(cellSize, cellSize);
     }
 
@@ -86,12 +93,8 @@ namespace i_2D {
         std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
 
         sf::Vector2f cellSize = CalculateCellSize(grid);
-
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
         CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
-
-        sf::Texture wallTexture, agentTexture;
-        LoadTextures(wallTexture, agentTexture);
 
         for (size_t iterY = 0; iterY < grid.GetHeight(); ++iterY) {
             for (size_t iterX = 0; iterX < grid.GetWidth(); ++iterX) {
@@ -100,55 +103,24 @@ namespace i_2D {
 
                 char symbol = symbol_grid[iterY][iterX];
 
+
                 sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
                 sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
-                DrawCell(cellRect, cellPosX, cellPosY);
+                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
                 cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
                 bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
                                       (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-                switch (symbol) {
-                    case '#':
-                        DrawWall(cellRect, wallTexture, isVerticalWall);
-                        break;
+                SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
 
-                    case ' ':
-                        DrawEmptyCell(cellRect);
-                        break;
-
-                    case '*':
-                        DrawAgentCell(cellRect,cell, agentTexture,sf::Color::Cyan);
-                        break;
-
-                    case '@':
-                        DrawAgentCell(cellRect,cell,agentTexture,sf::Color::Red);
-                        break;
-                    default:
-                        DrawDefaultCell(cellRect);
-                        break;
-
-                }
             }
         }
         // Display everything
         mMenu.drawto(mWindow);
         mWindow.display();
     }
-
-    /**
-     * @brief Draws a cell at the given position.
-     *
-     * @param cellRect  The rectangle representing the cell.
-     * @param cellPosX  The x-coordinate of the cell's position.
-     * @param cellPosY  The y-coordinate of the cell's position.
-     */
-    void MainInterface::DrawCell(sf::RectangleShape &cellRect, float cellPosX, float cellPosY)
-    {
-        cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-    }
-
     /**
      * @brief Calculates the total drawing space based on the grid dimensions and cell size and also the center position of the drawing space.
      *
@@ -169,38 +141,7 @@ namespace i_2D {
     }
 
     /**
-     * @brief Loads the required textures for drawing the maze.
-     *
-     * @param wallTexture A reference to the wall texture to be loaded.
-     * @param trollTexture A reference to the troll texture to be loaded.
-     */
-    void MainInterface::LoadTextures(sf::Texture &wallTexture, sf::Texture &trollTexture)
-    {
-        if (!wallTexture.loadFromFile("../assets/walls/wall.png")) {
-            std::cerr << "Failed to load wall texture!" << std::endl;
-        }
 
-        if (!trollTexture.loadFromFile("../assets/agents/troll.png")) {
-            std::cerr << "Failed to load troll texture!" << std::endl;
-        }
-    }
-
-    /**
-    * @brief Updates the graphical representation of the maze grid.
-    *
-    * @param grid         The WorldGrid representing the maze.
-    * @param type_options The type options for symbols.
-    * @param item_map     The map of ids to items in the maze.
-    * @param agent_map    The map of ids to agents in the maze.
-    */
-    void MainInterface::UpdateGrid(const WorldGrid &grid,
-                                   const type_options_t &type_options,
-                                   const item_map_t &item_map,
-                                   const agent_map_t &agent_map) {
-        DrawGrid(grid, type_options, item_map, agent_map);
-    }
-
-    /**
     * @brief Handles user input for selecting actions.
     *
     * @param grid         The WorldGrid representing the maze.
@@ -230,10 +171,16 @@ namespace i_2D {
 
                 } else if(event.type == sf::Event::MouseButtonPressed){
                     mMenu.HandleMouseButtonPressed(mWindow);
+
+                }else if(event.type == sf::Event::MouseWheelScrolled)
+                {
+//                    HandleScroll(event);
                 }
             }
 
-            UpdateGrid(grid, type_options, item_map, agent_map);
+
+            DrawGrid(grid, type_options, item_map, agent_map);
+
         }
 
         return 0;
@@ -277,6 +224,7 @@ namespace i_2D {
             case sf::Keyboard::Right:
                 action_id = GetActionID("right");
                 break;
+
             case sf::Keyboard::Q:
                 exit(0);
             case sf::Keyboard::Escape:
@@ -320,8 +268,6 @@ namespace i_2D {
         sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
         mWindow.setView(sf::View(viewArea));
     }
-
-
     /**
      * @brief Draw the wall texture based on the provided parameters.
      *
@@ -341,7 +287,7 @@ namespace i_2D {
 //        } else {
 //            mWindow.draw(cellRect);
 //        }
-        cellRect.setTexture(&wallTexture);
+        cellRect.setTexture(&mTextureHolder.GetTexture("wallTexture"));
         mWindow.draw(cellRect);
     }
 
@@ -372,12 +318,62 @@ namespace i_2D {
      * @param agent The agent texture.
      * @param color The color to be set for the cell.
      */
-    void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent, sf::Color color) {
+
+    void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent) {
         cellRect.setTexture(&agent);
-        cellRect.setFillColor(color);
+
         cell.setFillColor(sf::Color::Black);
         mWindow.draw(cell);
         mWindow.draw(cellRect);
+    }
+    /*
+     * This function chooses the world to load the texture for it's images
+     * and sets the current texture map for drawing
+     */
+    void MainInterface::ChooseTexture()
+    {
+        if(GetName() == "Interface1")
+        {
+            mTexturesDefault = mTextureHolder.MazeTexture();
+            mTexturesCurrent = mTexturesDefault;
+        }
+        else if(GetName() == "Interface")
+        {
+            mTexturesSecondWorld = mTextureHolder.SecondWorldTexture();
+            mTexturesCurrent = mTexturesSecondWorld;
+        }
+        else if(GetName() == "Interface3")
+        {
+            mTexturesManualWorld =mTextureHolder. ManualWorldTexture();
+            mTexturesCurrent = mTexturesManualWorld;
+        }
+        else if(GetName() == "Interface2")
+        {
+            mTexturesGenerativeWorld =mTextureHolder. GenerativeWorldTexture();
+            mTexturesCurrent = mTexturesGenerativeWorld;
+        }
+
+    }
+    /**
+     * This is a helper function for DrawGrid. jsut using the switch statement to draw the grids
+     * @param cellRect - cell for texture
+     * @param cell  - cell for the solid
+     * @param symbol  - symbol of the cell
+     * @param isVerticalWall  - to the wall
+     */
+    void MainInterface::SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall)
+    {
+        switch (symbol) {
+            case ' ':
+                DrawEmptyCell(cellRect);
+                break;
+            case '#':
+                DrawWall(cellRect, mTexturesCurrent[symbol], isVerticalWall);
+                break;
+            default:
+                DrawAgentCell(cellRect, cell, mTexturesCurrent[symbol]);
+                break;
+        }
     }
 
 }
