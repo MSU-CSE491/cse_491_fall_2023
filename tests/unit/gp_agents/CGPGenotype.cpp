@@ -180,7 +180,8 @@ TEST_CASE("base64", "[group7][base64]") {
   }
   SECTION("Double") {
     auto rng = std::mt19937(std::random_device{}());
-    // Must avoid stoull error
+    // Test large range of doubles
+    // Use int32 min and max to avoid stoull error with large doubles
     auto min = std::numeric_limits<int32_t>::min();
     auto max = std::numeric_limits<int32_t>::max();
     auto dist = std::uniform_real_distribution<double>(min, max);
@@ -189,9 +190,16 @@ TEST_CASE("base64", "[group7][base64]") {
       auto d = fix_double(dist(rng));
       CHECK(d == base64::B64ToDouble(base64::DoubleToB64(d)));
     }
+    // Some specific cases
     CHECK(0 == base64::B64ToDouble(base64::DoubleToB64(0)));
     CHECK(1 == base64::B64ToDouble(base64::DoubleToB64(1)));
     CHECK(-1 == base64::B64ToDouble(base64::DoubleToB64(-1)));
+    // Smaller range doubles
+    dist = std::uniform_real_distribution<double>(-1, 1);
+    for (size_t i = 0; i < 100; ++i) {
+      auto d = fix_double(dist(rng));
+      CHECK(d == base64::B64ToDouble(base64::DoubleToB64(d)));
+    }
   }
 }
 TEST_CASE("Genotype overloads", "[group7][genotype]") {
@@ -215,6 +223,11 @@ TEST_CASE("Genotype overloads", "[group7][genotype]") {
     genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateOutputs(1, -10000, 10000);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
+  }
+  SECTION("Copy constructor") {
+    auto genotype = CGPGenotype({7, 2, 0, 10, 3}).MutateDefault(1);
+    auto genotype2 = CGPGenotype(genotype);
+    CHECK(genotype == genotype2);
   }
 }
 TEST_CASE("Genotype configuration", "[group7][genotype]") {
