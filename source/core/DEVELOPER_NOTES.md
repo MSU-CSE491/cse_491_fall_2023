@@ -67,6 +67,7 @@ Logger::Log() << Team::TEAM_5 << LogLevel::DEBUG << "The value of variable is: "
 
 ### 4. Logging File and Line Information:
 ```cpp
+
 Logger::Log() << Team::TEAM_6 << LogLevel::INFO << LOG_RELLINE << "This log is from " << __FILE__ << " line " << __LINE__ << Logger::endl;
 ```
 
