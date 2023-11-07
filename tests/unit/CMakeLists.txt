@@ -17,7 +17,7 @@ function(create_tests NAME_PREFIX)
     message(STATUS "Building tests for: ${EXE_NAME}")
     
     # Create target
-    add_executable(${EXE_NAME} ${TARGET_SOURCE})
+    add_executable(${EXE_NAME} ${TARGET_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
     
     # Load in .cmake file for target, if it exists
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.cmake)
