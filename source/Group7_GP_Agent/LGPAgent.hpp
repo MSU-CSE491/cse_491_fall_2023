@@ -9,11 +9,13 @@
 #include "../core/AgentBase.hpp"
 #include "GPAgentSensors.hpp"
 
+#include "./GPAgent_.hpp"
+
 namespace cowboys
 {
     const int LISTSIZE = 100;
 
-    class LGPAgent : public cse491::AgentBase
+    class LGPAgent : public GPAgent_
     {
     protected:
         // A dictionary of actions and a dictionary of sensors
@@ -36,7 +38,7 @@ namespace cowboys
         std::mt19937 gen;
 
     public:
-        LGPAgent(size_t id, const std::string &name) : AgentBase(id, name)
+        LGPAgent(size_t id, const std::string &name) : GPAgent_(id, name)
         {
             gen = std::mt19937(rd());
         }
@@ -90,7 +92,17 @@ namespace cowboys
             return instructions;
         }
 
-        size_t SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
+
+        void MutateAgent(double mutation_rate = 0.8) override {}
+
+
+        void Copy(const GPAgent_ &other) override {}
+
+        std::string Export() {
+          return "";
+        }
+
+        size_t GetAction([[maybe_unused]] const cse491::WorldGrid &grid,
                             [[maybe_unused]] const cse491::type_options_t &type_options,
                             [[maybe_unused]] const cse491::item_set_t &item_set,
                             [[maybe_unused]] const cse491::agent_set_t &agent_set) override

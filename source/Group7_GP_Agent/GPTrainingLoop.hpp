@@ -3,7 +3,7 @@
 
 #include "../core/AgentBase.hpp"
 #include "../core/WorldBase.hpp"
-#include "GPAgent.hpp"
+//#include "GPAgent.hpp"
 #include "GPAgent_.hpp"
 
 
@@ -243,7 +243,7 @@ public:
         auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
         agents[arenaIDX][agentIDX]->Copy(* agents[eliteArenaIDX][eliteAgentIDX]);
 
-        agents[arenaIDX][agentIDX]->MutateAgent(0.9);
+        agents[arenaIDX][agentIDX]->MutateAgent(0.2);
       }
 //      printGrids();
 

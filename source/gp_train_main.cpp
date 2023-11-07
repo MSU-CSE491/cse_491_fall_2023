@@ -27,7 +27,7 @@ int main() {
 //
 //    loop.run(100, 100);
 
-    loop.initialize(10, 10000);
+    loop.initialize(10, 1000);
     loop.run(100, 100);
 
     auto end_time = std::chrono::high_resolution_clock::now();
