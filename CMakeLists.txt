@@ -10,14 +10,14 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Test")
   set(BUILD_MAIN 0)
   set(BUILD_TESTS 1)
 endif()
-  
+
 # Create a function to make .cmake files simpler
 function(add_source_to_target TARGET_NAME SOURCE_PATH)
   message(STATUS "Loading source: ${SOURCE_PATH}")
   target_sources(${TARGET_NAME}
     PRIVATE ${CMAKE_SOURCE_DIR}/${SOURCE_PATH}
     )
-endfunction() 
+endfunction()
 
 # Set the necessary C++ flags, some of which are configuration-specific
 set(CMAKE_CXX_STANDARD 20)
@@ -27,10 +27,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
-  
+
 # Place all executables in the executable directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
-  
+
 # Move assets to build directory
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -66,7 +66,7 @@ if (${BUILD_MAIN})
     string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
     # Create list of source files (currently just the one .cpp file)
     # Create executable and link to includes / libraries
-    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE})
+    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
     target_include_directories(${EXE_NAME}
       PRIVATE ${CMAKE_SOURCE_DIR}/source ${PEGTL_INCLUDE_DIR}
       )
@@ -90,7 +90,7 @@ if(${BUILD_TESTS})
   set(CATCH_SRC_DIR third_party/Catch2)
   set(CATCH_BUILD_DIR catch_build)
   add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
-  
+
   # Configure only the networking portion of SFML
   if(NOT ${BUILD_MAIN})
     set(SFML_BUILD_WINDOW FALSE)
