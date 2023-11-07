@@ -53,6 +53,10 @@ void BiomeGenerator::generate() {
         placeDoorTile(door_id); // placing door tile
         placeKeyTile(key_id); // placing key tile
     }
+
+    if (biome == BiomeType::Grasslands) {
+//        placeTrees(); // Placing tree tiles
+    }
 }
 
 /**
@@ -110,6 +114,7 @@ void BiomeGenerator::placeSpecialTiles(const size_t &genericTile, const size_t &
     for (int i = 0; i < numSpikes; ++i) {
         grid.At(floorPositions[i].first, floorPositions[i].second) = specialTile;
     }
+
 }
 
 /**
@@ -176,8 +181,11 @@ void BiomeGenerator::saveToFile(const std::string &filename) const {
     types.push_back(CellType{"door", "Door that can be walked through only with possession of key to leave maze", 'D'});
     types.push_back(CellType{"grass", "Grass you can walk on.", 'M'});
     types.push_back(CellType{"dirt", "Dirt you can walk on.", '~'});
+    types.push_back(CellType{"tree", "A tree that blocks the way.", 't'});
+
 
     grid.Write(filename, types);
+
 }
 
 /**
@@ -190,4 +198,33 @@ void BiomeGenerator::setTiles(const size_t &firstTile, const size_t &secondTile)
     tiles.push_back(firstTile);
     tiles.push_back(secondTile);
 }
+
+void BiomeGenerator::placeTrees() {
+
+    std::vector<std::pair<int, int>> grassPositions;
+    for (unsigned int x = 0; x < width; ++x) {
+        for (unsigned int y = 0; y < height; ++y) {
+            if (grid.At(x, y) == grass_id) {
+                grassPositions.emplace_back(x, y);
+            }
+        }
+    }
+
+    // Random number generation setup
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+    // Chance of tree appearing on a grass tile
+    const double treeChance = 0.1; // 10% chance for a tree to appear on any grass tile
+
+    for (const auto& position : grassPositions) {
+        // Randomly decide if a tree should be placed
+        if (dis(gen) < treeChance) {
+            grid.At(position.first, position.second) = 't'; // Replace 'M' with 't' for tree
+        }
+    }
+}
+
+
 

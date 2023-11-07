@@ -56,6 +56,8 @@ namespace group6 {
         size_t grass_id = 6;
         size_t dirt_id = 7;
 
+        size_t tree_id = 8;
+
     public:
         BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
         ~BiomeGenerator() = default;
@@ -74,5 +76,7 @@ namespace group6 {
 
         [[nodiscard]] std::vector<GridPosition> clearPath() const;
         void applyPathToGrid(const std::vector<GridPosition>& path);
+
+        void placeTrees();
     };
 } // End of namespace group6

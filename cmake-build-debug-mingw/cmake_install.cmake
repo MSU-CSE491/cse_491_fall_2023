@@ -40,6 +40,7 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw/sfml_build/cmake_install.cmake")
+  include("C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw/catch_build/cmake_install.cmake")
   include("C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw/tests/cmake_install.cmake")
 
 endif()

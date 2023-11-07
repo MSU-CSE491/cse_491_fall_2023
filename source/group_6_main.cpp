@@ -14,13 +14,19 @@
 using namespace group6;
 
 int main() {
-    static const unsigned int SEED = 973;
-    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
+    static const unsigned int SEED = 5;
+    auto biome = BiomeType::Grasslands; // specify biome type here
+    BiomeGenerator biomeGenerator(biome, 100, 20, SEED);
     biomeGenerator.generate();
 
     srand(time(nullptr));
-    auto path = biomeGenerator.clearPath();
-    biomeGenerator.applyPathToGrid(path);
+
+    if (biome == BiomeType::Maze)
+    {
+        auto path = biomeGenerator.clearPath();
+        biomeGenerator.applyPathToGrid(path);
+    }
+
     biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
     cse491::GenerativeWorld world(SEED);

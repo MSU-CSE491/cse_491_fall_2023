@@ -1,4 +1,146 @@
 "C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2022.2.1/bin/ninja/win/ninja.exe" -G Ninja -S "C:\Users\mihai\Desktop\CSE 491\GROUP6" -B "C:\Users\mihai\Desktop\CSE 491\GROUP6\cmake-build-debug-mingw"
+-- Build type: Debug
+-- List of main files to build: group_1_main.cpp;group_2_main.cpp;group_3_main.cpp;group_4_interface_main.cpp;group_4_main.cpp;group_5_client_main.cpp;group_5_server_main.cpp;group_6_main.cpp;group_7_main.cpp;group_8_main.cpp;sfml_example_main.cpp;simple_main.cpp
+-- Loading group_1_main.cmake
+-- Loading source: source/Agents/PathAgent.cpp
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find group_2_main.cmake
+
+
+-- Loading group_3_main.cmake
+-- Loading source: source/Interfaces/MainInterface.cpp
+-- Loading source: source/Interfaces/TextureHolder.cpp
+-- Loading source: source/Interfaces/Component.cpp
+-- Loading source: source/Interfaces/Component.hpp
+-- Loading source: source/Interfaces/Container.cpp
+-- Loading source: source/Interfaces/Container.hpp
+-- Loading source: source/Interfaces/Button.cpp
+-- Loading source: source/Interfaces/Menu.cpp
+-- Loading group_4_interface_main.cmake
+-- Loading source: source/Interfaces/MainInterface.cpp
+-- Loading source: source/Interfaces/TextureHolder.cpp
+-- Loading source: source/Interfaces/Component.cpp
+-- Loading source: source/Interfaces/Component.hpp
+-- Loading source: source/Interfaces/Container.cpp
+-- Loading source: source/Interfaces/Container.hpp
+-- Loading source: source/Interfaces/Button.cpp
+-- Loading source: source/Interfaces/Menu.cpp
+-- Loading group_4_main.cmake
+-- Loading source: source/Interfaces/MainInterface.cpp
+-- Loading source: source/Interfaces/Component.cpp
+-- Loading source: source/Interfaces/Component.hpp
+-- Loading source: source/Interfaces/Container.cpp
+-- Loading source: source/Interfaces/Container.hpp
+-- Loading source: source/Interfaces/Button.cpp
+-- Loading source: source/Interfaces/Menu.cpp
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find group_5_client_main.cmake
+
+
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find group_5_server_main.cmake
+
+
+-- Loading group_6_main.cmake
+-- Loading source: source/Worlds/BiomeGenerator.cpp
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find group_7_main.cmake
+
+
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find group_8_main.cmake
+
+
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find sfml_example_main.cmake
+
+
+CMake Warning at CMakeLists.txt:68 (message):
+  Cannot find simple_main.cmake
+
+
+-- Building tests for: test-unit-core-Data
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find Data.cmake
+Call Stack (most recent call first):
+  tests/unit/core/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-core-Loopback
+-- Loading Loopback.cmake
+-- Building tests for: test-unit-core-WorldGrid
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find WorldGrid.cmake
+Call Stack (most recent call first):
+  tests/unit/core/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-agents-PathAgent
+-- Loading PathAgent.cmake
+-- Loading source: source/Agents/PathAgent.cpp
+-- Building tests for: test-unit-agents-gp-agent
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find agent.cmake
+Call Stack (most recent call first):
+  tests/unit/Agents/GP/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-agents-gp-registers
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find registers.cmake
+Call Stack (most recent call first):
+  tests/unit/Agents/GP/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-agents-gp-sensors
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find sensors.cmake
+Call Stack (most recent call first):
+  tests/unit/Agents/GP/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-worlds-ManualWorld
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find ManualWorld.cmake
+Call Stack (most recent call first):
+  tests/unit/Worlds/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-worlds-SecondWorld
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find SecondWorld.cmake
+Call Stack (most recent call first):
+  tests/unit/Worlds/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-data_collection-AgentDataTest
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find AgentDataTest.cmake
+Call Stack (most recent call first):
+  tests/unit/DataCollection/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-data_collection-AgentReceiverTest
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find AgentReceiverTest.cmake
+Call Stack (most recent call first):
+  tests/unit/DataCollection/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-data_collection-DataReceiverTest
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find DataReceiverTest.cmake
+Call Stack (most recent call first):
+  tests/unit/DataCollection/CMakeLists.txt:4 (create_tests)
+
+
+-- Building tests for: test-unit-data_collection-GameDataTest
+CMake Warning at tests/unit/CMakeLists.txt:22 (message):
+  Cannot find GameDataTest.cmake
+Call Stack (most recent call first):
+  tests/unit/DataCollection/CMakeLists.txt:4 (create_tests)
+
+
 -- Configuring done
 -- Generating done
 -- Build files have been written to: C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw

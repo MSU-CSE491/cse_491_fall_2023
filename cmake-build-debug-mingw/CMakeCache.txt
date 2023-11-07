@@ -14,6 +14,9 @@
 # EXTERNAL cache entries
 ########################
 
+//Build the testing tree.
+BUILD_TESTING:BOOL=ON
+
 //Read docs/configuration.md for details
 CATCH_CONFIG_ANDROID_LOGWRITE:BOOL=OFF
 
@@ -375,7 +378,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=GROUP6
+CMAKE_PROJECT_NAME:STATIC=CSE_491
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION:STATIC=3.0.0
@@ -472,6 +475,13 @@ CMAKE_STRIP:FILEPATH=C:/Program Files/JetBrains/CLion 2022.2.1/bin/mingw/bin/str
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Path to the coverage program that CTest uses for performing coverage
+// inspection
+COVERAGE_COMMAND:FILEPATH=C:/Program Files/JetBrains/CLion 2022.2.1/bin/mingw/bin/gcov.exe
+
+//Extra command line flags to pass to the coverage tool
+COVERAGE_EXTRA_FLAGS:STRING=-l
+
 //Enable to build 7-Zip packages
 CPACK_BINARY_7Z:BOOL=OFF
 
@@ -505,17 +515,26 @@ CSE_491_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 CSE_491_SOURCE_DIR:STATIC=C:/Users/mihai/Desktop/CSE 491/GROUP6
 
+//How many times to retry timed-out CTest submissions.
+CTEST_SUBMIT_RETRY_COUNT:STRING=3
+
+//How long to wait between timed-out CTest submissions.
+CTEST_SUBMIT_RETRY_DELAY:STRING=5
+
 //Dependencies for the target
 Catch2WithMain_LIB_DEPENDS:STATIC=general;Catch2;
 
 //Value Computed by CMake
-Catch2_BINARY_DIR:STATIC=C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw/tests/catch_build
+Catch2_BINARY_DIR:STATIC=C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw/catch_build
 
 //Value Computed by CMake
 Catch2_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 Catch2_SOURCE_DIR:STATIC=C:/Users/mihai/Desktop/CSE 491/GROUP6/third_party/Catch2
+
+//Maximum time allowed before CTest will kill the test.
+DART_TESTING_TIMEOUT:STRING=1500
 
 //Path to a file.
 FLAC_INCLUDE_DIR:PATH=C:/Users/mihai/Desktop/CSE 491/GROUP6/third_party/SFML/extlibs/headers
@@ -532,6 +551,9 @@ FREETYPE_INCLUDE_DIR_ft2build:PATH=C:/Users/mihai/Desktop/CSE 491/GROUP6/third_p
 //Path to a library.
 FREETYPE_LIBRARY:FILEPATH=C:/Users/mihai/Desktop/CSE 491/GROUP6/third_party/SFML/extlibs/libs-mingw/x64/libfreetype.a
 
+//Path to a program.
+GITCOMMAND:FILEPATH=C:/Program Files/Git/cmd/git.exe
+
 //Value Computed by CMake
 GROUP6_BINARY_DIR:STATIC=C:/Users/mihai/Desktop/CSE 491/GROUP6/cmake-build-debug-mingw
 
@@ -540,6 +562,15 @@ GROUP6_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 GROUP6_SOURCE_DIR:STATIC=C:/Users/mihai/Desktop/CSE 491/GROUP6
+
+//Command to build the project
+MAKECOMMAND:STRING="C:\Program Files\CMake\bin\cmake.exe" --build . --config "${CTEST_CONFIGURATION_TYPE}"
+
+//Path to the memory checking command, used for memory error detection.
+MEMORYCHECK_COMMAND:FILEPATH=MEMORYCHECK_COMMAND-NOTFOUND
+
+//File that contains suppressions for the memory checker
+MEMORYCHECK_SUPPRESSIONS_FILE:FILEPATH=
 
 //Path to a file.
 OGG_INCLUDE_DIR:PATH=C:/Users/mihai/Desktop/CSE 491/GROUP6/third_party/SFML/extlibs/headers
@@ -613,6 +644,9 @@ SFML_USE_SYSTEM_DEPS:BOOL=FALSE
 //Treat compiler warnings as errors
 SFML_WARNINGS_AS_ERRORS:BOOL=OFF
 
+//Name of the computer/site where compile is being run
+SITE:STRING=Milans-PC
+
 //Path to a library.
 VORBISENC_LIBRARY:FILEPATH=C:/Users/mihai/Desktop/CSE 491/GROUP6/third_party/SFML/extlibs/libs-mingw/x64/libvorbisenc.a
 
@@ -648,6 +682,8 @@ CMAKE_CACHE_PATCH_VERSION:INTERNAL=1
 CMAKE_COMMAND:INTERNAL=C:/Program Files/CMake/bin/cmake.exe
 //Path to cpack program executable.
 CMAKE_CPACK_COMMAND:INTERNAL=C:/Program Files/CMake/bin/cpack.exe
+//ADVANCED property for variable: CMAKE_CTEST_COMMAND
+CMAKE_CTEST_COMMAND-ADVANCED:INTERNAL=1
 //Path to ctest program executable.
 CMAKE_CTEST_COMMAND:INTERNAL=C:/Program Files/CMake/bin/ctest.exe
 //ADVANCED property for variable: CMAKE_CXX_COMPILER
@@ -766,7 +802,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=14
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=19
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -820,6 +856,10 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 CMAKE_STRIP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: COVERAGE_COMMAND
+COVERAGE_COMMAND-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: COVERAGE_EXTRA_FLAGS
+COVERAGE_EXTRA_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CPACK_BINARY_7Z
 CPACK_BINARY_7Z-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CPACK_BINARY_IFW
@@ -836,10 +876,16 @@ CPACK_BINARY_ZIP-ADVANCED:INTERNAL=1
 CPACK_SOURCE_7Z-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CPACK_SOURCE_ZIP
 CPACK_SOURCE_ZIP-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CTEST_SUBMIT_RETRY_COUNT
+CTEST_SUBMIT_RETRY_COUNT-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CTEST_SUBMIT_RETRY_DELAY
+CTEST_SUBMIT_RETRY_DELAY-ADVANCED:INTERNAL=1
 //Project GUID
 Catch2WithMain_GUID_CMAKE:INTERNAL=8bd3552a-2cfb-4a59-ab15-2031b97ada1e
 //Project GUID
 Catch2_GUID_CMAKE:INTERNAL=8d538cbe-01bf-4a2e-a98a-6c368fdf13d7
+//ADVANCED property for variable: DART_TESTING_TIMEOUT
+DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
 //Have include dinput.h
 DINPUT_H_FOUND:INTERNAL=1
 //Details about finding FLAC
@@ -864,8 +910,16 @@ FREETYPE_INCLUDE_DIR_freetype2-ADVANCED:INTERNAL=1
 FREETYPE_INCLUDE_DIR_ft2build-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: FREETYPE_LIBRARY
 FREETYPE_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: GITCOMMAND
+GITCOMMAND-ADVANCED:INTERNAL=1
 //Test HAVE_FLAG__ffile_prefix_map_C__Users_mihai_Desktop_CSE_491_GROUP6_third_party_Catch2__
 HAVE_FLAG__ffile_prefix_map_C__Users_mihai_Desktop_CSE_491_GROUP6_third_party_Catch2__:INTERNAL=
+//ADVANCED property for variable: MAKECOMMAND
+MAKECOMMAND-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MEMORYCHECK_COMMAND
+MEMORYCHECK_COMMAND-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MEMORYCHECK_SUPPRESSIONS_FILE
+MEMORYCHECK_SUPPRESSIONS_FILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OGG_INCLUDE_DIR
 OGG_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OGG_LIBRARY
@@ -878,6 +932,8 @@ OPENAL_LIBRARY-ADVANCED:INTERNAL=1
 OPENGL_gl_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_glu_LIBRARY
 OPENGL_glu_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SITE
+SITE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: VORBISENC_LIBRARY
 VORBISENC_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: VORBISFILE_LIBRARY

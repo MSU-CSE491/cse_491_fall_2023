@@ -24,6 +24,7 @@ class GenerativeWorld : public WorldBase {
   size_t key_id; ///< Easy access to key CellTypeID
   size_t door_id; ///< Easy access to door CellTypeID
 
+  size_t tree_id;
   size_t grass_id;
   size_t dirt_id;
 
@@ -48,6 +49,7 @@ class GenerativeWorld : public WorldBase {
     key_id = AddCellType("key", "item that can be picked up to unlock door and escape maze", 'K');
     door_id = AddCellType("door", "Door that can be walked through only with possession of key to leave maze", 'D');
 
+    tree_id  = AddCellType("tree", "A tree that blocks the way.", 't');
     grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
     dirt_id  = AddCellType("dirt", "Dirt you can walk on.", '~');
 
