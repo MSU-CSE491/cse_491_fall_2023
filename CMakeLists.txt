@@ -42,6 +42,12 @@ if(${BUILD_MAIN})
   set(SFML_BUILD_DIR sfml_build)
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
+
+  #configure the xml library
+  set(XML_SRC_DIR third_party/tinyxml2)
+  set(XML_BUILD_DIR xml_build)
+  add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
   file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
@@ -60,6 +66,11 @@ if(${BUILD_MAIN})
     target_link_libraries(${EXE_NAME}
       PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
       )
+
+    target_link_libraries(${EXE_NAME}
+      PRIVATE tinyxml2
+    )
+
     if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
       message(STATUS "Loading ${EXE_NAME}.cmake")
       include(${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
@@ -77,6 +88,8 @@ if(${BUILD_TESTS})
   set(CATCH_BUILD_DIR catch_build)
   add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
 
+
+
   # Configure only the networking portion of SFML
   if(NOT ${BUILD_MAIN})
     set(SFML_BUILD_WINDOW FALSE)
@@ -85,7 +98,15 @@ if(${BUILD_TESTS})
     set(SFML_SRC_DIR third_party/SFML)
     set(SFML_BUILD_DIR sfml_build)
     add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
+
+    set(XML_SRC_DIR third_party/tinyxml2)
+    set(XML_BUILD_DIR xml_build)
+    add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
+
   endif()
+
+
 
   # Setup CTest
   include(CTest)
