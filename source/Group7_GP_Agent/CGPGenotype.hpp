@@ -103,17 +103,21 @@ namespace cowboys {
       // Sign
       // Store if it is positive or negative using the first base64 character or the second
       assert(chars.size() > 2);
-      char sign_b64 = value < 0 ? chars[1] : chars[0];
-      // Remove the negative sign if it exists
-      if (value < 0)
+      char sign_b64 = chars[0];
+      if (value < 0) {
+        sign_b64 = chars[1];
+        // Remove the negative sign
         double_str.erase(0, 1);
+      }
 
       // Decimal point
       size_t decimal_loc = std::min(double_str.find('.'), double_str.size());
       // Remove the decimal point (does nothing if decimal_loc == double_str.size())
       double_str.erase(decimal_loc, 1);
+      // Location of the decimal from the right end of the string, so that leading 0s that are dropped can be recovered
+      size_t decimal_loc_from_right = double_str.size() - decimal_loc;
       // Store decimal location using 1 base64 character (arbitrary choice, assumes decimal_loc < 64)
-      char decimal_loc_b64 = chars[decimal_loc];
+      char decimal_loc_b64 = chars[decimal_loc_from_right];
 
       // ULL
       // Take the rest of the string as a ULL
@@ -130,14 +134,15 @@ namespace cowboys {
     static double B64ToDouble(const std::string &value) {
       assert(value.size() > 0);
       // Get decimal location
-      size_t decimal_loc = chars.find(value[0]);
+      size_t decimal_loc_from_right = chars.find(value[0]);
       // Get sign
-      assert(chars.size() > 2);
       double sign = value[1] == chars[0] ? 1 : -1;
       // Get ULL
       std::string ull = std::to_string(B64ToULL(value.substr(2)));
+      if (ull.size() < decimal_loc_from_right)
+        ull = std::string(decimal_loc_from_right - ull.size() + 1, '0') + ull;
       // Insert decimal point
-      ull.insert(decimal_loc, ".");
+      ull.insert(ull.size() - decimal_loc_from_right, ".");
       // Return double
       return sign * std::stod(ull);
     }
@@ -260,6 +265,25 @@ namespace cowboys {
       return genotype;
     }
 
+    /// @brief Encodes the genotype into a string.
+    /// @return The encoded genotype.
+    std::string EncodeGenotypeRaw() const {
+      std::string genotype = "";
+      for (const CGPNodeGene &node : nodes) {
+        // Input Connections
+        genotype += std::string(node.input_connections.cbegin(), node.input_connections.cend());
+        genotype += NODE_GENE_SEP;
+        // Function index
+        genotype += std::to_string(node.function_idx);
+        genotype += NODE_GENE_SEP;
+        // Default output
+        genotype += std::to_string(node.default_output);
+        // End of node
+        genotype += NODE_SEP;
+      }
+      return genotype;
+    }
+
     /// @brief Decodes the genotype string and configures the node genes. Node gene vector should be initialized
     /// before calling this.
     void DecodeGenotype(const std::string &genotype) {
@@ -326,9 +350,7 @@ namespace cowboys {
     ~CGPGenotype() = default;
     /// @brief Copy constructor for the cartesian graph genotype.
     /// @param other The other cartesian graph genotype to copy from.
-    CGPGenotype(const CGPGenotype &other) {
-      Configure(other.Export());
-    }
+    CGPGenotype(const CGPGenotype &other) { Configure(other.Export()); }
     /// @brief Copy assignment operator for the cartesian graph genotype.
     /// @param other The other cartesian graph genotype to copy from.
     /// @return This cartesian graph genotype.
@@ -482,6 +504,14 @@ namespace cowboys {
     std::string Export() const {
       std::string header = EncodeHeader();
       std::string genotype = EncodeGenotype();
+      return header + HEADER_END + genotype;
+    }
+
+    /// @brief Exports this genotype into a string representation.
+    /// @return The string representation of this genotype.
+    std::string ExportRaw() const {
+      std::string header = EncodeHeader();
+      std::string genotype = EncodeGenotypeRaw();
       return header + HEADER_END + genotype;
     }
 

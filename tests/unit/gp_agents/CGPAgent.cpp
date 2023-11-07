@@ -26,13 +26,30 @@ TEST_CASE("CGPAgent construction", "[group7][agent]") {
   }
 }
 TEST_CASE("Copying", "[group7][agent][genotype]") {
-  CGPGenotype genotype({8, 4, 2, 10, 2});
-  CGPAgent agent(0, "agent", genotype);
-  CGPAgent agent2(1, "agent2");
-  CHECK(agent.GetGenotype() != agent2.GetGenotype());
-
-  GPAgent_ &agent_ref = agent;
-  GPAgent_ &agent2_ref = agent2;
-  agent2_ref.Copy(agent_ref);
-  CHECK(agent.GetGenotype() == agent2.GetGenotype());
+  SECTION("Different size graphs") {
+    CGPGenotype genotype({8, 4, 2, 10, 2});
+    CGPAgent agent(0, "agent", genotype);
+    CGPAgent agent2(1, "agent2");
+    CHECK(agent.GetGenotype() != agent2.GetGenotype());
+    
+    // Generic references to CGPAgent
+    GPAgent_ &agent_ref = agent;
+    GPAgent_ &agent2_ref = agent2;
+    agent2_ref.Copy(agent_ref); // Copy agent into agent2
+    CHECK(agent.GetGenotype() == agent2.GetGenotype());
+  }
+  SECTION("Mutation") {
+    CGPGenotype genotype({8, 4, 2, 10, 2});
+    CGPAgent agent(0, "agent", genotype);
+    CGPAgent agent2(1, "agent2", genotype);
+    CHECK(agent.GetGenotype() == agent2.GetGenotype());
+    agent.MutateAgent(1);
+    CHECK(agent.GetGenotype() != agent2.GetGenotype());
+    
+    // Generic references to CGPAgent
+    GPAgent_ &agent_ref = agent;
+    GPAgent_ &agent2_ref = agent2;
+    agent2_ref.Copy(agent_ref); // Copy agent into agent2
+    CHECK(agent.GetGenotype() == agent2.GetGenotype());
+  }
 }

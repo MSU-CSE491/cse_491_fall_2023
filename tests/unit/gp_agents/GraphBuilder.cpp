@@ -41,7 +41,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
       actions.at(i) = i;
     GraphBuilder builder;
     bool choose_same_action = true;
-    int action = -1;
+    size_t action = 0;
 
     // Test that the graph is not always choosing the same action when mutated with different seeds
     size_t iterations = 100;
@@ -51,10 +51,8 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
       genotype.MutateDefault(1);
       auto graph = builder.CartesianGraph(genotype, FUNCTION_SET);
       auto action_to_take = graph->MakeDecision(inputs, actions);
-      if (action == -1) {
-        action = action_to_take;
-      }
       choose_same_action = choose_same_action && (action_to_take == action);
+      action = action_to_take;
     }
     // Could fail, but should be very unlikely
     CHECK_FALSE(choose_same_action);
