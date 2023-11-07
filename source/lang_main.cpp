@@ -152,32 +152,6 @@ DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
 		
 		pe.pushStack(static_cast<double>(id));
 	});
-	
-	registerFunction("addAgent", [this, &world](ProgramExecutor& pe){
-		auto args = pe.popArgs();
-		if (args.size() < 5) { error("Wrong number of arguments!"); return; }
-		// type, name, symbol, x, y (ignored: TODO later)
-		auto type = pe.as<std::string>(args[0]);
-		auto name = pe.as<std::string>(args[1]);
-		auto symbol = pe.as<std::string>(args[2]);
-		auto x = pe.as<double>(args[3]);
-		auto y = pe.as<double>(args[4]);
-//		std::cout << type << "," << name << "," << symbol << ",";
-//		std::cout << x << "," << y << "\n";
-		// check for argument errors
-		if (!pe.getErrorMessage().empty()){ return; }
-		if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
-		
-		AgentBase* agent;
-		if (type == "Player"){
-			agent = &world.AddAgent<TrashInterface>(name, "symbol", symbol[0]);
-			agent->SetPosition(x, y);
-		} else {
-			error("Unknown agent type!"); return;
-		}
-		
-		pe.pushStack(static_cast<double>(agent->GetID()));
-	});
 }
 
 int main()

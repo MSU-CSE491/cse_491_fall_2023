@@ -175,14 +175,28 @@ namespace worldlang{
 	>
 	{};
 	
+	struct statement_list;
+	
+	// Matches a block of code
+	// ex. { /*code*/ }
+	struct code_block : pegtl::seq<
+		pegtl::one< '{' >,
+		pegtl::eol,
+		statement_list,
+		pegtl::one< '}' >,
+		pegtl::eol
+	>
+	{};
+	
 	struct statement : pegtl::sor<
 		pegtl::seq<
 			function,
+			pegtl::opt<code_block>,
 			pegtl::opt<pegtl::eol>
 		>,
 		pegtl::seq<
 			assignment,
-			pegtl::eol
+			pegtl::opt<pegtl::eol>
 		>,
 		pegtl::eol
 	>
@@ -230,6 +244,7 @@ namespace worldlang{
 			expression_list,
 			statement,
 			statement_list,
+			code_block,
 			program,
 			assignment,
 			op_prio_add,
@@ -325,6 +340,11 @@ namespace worldlang{
 						traverse(c);
 					}
 				}
+			} else if (type == "worldlang::code_block"){
+				std::cout << "Traversing " << type << "\n";
+				out.push_back(Unit{Unit::Type::operation, "start_block"});
+				traverse(node->children.at(0));
+				out.push_back(Unit{Unit::Type::operation, "end_block"});
 			} else if (type == "worldlang::statement"){
 				for (const auto& child : node->children){
 					traverse(child);

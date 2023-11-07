@@ -120,9 +120,20 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 	
 	SECTION("Assignment rules"){
 		PEGTL_GRAMMAR_CHECK(worldlang::assignment);
+		
 		PARSE_TRUE(worldlang::expression, "a=(((3))+5)+5");
 		PARSE_TRUE(worldlang::expression, "b=4-6+5");
 		PARSE_TRUE(worldlang::expression, "b=\"STR\"");
+	}
+	
+	SECTION("Block rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::code_block);
+		
+		PARSE_TRUE(worldlang::code_block, "{\ntest(a,b)\n}\n");
+		PARSE_TRUE(worldlang::code_block, "{\nb=4-6+5\n}\n");
+		PARSE_TRUE(worldlang::code_block, "{\nb=\"STR\"\n}\n");
+		
+		PARSE_FALSE(worldlang::code_block, "{\nb=\"STR\"\n}");
 	}
 	
 	SECTION("Program rules"){
@@ -132,6 +143,8 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::program, "func(3+func2(5))\n");
 		PARSE_TRUE(worldlang::program, "b=64\nfunc(b,23)\n");
 		PARSE_TRUE(worldlang::program, "b=1+2*3/4-5\nc=(8*5)+6-7*(42/7+0)\nfunc(func2(b),func3(c))\n");
+		
+		PARSE_TRUE(worldlang::program, "if(1){\nb=\"STR\"\n}\n");
 	}
 }
 
@@ -152,7 +165,7 @@ void square(ProgramExecutor& pe){
 void summation(ProgramExecutor& pe){
 	auto args = pe.popArgs();
 	double sum = 0;
-	for (int i = 0; i < args.size(); ++i){
+	for (size_t i = 0; i < args.size(); ++i){
 		auto arg = pe.as<double>(args[i]);
 		
 		sum += arg;
@@ -256,6 +269,20 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 		PROGRAM_RUN("S=\"Hello, World!\"\nE=\"\"\n"){
 			CHECK(pe.var<std::string>("S") == "Hello, World!");
 			CHECK(pe.var<std::string>("E") == "");
+		}
+	}
+	
+	SECTION("Code blocks"){
+		PROGRAM_RUN("if(1){\nS=\"Hello, World!\"\nE=\"\"\n}\n"){
+			CHECK(pe.var<std::string>("S") == "Hello, World!");
+			CHECK(pe.var<std::string>("E") == "");
+		}
+	}
+	
+	SECTION("IF block"){
+		PROGRAM_RUN("if(1){\na=3\n}\nb=2\nif(0){\nb=6\n}\n"){
+			CHECK(pe.var<double>("a") == 3.0);
+			CHECK(pe.var<double>("b") == 2.0);
 		}
 	}
 }

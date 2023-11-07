@@ -10,6 +10,11 @@
 #include <stack>
 #include <variant>
 
+#include "core/AgentBase.hpp"
+#include "Interfaces/TrashInterface.hpp"
+
+using cse491::AgentBase;
+
 namespace worldlang {
 	class ProgramExecutor {
 	// Internal types
@@ -22,6 +27,11 @@ namespace worldlang {
 		
 	// Execution state
 	private:
+		size_t index;
+		
+		/// Executable code units (set by run())
+		std::vector<Unit> code{};
+		
 		/// Variables
 		std::map < std::string, Value > variables{};
 		
@@ -34,7 +44,25 @@ namespace worldlang {
 	// Public methods
 	public:
 		/// Constructor
-		ProgramExecutor() = default;
+		ProgramExecutor(){
+			registerFunction("if", [this](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
+				// jump to end of block if false
+				if (pe.as<double>(args.at(0)) == 0){
+					int nest = 0;
+					do {
+						auto& unit = pe.code.at(++index);
+						if (unit.type == Unit::Type::operation && unit.value == "start_block") nest++;
+						if (unit.type == Unit::Type::operation && unit.value == "end_block") nest--;
+					} while(nest);
+					// points to one past end_block
+					index--;
+				} else {
+					// advance to start of block automatically
+				}
+			});
+		}
 		
 		/// Constructor with function registration
 		ProgramExecutor(cse491::WorldBase& world) : ProgramExecutor(){
@@ -50,6 +78,32 @@ namespace worldlang {
 				if (args.size() != 0) { error("Wrong number of arguments!"); return; }
 				pe.pushStack(static_cast<double>(world.GetGrid().GetWidth()));
 				pe.pushStack(static_cast<double>(world.GetGrid().GetHeight()));
+			});
+			// Create an agent
+			registerFunction("addAgent", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() < 5) { error("Wrong number of arguments!"); return; }
+				// type, name, symbol, x, y (ignored: TODO later)
+				auto type = pe.as<std::string>(args[0]);
+				auto name = pe.as<std::string>(args[1]);
+				auto symbol = pe.as<std::string>(args[2]);
+				auto x = pe.as<double>(args[3]);
+				auto y = pe.as<double>(args[4]);
+		//		std::cout << type << "," << name << "," << symbol << ",";
+		//		std::cout << x << "," << y << "\n";
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
+				
+				AgentBase* agent;
+				if (type == "Player"){
+					agent = &world.AddAgent<cse491::TrashInterface>(name, "symbol", symbol[0]);
+					agent->SetPosition(x, y);
+				} else {
+					error("Unknown agent type!"); return;
+				}
+				
+				pe.pushStack(static_cast<double>(agent->GetID()));
 			});
 		}
 		
@@ -151,10 +205,10 @@ namespace worldlang {
 		bool run(const std::string& program){
 			//TODO: program preprocessing (add newline to end, remove spaces)
 			error_message = "";
-			auto code = parse_to_code(program);
+			code = parse_to_code(program);
 			//TODO: check for parse success
 			
-			size_t index = 0;
+			index = 0;
 			while (error_message.empty() && index < code.size()){
 				auto& unit = code.at(index);
 				switch (unit.type){
@@ -269,6 +323,8 @@ namespace worldlang {
 						} else if (unit.value == "endargs"){
 							// this could absolutely be broken but that's OK
 							pushStack(Identifier{"__INTERNAL_ENDARGS"});
+						} else if (unit.value == "start_block" || unit.value == "end_block"){
+							std::cout << unit.value << std::endl;
 						} else {
 							error("Unknown operation '" + unit.value + "'");
 						}
