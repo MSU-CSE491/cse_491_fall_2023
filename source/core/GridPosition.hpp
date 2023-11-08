@@ -86,7 +86,16 @@ namespace cse491 {
       return sqrt(dist1*dist1 + dist2*dist2);
     }
 
-    [[nodiscard]] double IsNear(GridPosition pos2, double max_dist=1.0) const {
+    /// @brief  Manhattan distance between grid positions
+    /// @param pos2 Position to compare to
+    /// @return Manhattan distance
+    [[nodiscard]] double MDistance(GridPosition pos2) const {
+      const double dist1 = x - pos2.x;
+      const double dist2 = y - pos2.y;
+      return abs(dist1) + abs(dist2);
+    }
+
+    [[nodiscard]] bool IsNear(GridPosition pos2, double max_dist=1.0) const {
       const double dist1 = x - pos2.x;
       const double dist2 = y - pos2.y;
       return (dist1*dist1 + dist2*dist2) <= (max_dist * max_dist);
