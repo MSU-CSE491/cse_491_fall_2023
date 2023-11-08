@@ -1,3 +1,4 @@
 PathAgent
 FollowingAgent
 AStarAgent
+RandomAgent
