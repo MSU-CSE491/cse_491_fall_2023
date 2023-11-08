@@ -57,6 +57,11 @@ namespace cowboys {
 
     virtual void printAgent() {};
 
+    virtual std::string Export() { return ""; }
+
+    virtual void crossover(const GPAgent_ &other) {};
+    virtual void Import(const std::string &genotype) {};
+
   };
 
 } // End of namespace cowboys
