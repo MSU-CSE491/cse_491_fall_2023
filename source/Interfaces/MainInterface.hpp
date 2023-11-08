@@ -43,10 +43,13 @@ namespace i_2D {
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
 
+        // Menu and message vars
         Menu mMenu; ///< for menu class
         sf::Font mFont; ///< one font for all objects using font
         std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
         std::unique_ptr<MessageBoard> mMessageBoard;
+
+        // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder
         std::map<char, sf::Texture> mTexturesDefault;
         std::map<char, sf::Texture> mTexturesSecondWorld;
@@ -54,9 +57,9 @@ namespace i_2D {
         std::map<char, sf::Texture> mTexturesGenerativeWorld;
         std::map<char, sf::Texture> mTexturesCurrent;
 
-        sf::Vector2i mPlayerPosition = sf::Vector2i(0,0);
-        int mRenderRange = 10;
-        bool mFullView = false;
+        // Render range vars
+        sf::Vector2i mPlayerPosition = sf::Vector2i(0,0); ///< xy world grid location of the player
+        int mRenderRange = 10; ///< radius of cells shown around the player
 
     public:
 
@@ -68,7 +71,7 @@ namespace i_2D {
         ~MainInterface() = default;
 
 
-        std::vector<std::string> CreateVectorMaze(
+        std::vector<std::vector<std::string>> CreateVectorMaze(
           const WorldGrid &grid,
           const type_options_t &type_options,
           const item_map_t &item_map,

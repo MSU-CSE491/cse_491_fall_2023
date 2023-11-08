@@ -38,21 +38,27 @@ namespace i_2D {
      *
      * @return A vector of strings representing the maze grid.
      */
-    std::vector<std::string> MainInterface::CreateVectorMaze(
+    std::vector<std::vector<std::string>> MainInterface::CreateVectorMaze(
 
       const WorldGrid &grid, const type_options_t &type_options,
       const item_map_t &item_map, const agent_map_t &agent_map)
 
     {
+        std::vector<std::vector<std::string>> layers;
         std::vector<std::string> symbol_grid(grid.GetHeight());
+        std::vector<std::string> defaultThing(grid.GetHeight());
 
         // Load the world into the symbol_grid;
         for (size_t y=0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
+            defaultThing[y].resize(grid.GetWidth());
             for (size_t x=0; x < grid.GetWidth(); ++x) {
                 symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
             }
         }
+        // Save to layers and clear for next layer
+        layers.push_back(symbol_grid);
+        symbol_grid = defaultThing;
 
         // Add in the agents / entities
         for (const auto & [id, item_ptr] : item_map) {
@@ -63,6 +69,9 @@ namespace i_2D {
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
+        // Save to layers and clear for next layer
+        layers.push_back(symbol_grid);
+        symbol_grid = defaultThing;
 
         for (const auto & [id, agent_ptr] : agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
@@ -72,7 +81,10 @@ namespace i_2D {
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
-        return symbol_grid;
+        // Save to layers
+        layers.push_back(symbol_grid);
+
+        return layers;
     }
 
     /**
@@ -102,10 +114,11 @@ namespace i_2D {
         mPlayerPosition = sf::Vector2i (this->position.GetX(), this->position.GetY());
 
         // Clear old drawing
-        mWindow.clear(sf::Color::White);
+        mWindow.clear(sf::Color::Cyan);
 
         // Create a symbol representation of the world
-        std::vector<std::string> symbol_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
+        std::vector<std::vector<std::string>> layers = CreateVectorMaze(grid, type_options, item_map, agent_map);
+        std::vector<std::string> symbol_grid = layers[0];
 
         // Determine size of an individual cell for this frame
         sf::Vector2f cellSize = CalculateCellSize(grid);
@@ -115,6 +128,10 @@ namespace i_2D {
         sf::Vector2i startPos(mPlayerPosition.x - mRenderRange, mPlayerPosition.y - mRenderRange);
         sf::Vector2f endPos(mPlayerPosition.x + mRenderRange, mPlayerPosition.y + mRenderRange);
 
+
+
+
+        // Draw agent and entity layers cell by cell
         for (int iterY = -mRenderRange; iterY < mRenderRange; ++iterY) {
             for (int iterX = -mRenderRange; iterX < mRenderRange; ++iterX) {
 
@@ -126,32 +143,45 @@ namespace i_2D {
                 int readLocY = mPlayerPosition.y+iterY;
                 int readLocX = mPlayerPosition.x+iterX;
 
-                // Create the rectangle
-                sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
-                sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
-                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
-
                 //bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
                 (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
                 bool isVerticalWall = false;
 
                 // Check range and apply texture if allowed
-                if(readLocY < 0 || readLocX < 0 || readLocX >= 23 || readLocY >= 9)
+                if(readLocY < 0 || readLocX < 0 || readLocX >= grid.GetWidth() || readLocY >= grid.GetHeight())
                 {
+                    // Create the rectangle
+                    sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
+                    sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
+                    cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                    cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                    cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
                     // Draw black
                     DrawDefaultCell(cellRect);
                 }
                 else
                 {
-                    // Draw texture
-                    char symbol = symbol_grid[readLocY][readLocX];
-                    SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
+                    // Create and draw a cell for each layer at this cell location
+                    for(int layer = 0; layer < layers.size(); ++layer)
+                    {
+                        // Read symbol
+                        char symbol = layers[layer][readLocY][readLocX];
+                        if(symbol != '\000')
+                        {
+                            // Create the rectangle
+                            sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
+                            sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
+                            cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                            cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                            cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                            // Draw texture
+                            SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
+                        }
+                    }
                 }
-
             }
         }
+
         // Display everything
         mMenu.drawto(mWindow);
         mTextBox->DrawTo(mWindow);
@@ -366,7 +396,7 @@ namespace i_2D {
      * @param cellRect The rectangle shape of the cell.
      */
     void MainInterface::DrawEmptyCell(sf::RectangleShape& cellRect) {
-        cellRect.setFillColor(sf::Color::Black);
+        cellRect.setFillColor(sf::Color::Green);
         mWindow.draw(cellRect);
     }
     
@@ -390,9 +420,7 @@ namespace i_2D {
 
     void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent) {
         cellRect.setTexture(&agent);
-
-        cell.setFillColor(sf::Color::Black);
-        mWindow.draw(cell);
+        //mWindow.draw(cell);
         mWindow.draw(cellRect);
     }
     /*
