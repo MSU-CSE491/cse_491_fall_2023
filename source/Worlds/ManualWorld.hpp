@@ -151,12 +151,11 @@ namespace cse491_team8 {
         while (other_agent.GetProperty<int>("Health") > 0 && agent.GetProperty<int>("Health") > 0)
         {
             bool valid_input = true;
-            std::cout << "Your Health: " << agent.GetProperty<int>("Health") << " Your Strength: " <<
-                    agent.GetProperty<int>("Strength") << " Their Health: " <<
-                            other_agent.GetProperty<int>("Health") << " Their Strength: " <<
-                                    other_agent.GetProperty<int>("Strength") << std::endl;
-            std::cout << "a for attack, s for special, r for run, h for heal" << "\n";
-            std::cout << "Your Attack: ";
+            agent.Notify("Player Health: " + std::to_string(agent.GetProperty<int>("Health"))+"\n"+
+                         "Player Strength: " + std::to_string(agent.GetProperty<int>("Strength"))+"\n"+
+                         "Enemy Health: " + std::to_string(other_agent.GetProperty<int>("Health"))+"\n"+
+                         "Enemy Strength: " + std::to_string(other_agent.GetProperty<int>("Strength"))+"\n"+
+                         "\na for attack, s for special, r for run, h for heal\nPlayer Attack: ");
             std::cin >> input;
             int damage = 0;
             switch (input) {
@@ -173,7 +172,7 @@ namespace cse491_team8 {
             }
             if (!valid_input)
             {
-                std::cout << "Invalid Input" << "\n";
+                agent.Notify("\nInvalid Input\n");
                 continue;
             }
 
@@ -463,8 +462,8 @@ namespace cse491_team8 {
     bool DoActionTestNewPositionWater(cse491::AgentBase& agent) {
         if (agent.HasProperty("Swim") && agent.GetProperty<int>("Swim") > 0)
         {
-            std::cout << "You can use your Boat once to float over this tile. You have "
-                << agent.GetProperty<int>("Swim") << " uses remaining. Use your boat? Y/N:\n" << std::endl;
+            agent.Notify("You can use your Boat once to float over this tile. You have "
+                + std::to_string(agent.GetProperty<int>("Swim")) + " uses remaining. Use your boat? Y/N:\n");
             char boat;
             std::cin >> boat;
             if (boat == 'Y' || boat == 'y')
@@ -475,7 +474,7 @@ namespace cse491_team8 {
                 if (agent.GetProperty<int>("Swim") == 0)
                 {
                     // they're on the water, and they no longer have a boat
-                    std::cout << "No boat uses left! Try again? Y/N:" << std::endl;
+                    agent.Notify("No boat uses left! Try again? Y/N:\n");
                     char again;
                     std::cin >> again;
                     if (again == 'N' || again == 'n')
