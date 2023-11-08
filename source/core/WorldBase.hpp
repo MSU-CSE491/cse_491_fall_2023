@@ -86,6 +86,13 @@ public:
 
   virtual ~WorldBase() = default;
 
+  virtual void Reset() {
+    item_map.clear();
+    agent_map.clear();
+    last_entity_id = 0;
+    run_over = false;
+  }
+
   // -- Accessors --
 
   /// Get the total number of NON-agent entities
@@ -247,6 +254,10 @@ public:
     return RemoveItem( GetItemID(item_name) );
   }
   
+  WorldBase & AddItemToGrid(size_t item_id, GridPosition pos, size_t grid_id=0) {
+    item_map[item_id]->SetPosition(pos, grid_id);
+    return *this;
+  }
 
   // -- Action Management --
 
