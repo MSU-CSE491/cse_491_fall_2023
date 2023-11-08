@@ -100,6 +100,15 @@ namespace cse491 {
     virtual void Notify(const std::string & /*message*/,
                         const std::string & /*msg_type*/="none") { }
 
+
+//    virtual void serialize(std::ostream & os) {};
+//
+//    virtual void deserialize(std::istream & is) {};
+//
+//    void storeAgentData(std::string name) {
+//
+//    }
+
   };
 
 } // End of namespace cse491
