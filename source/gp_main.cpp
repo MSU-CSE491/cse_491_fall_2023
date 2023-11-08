@@ -11,7 +11,7 @@
 
 #include "Group7_GP_Agent/GPAgent_.hpp"
 #include "Group7_GP_Agent/LGPAgent.hpp"
-
+#include "Group7_GP_Agent/GPAgentTest.hpp"
 
 int main() {
     cse491::MazeWorld world;
