@@ -44,11 +44,11 @@ class Entity {
 
   template<typename T>
   Property<T> &AsProperty(const std::string &name) const {
-    assert(HasProperty(name));
-    PropertyBase *raw_ptr = property_map.at(name).get();
-    assert(dynamic_cast<Property<T> *>(raw_ptr));
-    auto property_ptr = static_cast<Property<T> *>(raw_ptr);
-    return *property_ptr;
+      assert(HasProperty(name));
+      PropertyBase *raw_ptr = property_map.at(name).get();
+      assert(dynamic_cast<Property<T> *>(raw_ptr));
+      auto property_ptr = static_cast<Property<T> *>(raw_ptr);
+      return *property_ptr;
   }
 
  public:
@@ -68,58 +68,58 @@ class Entity {
   [[nodiscard]] const std::string &GetName() const { return name; }
   [[nodiscard]] GridPosition GetPosition() const { return position; }
   [[nodiscard]] WorldBase &GetWorld() const {
-    assert(world_ptr);
-    return *world_ptr;
+      assert(world_ptr);
+      return *world_ptr;
   }
 
   Entity &SetName(const std::string in_name) {
-    name = in_name;
-    return *this;
+      name = in_name;
+      return *this;
   }
   Entity &SetPosition(GridPosition in_pos) {
-    position = in_pos;
-    return *this;
+      position = in_pos;
+      return *this;
   }
   Entity &SetPosition(double x, double y) {
-    position = GridPosition{x, y};
-    return *this;
+      position = GridPosition{x, y};
+      return *this;
   }
   virtual Entity &SetWorld(WorldBase &in_world) {
-    world_ptr = &in_world;
-    return *this;
+      world_ptr = &in_world;
+      return *this;
   }
 
   virtual bool IsAgent() const {
-    return false;
+      return false;
   } ///< Is Entity an autonomous agent?
   virtual bool IsItem() const { return false; } ///< Is Entity an item?
   virtual bool IsInterface() const {
-    return false;
+      return false;
   } ///< Is Entity an interface for a human?
 
   // -- Property Management --
 
   /// Does this agent have a property with the specified name?
   [[nodiscard]] bool HasProperty(const std::string &name) const {
-    return property_map.count(name);
+      return property_map.count(name);
   }
 
   /// Return the current value of the specified property.
   template<typename T = double>
   [[nodiscard]] const T &GetProperty(const std::string &name) const {
-    assert(HasProperty(name)); // Break if property does not already exist.
-    return AsProperty<T>(name).value;
+      assert(HasProperty(name)); // Break if property does not already exist.
+      return AsProperty<T>(name).value;
   }
 
   /// Change the value of the specified property (will create if needed)
   template<typename T>
   Entity &SetProperty(const std::string &name, const T &value) {
-    if (HasProperty(name)) {
-      AsProperty<T>(name).value = value;
-    } else {
-      property_map[name] = std::make_unique<Property<T>>(value);
-    }
-    return *this;
+      if (HasProperty(name)) {
+          AsProperty<T>(name).value = value;
+      } else {
+          property_map[name] = std::make_unique<Property<T>>(value);
+      }
+      return *this;
   }
 
   /// Allow for setting multiple properties at once.
@@ -128,16 +128,16 @@ class Entity {
   template<typename VALUE_T, typename... EXTRA_Ts>
   Entity &SetProperties(const std::string &name, VALUE_T &&value,
                         EXTRA_Ts &&...extras) {
-    SetProperty(name,
-                std::forward<VALUE_T>(value)); // Set the first property...
-    return SetProperties(
-        std::forward<EXTRA_Ts>(extras)...); // And any additional properties...
+      SetProperty(name,
+                  std::forward<VALUE_T>(value)); // Set the first property...
+      return SetProperties(
+          std::forward<EXTRA_Ts>(extras)...); // And any additional properties...
   }
 
   /// Completely remove a property from an Entity.
   Entity &RemoveProperty(const std::string &name) {
-    property_map.erase(name);
-    return *this;
+      property_map.erase(name);
+      return *this;
   }
 };
 
