@@ -63,7 +63,7 @@ bool PathAgent::Initialize() {
     return false;
   }
   return HasAction("move_arbitrary") && index_ >= 0 &&
-         static_cast<size_t>(index_) < offsets_.size();
+      static_cast<size_t>(index_) < offsets_.size();
 }
 
 /**
@@ -128,10 +128,10 @@ cse491::GridPosition PathAgent::GetNextPosition() {
  * Tells world to
  * @return whether the update succeeded
  */
-size_t PathAgent::SelectAction(cse491::WorldGrid const& /* grid*/,
-                               cse491::type_options_t const& /* type_options*/,
-                               cse491::item_map_t const& /* item_map*/,
-                               cse491::agent_map_t const& /* agent_map*/) {
+size_t PathAgent::SelectAction(cse491::WorldGrid const & /* grid*/,
+                               cse491::type_options_t const & /* type_options*/,
+                               cse491::item_map_t const & /* item_map*/,
+                               cse491::agent_map_t const & /* agent_map*/) {
   assert(HasAction("move_arbitrary"));
   return action_map["move_arbitrary"];
 }

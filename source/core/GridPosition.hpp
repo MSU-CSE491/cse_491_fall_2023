@@ -21,11 +21,11 @@ namespace cse491 {
 /// through a grid), but is easily converted to size_t for grid-cell
 /// identification.
 class GridPosition {
-private:
+ private:
   double x = 0.0;
   double y = 0.0;
 
-public:
+ public:
   GridPosition() = default;
   GridPosition(double x, double y) : x(x), y(y) {}
   GridPosition(const GridPosition &) = default;
@@ -96,7 +96,7 @@ public:
   [[nodiscard]] double Distance(GridPosition pos2) const {
     const double dist1 = x - pos2.x;
     const double dist2 = y - pos2.y;
-    return sqrt(dist1*dist1 + dist2*dist2);
+    return sqrt(dist1 * dist1 + dist2 * dist2);
   }
 
   /// @brief  Manhattan distance between grid positions
@@ -108,10 +108,10 @@ public:
     return abs(dist1) + abs(dist2);
   }
 
-  [[nodiscard]] bool IsNear(GridPosition pos2, double max_dist=1.0) const {
+  [[nodiscard]] bool IsNear(GridPosition pos2, double max_dist = 1.0) const {
     const double dist1 = x - pos2.x;
     const double dist2 = y - pos2.y;
-    return (dist1*dist1 + dist2*dist2) <= (max_dist * max_dist);
+    return (dist1 * dist1 + dist2 * dist2) <= (max_dist * max_dist);
   }
 };
 

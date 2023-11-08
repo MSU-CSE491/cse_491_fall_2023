@@ -17,19 +17,20 @@ namespace cse491 {
 class WorldBase;
 
 class Entity {
-private:
+ private:
   WorldBase *world_ptr; ///< Track the world this entity is in (private to
-                        ///< protect pointer)
-  protected:
-    const size_t id=0;      ///< Unique ID for this entity (zero is use for "no ID")
-    std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
-    GridPosition position;  ///< Where on the grid is this entity?
+  ///< protect pointer)
+ protected:
+  const size_t id = 0;      ///< Unique ID for this entity (zero is use for "no ID")
+  std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
+  GridPosition position;  ///< Where on the grid is this entity?
 
   struct PropertyBase {
     virtual ~PropertyBase() {}
   };
 
-  template <typename T> struct Property : public PropertyBase {
+  template<typename T>
+  struct Property : public PropertyBase {
     T value;
     Property(const T &in) : value(in) {}
     Property(T &&in) : value(in) {}
@@ -41,7 +42,8 @@ private:
 
   // -- Helper Functions --
 
-  template <typename T> Property<T> &AsProperty(const std::string &name) const {
+  template<typename T>
+  Property<T> &AsProperty(const std::string &name) const {
     assert(HasProperty(name));
     PropertyBase *raw_ptr = property_map.at(name).get();
     assert(dynamic_cast<Property<T> *>(raw_ptr));
@@ -49,15 +51,15 @@ private:
     return *property_ptr;
   }
 
-public:
+ public:
   Entity(size_t id, const std::string &name) : id(id), name(name) {}
   Entity(const Entity &) =
-      delete; // Entities must be unique and shouldn't be copied.
+  delete; // Entities must be unique and shouldn't be copied.
   Entity(Entity &&) = default;
   virtual ~Entity() = default;
 
   Entity &operator=(const Entity &) =
-      delete; // Entities must be unique and shouldn't be copied.
+  delete; // Entities must be unique and shouldn't be copied.
   Entity &
   operator=(Entity &&) = delete; // Entities should never have IDs change.
 
@@ -103,14 +105,14 @@ public:
   }
 
   /// Return the current value of the specified property.
-  template <typename T = double>
+  template<typename T = double>
   [[nodiscard]] const T &GetProperty(const std::string &name) const {
     assert(HasProperty(name)); // Break if property does not already exist.
     return AsProperty<T>(name).value;
   }
 
   /// Change the value of the specified property (will create if needed)
-  template <typename T>
+  template<typename T>
   Entity &SetProperty(const std::string &name, const T &value) {
     if (HasProperty(name)) {
       AsProperty<T>(name).value = value;
@@ -123,7 +125,7 @@ public:
   /// Allow for setting multiple properties at once.
   Entity &SetProperties() { return *this; }
 
-  template <typename VALUE_T, typename... EXTRA_Ts>
+  template<typename VALUE_T, typename... EXTRA_Ts>
   Entity &SetProperties(const std::string &name, VALUE_T &&value,
                         EXTRA_Ts &&...extras) {
     SetProperty(name,

@@ -117,8 +117,8 @@ GetShortestPath(const cse491::GridPosition &start,
         double newG =
             current->g + 1; // Assuming a cost of 1 to move to a neighbor
         double newH = std::abs(newPos.GetX() - endNode->position.GetX()) +
-                      std::abs(newPos.GetY() -
-                               endNode->position.GetY()); // Manhattan distance
+            std::abs(newPos.GetY() -
+                endNode->position.GetY()); // Manhattan distance
 
         if (newG + newH < cost[newPos.CellX()][newPos.CellY()]) {
           auto neighbor =
@@ -182,64 +182,64 @@ StrToOffsets(std::string_view commands) {
 
       cse491::GridPosition base_pos;
       switch (direction) {
-      // Move up
-      case 'n': {
-        if (multiply) {
-          positions.push_back(base_pos.Above(steps));
-        } else {
+        // Move up
+        case 'n': {
+          if (multiply) {
+            positions.push_back(base_pos.Above(steps));
+          } else {
+            for (int i = 0; i < steps; ++i) {
+              positions.push_back(base_pos.Above());
+            }
+          }
+          break;
+        }
+
+          // Move down
+        case 's': {
+          if (multiply) {
+            positions.push_back(base_pos.Below(steps));
+          } else {
+            for (int i = 0; i < steps; ++i) {
+              positions.push_back(base_pos.Below());
+            }
+          }
+          break;
+        }
+
+          // Move left
+        case 'w': {
+          if (multiply) {
+            positions.push_back(base_pos.ToLeft(steps));
+          } else {
+            for (int i = 0; i < steps; ++i) {
+              positions.push_back(base_pos.ToLeft());
+            }
+          }
+          break;
+        }
+
+          // Move right
+        case 'e': {
+          if (multiply) {
+            positions.push_back(base_pos.ToRight(steps));
+          } else {
+            for (int i = 0; i < steps; ++i) {
+              positions.push_back(base_pos.ToRight());
+            }
+          }
+          break;
+        }
+
+          // Stay
+        case 'x': {
+          // Using the `*` does nothing to scale the offset since it's scaling {0,
+          // 0}
+          steps = multiply ? 1 : steps;
+
           for (int i = 0; i < steps; ++i) {
-            positions.push_back(base_pos.Above());
+            positions.push_back(base_pos);
           }
         }
-        break;
-      }
-
-        // Move down
-      case 's': {
-        if (multiply) {
-          positions.push_back(base_pos.Below(steps));
-        } else {
-          for (int i = 0; i < steps; ++i) {
-            positions.push_back(base_pos.Below());
-          }
-        }
-        break;
-      }
-
-        // Move left
-      case 'w': {
-        if (multiply) {
-          positions.push_back(base_pos.ToLeft(steps));
-        } else {
-          for (int i = 0; i < steps; ++i) {
-            positions.push_back(base_pos.ToLeft());
-          }
-        }
-        break;
-      }
-
-        // Move right
-      case 'e': {
-        if (multiply) {
-          positions.push_back(base_pos.ToRight(steps));
-        } else {
-          for (int i = 0; i < steps; ++i) {
-            positions.push_back(base_pos.ToRight());
-          }
-        }
-        break;
-      }
-
-        // Stay
-      case 'x': {
-        // Using the `*` does nothing to scale the offset since it's scaling {0,
-        // 0}
-        steps = multiply ? 1 : steps;
-
-        for (int i = 0; i < steps; ++i) {
-          positions.push_back(base_pos);
-        }
-      }
       }
     } else {
       std::ostringstream what;

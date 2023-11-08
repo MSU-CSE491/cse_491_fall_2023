@@ -24,13 +24,13 @@ namespace walle {
 /**
  * Used to keep track of what action we are currently taking
  */
-enum class TrackingState { RETURNING_TO_START , TRACKING, PATROLLING };
+enum class TrackingState { RETURNING_TO_START, TRACKING, PATROLLING };
 
 /**
  * Constrain possible inner types to only PathAgent and AStarAgent to avoid errors
  * @tparam T either PathAgent or AStarAgent
  */
-template <typename T>
+template<typename T>
 concept TrackingAgentInner = std::is_same_v<PathAgent, T> || std::is_same_v<AStarAgent, T>;
 
 /**
@@ -52,7 +52,7 @@ class TrackingAgent : public cse491::AgentBase {
   cse491::GridPosition start_pos_;
 
   /// Entity that the agent tracks and moves towards
-  Entity* target_ = nullptr;
+  Entity *target_ = nullptr;
 
   /// How close the target needs to be to begin tracking
   double tracking_distance_ = 50;
@@ -69,7 +69,7 @@ class TrackingAgent : public cse491::AgentBase {
    * @param name name of path agent
    */
   TrackingAgent(size_t id, std::string const &name) : cse491::AgentBase(id, name),
-                inner_(std::in_place_type<PathAgent>, id, name) {}
+                                                      inner_(std::in_place_type<PathAgent>, id, name) {}
 
   /**
    * Constructor (vector)
@@ -78,8 +78,14 @@ class TrackingAgent : public cse491::AgentBase {
    * @param offsets collection of offsets to move the agent
    * @attention The sequence of offsets must not be empty
    */
-  TrackingAgent(size_t id, std::string const &name, std::vector<cse491::GridPosition> &&offsets) : cse491::AgentBase(id, name),
-                inner_(std::in_place_type<PathAgent>, id, name, offsets), offsets_(offsets) {}
+  TrackingAgent(size_t id, std::string const &name, std::vector<cse491::GridPosition> &&offsets) : cse491::AgentBase(id,
+                                                                                                                     name),
+                                                                                                   inner_(std::in_place_type<
+                                                                                                              PathAgent>,
+                                                                                                          id,
+                                                                                                          name,
+                                                                                                          offsets),
+                                                                                                   offsets_(offsets) {}
   /**
    * Constructor (string view)
    * @param id unique agent id
@@ -88,8 +94,8 @@ class TrackingAgent : public cse491::AgentBase {
    * @attention The sequence of offsets must not be empty
    */
   TrackingAgent(size_t id, std::string const &name, std::string_view commands) :
-                cse491::AgentBase(id, name),
-                inner_(std::in_place_type<PathAgent>, id, name, commands), offsets_(StrToOffsets(commands)) {}
+      cse491::AgentBase(id, name),
+      inner_(std::in_place_type<PathAgent>, id, name, commands), offsets_(StrToOffsets(commands)) {}
 
   /**
    * Destructor
@@ -119,7 +125,7 @@ class TrackingAgent : public cse491::AgentBase {
    * @note the inner variant type will be AStarAgent when tracking OR returning to a location, but PathAgent when patrolling
    */
   void UpdateState() {
-    SetPosition(std::visit([]<TrackingAgentInner Agent>(Agent const& agent) { return agent.GetPosition(); }, inner_));
+    SetPosition(std::visit([]<TrackingAgentInner Agent>(Agent const &agent) { return agent.GetPosition(); }, inner_));
     bool changed_internal_agent = false;
     switch (state_) {
       // Tracking can transition only to Returning
@@ -130,7 +136,7 @@ class TrackingAgent : public cse491::AgentBase {
           if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
             std::get<AStarAgent>(inner_).SetGoalPosition(target_->GetPosition());
           }
-          // Target moved out of range of goal position, return to start
+            // Target moved out of range of goal position, return to start
           else {
             state_ = TrackingState::RETURNING_TO_START;
             std::get<AStarAgent>(inner_).SetGoalPosition(start_pos_);
@@ -141,7 +147,7 @@ class TrackingAgent : public cse491::AgentBase {
         break;
       }
 
-      // Returning can transition to either Patrolling or Tracking
+        // Returning can transition to either Patrolling or Tracking
       case TrackingState::RETURNING_TO_START: {
         // Within tracking range, start tracking again
         if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
@@ -151,7 +157,7 @@ class TrackingAgent : public cse491::AgentBase {
           std::get<AStarAgent>(inner_).SetActionResult(1);
         }
 
-        // Returned to the beginning, start patrolling again
+          // Returned to the beginning, start patrolling again
         else if (GetPosition() == start_pos_) {
           state_ = TrackingState::PATROLLING;
           inner_.emplace<PathAgent>(id, name);
@@ -162,7 +168,7 @@ class TrackingAgent : public cse491::AgentBase {
         break;
       }
 
-      // Patrolling can transition only to Tracking
+        // Patrolling can transition only to Tracking
       case TrackingState::PATROLLING: {
         // Within tracking range, needs internal object replacement
         if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
@@ -181,11 +187,11 @@ class TrackingAgent : public cse491::AgentBase {
 
     if (changed_internal_agent) {
       // Reset world configuration
-      std::visit([&in_world = GetWorld()]<TrackingAgentInner Agent>(Agent& agent) {
-        std::as_const(in_world).ConfigAgent(agent);
-        agent.SetWorld(in_world);
-      },
-      inner_);
+      std::visit([&in_world = GetWorld()]<TrackingAgentInner Agent>(Agent &agent) {
+                   std::as_const(in_world).ConfigAgent(agent);
+                   agent.SetWorld(in_world);
+                 },
+                 inner_);
     }
   }
 
@@ -199,8 +205,8 @@ class TrackingAgent : public cse491::AgentBase {
     return pos;
   }
 
-  template <TrackingAgentInner Agent>
-  size_t SelectInnerAction(Agent & agent, cse491::WorldGrid const &grid,
+  template<TrackingAgentInner Agent>
+  size_t SelectInnerAction(Agent &agent, cse491::WorldGrid const &grid,
                            cse491::type_options_t const &type,
                            cse491::item_map_t const &item_set,
                            cse491::agent_map_t const &agent_set) {
@@ -208,10 +214,10 @@ class TrackingAgent : public cse491::AgentBase {
   }
 
   template<>
-  size_t SelectInnerAction<AStarAgent>(AStarAgent & agent, cse491::WorldGrid const &grid,
-                           cse491::type_options_t const &type,
-                           cse491::item_map_t const &item_set,
-                           cse491::agent_map_t const &agent_set) {
+  size_t SelectInnerAction<AStarAgent>(AStarAgent &agent, cse491::WorldGrid const &grid,
+                                       cse491::type_options_t const &type,
+                                       cse491::item_map_t const &item_set,
+                                       cse491::agent_map_t const &agent_set) {
     auto next_pos = agent.GetNextPosition();
     auto res = agent.SelectAction(grid, type, item_set, agent_set);
     agent.SetPosition(next_pos);
@@ -223,10 +229,10 @@ class TrackingAgent : public cse491::AgentBase {
                       cse491::item_map_t const &item_set,
                       cse491::agent_map_t const &agent_set) override {
     UpdateState();
-    return std::visit([&]<TrackingAgentInner Agent>(Agent& agent) {
-      return SelectInnerAction(agent, grid, type, item_set, agent_set);
-    },
-  inner_);
+    return std::visit([&]<TrackingAgentInner Agent>(Agent &agent) {
+                        return SelectInnerAction(agent, grid, type, item_set, agent_set);
+                      },
+                      inner_);
   }
 
   /**
@@ -234,7 +240,7 @@ class TrackingAgent : public cse491::AgentBase {
    * @param gp grid position of position
    * @return self
    */
-  TrackingAgent& SetStartPosition(cse491::GridPosition gp) {
+  TrackingAgent &SetStartPosition(cse491::GridPosition gp) {
     start_pos_ = gp;
     return *this;
   }
@@ -245,7 +251,7 @@ class TrackingAgent : public cse491::AgentBase {
    * @param y y-coor of start pos
    * @return self
    */
-  TrackingAgent& SetStartPosition(double x, double y) {
+  TrackingAgent &SetStartPosition(double x, double y) {
     start_pos_ = cse491::GridPosition(x, y);
     return *this;
   }
@@ -255,7 +261,7 @@ class TrackingAgent : public cse491::AgentBase {
    * @param agent we want to track
    * @return self
    */
-  TrackingAgent& SetTarget(Entity *agent) {
+  TrackingAgent &SetTarget(Entity *agent) {
     target_ = agent;
     return *this;
   }
@@ -265,7 +271,7 @@ class TrackingAgent : public cse491::AgentBase {
    * @param dist to start tracking at
    * @return self
    */
-  TrackingAgent& SetTrackingDistance(double dist) {
+  TrackingAgent &SetTrackingDistance(double dist) {
     tracking_distance_ = dist;
     return *this;
   }
@@ -275,10 +281,11 @@ class TrackingAgent : public cse491::AgentBase {
    * @param in_world
    * @return
    */
-  TrackingAgent& SetWorld(cse491::WorldBase &in_world) override {
+  TrackingAgent &SetWorld(cse491::WorldBase &in_world) override {
     Entity::SetWorld(in_world);
-    std::visit([&in_world]<TrackingAgentInner Agent>(Agent& agent) {
-      std::as_const(in_world).ConfigAgent(agent); }, inner_);
+    std::visit([&in_world]<TrackingAgentInner Agent>(Agent &agent) {
+      std::as_const(in_world).ConfigAgent(agent);
+    }, inner_);
     return *this;
   }
 };
