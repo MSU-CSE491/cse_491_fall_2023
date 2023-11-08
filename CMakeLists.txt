@@ -43,10 +43,12 @@ if(${BUILD_MAIN})
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
 
+
   #configure the xml library
   set(XML_SRC_DIR third_party/tinyxml2)
   set(XML_BUILD_DIR xml_build)
   add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
 
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
@@ -59,7 +61,7 @@ if(${BUILD_MAIN})
     string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
     # Create list of source files (currently just the one .cpp file)
     # Create executable and link to includes / libraries
-    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE})
+    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
     target_include_directories(${EXE_NAME}
       PRIVATE ${CMAKE_SOURCE_DIR}/source
       )
