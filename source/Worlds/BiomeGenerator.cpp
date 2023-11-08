@@ -55,7 +55,7 @@ void BiomeGenerator::generate() {
     }
 
     if (biome == BiomeType::Grasslands) {
-//        placeTrees(); // Placing tree tiles
+        placeTrees(); // Placing tree tiles
     }
 }
 
@@ -200,31 +200,33 @@ void BiomeGenerator::setTiles(const size_t &firstTile, const size_t &secondTile)
 }
 
 void BiomeGenerator::placeTrees() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 100); // 0 to 100 for percentage
 
-    std::vector<std::pair<int, int>> grassPositions;
-    for (unsigned int x = 0; x < width; ++x) {
-        for (unsigned int y = 0; y < height; ++y) {
-            if (grid.At(x, y) == grass_id) {
-                grassPositions.emplace_back(x, y);
+    // Iterates through each tile in the grid with a margin of 1 tile to prevent out of bounds access
+    for (unsigned int y = 1; y < height - 1; ++y) {
+        for (unsigned int x = 1; x < width - 1; ++x) {
+            // Only place trees on grass tiles and ensure we have space for a 3x3 tree
+            if (grid.At(x, y) == grass_id &&
+                    grid.At(x-1, y) == grass_id && grid.At(x+1, y) == grass_id &&
+                    grid.At(x, y-1) == grass_id && grid.At(x, y+1) == grass_id &&
+                    grid.At(x-1, y-1) == grass_id && grid.At(x+1, y-1) == grass_id &&
+                    grid.At(x-1, y+1) == grass_id && grid.At(x+1, y+1) == grass_id) {
+                // Use a random chance to place a tree
+                if (dis(gen) < 2) { // 10% chance to place a tree
+                    // Place a 3x3 block of tree tile characters for the tree
+                    for (int i = -1; i <= 1; ++i) {
+                        for (int j = -1; j <= 1; ++j) {
+                            grid.At(x + i, y + j) = tree_id;
+                        }
+                    }
+                }
             }
         }
     }
-
-    // Random number generation setup
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dis(0.0, 1.0);
-
-    // Chance of tree appearing on a grass tile
-    const double treeChance = 0.1; // 10% chance for a tree to appear on any grass tile
-
-    for (const auto& position : grassPositions) {
-        // Randomly decide if a tree should be placed
-        if (dis(gen) < treeChance) {
-            grid.At(position.first, position.second) = 't'; // Replace 'M' with 't' for tree
-        }
-    }
 }
+
 
 
 
