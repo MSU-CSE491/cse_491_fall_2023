@@ -16,6 +16,7 @@
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
+#include "TextureHolder.hpp"
 
 
 namespace i_2D {
@@ -37,7 +38,14 @@ namespace i_2D {
 
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
-        Menu mMenu;
+
+        Menu mMenu; ///< for menu class
+        TextureHolder mTextureHolder; ///< for the texture holder
+        std::map<char, sf::Texture> mTexturesDefault;
+        std::map<char, sf::Texture> mTexturesSecondWorld;
+        std::map<char, sf::Texture> mTexturesManualWorld;
+        std::map<char, sf::Texture> mTexturesGenerativeWorld;
+        std::map<char, sf::Texture> mTexturesCurrent;
 
     public:
 
@@ -58,11 +66,6 @@ namespace i_2D {
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_map_t &item_map, const agent_map_t &agent_map);
 
-
-        void UpdateGrid(const WorldGrid &grid,
-                        const type_options_t &type_options,
-                        const item_map_t &item_map,
-                        const agent_map_t &agent_map);
         /**
          * @brief Initializes the main interface.
          *
@@ -81,14 +84,11 @@ namespace i_2D {
         void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall);
 
         void DrawEmptyCell(sf::RectangleShape &cellRect);
-        
+
         void DrawDefaultCell(sf::RectangleShape &cellRect);
 
-        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent, sf::Color color);
+        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
 
-        void DrawCell(sf::RectangleShape &cellRect, float cellPosX, float cellPosY);
-
-        void LoadTextures(sf::Texture &wallTexture, sf::Texture &trollTexture);
 
         void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth, float &drawSpaceHeight,
                                 float &drawCenterX, float &drawCenterY);
@@ -96,6 +96,10 @@ namespace i_2D {
         sf::Vector2f CalculateCellSize(const WorldGrid &grid);
 
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
+
+        void ChooseTexture();
+        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall);
+
     };
 
 } // End of namespace 2D

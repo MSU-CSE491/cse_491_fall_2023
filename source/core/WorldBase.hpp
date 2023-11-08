@@ -30,7 +30,7 @@ public:
 
 protected:
   /// Derived worlds may choose to have more than one grid.
-  std::unordered_map<std::string, WorldGrid> grids;
+  std::unordered_map<size_t, WorldGrid> grids;
 
   WorldGrid & main_grid;        ///< Main grid for this world; shortcut to `grids["main"]`
   type_options_t type_options;  ///< Vector of types of cells in grids for this world.
@@ -71,7 +71,7 @@ public:
   /// Initializes world with cell types and random generator
   /// @param seed Seed used for RNG. Use 0 for a non-deterministic result.
   WorldBase(unsigned int seed=0)
-    : grids(), main_grid(grids["main"]), seed(seed)
+    : grids(), main_grid(grids[0]), seed(seed)
   {
     // The first cell type (ID 0) should be reserved for errors or empty spots in a grid.
     AddCellType("Unknown", "This is an invalid cell type and should not be reachable.");
@@ -131,11 +131,11 @@ public:
 
   /// Return an editable version of the current grid for this world (main_grid by default)
   virtual WorldGrid & GetGrid() { return main_grid; }
-  virtual WorldGrid & GetGrid(const std::string & name) { return grids[name]; }
+  virtual WorldGrid & GetGrid(size_t grid_id) { return grids[grid_id]; }
 
   /// Return a const grid for this world (main_grid by default)
   virtual const WorldGrid & GetGrid() const { return main_grid; }
-  virtual const WorldGrid & GetGrid(const std::string & name) const { return grids.at(name); }
+  virtual const WorldGrid & GetGrid(size_t grid_id) const { return grids.at(grid_id); }
 
   /// Determine if the run has ended.
   virtual bool GetRunOver() const { return run_over; }
