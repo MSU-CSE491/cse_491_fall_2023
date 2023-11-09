@@ -42,6 +42,7 @@ if(${BUILD_MAIN})
   set(SFML_BUILD_DIR sfml_build)
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
+
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
   file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
