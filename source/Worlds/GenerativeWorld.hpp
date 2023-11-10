@@ -74,6 +74,19 @@ class GenerativeWorld : public WorldBase {
     if (!main_grid.IsValid(new_position)) { return false; }
     if (main_grid.At(new_position) == wall_id) { return false; }
 
+    //check to see if player has shield on and is walking across spike tile
+    if( main_grid.At(new_position) == spike_id )
+    {
+        for( const auto &pair : item_map )
+        {
+            if( agent.HasItem(pair.first) && pair.second->GetName() == "Shield" )
+            {
+                agent.SetPosition(new_position);
+                return true;
+            }
+        }
+    }
+
     //check to see if player has boots on and is walking across tar
     if( main_grid.At(new_position) == tar_id)
     {

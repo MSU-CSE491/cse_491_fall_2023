@@ -31,6 +31,7 @@ int main() {
 
     cse491::GenerativeWorld world(SEED);
     world.AddItem("Boots", "symbol", 'B').SetPosition(1, 3).SetName("Boots");
+    world.AddItem("Boots", "symbol", 'S').SetPosition(1, 4).SetName("Shield");
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
     world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
