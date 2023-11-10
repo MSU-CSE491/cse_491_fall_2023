@@ -2,7 +2,6 @@
 
 #include <bitset>
 #include <cassert>
-#include <format>
 #include <functional>
 #include <iostream>
 #include <random>
