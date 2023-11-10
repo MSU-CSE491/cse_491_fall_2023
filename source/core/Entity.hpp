@@ -9,16 +9,25 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
-
+#include <vector>
+#include <memory>
+#include <algorithm>
 #include "GridPosition.hpp"
 
 namespace cse491 {
 
+  class WorldBase;
+
   class Entity {
+  private:
+    WorldBase * world_ptr; ///< Track the world this entity is in (private to protect pointer)
+
   protected:
-    const size_t id;        ///< Unique ID for this entity.
+    const size_t id=0;      ///< Unique ID for this entity (zero is use for "no ID")
     std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
     GridPosition position;  ///< Where on the grid is this entity?
+
+    std::vector<size_t> inventory;
 
     struct PropertyBase {
       virtual ~PropertyBase() { }
@@ -58,17 +67,16 @@ namespace cse491 {
     [[nodiscard]] size_t GetID() const { return id; }
     [[nodiscard]] const std::string & GetName() const { return name; }
     [[nodiscard]] GridPosition GetPosition() const { return position; }
+    [[nodiscard]] WorldBase & GetWorld() const { assert(world_ptr); return *world_ptr; }
 
     Entity & SetName(const std::string in_name) { name = in_name; return *this; }
-    Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
+    Entity & SetPosition(GridPosition in_pos, size_t grid_id=0);
     Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
+    Entity & SetWorld(WorldBase & in_world) { world_ptr = &in_world; return *this; }
 
-    /// Is this Entity actually an autonomous agent? (Overridden in AgentBase to return true)
-    virtual bool IsAgent() const { return false; }
-
-    /// Is this Entity actually a specialty Agent that's an Interface for a human player?
-    /// (Overridden in InterfaceBase to return true)
-    virtual bool IsInterface() const { return false; }
+    virtual bool IsAgent() const { return false; }     ///< Is Entity an autonomous agent?
+    virtual bool IsItem() const { return false; }      ///< Is Entity an item?
+    virtual bool IsInterface() const { return false; } ///< Is Entity an interface for a human?
 
 
     // -- Property Management --
@@ -110,6 +118,18 @@ namespace cse491 {
       property_map.erase(name);
       return *this;
     }    
+
+
+    /// Inventory Management
+    bool HasItem(size_t id) const {
+      return std::find(inventory.begin(), inventory.end(), id) != inventory.end();
+    }
+
+    Entity & AddItem(size_t id);
+    Entity & AddItem(Entity & item) { return AddItem(item.GetID()); }
+
+    Entity & RemoveItem(size_t id);
+    Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
   };
 
 } // End of namespace cse491
