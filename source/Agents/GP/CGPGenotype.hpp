@@ -9,9 +9,7 @@
 #include <string>
 #include <vector>
 
-
-
-//#include <format>
+// #include <format>
 #include <sstream>
 
 #include "GraphNode.hpp"
@@ -38,11 +36,16 @@ namespace cowboys {
     /// @param ull The number to convert.
     /// @return The number in base64 as a string.
     static std::string ULLToB64(size_t ull) {
-      std::string result = "";
       if (ull == 0)
         return "0";
-      while (ull > 0) {
-        result = chars[ull % 64] + result;
+      // Range of numbers represented by n digits of base b excluding 0: b^(n-1) <= x <= b^n - 1
+      // -> n-1 <= log_b(x) -> n-1 = floor(log_b(x)) -> n = 1 + floor(log_b(x))
+      // Or x + 1 <= b^n -> log_b(x + 1) <= n -> ceil(log_b(x + 1)) = n; But this can cause an overflow when adding 1 to
+      // the max value of size_t
+      size_t n = 1 + std::floor(std::log(ull) / std::log(64));
+      std::string result(n, ' ');
+      for (size_t i = 0; ull > 0; ++i) {
+        result[n - 1 - i] = chars[ull % 64];
         ull /= 64;
       }
       return result;
@@ -223,13 +226,13 @@ namespace cowboys {
     /// @return The encoded header.
 
     std::string EncodeHeader() const {
-//      return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
-//                         params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP, params.layers_back);
+      //      return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
+      //                         params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP,
+      //                         params.layers_back);
       std::ostringstream stream;
       stream << params.num_inputs << HEADER_SEP << params.num_outputs << HEADER_SEP << params.num_layers << HEADER_SEP
              << params.num_nodes_per_layer << HEADER_SEP << params.layers_back;
       return stream.str();
-
     }
 
     /// @brief Decodes the header of the genotype.
@@ -245,11 +248,11 @@ namespace cowboys {
       }
       header_parts.push_back(std::stoull(header.substr(start_pos)));
 
-//      if (header_parts.size() != 5)
-//        throw std::runtime_error(
-//            std::format("Invalid genotype: Header should have 5 parameters but found {}.", header_parts.size()));
-      if (header_parts.size() != 5)
-      {
+      //      if (header_parts.size() != 5)
+      //        throw std::runtime_error(
+      //            std::format("Invalid genotype: Header should have 5 parameters but found {}.",
+      //            header_parts.size()));
+      if (header_parts.size() != 5) {
         std::ostringstream oss;
         oss << "Invalid genotype: Header should have 5 parameters but found " << header_parts.size() << ".";
         throw std::runtime_error(oss.str());
