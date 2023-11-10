@@ -14,6 +14,7 @@
 #include <vector>
 #include <ranges>
 #include <cmath>
+#include <filesystem>
 
 #include "tinyxml2.h"
 //#include <algorithm>
