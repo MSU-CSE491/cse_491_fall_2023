@@ -9,9 +9,6 @@
 #include <string>
 #include <vector>
 
-// #include <format>
-#include <sstream>
-
 #include "GraphNode.hpp"
 
 namespace cowboys {
@@ -226,13 +223,17 @@ namespace cowboys {
     /// @return The encoded header.
 
     std::string EncodeHeader() const {
-      //      return std::format("{}{}{}{}{}{}{}{}{}", params.num_inputs, HEADER_SEP, params.num_outputs, HEADER_SEP,
-      //                         params.num_layers, HEADER_SEP, params.num_nodes_per_layer, HEADER_SEP,
-      //                         params.layers_back);
-      std::ostringstream stream;
-      stream << params.num_inputs << HEADER_SEP << params.num_outputs << HEADER_SEP << params.num_layers << HEADER_SEP
-             << params.num_nodes_per_layer << HEADER_SEP << params.layers_back;
-      return stream.str();
+      std::string header;
+      header += std::to_string(params.num_inputs);
+      header += HEADER_SEP;
+      header += std::to_string(params.num_outputs);
+      header += HEADER_SEP;
+      header += std::to_string(params.num_layers);
+      header += HEADER_SEP;
+      header += std::to_string(params.num_nodes_per_layer);
+      header += HEADER_SEP;
+      header += std::to_string(params.layers_back);
+      return header;
     }
 
     /// @brief Decodes the header of the genotype.
@@ -248,14 +249,12 @@ namespace cowboys {
       }
       header_parts.push_back(std::stoull(header.substr(start_pos)));
 
-      //      if (header_parts.size() != 5)
-      //        throw std::runtime_error(
-      //            std::format("Invalid genotype: Header should have 5 parameters but found {}.",
-      //            header_parts.size()));
       if (header_parts.size() != 5) {
-        std::ostringstream oss;
-        oss << "Invalid genotype: Header should have 5 parameters but found " << header_parts.size() << ".";
-        throw std::runtime_error(oss.str());
+        std::string message;
+        message += "Invalid genotype: Header should have 5 parameters but found ";
+        message += std::to_string(header_parts.size());
+        message += ".";
+        throw std::runtime_error(message);
       }
       params.num_inputs = header_parts.at(0);
       params.num_outputs = header_parts.at(1);
