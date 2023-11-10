@@ -17,7 +17,7 @@
 #include <random>
 #include <string>
 
-#include "../core/AgentBase.hpp"
+#include "../../core/AgentBase.hpp"
 #include "./GPAgentSensors.hpp"
 
 /**

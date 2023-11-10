@@ -6,13 +6,11 @@
 
 #pragma once
 
-#include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <string>
-#include <unordered_map>
-
+#include <map>
 #include <random>
+#include <string>
 
 #include "GPAgent_.hpp"
 #include "GraphBuilder.hpp"

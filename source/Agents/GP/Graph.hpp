@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../core/AgentBase.hpp"
+#include "../../core/AgentBase.hpp"
 #include "GraphNode.hpp"
 
 namespace cowboys {

@@ -1,9 +1,9 @@
 
-#include "Group7_GP_Agent/GPTrainingLoop.hpp"
-#include "Group7_GP_Agent/LGPAgent.hpp"
+#include "Agents/GP/GPTrainingLoop.hpp"
+#include "Agents/GP/LGPAgent.hpp"
 #include "Worlds/MazeWorld.hpp"
 
-#include "Group7_GP_Agent/CGPAgent.hpp"
+#include "Agents/GP/CGPAgent.hpp"
 
 #include <chrono>
 
@@ -27,7 +27,7 @@ int main() {
 //
 //    loop.run(100, 100);
 
-    loop.initialize(10, 100);
+    loop.initialize(10, 1000);
     loop.run(1000, 100);
 
     auto end_time = std::chrono::high_resolution_clock::now();

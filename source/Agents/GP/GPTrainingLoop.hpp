@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "../core/AgentBase.hpp"
-#include "../core/WorldBase.hpp"
+#include "../../core/AgentBase.hpp"
+#include "../../core/WorldBase.hpp"
 //#include "GPAgent.hpp"
 #include "GPAgent_.hpp"
 
@@ -186,8 +186,8 @@ public:
 
     void GpLoopMutateHelper(){
 
-      constexpr double ELITE_POPULATION_PERCENT = 0.1;
-      constexpr double UNFIT_POPULATION_PERCENT = 0.2;
+      constexpr double ELITE_POPULATION_PERCENT = 1;
+      constexpr double UNFIT_POPULATION_PERCENT = 1;
 
       // sort based on fitness function
       std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
@@ -315,6 +315,7 @@ public:
         for (size_t a = 0; a < agents[arena].size(); ++a)
         {
           agents[arena][a]->SetPosition(TEMPinitialAgentPositions[arena][a]);
+          agents[arena][a]->reset();
         }
       }
 

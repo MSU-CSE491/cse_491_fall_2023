@@ -12,7 +12,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../core/AgentBase.hpp"
+#include "../../core/AgentBase.hpp"
 
 namespace cowboys {
   class GPAgent_ : public cse491::AgentBase {
@@ -55,12 +55,16 @@ namespace cowboys {
     /// @param other The agent to copy. Should be the same type.
     virtual void Copy(const GPAgent_ &other) = 0;
 
-    virtual void printAgent() {};
+    virtual void printAgent() {
+
+    };
 
     virtual std::string Export() { return ""; }
 
-    virtual void crossover(const GPAgent_ &other) {};
-    virtual void Import(const std::string &genotype) {};
+    virtual void reset() { extra_state["previous_action"] = 0; };
+
+//    virtual void crossover(const GPAgent_ &other) {};
+//    virtual void Import(const std::string &genotype) {};
 
   };
 

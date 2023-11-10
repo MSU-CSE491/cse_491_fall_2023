@@ -9,9 +9,9 @@
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
-#include "Group7_GP_Agent/GPAgent_.hpp"
-#include "Group7_GP_Agent/LGPAgent.hpp"
-#include "Group7_GP_Agent/GPAgentTest.hpp"
+#include "Agents/GP/GPAgent_.hpp"
+#include "Agents/GP/LGPAgent.hpp"
+#include "Agents/GP/GPAgentTest.hpp"
 
 int main() {
     cse491::MazeWorld world;

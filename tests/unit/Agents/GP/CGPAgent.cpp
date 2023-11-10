@@ -1,13 +1,13 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
- * @brief Unit tests for source/Group7_GP_Agent/CGPAgent.hpp
+ * @brief Unit tests for source/[Deprecated]Group7_GP_Agent/CGPAgent.hpp
  **/
 
 // Catch2
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-#include "Group7_GP_Agent/CGPAgent.hpp"
+#include "Agents/GP/CGPAgent.hpp"
 
 using namespace cowboys;
 

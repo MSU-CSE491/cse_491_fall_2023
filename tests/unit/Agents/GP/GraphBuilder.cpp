@@ -1,14 +1,14 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
- * @brief Unit tests for source/Group7_GP_Agent/GraphBuilder.hpp
+ * @brief Unit tests for source/[Deprecated]Group7_GP_Agent/GraphBuilder.hpp
  **/
 
 // Catch2
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-#include "Group7_GP_Agent/CGPGenotype.hpp"
-#include "Group7_GP_Agent/GraphBuilder.hpp"
+#include "Agents/GP/CGPGenotype.hpp"
+#include "Agents/GP/GraphBuilder.hpp"
 
 using namespace cowboys;
 

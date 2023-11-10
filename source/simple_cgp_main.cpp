@@ -6,7 +6,7 @@
 
 // Include the modules that we will be using.
 #include "Agents/PacingAgent.hpp"
-#include "Group7_GP_Agent/CGPAgent.hpp"
+#include "Agents/GP/CGPAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
