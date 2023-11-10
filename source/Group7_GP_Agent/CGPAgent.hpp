@@ -78,7 +78,7 @@ namespace cowboys {
     }
 
     size_t GetAction(const cse491::WorldGrid &grid, const cse491::type_options_t &type_options,
-                     const cse491::item_set_t &item_set, const cse491::agent_set_t &agent_set) override {
+                     const cse491::item_map_t &item_set, const cse491::agent_map_t &agent_set) override {
       auto inputs = EncodeState(grid, type_options, item_set, agent_set, this, extra_state);
       size_t action_to_take = decision_graph->MakeDecision(inputs, EncodeActions(action_map));
       return action_to_take;

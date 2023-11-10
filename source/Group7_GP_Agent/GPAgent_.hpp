@@ -30,7 +30,7 @@ namespace cowboys {
 
     /// Choose the action to take a step in the appropriate direction.
     size_t SelectAction(const cse491::WorldGrid &grid, const cse491::type_options_t &type_options,
-                        const cse491::item_set_t &item_set, const cse491::agent_set_t &agent_set) override {
+                        const cse491::item_map_t &item_set, const cse491::agent_map_t &agent_set) override {
       size_t action = GetAction(grid, type_options, item_set, agent_set);
 
       // Update extra state information.
@@ -40,7 +40,7 @@ namespace cowboys {
     }
 
     virtual size_t GetAction(const cse491::WorldGrid &grid, const cse491::type_options_t &type_options,
-                             const cse491::item_set_t &item_set, const cse491::agent_set_t &agent_set) = 0;
+                             const cse491::item_map_t &item_set, const cse491::agent_map_t &agent_set) = 0;
 
     /// @brief Get a map of extra state information
     /// @return Map of extra state information

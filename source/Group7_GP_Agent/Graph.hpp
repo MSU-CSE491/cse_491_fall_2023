@@ -114,7 +114,7 @@ namespace cowboys {
   /// @brief Translates state into nodes for the decision graph.
   /// @return A vector of doubles for the decision graph.
   std::vector<double> EncodeState(const cse491::WorldGrid &grid, const cse491::type_options_t & /*type_options*/,
-                                  const cse491::item_set_t & /*item_set*/, const cse491::agent_set_t & /*agent_set*/,
+                                  const cse491::item_map_t & /*item_set*/, const cse491::agent_map_t & /*agent_set*/,
                                   const cse491::Entity *agent,
                                   const std::unordered_map<std::string, double> &extra_agent_state) {
     /// TODO: Implement this function properly.
