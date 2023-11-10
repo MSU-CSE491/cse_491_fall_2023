@@ -5,7 +5,7 @@
  **/
 
 #pragma once
-
+#include <thread>
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 
 namespace netWorth{
@@ -16,7 +16,10 @@ namespace netWorth{
      */
     class ServerInterface : public NetworkingInterface {
         private:
+            unsigned short m_initConnectionPort;
+            unsigned short m_maxClientPort;
 
+            UdpSocket m_serverToClientSocket;
         protected:
 
         public:
@@ -28,9 +31,67 @@ namespace netWorth{
             ServerInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name),
                                                                    NetworkingInterface(id, name)
             {
+                m_initConnectionPort = 55000;
+                m_maxClientPort = 55000;
                 InitialConnection(m_ip, m_port);
             }
 
+            /**
+             * Redirects an incoming client connection to another port number
+             * @return
+             */
+            bool RedirectClient(){
+                ++m_maxClientPort;
+                /**
+                 * As of right now it will take in the new connection but forget the old one.
+                 * We need to make it so that a new socket is made for the client in the new thread and the NEW socket
+                 * is what is bound using the new port number
+                 */
+                 //Attempt at creating a thread, does nothing important right now
+                 std::thread clientThread (
+                         [this] () {
+                             //Testing how I can access other things
+//                             m_maxClientPort++;
+                             std::cout << "This is a temp thing" << std::endl;
+                         }
+                         );
+                 clientThread.join();
+
+                BindSocket(m_serverToClientSocket, m_maxClientPort);
+            }
+
+            void HandleClient(){
+                std::cout<< "This does nothing as of right now, just a template of sorts" << std::endl;
+            }
+
+        /**
+         * Sends a packet across the socket
+         * @param packet the packet we want to send
+         * @param destAddr the destination address we want to send to
+         * @param port the port of the connection
+         * @return true if successfully sent
+         */
+        bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port) override{
+            if (m_serverToClientSocket.send(packet, destAddr, port) != Socket::Status::Done) {
+                std::cerr << "Could not connect to" << destAddr << " at port " << port << std::endl;
+                return false;
+            }
+            return true;
+        }
+
+        /**
+             * Starts the connection by receiving the first packet
+             * @param sender IP of sending machine
+             * @param port port number of sending machine
+             * @return received packet
+             */
+        bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port) override{
+            if (m_serverToClientSocket.receive(pkt, sender, port) != Socket::Status::Done) {
+                std::cerr << "Failed to receive" << std::endl;
+                return false;
+            }
+            return true;
+        }
 
             /**
              * The initial connection for the server to a client
@@ -43,17 +104,19 @@ namespace netWorth{
                 std::string str;
 
                 std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
-                BindSocket(m_socket, 55002);
+                BindSocket(m_socket, m_initConnectionPort);
 
                 // Await client
-                if (!ReceivePacket(recv_pkt, sender, port)) return false;
+                if (!NetworkingInterface::ReceivePacket(recv_pkt, sender, port)) return false;
+                RedirectClient();
 
                 recv_pkt >> str;
                 std::cout << str << std::endl;
                 std::cout << sender.value() << " has connected successfully." << std::endl;
 
                 // Acknowledge client
-                send_pkt << "Connection established.";
+                std::string clientAck = "Connection established on server port: " + std::to_string(m_maxClientPort);
+                send_pkt << clientAck;
                 if (!SendPacket(send_pkt, sender.value(), port)) return false;
 
                 // await request for map
