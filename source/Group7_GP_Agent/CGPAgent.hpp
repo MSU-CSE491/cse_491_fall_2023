@@ -57,7 +57,7 @@ namespace cowboys {
     void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
-
+      // genotype.SetSeed(rand());
       genotype.MutateDefault(mutation);
 
       decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
@@ -71,7 +71,6 @@ namespace cowboys {
         genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       }
 
-      genotype.SetSeed(rand());
       // Mutate the beginning genotype, might not want this.
       MutateAgent(0.2);
 

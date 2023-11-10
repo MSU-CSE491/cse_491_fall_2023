@@ -186,8 +186,8 @@ public:
 
     void GpLoopMutateHelper(){
 
-      constexpr double ELITE_POPULATION_PERCENT = 0.2;
-      constexpr double UNFIT_POPULATION_PERCENT = 0.05;
+      constexpr double ELITE_POPULATION_PERCENT = 0.1;
+      constexpr double UNFIT_POPULATION_PERCENT = 0.2;
 
       // sort based on fitness function
       std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
@@ -227,7 +227,7 @@ public:
 
       for(int i = MIDDLE_MUTATE_STARTBOUND; i < MIDDLE_MUTATE_ENDBOUND; i++){
         auto [arenaIDX, agentIDX] = sortedAgents[i];
-        agents[arenaIDX][agentIDX]->MutateAgent(0.6);
+        agents[arenaIDX][agentIDX]->MutateAgent(0.1);
 
         if ( i % (sortedAgents.size() / 10) == 0){
           std::cout << " --- mutation " << " complete " << (i * 1.0/ sortedAgents.size()) << std::endl;
@@ -243,7 +243,7 @@ public:
         auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
         agents[arenaIDX][agentIDX]->Copy(* agents[eliteArenaIDX][eliteAgentIDX]);
 
-        agents[arenaIDX][agentIDX]->MutateAgent(0.2);
+        agents[arenaIDX][agentIDX]->MutateAgent(0.05);
       }
 //      printGrids();
 
