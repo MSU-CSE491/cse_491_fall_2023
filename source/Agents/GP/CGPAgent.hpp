@@ -83,13 +83,16 @@ namespace cowboys {
     }
 
 
-    void serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem) override {
+    void serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, int fitness = -1) override {
       auto agentElem = doc.NewElement("CGPAgent");
       parentElem->InsertEndChild(agentElem);
 
       auto genotypeElem = doc.NewElement("genotype");
       genotypeElem->SetText(genotype.Export().c_str());
+      if (fitness != -1)
+        genotypeElem->SetAttribute("fitness", fitness);
       agentElem->InsertEndChild(genotypeElem);
+
     }
 
 

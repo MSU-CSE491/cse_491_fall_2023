@@ -15,6 +15,8 @@
 #include <ranges>
 #include <cmath>
 #include <filesystem>
+#include <chrono>
+
 
 #include "tinyxml2.h"
 //#include <algorithm>
@@ -177,9 +179,23 @@ public:
 
 //       save xml
 
+      auto now = std::chrono::system_clock::now();
+      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 
+      // Format the date and time as a string (hour-minute-second)
+      std::tm tm_time = *std::localtime(&now_time);
+      std::ostringstream oss;
+      oss << std::put_time(&tm_time, "%Y-%m-%d__%H:%M:%S");
+      std::string dateTimeStr = oss.str();
 
-      if (doc.SaveFile("example.xml") == tinyxml2::XML_SUCCESS) {
+      const std::string filename = "AgentData_"+ dateTimeStr +".xml";
+
+      std::string relativePath = "../../savedata/GPAgent/";
+      std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
+      std::filesystem::path normalizedAbsolutePath = std::filesystem::canonical(absolutePath);
+      auto fullPath = normalizedAbsolutePath / filename;
+
+      if (doc.SaveFile(fullPath.c_str()) == tinyxml2::XML_SUCCESS) {
         std::filesystem::path fullPath = std::filesystem::absolute("example.xml");
         std::cout << "XML file saved successfully to: " << fullPath << std::endl;
       } else {
@@ -188,7 +204,7 @@ public:
     }
 
 
-    void serializeAgents(int countMaxAgents, int generation){
+    void serializeAgents(int countMaxAgents, int generation, size_t topN = 5){
 
 
       // sort based on fitness function
@@ -210,11 +226,9 @@ public:
       auto *root = doc.NewElement(tagName);
       doc.InsertFirstChild(root);
 
-      for (int i = 0; i < std::min(5,countMaxAgents); ++i) {
+      for (int i = 0; i < std::min(sortedAgents.size(),topN); ++i) {
           auto [arenaIDX, agentIDX] = sortedAgents[i];
-          agents[arenaIDX][agentIDX]->serialize(doc, root);
-
-
+          agents[arenaIDX][agentIDX]->serialize(doc, root, TEMPAgentFitness[arenaIDX][agentIDX]);
       }
     }
 
