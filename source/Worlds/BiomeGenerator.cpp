@@ -41,8 +41,12 @@ void BiomeGenerator::generate() {
 
     for (unsigned int y = 0; y < height; y++) {
         for (unsigned int x = 0; x < width; x++) {
-            const double val = perlinNoise.noise2D(x * frequency / width, y * frequency / height);
-            grid.At(x, y) = val < 0 ? tile1 : tile2;
+            // Give 5x5 clear space in top left corner
+            // TODO: Replace with putting player in valid room instead of 0,0
+            if (x > 4 || y > 4) {
+                const double val = perlinNoise.noise2D(x * frequency / width, y * frequency / height);
+                grid.At(x, y) = val < 0 ? tile1 : tile2;
+            }
         }
     }
 
