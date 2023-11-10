@@ -97,7 +97,7 @@ namespace cowboys {
           // Format the date and time as a string (hour-minute-second)
           std::tm tm_time = *std::localtime(&now_time);
           std::ostringstream oss;
-          oss << std::put_time(&tm_time, "%Y-%m-%d__%H:%M:%S");
+          oss << std::put_time(&tm_time, "%Y-%m-%d__%H_%M_%S");
           std::string dateTimeStr = oss.str();
 
           const std::string filename = "AgentData_" + dateTimeStr + ".xml";
