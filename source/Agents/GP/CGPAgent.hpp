@@ -83,6 +83,18 @@ namespace cowboys {
     }
 
 
+    void serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem) override {
+      auto agentElem = doc.NewElement("CGPAgent");
+      parentElem->InsertEndChild(agentElem);
+
+      auto genotypeElem = doc.NewElement("genotype");
+      genotypeElem->SetText(genotype.Export().c_str());
+      agentElem->InsertEndChild(genotypeElem);
+    }
+
+
+
+
 
 
     /// @brief Get the genotype for this agent.

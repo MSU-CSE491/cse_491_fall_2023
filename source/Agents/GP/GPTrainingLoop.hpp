@@ -14,6 +14,8 @@
 #include <vector>
 #include <ranges>
 #include <cmath>
+
+#include "tinyxml2.h"
 //#include <algorithm>
 
 
@@ -35,6 +37,8 @@ private:
 
 
     std::vector<std::vector<double>> TEMPAgentFitness ;
+
+    tinyxml2::XMLDocument doc;
 
 public:
 
@@ -159,15 +163,58 @@ public:
             std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
             std::cout << "------------------------------------------------------------------" << std::endl;
 
+            serializeAgents(countMaxAgents, generation);
 
             GpLoopMutateHelper();
 
 
-          resetEnvironments();
+            resetEnvironments();
 
           std::cout << "  ========= =========" << std::endl;
 
         }
+
+//       save xml
+
+
+
+      if (doc.SaveFile("example.xml") == tinyxml2::XML_SUCCESS) {
+        std::filesystem::path fullPath = std::filesystem::absolute("example.xml");
+        std::cout << "XML file saved successfully to: " << fullPath << std::endl;
+      } else {
+        std::cout << "Error saving XML file." << std::endl;
+      }
+    }
+
+
+    void serializeAgents(int countMaxAgents, int generation){
+
+
+      // sort based on fitness function
+      std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
+
+      for(size_t arena = 0; arena < environments.size(); ++arena)
+      {
+        for(size_t a = 0; a < agents[arena].size(); ++a)
+        {
+          sortedAgents.push_back(std::make_pair(arena, a));
+        }
+      }
+
+      std::sort(sortedAgents.begin(), sortedAgents.end(), [&](const std::pair<int, int> &a, const std::pair<int, int> &b) {
+          return TEMPAgentFitness[a.first][a.second] > TEMPAgentFitness[b.first][b.second];
+      });
+
+      const char *tagName = ("generation_" + std::to_string(generation)).c_str();
+      auto *root = doc.NewElement(tagName);
+      doc.InsertFirstChild(root);
+
+      for (int i = 0; i < std::min(5,countMaxAgents); ++i) {
+          auto [arenaIDX, agentIDX] = sortedAgents[i];
+          agents[arenaIDX][agentIDX]->serialize(doc, root);
+
+
+      }
     }
 
 
@@ -186,8 +233,8 @@ public:
 
     void GpLoopMutateHelper(){
 
-      constexpr double ELITE_POPULATION_PERCENT = 1;
-      constexpr double UNFIT_POPULATION_PERCENT = 1;
+      constexpr double ELITE_POPULATION_PERCENT = 0.1;
+      constexpr double UNFIT_POPULATION_PERCENT = 0.05;
 
       // sort based on fitness function
       std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();

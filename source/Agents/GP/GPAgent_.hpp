@@ -12,6 +12,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "tinyxml2.h"
+
 #include "../../core/AgentBase.hpp"
 
 namespace cowboys {
@@ -59,7 +61,9 @@ namespace cowboys {
 
     };
 
-    virtual std::string Export() { return ""; }
+    virtual void serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem) = 0;
+
+      virtual std::string Export() { return ""; }
 
     virtual void reset() {
 //      extra_state["previous_action"] = 0;
