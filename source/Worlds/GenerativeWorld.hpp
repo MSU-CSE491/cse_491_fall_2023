@@ -74,6 +74,31 @@ class GenerativeWorld : public WorldBase {
     if (!main_grid.IsValid(new_position)) { return false; }
     if (main_grid.At(new_position) == wall_id) { return false; }
 
+    //check to see if player has boots on and is walking across tar
+    if( main_grid.At(new_position) == tar_id)
+    {
+        for( const auto &pair : item_map )
+        {
+            //agent has boots item and will not get stuck on next turn
+            if( agent.HasItem(pair.first) && pair.second->GetName() == "Boots" )
+            {
+                agent.SetPosition(new_position);
+                return true;
+            }
+        }
+    }
+
+    //check to see if agent is walking on an item
+    for( const auto &pair : item_map )
+    {
+        if( pair.second->GetPosition() == new_position )
+        {
+            //Add item to inventory
+            agent.AddItem(pair.first);
+        }
+    }
+
+
     // Check if the agent is trying to move onto a spike.
     if (main_grid.At(new_position) == spike_id) {
       std::cout << "Game over, try again!" << std::endl;

@@ -15,7 +15,7 @@ using namespace group6;
 
 int main() {
     static const unsigned int SEED = 5;
-    auto biome = BiomeType::Grasslands; // specify biome type here
+    auto biome = BiomeType::Maze; // specify biome type here
     BiomeGenerator biomeGenerator(biome, 100, 20, SEED);
     biomeGenerator.generate();
 
@@ -30,9 +30,10 @@ int main() {
     biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
     cse491::GenerativeWorld world(SEED);
+    world.AddItem("Boots", "symbol", 'B').SetPosition(1, 3).SetName("Boots");
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
-    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
 
     world.Run();
 }

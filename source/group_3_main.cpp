@@ -45,7 +45,7 @@ int main() {
     world_1.Run();
 
     static const unsigned int SEED = 973;
-    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
+    group6::BiomeGenerator biomeGenerator(group6::BiomeType::Maze, 110, 25, SEED);
     biomeGenerator.generate();
 
     srand(time(NULL));
