@@ -32,6 +32,10 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
     grid.Resize(width, height);
 }
 
+void BiomeGenerator::setWorld(WorldBase *world) {
+    worldPtr = world;
+}
+
 /**
  * Generates the grid with two types of tiles
  */
@@ -56,6 +60,9 @@ void BiomeGenerator::generate() {
         placeSpecialTiles(tile1, tar_id, 0.08); // Placing tar tiles
         placeDoorTile(door_id); // placing door tile
         placeKeyTile(key_id); // placing key tile
+
+        vector<GridPosition> path = clearPath();
+        applyPathToGrid(path);
     }
 
     if (biome == BiomeType::Grasslands) {

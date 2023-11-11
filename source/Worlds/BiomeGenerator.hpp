@@ -12,12 +12,13 @@
 #include <vector>
 
 #include "PerlinNoise.hpp"
+#include "../core/WorldBase.hpp"
 #include "../core/WorldGrid.hpp"
 #include "../core/Data.hpp"
 
 namespace group6 {
     using siv::PerlinNoise;
-    using cse491::WorldGrid, cse491::GridPosition;
+    using cse491::WorldGrid, cse491::WorldBase, cse491::GridPosition;
 
     enum class BiomeType {
         Maze,
@@ -40,6 +41,8 @@ namespace group6 {
         unsigned int height;                  ///< Height of the grid
         WorldGrid grid;                       ///< Grid of all tiles
 
+        WorldBase *worldPtr = nullptr;        ///< Pointer to world
+
         unsigned int seed;                    ///< Seed used for RNG
 
         // TODO: Refactor so tiles are passed by reference from actual world class
@@ -61,6 +64,8 @@ namespace group6 {
     public:
         BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
         ~BiomeGenerator() = default;
+
+        void setWorld(WorldBase *world);
 
         void generate();
         void saveToFile(const std::string &filename) const;

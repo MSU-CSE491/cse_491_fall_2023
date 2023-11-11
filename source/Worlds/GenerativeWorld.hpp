@@ -8,9 +8,11 @@
 
 #include <cassert>
 
+#include "BiomeGenerator.hpp"
 #include "../core/WorldBase.hpp"
 
-namespace cse491 {
+namespace group6 {
+    using namespace cse491;
 
     class GenerativeWorld : public WorldBase {
     protected:
@@ -65,7 +67,7 @@ namespace cse491 {
         }
 
     public:
-        explicit GenerativeWorld(unsigned int seed = time(nullptr)) : WorldBase(seed) {
+        explicit GenerativeWorld(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed) : WorldBase(seed) {
             floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
             wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
 
@@ -79,6 +81,12 @@ namespace cse491 {
             tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
+
+            BiomeGenerator biomeGenerator(biome, width, height, seed);
+            biomeGenerator.setWorld(this);
+            biomeGenerator.generate();
+
+            biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
             main_grid.Read("../assets/grids/generated_maze.grid", type_options);
         }
