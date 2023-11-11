@@ -14,14 +14,14 @@ using namespace cowboys;
 TEST_CASE("CGPAgent construction", "[group7][agent]") {
   SECTION("CGPAgent construction") {
     CGPAgent agent(0, "agent");
-    CHECK(agent.GetGenotype().GetNumConnections() == 0);
+    CHECK(agent.GetGenotype().GetNumPossibleConnections() == 0);
     CHECK(agent.GetGenotype().GetNumFunctionalNodes() == 0);
   }
   SECTION("CGPAgent construction with genotype") {
     CGPGenotype genotype({8, 4, 2, 10, 2});
 
     CGPAgent agent(0, "agent", genotype);
-    CHECK(agent.GetGenotype().GetNumConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
+    CHECK(agent.GetGenotype().GetNumPossibleConnections() == 8 * 10 + (8 + 10) * 10 + (10 + 10) * 4);
     CHECK(agent.GetGenotype().GetNumFunctionalNodes() == 2 * 10 + 4);
   }
 }
