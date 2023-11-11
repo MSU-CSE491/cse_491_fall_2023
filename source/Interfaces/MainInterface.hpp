@@ -60,6 +60,9 @@ namespace i_2D {
         // Render range vars
         sf::Vector2i mPlayerPosition = sf::Vector2i(0,0); ///< xy world grid location of the player
         int mRenderRange = 10; ///< radius of cells shown around the player
+        bool mGridSizeLarge = false;
+        int const ROW = 9;
+        int const COL = 23;
 
     public:
 
@@ -71,7 +74,7 @@ namespace i_2D {
         ~MainInterface() = default;
 
 
-        std::vector<std::vector<std::string>> CreateVectorMaze(
+        std::vector<std::string> CreateVectorMaze(
           const WorldGrid &grid,
           const type_options_t &type_options,
           const item_map_t &item_map,
@@ -120,6 +123,7 @@ namespace i_2D {
             std::cout << message << std::endl;
             mMessageBoard->Send(message);
         }
+        std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
     };
 
 } // End of namespace 2D

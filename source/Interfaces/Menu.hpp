@@ -18,7 +18,7 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
     class Menu {
     private:
         /// Top menubar on the window
-        std::vector<std::unique_ptr<Button>> menuBar;
+        std::vector<std::unique_ptr<Button>> mMenuBar;
 
     public:
         void initialize(const sf::Font &font);
@@ -28,6 +28,11 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         void HandleMouseMove(sf::RenderWindow &window);
 
         void HandleMouseButtonPressed(sf::RenderWindow &window);
+        std::vector<std::unique_ptr<Button>> &GetMenu()
+        {
+            return mMenuBar;
+        }
+
     };
 }
 #endif //CSE_491_MENU_HPP

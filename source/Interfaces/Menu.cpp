@@ -17,15 +17,21 @@ namespace i_2D {
         sf::Color backgroundcolor = sf::Color::Black;
         sf::Color textcolor = sf::Color::White;
 
-        menuBar.emplace_back(std::make_unique<Button>(
+        mMenuBar.emplace_back(std::make_unique<Button>(
                 "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        menuBar[0]->setPosition({0,0});
-        menuBar.emplace_back(std::make_unique<Button>(
+        mMenuBar[0]->setPosition({0,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
                 "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        menuBar[1]->setPosition({200,0});
-        menuBar.emplace_back(std::make_unique<Button>(
+        mMenuBar[1]->setPosition({200,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
                 "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        menuBar[2]->setPosition({400,0});
+        mMenuBar[2]->setPosition({400,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Normal", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[3]->setPosition({600,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Enlarge", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[4]->setPosition({800,0});
 
     }
 
@@ -35,7 +41,7 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::drawto(sf::RenderWindow &window) {
-        for( const auto &button : menuBar){
+        for( const auto &button : mMenuBar){
             button->drawTo(window);
         }
     }
@@ -47,22 +53,46 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::HandleMouseMove(sf::RenderWindow &window) {
-        if (menuBar[0]->isMouseOver(window)){
-            menuBar[0]->setBackColor(sf::Color::Magenta);
-            menuBar[1]->setBackColor(sf::Color::Black);
-            menuBar[2]->setBackColor(sf::Color::Black);
-        }else if (menuBar[1]->isMouseOver(window)){
-            menuBar[0]->setBackColor(sf::Color::Black);
-            menuBar[1]->setBackColor(sf::Color::Magenta);
-            menuBar[2]->setBackColor(sf::Color::Black);
-        }else if (menuBar[2]->isMouseOver(window)){
-            menuBar[0]->setBackColor(sf::Color::Black);
-            menuBar[1]->setBackColor(sf::Color::Black);
-            menuBar[2]->setBackColor(sf::Color::Magenta);
-        }else{
-            menuBar[0]->setBackColor(sf::Color::Black);
-            menuBar[1]->setBackColor(sf::Color::Black);
-            menuBar[2]->setBackColor(sf::Color::Black);
+        if (mMenuBar[0]->isMouseOver(window)){
+            mMenuBar[0]->setBackColor(sf::Color::Magenta);
+            mMenuBar[1]->setBackColor(sf::Color::Black);
+            mMenuBar[2]->setBackColor(sf::Color::Black);
+            mMenuBar[3]->setBackColor(sf::Color::Black);
+            mMenuBar[4]->setBackColor(sf::Color::Black);
+        }else if (mMenuBar[1]->isMouseOver(window)){
+            mMenuBar[0]->setBackColor(sf::Color::Black);
+            mMenuBar[1]->setBackColor(sf::Color::Magenta);
+            mMenuBar[2]->setBackColor(sf::Color::Black);
+            mMenuBar[3]->setBackColor(sf::Color::Black);
+            mMenuBar[4]->setBackColor(sf::Color::Black);
+        }else if (mMenuBar[2]->isMouseOver(window)){
+            mMenuBar[0]->setBackColor(sf::Color::Black);
+            mMenuBar[1]->setBackColor(sf::Color::Black);
+            mMenuBar[2]->setBackColor(sf::Color::Magenta);
+            mMenuBar[3]->setBackColor(sf::Color::Black);
+            mMenuBar[4]->setBackColor(sf::Color::Black);
+
+        }else if (mMenuBar[3]->isMouseOver(window)){
+            mMenuBar[0]->setBackColor(sf::Color::Black);
+            mMenuBar[1]->setBackColor(sf::Color::Black);
+            mMenuBar[2]->setBackColor(sf::Color::Black);
+            mMenuBar[3]->setBackColor(sf::Color::Magenta);
+            mMenuBar[4]->setBackColor(sf::Color::Black);
+
+        }else if (mMenuBar[4]->isMouseOver(window)){
+            mMenuBar[0]->setBackColor(sf::Color::Black);
+            mMenuBar[1]->setBackColor(sf::Color::Black);
+            mMenuBar[2]->setBackColor(sf::Color::Black);
+            mMenuBar[3]->setBackColor(sf::Color::Black);
+            mMenuBar[4]->setBackColor(sf::Color::Magenta);
+
+        }
+        else{
+            mMenuBar[0]->setBackColor(sf::Color::Black);
+            mMenuBar[1]->setBackColor(sf::Color::Black);
+            mMenuBar[2]->setBackColor(sf::Color::Black);
+            mMenuBar[3]->setBackColor(sf::Color::Black);
+            mMenuBar[4]->setBackColor(sf::Color::Black);
         }
     }
 
@@ -73,10 +103,12 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::HandleMouseButtonPressed(sf::RenderWindow &window) {
-        if(menuBar[2]->isMouseOver(window)){
+        if(mMenuBar[2]->isMouseOver(window)){
             exit(0);
         }
+
     }
+
 }
 
 

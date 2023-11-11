@@ -38,27 +38,21 @@ namespace i_2D {
      *
      * @return A vector of strings representing the maze grid.
      */
-    std::vector<std::vector<std::string>> MainInterface::CreateVectorMaze(
+    std::vector<std::string> MainInterface::CreateVectorMaze(
 
-      const WorldGrid &grid, const type_options_t &type_options,
-      const item_map_t &item_map, const agent_map_t &agent_map)
+            const WorldGrid &grid, const type_options_t &type_options,
+            const item_map_t &item_map, const agent_map_t &agent_map)
 
     {
-        std::vector<std::vector<std::string>> layers;
         std::vector<std::string> symbol_grid(grid.GetHeight());
-        std::vector<std::string> defaultThing(grid.GetHeight());
 
         // Load the world into the symbol_grid;
         for (size_t y=0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
-            defaultThing[y].resize(grid.GetWidth());
             for (size_t x=0; x < grid.GetWidth(); ++x) {
                 symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
             }
         }
-        // Save to layers and clear for next layer
-        layers.push_back(symbol_grid);
-        symbol_grid = defaultThing;
 
         // Add in the agents / entities
         for (const auto & [id, item_ptr] : item_map) {
@@ -69,9 +63,6 @@ namespace i_2D {
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
-        // Save to layers and clear for next layer
-        layers.push_back(symbol_grid);
-        symbol_grid = defaultThing;
 
         for (const auto & [id, agent_ptr] : agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
@@ -81,10 +72,7 @@ namespace i_2D {
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
-        // Save to layers
-        layers.push_back(symbol_grid);
-
-        return layers;
+        return symbol_grid;
     }
 
     /**
@@ -94,8 +82,17 @@ namespace i_2D {
      * @return sf::Vector2f The size of each cell as a 2D vector.
      */
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
-        float cellSizeWide = mWindow.getSize().x / (mRenderRange*2);
-        float cellSizeTall = mWindow.getSize().y / (mRenderRange*2);
+        float cellSizeWide ,cellSizeTall;
+        if(mGridSizeLarge)
+        {
+            cellSizeWide = mWindow.getSize().x / COL;
+            cellSizeTall = mWindow.getSize().y / ROW;
+        }
+        else{
+            cellSizeWide = mWindow.getSize().x / grid.GetWidth();
+            cellSizeTall = mWindow.getSize().y / grid.GetHeight();
+        }
+
         float cellSize = std::min(cellSizeWide, cellSizeTall) ;
         return sf::Vector2f(cellSize, cellSize);
     }
@@ -113,73 +110,43 @@ namespace i_2D {
         // Check player's position
         mPlayerPosition = sf::Vector2i (this->position.GetX(), this->position.GetY());
 
-        // Clear old drawing
-        mWindow.clear(sf::Color::Cyan);
+        mWindow.clear(sf::Color::White);
 
-        // Create a symbol representation of the world
-        std::vector<std::vector<std::string>> layers = CreateVectorMaze(grid, type_options, item_map, agent_map);
-        std::vector<std::string> symbol_grid = layers[0];
+        std::vector<std::string> symbol_grid;
+        std::vector<std::string> default_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
 
-        // Determine size of an individual cell for this frame
         sf::Vector2f cellSize = CalculateCellSize(grid);
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
         CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
 
-        sf::Vector2i startPos(mPlayerPosition.x - mRenderRange, mPlayerPosition.y - mRenderRange);
-        sf::Vector2f endPos(mPlayerPosition.x + mRenderRange, mPlayerPosition.y + mRenderRange);
+        if (mGridSizeLarge) {
+            symbol_grid = LargeDisplayGrid(default_grid);
+        } else {
+            symbol_grid = default_grid;
+        }
+
+        for (size_t iterY = 0; iterY < symbol_grid.size(); ++iterY) {
+            for (size_t iterX = 0; iterX < symbol_grid[0].size(); ++iterX) {
+
+                float cellPosX = drawCenterX + static_cast<float>(iterX) * cellSize.x;
+                float cellPosY = drawCenterY + static_cast<float>(iterY) * cellSize.y;
+                char symbol = symbol_grid[iterY][iterX];
 
 
+                sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
+                sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
+                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+
+                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
+
+                bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
+                                      (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
+                SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
 
 
-        // Draw agent and entity layers cell by cell
-        for (int iterY = -mRenderRange; iterY < mRenderRange; ++iterY) {
-            for (int iterX = -mRenderRange; iterX < mRenderRange; ++iterX) {
-
-                // Position of the rectangle
-                float cellPosX = drawCenterX + iterX * cellSize.x;
-                float cellPosY = drawCenterY + iterY * cellSize.y;
-
-                // Symbol to use for texture
-                int readLocY = mPlayerPosition.y+iterY;
-                int readLocX = mPlayerPosition.x+iterX;
-
-                //bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
-                (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-                bool isVerticalWall = false;
-
-                // Check range and apply texture if allowed
-                if(readLocY < 0 || readLocX < 0 || readLocX >= grid.GetWidth() || readLocY >= grid.GetHeight())
-                {
-                    // Create the rectangle
-                    sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
-                    sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
-                    cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                    cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                    cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                    // Draw black
-                    DrawDefaultCell(cellRect);
-                }
-                else
-                {
-                    // Create and draw a cell for each layer at this cell location
-                    for(int layer = 0; layer < layers.size(); ++layer)
-                    {
-                        // Read symbol
-                        char symbol = layers[layer][readLocY][readLocX];
-                        if(symbol != '\000')
-                        {
-                            // Create the rectangle
-                            sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
-                            sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
-                            cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                            cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                            cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
-                            // Draw texture
-                            SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
-                        }
-                    }
-                }
             }
+
         }
 
         // Display everything
@@ -188,6 +155,35 @@ namespace i_2D {
         mMessageBoard->drawTo(mWindow);
         mWindow.display();
     }
+    /**
+ * @brief Creates a 9x23 window of the symbol grid centered around the player's position.
+ *
+ * @param symbol_grid   The original symbol grid.
+ * @return              A new symbol grid representing the 9x23 window.
+ */
+    std::vector<std::string> MainInterface::LargeDisplayGrid(const std::vector<std::string> &symbol_grid)
+    {
+        // Determine the top-left corner of the 9x23 window
+        int topLeftX = std::max(0, std::min(mPlayerPosition.x - COL/2, static_cast<int>(symbol_grid[0].size()) - COL));
+        int topLeftY = std::max(0, std::min(mPlayerPosition.y - ROW/2, static_cast<int>(symbol_grid.size()) - ROW));
+
+        // Create a new symbol grid for the 9x23 display window
+        std::vector<std::string> display_grid;
+        for (size_t iterY = 0; iterY < ROW; ++iterY) {
+            std::string row;
+            for (size_t iterX = 0; iterX < COL; ++iterX) {
+                int posX = topLeftX + iterX;
+                int posY = topLeftY + iterY;
+
+                // Copy the symbol from symbol_grid to display_grid
+                row.push_back(symbol_grid[posY][posX]);
+            }
+            display_grid.push_back(row);
+        }
+
+        return display_grid;
+    }
+
     /**
      * @brief Calculates the total drawing space based on the grid dimensions and cell size and also the center position of the drawing space.
      *
@@ -201,10 +197,18 @@ namespace i_2D {
     void MainInterface::CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth,
                                            float &drawSpaceHeight, float &drawCenterX, float &drawCenterY)
     {
-        drawSpaceWidth = static_cast<float>(mRenderRange) * cellSize;
-        drawSpaceHeight = static_cast<float>(mRenderRange) * cellSize;
-        drawCenterX = (mWindow.getSize().x) / 2.0f;
-        drawCenterY = (mWindow.getSize().y) / 2.0f;
+        if(mGridSizeLarge)
+        {
+            drawSpaceWidth = static_cast<float>(COL) * cellSize;
+            drawSpaceHeight = static_cast<float>(ROW) * cellSize;
+        }
+        else{
+            drawSpaceWidth = static_cast<float>(grid.GetWidth()) * cellSize;
+            drawSpaceHeight = static_cast<float>(grid.GetHeight()) * cellSize;
+        }
+
+        drawCenterX = (mWindow.getSize().x - drawSpaceWidth) / 2.0f;
+        drawCenterY = (mWindow.getSize().y - drawSpaceHeight) / 2.0f;
     }
 
     /**
@@ -220,6 +224,9 @@ namespace i_2D {
                                        const type_options_t &type_options,
                                        const item_map_t &item_map,
                                        const agent_map_t &agent_map) {
+//        if(grid.GetWidth() > COL or grid.GetHeight() > ROW){
+//            mGridSizeLarge = true;
+//        }
         while (mWindow.isOpen()) {
             sf::Event event;
 
@@ -251,7 +258,17 @@ namespace i_2D {
                     mMenu.HandleMouseMove(mWindow);
 
                 } else if(event.type == sf::Event::MouseButtonPressed){
-                    mMenu.HandleMouseButtonPressed(mWindow);
+                    if (mMenu.GetMenu()[3]->isMouseOver(mWindow))
+                    {
+                        mGridSizeLarge = false;
+                    }
+                    else if (mMenu.GetMenu()[4]->isMouseOver(mWindow))
+                    {
+                        mGridSizeLarge = true;
+
+                    }
+                    else
+                        mMenu.HandleMouseButtonPressed(mWindow);
 
                 }else if(event.type == sf::Event::MouseWheelScrolled)
                 {
@@ -353,8 +370,17 @@ namespace i_2D {
         // Check size limits of window
         float widthWindow = event.size.width;
         float heightWindow = event.size.height;
-        float widthMin = grid.GetWidth() * MIN_SIZE_CELL;
-        float heightMin = grid.GetHeight() * MIN_SIZE_CELL;
+        float widthMin,heightMin;
+        if(mGridSizeLarge)
+        {
+            widthMin = COL * MIN_SIZE_CELL;
+            heightMin = ROW * MIN_SIZE_CELL;
+        }
+        else{
+           widthMin = grid.GetWidth() * MIN_SIZE_CELL;
+           heightMin = grid.GetHeight() * MIN_SIZE_CELL;
+        }
+
         widthWindow = std::max(widthWindow, widthMin);
         heightWindow = std::max(heightWindow, heightMin);
 
@@ -396,7 +422,7 @@ namespace i_2D {
      * @param cellRect The rectangle shape of the cell.
      */
     void MainInterface::DrawEmptyCell(sf::RectangleShape& cellRect) {
-        cellRect.setFillColor(sf::Color::Green);
+        cellRect.setFillColor(sf::Color::Black);
         mWindow.draw(cellRect);
     }
     
@@ -420,7 +446,8 @@ namespace i_2D {
 
     void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent) {
         cellRect.setTexture(&agent);
-        //mWindow.draw(cell);
+        cell.setFillColor(sf::Color::Black);
+        mWindow.draw(cell);
         mWindow.draw(cellRect);
     }
     /*
