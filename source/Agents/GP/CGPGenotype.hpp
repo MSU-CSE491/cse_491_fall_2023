@@ -7,6 +7,7 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "GraphNode.hpp"
@@ -23,11 +24,18 @@ namespace cowboys {
   constexpr char NODE_SEP = ':';
 
   /// @brief A namespace for base64 encoding and decoding. Does not convert to and from base64 in the typical way. Only
-  /// guarantees that x == b64_inv(b64(x)), aside from doubles which have problems with precision, so x ~=
-  /// b64_inv(b64(x)).
+  /// guarantees that x == b64_inv(b64(x)), aside from doubles which have problems with precision, 
+  /// so x ~= b64_inv(b64(x)).
   namespace base64 {
     /// The characters used to represent digits in base64.
-    static std::string chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+    static constexpr char chars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+    static const std::unordered_map<char, size_t> char_to_ull_map = []() {
+      std::unordered_map<char, size_t> map;
+      for (size_t i = 0; i < 64; ++i) {
+        map[chars[i]] = i;
+      }
+      return map;
+    }();
 
     /// @brief Converts a number in base10 to base64.
     /// @param ull The number to convert.
@@ -56,7 +64,7 @@ namespace cowboys {
       for (size_t i = 0; i < num_base64.size(); ++i) {
         const char ch = num_base64[i];
         const size_t coeff = std::pow(64, num_base64.size() - i - 1);
-        result += chars.find(ch) * coeff;
+        result += char_to_ull_map[ch] * coeff;
       }
       return result;
     }
@@ -89,11 +97,11 @@ namespace cowboys {
       std::string result = "";
       for (size_t i = 0; i < base64.size(); ++i) {
         const char ch = base64[i];
-        const size_t ull = chars.find(ch);
+        const size_t ull = char_to_ull_map[ch];
         result += std::bitset<6>(ull).to_string();
       }
       // Remove leading 0s and return result: https://stackoverflow.com/a/31226728/13430191
-      return result.erase(0, std::min(result.find_first_not_of('0'), result.size() - 1));
+      return result.erase(0, std::min(result.find_first_not_of(chars[0]), result.size() - 1));
     }
 
     /// @brief Converts a double to a base64 string. Assumes that the stoull(to_string(value)) is possible. Only
@@ -106,7 +114,6 @@ namespace cowboys {
 
       // Sign
       // Store if it is positive or negative using the first base64 character or the second
-      assert(chars.size() > 2);
       char sign_b64 = chars[0];
       if (value < 0) {
         sign_b64 = chars[1];
@@ -138,13 +145,13 @@ namespace cowboys {
     static double B64ToDouble(const std::string &value) {
       assert(value.size() > 0);
       // Get decimal location
-      size_t decimal_loc_from_right = chars.find(value[0]);
+      size_t decimal_loc_from_right = char_to_ull_map[value[0]];
       // Get sign
       double sign = value[1] == chars[0] ? 1 : -1;
       // Get ULL
       std::string ull = std::to_string(B64ToULL(value.substr(2)));
       if (ull.size() < decimal_loc_from_right)
-        ull = std::string(decimal_loc_from_right - ull.size() + 1, '0') + ull;
+        ull = std::string(decimal_loc_from_right - ull.size() + 1, chars[0]) + ull;
       // Insert decimal point
       ull.insert(ull.size() - decimal_loc_from_right, ".");
       // Return double
@@ -442,10 +449,23 @@ namespace cowboys {
 
     /// @brief Returns the number of possible connections in the graph.
     /// @return The number of possible connections in the graph.
-    size_t GetNumConnections() const {
+    size_t GetNumPossibleConnections() const {
       size_t num_connections = 0;
       for (const CGPNodeGene &node : nodes) {
         num_connections += node.input_connections.size();
+      }
+      return num_connections;
+    }
+
+    /// @brief Returns the number of connected connections in the graph.
+    /// @return The number of connected connections in the graph.
+    size_t GetNumConnections() const {
+      size_t num_connections = 0;
+      for (const CGPNodeGene &node : nodes) {
+        for (char con : node.input_connections) {
+          if (con == '1')
+            ++num_connections;
+        }
       }
       return num_connections;
     }
