@@ -36,7 +36,7 @@ namespace i_2D {
     * for creating and displaying a 2D maze game world, handling user input,
     * and updating the graphical representation of the game.
     */
-    class MainInterface : public InterfaceBase {
+    class MainInterface : public virtual InterfaceBase {
 
     protected:
 
