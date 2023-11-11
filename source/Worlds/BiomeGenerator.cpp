@@ -7,7 +7,6 @@
 
 #include <cmath>
 #include <tuple>
-#include <random>
 
 using namespace group6;
 using namespace cse491;
@@ -77,13 +76,8 @@ void BiomeGenerator::generate() {
 void BiomeGenerator::placeKeyTile(const size_t &keyTile) {
     bool counter = false;
     while (!counter) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-
-        std::uniform_int_distribution<int> x_distribution(width / 2, width - 1);
-        std::uniform_int_distribution<int> y_distribution(height / 2, height - 1);
-        int random_x = x_distribution(gen);
-        int random_y = y_distribution(gen);
+        int random_x = (int)worldPtr->GetRandom(width / 2.0, width - 1);
+        int random_y = (int)worldPtr->GetRandom(height / 2.0, height - 1);
 
         if (grid.At(random_x, random_y) == floor_id) {
             grid.At(random_x, random_y) = keyTile;
@@ -117,15 +111,14 @@ void BiomeGenerator::placeSpecialTiles(const size_t &genericTile, const size_t &
     }
 
     int numSpikes = floorPositions.size() * percentage;
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(floorPositions.begin(), floorPositions.end(), g);
 
     // Convert some generic floor tiles to special tiles
     for (int i = 0; i < numSpikes; ++i) {
-        grid.At(floorPositions[i].first, floorPositions[i].second) = specialTile;
-    }
+        int pos = (int)round(worldPtr->GetRandom(floorPositions.size() - 1));
+        grid.At(floorPositions [pos].first, floorPositions[pos].second) = specialTile;
 
+        floorPositions.erase(floorPositions.begin() + pos);
+    }
 }
 
 /**
@@ -133,14 +126,14 @@ void BiomeGenerator::placeSpecialTiles(const size_t &genericTile, const size_t &
  * grid, to any point on the rightmost side of the map
  * @return A vector of GridPositions necessary for this path
  */
-std::vector<GridPosition> BiomeGenerator::clearPath() const {
-    std::vector<GridPosition> path;
+vector<GridPosition> BiomeGenerator::clearPath() const {
+    vector<GridPosition> path;
 
     GridPosition current(0, 0);
     path.push_back(current);
 
     while (current.GetX() < width - 1) {
-        int randDirection = rand() % 3; // 0: Right, 1: Up, 2: Down
+        int randDirection = (int)worldPtr->GetRandom() % 3; // 0: Right, 1: Up, 2: Down
 
         // Choose next point based on random direction
         GridPosition next = current;
@@ -170,7 +163,7 @@ std::vector<GridPosition> BiomeGenerator::clearPath() const {
  * left of the grid, to any point on the rightmost side of the map
  * @param path A vector of GridPositions necessary for this path
  */
-void BiomeGenerator::applyPathToGrid(const std::vector<GridPosition> &path) {
+void BiomeGenerator::applyPathToGrid(const vector<GridPosition> &path) {
     for (const GridPosition &p: path) {
         grid.At(p.GetX(), p.GetY()) = floor_id;
     }
@@ -211,10 +204,6 @@ void BiomeGenerator::setTiles(const size_t &firstTile, const size_t &secondTile)
 }
 
 void BiomeGenerator::placeTrees() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 100); // 0 to 100 for percentage
-
     // Iterates through each tile in the grid with a margin of 1 tile to prevent out of bounds access
     for (unsigned int y = 1; y < height - 1; ++y) {
         for (unsigned int x = 1; x < width - 1; ++x) {
@@ -225,7 +214,7 @@ void BiomeGenerator::placeTrees() {
                     grid.At(x-1, y-1) == grass_id && grid.At(x+1, y-1) == grass_id &&
                     grid.At(x-1, y+1) == grass_id && grid.At(x+1, y+1) == grass_id) {
                 // Use a random chance to place a tree
-                if (dis(gen) < 2) { // 10% chance to place a tree
+                if (worldPtr->GetRandom( 100) < 10) { // 10% chance to place a tree
                     // Place a 3x3 block of tree tile characters for the tree
                     for (int i = -1; i <= 1; ++i) {
                         for (int j = -1; j <= 1; ++j) {
