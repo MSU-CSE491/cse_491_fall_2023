@@ -9,9 +9,11 @@
 
 // Class project
 #include "Worlds/BiomeGenerator.hpp"
+#include "Worlds/GenerativeWorld.hpp"
 
 using namespace std;
 using namespace group6;
+using namespace cse491;
 
 TEST_CASE("Constructor", "[worlds][biome]") {
     static const unsigned int SEED = 5;
@@ -38,15 +40,30 @@ string fileToString(const string& fileName) {
 TEST_CASE("Generation", "[worlds][biome]") {
     static const unsigned int SEED = 5;
     static const string GRID_BASE = "../assets/grids/generated_maze";
-
     auto biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 50, 50, SEED);
+
     BiomeGenerator biomeGenerator(biome, 50, 50, SEED);
+    biomeGenerator.setWorld(&world);
     biomeGenerator.generate();
     biomeGenerator.saveToFile(GRID_BASE + "1.grid");
 
+    GenerativeWorld world2(biome, 50, 50, SEED);
+
     BiomeGenerator biomeGenerator2(biome, 50, 50, SEED);
+    biomeGenerator2.setWorld(&world2);
     biomeGenerator2.generate();
     biomeGenerator2.saveToFile(GRID_BASE + "2.grid");
 
     CHECK(fileToString(GRID_BASE + "1.grid") == fileToString(GRID_BASE + "2.grid"));
+
+    GenerativeWorld world3(biome, 50, 50, SEED + 1);
+
+    BiomeGenerator biomeGenerator3(biome, 50, 50, SEED + 1);
+    biomeGenerator3.setWorld(&world3);
+    biomeGenerator3.generate();
+    biomeGenerator3.saveToFile(GRID_BASE + "3.grid");
+
+    CHECK_FALSE(fileToString(GRID_BASE + "1.grid") == fileToString(GRID_BASE + "3.grid"));
 }
