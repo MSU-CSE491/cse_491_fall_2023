@@ -9,9 +9,16 @@
 
 // Class project
 #include "Worlds/GenerativeWorld.hpp"
+#include "Worlds/BiomeGenerator.hpp"
+
+using namespace std;
+using namespace group6;
+using namespace cse491;
 
 TEST_CASE("Constructor", "[worlds][generative]") {
     static const unsigned int SEED = 5;
-    cse491::GenerativeWorld world(SEED);
+    BiomeType biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 50, 50, SEED);
     CHECK(world.GetSeed() == SEED);
 }
