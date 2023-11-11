@@ -52,7 +52,10 @@ TEST_CASE("GraphNode function set", "[group7][functionset]") {
 
   SECTION("Sum") {
     node->SetFunctionPointer(Sum);
-    node->AddInput(std::make_shared<GraphNode>(3));
+    auto input = std::make_shared<GraphNode>(1);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 1);
+    input->SetOutput(3);
     CHECK(node->GetOutput() == 3);
     node->AddInput(std::make_shared<GraphNode>(4));
     CHECK(node->GetOutput() == 7);
@@ -121,6 +124,209 @@ TEST_CASE("GraphNode function set", "[group7][functionset]") {
 
     condition->SetOutput(0);
     CHECK(node->GetOutput() == 0);
+  }
+  SECTION("Sin") {
+    node->SetFunctionPointer(Sin);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == std::sin(1));
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == std::sin(1) + std::sin(2));
+  }
+  SECTION("Cos") {
+    node->SetFunctionPointer(Cos);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 1);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == std::cos(1));
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == std::cos(1) + std::cos(2));
+  }
+  SECTION("Product") {
+    node->SetFunctionPointer(Product);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(2);
+    CHECK(node->GetOutput() == 2);
+
+    auto input2 = std::make_shared<GraphNode>(3);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 6);
+
+    input->SetOutput(4);
+    CHECK(node->GetOutput() == 12);
+  }
+  SECTION("Exp") {
+    node->SetFunctionPointer(Exp);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 1);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == std::exp(1));
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == std::exp(1) + std::exp(2));
+  }
+  SECTION("LessThan") {
+    node->SetFunctionPointer(LessThan);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 1); // Default to true
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1); // Default to true
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 1); // 1 < 2 = true
+
+    input->SetOutput(3);
+    CHECK(node->GetOutput() == 0); // 3 < 2 = false
+  }
+  SECTION("GreaterThan") {
+    node->SetFunctionPointer(GreaterThan);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 1); // Default to true
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1); // Default to true
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 0); // 1 > 2 = false
+
+    input->SetOutput(3);
+    CHECK(node->GetOutput() == 1); // 3 > 2 = true
+  }
+  SECTION("Max") {
+    node->SetFunctionPointer(Max);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1);
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 2);
+
+    input->SetOutput(3);
+    CHECK(node->GetOutput() == 3);
+  }
+  SECTION("Min") {
+    node->SetFunctionPointer(Min);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1);
+
+    auto input2 = std::make_shared<GraphNode>(-1);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == -1);
+
+    input->SetOutput(-2);
+    CHECK(node->GetOutput() == -2);
+  }
+  SECTION("NegSum") {
+    node->SetFunctionPointer(NegSum);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == -1);
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == -3);
+
+    input->SetOutput(3);
+    CHECK(node->GetOutput() == -5);
+  }
+  SECTION("Square") {
+    node->SetFunctionPointer(Square);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1);
+
+    auto input2 = std::make_shared<GraphNode>(2);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 5); // 1^2 + 2^2 = 5
+
+    input->SetOutput(3);
+    CHECK(node->GetOutput() == 13); // 3^2 + 2^2 = 13
+  }
+  SECTION("PosClamp") {
+    node->SetFunctionPointer(PosClamp);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1);
+
+    auto input2 = std::make_shared<GraphNode>(-1);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 1); // pclamp(1) + pclamp(-1) = 1 + 0 = 1
+
+    input->SetOutput(-2);
+    CHECK(node->GetOutput() == 0); // pclamp(-2) + pclamp(-1) = 0 + 0 = 0
+  }
+  SECTION("NegClamp") {
+    node->SetFunctionPointer(NegClamp);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(-1);
+    CHECK(node->GetOutput() == -1);
+
+    auto input2 = std::make_shared<GraphNode>(1);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == -1); // nclamp(-1) + nclamp(1) = 0 + -1 = -1
+
+    input->SetOutput(2);
+    CHECK(node->GetOutput() == 0); // nclamp(2) + nclamp(1) = 0 + 0 = 0
+  }
+  SECTION("Sqrt") {
+    node->SetFunctionPointer(Sqrt);
+    auto input = std::make_shared<GraphNode>(0);
+    node->AddInput(input);
+    CHECK(node->GetOutput() == 0);
+
+    input->SetOutput(1);
+    CHECK(node->GetOutput() == 1);
+
+    auto input2 = std::make_shared<GraphNode>(4);
+    node->AddInput(input2);
+    CHECK(node->GetOutput() == 3); // sqrt(1) + sqrt(4) = 1 + 2 = 3
+
+    input->SetOutput(9);
+    CHECK(node->GetOutput() == 5); // sqrt(9) + sqrt(4) = 3 + 2 = 5
+
+    // Clamp negative values to 0
+    input->SetOutput(-1);
+    CHECK(node->GetOutput() == 2); // sqrt(0) + sqrt(4) = 0 + 2 = 2
   }
 }
 
