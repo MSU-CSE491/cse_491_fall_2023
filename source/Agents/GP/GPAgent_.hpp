@@ -48,7 +48,6 @@ namespace cowboys {
     /// @return Map of extra state information
     const std::unordered_map<std::string, double> GetExtraState() const { return extra_state; }
 
-
     /// @brief Mutate this agent.
     /// @param mutation_rate The mutation rate. Between 0 and 1.
     virtual void MutateAgent(double mutation_rate = 0.8) = 0;
@@ -57,21 +56,18 @@ namespace cowboys {
     /// @param other The agent to copy. Should be the same type.
     virtual void Copy(const GPAgent_ &other) = 0;
 
-    virtual void printAgent() {
+    virtual void printAgent(){
 
     };
 
-    virtual void serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, int fitness = -1) = 0;
+    virtual void serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, int fitness = -1) = 0;
 
-      virtual std::string Export() { return ""; }
+    virtual std::string Export() { return ""; }
 
-    virtual void reset() {
-//      extra_state["previous_action"] = 0;
-    };
+    virtual void reset() { extra_state["previous_action"] = 0; };
 
-//    virtual void crossover(const GPAgent_ &other) {};
-//    virtual void Import(const std::string &genotype) {};
-
+    //    virtual void crossover(const GPAgent_ &other) {};
+    //    virtual void Import(const std::string &genotype) {};
   };
 
 } // End of namespace cowboys

@@ -82,7 +82,14 @@ namespace cowboys {
           double distance = std::sqrt(std::pow(currentPosition.GetX() - startPosition.GetX(), 2) +
                                       std::pow(currentPosition.GetY() - startPosition.GetY(), 2));
 
-          return distance;
+          // Agent complexity, temporarily doing this in a bad way
+          double complexity = 0;
+          if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)) {
+            auto genotype = cgp->GetGenotype();
+            complexity = std::divides<double>()(genotype.GetNumConnections(), genotype.GetNumPossibleConnections());
+          }
+
+          return distance - complexity;
         }
 
 
@@ -102,7 +109,7 @@ namespace cowboys {
 
           const std::string filename = "AgentData_" + dateTimeStr + ".xml";
 
-          std::string relativePath = "../../savedata/GPAgent/";
+          std::string relativePath = "../savedata/GPAgent/";
           std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
           std::filesystem::path normalizedAbsolutePath = std::filesystem::canonical(absolutePath);
           auto fullPath = normalizedAbsolutePath / filename;
@@ -171,10 +178,10 @@ namespace cowboys {
             std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
             std::cout << "------------------------------------------------------------------" << std::endl;
 
-            if (generation % 5 == 0){
+            if (generation % 10 == 0){
 
-              saveEverySoOften(fullPath);
-              std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@"  << std::endl;
+              saveEverySoOften(fullPath.string());
+              // std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@"  << std::endl;
             }
 
 
@@ -185,20 +192,20 @@ namespace cowboys {
 
             resetEnvironments();
 
-            std::cout << "  ========= =========" << std::endl;
+            // std::cout << "  ========= =========" << std::endl;
 
           }
 
 
-          saveEverySoOften(fullPath);
-          std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@"  << std::endl;
+          saveEverySoOften(fullPath.string());
+          // std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@"  << std::endl;
 
 
         }
 
         void saveEverySoOften(std::string fullPath) {
           if (doc.SaveFile(fullPath.c_str()) == tinyxml2::XML_SUCCESS) {
-            std::filesystem::path fullPath = std::filesystem::absolute("example.xml");
+            // std::filesystem::path fullPath = std::filesystem::absolute("example.xml");
             std::cout << "XML file saved successfully to: " << fullPath << std::endl;
           } else {
             std::cout << "Error saving XML file." << std::endl;
@@ -249,8 +256,8 @@ namespace cowboys {
 
         void GpLoopMutateHelper() {
 
-          constexpr double ELITE_POPULATION_PERCENT = 0.1;
-          constexpr double UNFIT_POPULATION_PERCENT = 0.05;
+          constexpr double ELITE_POPULATION_PERCENT = 0.05;
+          constexpr double UNFIT_POPULATION_PERCENT = 0.1;
 
           // sort based on fitness function
           std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
@@ -269,7 +276,7 @@ namespace cowboys {
             averageEliteFitness += TEMPAgentFitness[arenaIDX][agentIDX];
           }
 
-          std::cout << " --- average elite percent " << averageEliteFitness << "------ " << std::endl;
+          // std::cout << " --- average elite percent " << averageEliteFitness << "------ " << std::endl;
 
 
           std::sort(sortedAgents.begin(), sortedAgents.end(),
@@ -289,11 +296,11 @@ namespace cowboys {
 
           for (int i = MIDDLE_MUTATE_STARTBOUND; i < MIDDLE_MUTATE_ENDBOUND; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->MutateAgent(0.1);
+            agents[arenaIDX][agentIDX]->MutateAgent(0.05);
 
-            if (i % (sortedAgents.size() / 10) == 0) {
-              std::cout << " --- mutation " << " complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
-            }
+            // if (i % (sortedAgents.size() / 10) == 0) {
+            //   std::cout << " --- mutation " << " complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
+            // }
           }
 
           int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
@@ -305,11 +312,11 @@ namespace cowboys {
             auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
             agents[arenaIDX][agentIDX]->Copy(*agents[eliteArenaIDX][eliteAgentIDX]);
 
-            agents[arenaIDX][agentIDX]->MutateAgent(0.05);
+            agents[arenaIDX][agentIDX]->MutateAgent(0.01);
           }
 //      printGrids();
 
-          std::cout << " --- mutation complete --- " << std::endl;
+          // std::cout << " --- mutation complete --- " << std::endl;
         }
 
 

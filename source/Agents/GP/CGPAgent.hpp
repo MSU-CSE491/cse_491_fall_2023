@@ -17,16 +17,13 @@
 
 namespace cowboys {
   /// Don't know the maximum size a state can be, arbitrary large number
-  constexpr size_t INPUT_SIZE = 10;
+  constexpr size_t INPUT_SIZE = 6;
 
   /// Number of computational layers for each agent
   constexpr size_t NUM_LAYERS = 5;
 
   /// The number of nodes in each layer
   constexpr size_t NUM_NODES_PER_LAYER = 10;
-
-  /// The number of inputs for each node
-  constexpr size_t NUM_NODE_INPUTS = 10;
 
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;
@@ -69,6 +66,8 @@ namespace cowboys {
         genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       }
 
+      genotype.SetSeed(rand());
+
       // Mutate the beginning genotype, might not want this.
       MutateAgent(0.2);
 
@@ -94,10 +93,6 @@ namespace cowboys {
       agentElem->InsertEndChild(genotypeElem);
 
     }
-
-
-
-
 
 
     /// @brief Get the genotype for this agent.
