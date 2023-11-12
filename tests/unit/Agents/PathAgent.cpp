@@ -99,7 +99,7 @@ TEST_CASE("Path Agent Setters", "[Agents]") {
   SECTION("Reset path") {
     // Setup
     walle::PathAgent agent(0, "Reset", "n n n");
-    auto next_pos = agent.UpdateAndGetNextPos();
+    auto next_pos = agent.GetNextPosition();
     agent.SetPosition(next_pos);
 
     REQUIRE(agent.GetPosition() == cse491::GridPosition(0, -1));
@@ -120,7 +120,7 @@ TEST_CASE("Path Agent Behavior", "[Agents]") {
   SECTION("Basic") {
     vector<cse491::GridPosition> offsets = {{0, 1}};
     walle::PathAgent agent (0, "First", std::move(offsets));
-    auto next_pos = agent.UpdateAndGetNextPos();
+    auto next_pos = agent.GetNextPosition();
     agent.SetPosition(next_pos);
     REQUIRE(agent.GetPosition() == cse491::GridPosition(0, 1));
   }
@@ -129,7 +129,7 @@ TEST_CASE("Path Agent Behavior", "[Agents]") {
     walle::PathAgent agent(0, "Second", "n s");
     vector<cse491::GridPosition> expected = {{0, -1}, {0, 0}, {0, -1}, {0, 0}};
     for (auto const& expected_pos : expected) {
-      auto next_pos = agent.UpdateAndGetNextPos();
+      auto next_pos = agent.GetNextPosition();
       agent.SetPosition(next_pos);
       REQUIRE(agent.GetPosition() == expected_pos);
     }

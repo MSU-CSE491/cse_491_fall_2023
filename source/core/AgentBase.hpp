@@ -66,6 +66,8 @@ namespace cse491 {
         data.StoreAction(action_map);
     }
 
+    /// Allow derived agents to provide an arbitrary next position for the world to move the agent to
+    [[nodiscard]] virtual GridPosition GetNextPosition() { return Entity::GetPosition(); }
 
     /// Provide a new action that this agent can take.
     virtual AgentBase & AddAction(const std::string & action_name, size_t action_id) {
