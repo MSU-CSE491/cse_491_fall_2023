@@ -64,7 +64,7 @@ namespace cowboys {
       for (size_t i = 0; i < num_base64.size(); ++i) {
         const char ch = num_base64[i];
         const size_t coeff = std::pow(64, num_base64.size() - i - 1);
-        result += char_to_ull_map[ch] * coeff;
+        result += char_to_ull_map.at(ch) * coeff;
       }
       return result;
     }
@@ -97,7 +97,7 @@ namespace cowboys {
       std::string result = "";
       for (size_t i = 0; i < base64.size(); ++i) {
         const char ch = base64[i];
-        const size_t ull = char_to_ull_map[ch];
+        const size_t ull = char_to_ull_map.at(ch);
         result += std::bitset<6>(ull).to_string();
       }
       // Remove leading 0s and return result: https://stackoverflow.com/a/31226728/13430191
@@ -145,7 +145,7 @@ namespace cowboys {
     static double B64ToDouble(const std::string &value) {
       assert(value.size() > 0);
       // Get decimal location
-      size_t decimal_loc_from_right = char_to_ull_map[value[0]];
+      size_t decimal_loc_from_right = char_to_ull_map.at(value[0]);
       // Get sign
       double sign = value[1] == chars[0] ? 1 : -1;
       // Get ULL
