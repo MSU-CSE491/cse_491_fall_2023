@@ -23,7 +23,6 @@ int main()
 
   world.GenerateMoveSets();
   
-  do {
-    world.Run();
-  } while (!world.GetRunOver());
+  world.Run();
+  
 }

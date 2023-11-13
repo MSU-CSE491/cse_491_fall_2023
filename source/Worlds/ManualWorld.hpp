@@ -29,8 +29,6 @@ namespace cse491_team8 {
     size_t bridge_id; ///< Easy access to bridge CellType ID.
     size_t rock_id;   ///< Easy access to rock CellType ID.
 
-    bool reset_run = false;   ///< Should the run reset?
-
     /// Provide the agent with movement actions.
     void ConfigAgent(cse491::AgentBase & agent) override {
       agent.AddAction("up", MOVE_UP);
@@ -225,7 +223,6 @@ namespace cse491_team8 {
                         agent.SetProperty<int>("Health", 15);
                         agent.SetProperty<int>("Direction", 0);
                         agent.SetPosition(40, 3);
-                        reset_run = true;
                         break;
                     }
                     else
@@ -306,13 +303,16 @@ namespace cse491_team8 {
       auto new_position = agent.GetPosition();
       for (auto & [id, agent2_ptr] : agent_map)
       {
-        if (agent2_ptr->GetPosition() == new_position.Above() ||
-            agent2_ptr->GetPosition() == new_position.Below() ||
-            agent2_ptr->GetPosition() == new_position.ToLeft() ||
-            agent2_ptr->GetPosition() == new_position.ToRight())
+        if (agent.GetID() != agent2_ptr->GetID()) {
+          if (agent2_ptr->GetPosition() == new_position.Above() ||
+              agent2_ptr->GetPosition() == new_position.Below() ||
+              agent2_ptr->GetPosition() == new_position.ToLeft() ||
+              agent2_ptr->GetPosition() == new_position.ToRight() ||
+              agent2_ptr->GetPosition() == new_position)
         {
           StrengthCheck(*agent2_ptr, agent);
           return true;
+        }
         }
       }
       return false;
@@ -341,8 +341,7 @@ namespace cse491_team8 {
     void Run() override
     {
       run_over = false;
-      reset_run = false;
-      while (!run_over && !reset_run) {
+      while (!run_over) {
         RunAgents();
         UpdateWorld();
       }
@@ -533,8 +532,6 @@ namespace cse491_team8 {
 
       return true;
     }
-
-    bool GetResetRun() { return reset_run; }
 
   };
 
