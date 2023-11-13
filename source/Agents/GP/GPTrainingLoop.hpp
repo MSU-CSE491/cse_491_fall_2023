@@ -51,7 +51,8 @@ namespace cowboys {
 
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
-
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(4,4), cse491::GridPosition(19,5), cse491::GridPosition(20,1) };
+        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0) };
 
     public:
 
@@ -95,6 +96,8 @@ namespace cowboys {
             }
 
           }
+
+
 
         }
 
@@ -146,6 +149,9 @@ namespace cowboys {
 
           for (size_t generation = 0; generation < numGenerations; ++generation) {
 
+
+            initTEMPAgentFitness();
+
             std::vector<std::thread> threads;
 
             for (size_t arena = 0; arena < environments.size(); ++arena) {
@@ -172,7 +178,7 @@ namespace cowboys {
 
 
 
-            ComputeFitness();
+//            ComputeFitness();
 
             sortedAgents.clear();
             sortThemAgents();
@@ -303,16 +309,52 @@ namespace cowboys {
         }
 
 
-        void ComputeFitness() {
+//        void ComputeFitness() {
+//          for (size_t arena = 0; arena < environments.size(); ++arena) {
+//            TEMPAgentFitness.emplace_back(std::vector<double>());
+//            for (size_t a = 0; a < agents[arena].size(); ++a) {
+//              double fitness = simpleFitnessFunction(*agents[arena][a], TEMPinitialAgentPositions[arena][a]);
+//              TEMPAgentFitness[arena].push_back(fitness);
+//            }
+//          }
+//        }
+
+        void initTEMPAgentFitness() {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             TEMPAgentFitness.emplace_back(std::vector<double>());
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              double fitness = simpleFitnessFunction(*agents[arena][a], TEMPinitialAgentPositions[arena][a]);
-              TEMPAgentFitness[arena].push_back(fitness);
+                double fitness = 0;
+                TEMPAgentFitness[arena].push_back(fitness);
             }
           }
         }
 
+
+        void mutateAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgent_ *>>& agents, double mutationRate) {
+          for (int i = start; i < end; i++) {
+            auto [arenaIDX, agentIDX] = sortedAgents[i];
+            agents[arenaIDX][agentIDX]->MutateAgent(mutationRate);
+
+            if (i % (sortedAgents.size() / 10) == 0) {
+              std::cout << " --- mutation complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
+            }
+          }
+        }
+
+        void mutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgent_ *>>& agents, int elitePopulationSize) {
+          for (int i = start; i < end; i++) {
+            auto [arenaIDX, agentIDX] = sortedAgents[i];
+            auto eliteINDEX = rand() % elitePopulationSize;
+            auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
+
+            agents[arenaIDX][agentIDX]->Copy(*agents[eliteArenaIDX][eliteAgentIDX]);
+            agents[arenaIDX][agentIDX]->MutateAgent(0.01);
+
+            if (i % (sortedAgents.size() / 10) == 0) {
+              std::cout << " --- mutation complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
+            }
+          }
+        }
 
         void GpLoopMutateHelper() {
 
@@ -330,19 +372,21 @@ namespace cowboys {
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
 
-          double averageEliteFitness = 0;
-          for (int i = 0; i < ELITE_POPULATION_SIZE; i++) {
-            auto [arenaIDX, agentIDX] = sortedAgents[i];
-            averageEliteFitness += TEMPAgentFitness[arenaIDX][agentIDX];
-          }
-
-          // std::cout << " --- average elite percent " << averageEliteFitness << "------ " << std::endl;
 
 
           std::sort(sortedAgents.begin(), sortedAgents.end(),
                     [&](const std::pair<int, int> &a, const std::pair<int, int> &b) {
                         return TEMPAgentFitness[a.first][a.second] > TEMPAgentFitness[b.first][b.second];
                     });
+
+          double averageEliteFitness = 0;
+          for (int i = 0; i < ELITE_POPULATION_SIZE; i++) {
+            auto [arenaIDX, agentIDX] = sortedAgents[i];
+            averageEliteFitness += TEMPAgentFitness[arenaIDX][agentIDX];
+          }
+          averageEliteFitness /= ELITE_POPULATION_SIZE;
+
+          std::cout << " --- average elite score " << averageEliteFitness << "------ " << std::endl;
 
 
 //      for (int i = 0; i < ELITE_POPULATION_SIZE; i++){
@@ -353,27 +397,70 @@ namespace cowboys {
           const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * (1 - UNFIT_POPULATION_PERCENT));
           const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
+          // Determine the number of threads to use
+          const int num_threads = std::thread::hardware_concurrency();
+          std::vector<std::thread> threads;
 
-          for (int i = MIDDLE_MUTATE_STARTBOUND; i < MIDDLE_MUTATE_ENDBOUND; i++) {
-            auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->MutateAgent(0.05);
+          // Calculate the number of agents per thread
+          int agents_per_thread = (MIDDLE_MUTATE_ENDBOUND - MIDDLE_MUTATE_STARTBOUND) / num_threads;
 
-            // if (i % (sortedAgents.size() / 10) == 0) {
-            //   std::cout << " --- mutation " << " complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
-            // }
+          // Launch threads for the first loop
+          for (int i = 0; i < num_threads; ++i) {
+            int start = MIDDLE_MUTATE_STARTBOUND + i * agents_per_thread;
+            int end = (i == num_threads - 1) ? MIDDLE_MUTATE_ENDBOUND : start + agents_per_thread;
+            threads.push_back(std::thread([this, start, end, &sortedAgents] {
+                this->mutateAgents(start, end, sortedAgents, agents, 0.05);
+            }));
           }
 
+          // Join the threads
+          for (auto& t : threads) {
+            t.join();
+          }
+
+          threads.clear();
+
+          // Second loop - copy and mutate agents
           int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
-          for (size_t i = MIDDLE_MUTATE_ENDBOUND; i < sortedAgents.size(); i++) {
-            auto [arenaIDX, agentIDX] = sortedAgents[i];
-            auto eliteINDEX = rand() % ELITE_POPULATION_SIZE;
-
-
-            auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
-            agents[arenaIDX][agentIDX]->Copy(*agents[eliteArenaIDX][eliteAgentIDX]);
-
-            agents[arenaIDX][agentIDX]->MutateAgent(0.01);
+          agents_per_thread = (sortedAgents.size() - MIDDLE_MUTATE_ENDBOUND) / num_threads;
+          for (int i = 0; i < num_threads; ++i) {
+            int start = MIDDLE_MUTATE_ENDBOUND + i * agents_per_thread;
+            int end = (i == num_threads - 1) ? sortedAgents.size() : start + agents_per_thread;
+//            threads.push_back(std::thread(mutateAndCopyAgents, start, end, std::ref(sortedAgents), std::ref(agents), ELITE_POPULATION_SIZE));
+            threads.push_back(std::thread([this, start, end, &sortedAgents, ELITE_POPULATION_SIZE] {
+                this->mutateAndCopyAgents(start, end, sortedAgents, agents, ELITE_POPULATION_SIZE);
+            }));
           }
+
+          for (auto& t : threads) {
+            t.join();
+          }
+
+
+//          for (int i = MIDDLE_MUTATE_STARTBOUND; i < MIDDLE_MUTATE_ENDBOUND; i++) {
+//            auto [arenaIDX, agentIDX] = sortedAgents[i];
+//            agents[arenaIDX][agentIDX]->MutateAgent(0.05);
+//
+//             if (i % (sortedAgents.size() / 10) == 0) {
+//               std::cout << " --- mutation " << " complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
+//             }
+//          }
+//
+//          int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
+//          for (size_t i = MIDDLE_MUTATE_ENDBOUND; i < sortedAgents.size(); i++) {
+//            auto [arenaIDX, agentIDX] = sortedAgents[i];
+//            auto eliteINDEX = rand() % ELITE_POPULATION_SIZE;
+//
+//
+//            auto [eliteArenaIDX, eliteAgentIDX] = sortedAgents[eliteINDEX];
+//            agents[arenaIDX][agentIDX]->Copy(*agents[eliteArenaIDX][eliteAgentIDX]);
+//
+//            agents[arenaIDX][agentIDX]->MutateAgent(0.01);
+//
+//            if (i % (sortedAgents.size() / 10) == 0) {
+//              std::cout << " --- mutation " << " complete " << (i * 1.0 / sortedAgents.size()) << std::endl;
+//            }
+//          }
 //      printGrids();
 
           // std::cout << " --- mutation complete --- " << std::endl;
@@ -446,10 +533,24 @@ namespace cowboys {
         }
 
         void runArena(size_t arena, size_t numberOfTurns) {
-          for (size_t turn = 0; turn < numberOfTurns; turn++) {
-            environments[arena]->RunAgents();
-            environments[arena]->UpdateWorld();
+          for (size_t size = 0; size < STARTPOSITIONS.size(); ++size) {
+            agents[arena][size]->SetPosition(STARTPOSITIONS[size]);
+
+            for (size_t turn = 0; turn < numberOfTurns; turn++) {
+              environments[arena]->RunAgents();
+              environments[arena]->UpdateWorld();
+            }
+            for (size_t a = 0; a < agents[arena].size(); ++a) {
+              int tempscore = simpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[size]);
+              TEMPAgentFitness[arena][a] += tempscore;
+            }
           }
+
+          for (size_t a = 0; a < agents[arena].size(); ++a) {
+            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
+          }
+
+
         }
 
         ~GPTrainingLoop() = default;
