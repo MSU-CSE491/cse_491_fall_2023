@@ -41,6 +41,21 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
     CHECK(grid.IsValid(49, 0));
     CHECK(!grid.IsValid(50, 0));
   }
+
+  SECTION("World with third_floor grid") {
+    group4::SecondWorld world("../assets/grids/third_floor.grid", "../assets/third_floor_input.json");
+    cse491::WorldGrid grid = world.GetGrid();
+    CHECK(grid.GetWidth() == 20);
+    CHECK(grid.GetHeight() == 20);
+    CHECK(grid.GetNumCells() == 400);
+    CHECK(grid.IsValid(0, 0));
+    CHECK(grid.IsValid(0, 19));
+    CHECK(!grid.IsValid(0, 20));
+    CHECK(!grid.IsValid(-1, -1));
+
+    CHECK(grid.IsValid(19, 0));
+    CHECK(!grid.IsValid(20, 0));
+  }
 }
 
 TEST_CASE("Item Test")
@@ -74,4 +89,11 @@ TEST_CASE("Item Test")
 
     CHECK(world.GetNumItems() == 1);
 
+}
+
+TEST_CASE("Third floor agents") {
+  group4::SecondWorld world("../assets/grids/third_floor.grid", "../assets/third_floor_input.json");
+  CHECK(world.GetNumAgents() == 1);
+  std::vector<size_t> agents = world.FindAgentsAt(cse491::GridPosition(7.0, 8.0), 0);
+  CHECK(agents.size() == 1);
 }
