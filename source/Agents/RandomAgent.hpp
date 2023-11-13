@@ -23,6 +23,8 @@ class RandomAgent : public cse491::AgentBase {
 
         double mRandom = 0.0;
 
+        bool mMoving = true;
+
 	public:
 		RandomAgent(size_t id, const std::string &name) : AgentBase(id, name) {
 		}
@@ -44,17 +46,19 @@ class RandomAgent : public cse491::AgentBase {
 
             CalculateRandom(4);
 
-            if(mRandom < 1.0){
-                return action_map["up"];
-            }
-            else if(mRandom < 2.0){
-                return action_map["down"];
-            }
-            else if(mRandom < 3.0){
-                return action_map["left"];
-            }
-            else{
-                return action_map["right"];
+            if(mMoving){
+                if(mRandom < 1.0){
+                    return action_map["up"];
+                }
+                else if(mRandom < 2.0){
+                    return action_map["down"];
+                }
+                else if(mRandom < 3.0){
+                    return action_map["left"];
+                }
+                else{
+                    return action_map["right"];
+                }
             }
 
             return 0; // should not reach this point
@@ -67,6 +71,8 @@ class RandomAgent : public cse491::AgentBase {
 
         /// Function to set the double for the random variable
         void SetDirection(double direction) { mRandom = direction; }
+
+        void SetMoving(bool move) { mMoving = move; }
 
 };
 
