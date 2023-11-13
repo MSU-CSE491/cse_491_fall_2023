@@ -81,12 +81,18 @@ namespace cowboys {
         return B2ToB64(std::string(6 - remainder, '0') + binary);
       }
 
-      std::string result = "";
+      std::string result;
+      result.reserve(binary.size() / 6);
+      bool all_zeros = true;
       for (size_t i = 0; i < binary.size(); i += 6) {
         std::string buffer = binary.substr(i, 6);
         size_t ull = std::bitset<6>(buffer).to_ulong();
         result += chars[ull];
+        if (ull != 0)
+          all_zeros = false;
       }
+      if (all_zeros) // If all 0s, compress to 1 character
+        return std::string(1, chars[0]);
       return result;
     }
 
