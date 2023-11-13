@@ -40,10 +40,27 @@ namespace cowboys {
         std::vector<std::vector<double>> TEMPAgentFitness;
 
         tinyxml2::XMLDocument doc;
+        tinyxml2::XMLDocument lastGenerationsDoc;
+
+
+        tinyxml2::XMLElement* root = doc.NewElement("GPLoop");
+
+
+        tinyxml2::XMLElement* rootTEMP = lastGenerationsDoc.NewElement("GPLoop");
 
     public:
 
-        GPTrainingLoop() {}
+        GPTrainingLoop() {
+
+          doc.InsertFirstChild(root);
+          resetMainTagLastGenerations();
+
+        }
+
+        void resetMainTagLastGenerations(){
+          rootTEMP = lastGenerationsDoc.NewElement("GPLoop");
+          lastGenerationsDoc.InsertFirstChild(rootTEMP);
+        }
 
         void initialize(size_t numArenas = 5, size_t NumAgentsForArena = 100) {
 
@@ -100,12 +117,17 @@ namespace cowboys {
           oss << std::put_time(&tm_time, "%Y-%m-%d__%H_%M_%S");
           std::string dateTimeStr = oss.str();
 
-          const std::string filename = "AgentData_" + dateTimeStr + ".xml";
 
           std::string relativePath = "../../savedata/GPAgent/";
           std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
           std::filesystem::path normalizedAbsolutePath = std::filesystem::canonical(absolutePath);
+
+          const std::string filename = "AgentData_" + dateTimeStr + ".xml";
           auto fullPath = normalizedAbsolutePath / filename;
+
+          const std::string lastGenerationsFilename = "lastGenerations_" + dateTimeStr + ".xml";
+          auto lastGenerationsFullPath = normalizedAbsolutePath / lastGenerationsFilename;
+
 
 
           for (size_t generation = 0; generation < numGenerations; ++generation) {
@@ -173,7 +195,10 @@ namespace cowboys {
 
             if (generation % 5 == 0){
 
-              saveEverySoOften(fullPath);
+              saveEverySoOften(fullPath, lastGenerationsFullPath);
+              lastGenerationsDoc.Clear();
+              resetMainTagLastGenerations();
+
               std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@"  << std::endl;
             }
 
@@ -190,16 +215,25 @@ namespace cowboys {
           }
 
 
-          saveEverySoOften(fullPath);
+          saveEverySoOften(fullPath, lastGenerationsFullPath);
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@"  << std::endl;
 
 
         }
 
-        void saveEverySoOften(std::string fullPath) {
+        void saveEverySoOften(std::string fullPath, std::string lastGenerationsFullPath) {
+
+
+
           if (doc.SaveFile(fullPath.c_str()) == tinyxml2::XML_SUCCESS) {
             std::filesystem::path fullPath = std::filesystem::absolute("example.xml");
             std::cout << "XML file saved successfully to: " << fullPath << std::endl;
+          } else {
+            std::cout << "Error saving XML file." << std::endl;
+          }
+
+          if(lastGenerationsDoc.SaveFile(lastGenerationsFullPath.c_str()) == tinyxml2::XML_SUCCESS){
+            std::cout << "XML file saved successfully to: " << "lastGenerations.xml" << std::endl;
           } else {
             std::cout << "Error saving XML file." << std::endl;
           }
@@ -225,14 +259,24 @@ namespace cowboys {
                         return TEMPAgentFitness[a.first][a.second] > TEMPAgentFitness[b.first][b.second];
                     });
 
+
+
           const char *tagName = ("generation_" + std::to_string(generation)).c_str();
-          auto *root = doc.NewElement(tagName);
-          doc.InsertFirstChild(root);
+          auto *generationTag = doc.NewElement(tagName);
+          auto *lastGenerationsRoot = lastGenerationsDoc.NewElement(tagName);
+
+
+          root->InsertFirstChild(generationTag);
+          rootTEMP->InsertFirstChild(lastGenerationsRoot);
 
           for (int i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->serialize(doc, root, TEMPAgentFitness[arenaIDX][agentIDX]);
+            agents[arenaIDX][agentIDX]->serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
+
+            agents[arenaIDX][agentIDX]->serialize(lastGenerationsDoc, lastGenerationsRoot, TEMPAgentFitness[arenaIDX][agentIDX]);
           }
+
+
         }
 
 
