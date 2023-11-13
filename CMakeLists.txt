@@ -34,6 +34,17 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
 # Move assets to build directory
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+
+
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+
+
+# Configure json
+set(JSON_SRC_DIR third_party/json)
+set(JSON_BUILD_DIR json_build)
+add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
+
 # Build the main application executables, if requested
 if(${BUILD_MAIN})
 
@@ -54,12 +65,13 @@ if(${BUILD_MAIN})
     string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
     # Create list of source files (currently just the one .cpp file)
     # Create executable and link to includes / libraries
-    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
+    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp
+            source/DataCollection/JSONBuilder.hpp)
     target_include_directories(${EXE_NAME}
       PRIVATE ${CMAKE_SOURCE_DIR}/source
       )
     target_link_libraries(${EXE_NAME}
-      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
+      PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network nlohmann_json::nlohmann_json
       )
     if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
       message(STATUS "Loading ${EXE_NAME}.cmake")
