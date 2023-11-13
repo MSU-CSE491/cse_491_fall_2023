@@ -109,7 +109,7 @@ namespace cowboys {
 
           const std::string filename = "AgentData_" + dateTimeStr + ".xml";
 
-          std::string relativePath = "../savedata/GPAgent/";
+          std::string relativePath = "../../savedata/GPAgent/";
           std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
           std::filesystem::path normalizedAbsolutePath = std::filesystem::canonical(absolutePath);
           auto fullPath = normalizedAbsolutePath / filename;
