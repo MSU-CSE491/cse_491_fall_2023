@@ -15,14 +15,27 @@
 
 using cse491::AgentBase;
 
+/// Namespace for scripting language stuff
 namespace worldlang {
+	
+	/// @brief Class that manages program execution.
+	/// 
+	/// Handles run-time state of program and contains the interpreter function.
+	/// 
+	/// Native C++ functions can be registered on this object to extend the
+	/// functionality.
 	class ProgramExecutor {
 	// Internal types
 	public:
+		/// This is the signature interpreter functions should have.
+		/// 
+		/// To read the arguments passed to the function, use ProgramExecutor::popArgs().
+		/// To return values from a function, use ProgramExecutor::pushStack().
 		using Callable = std::function<void(ProgramExecutor&)>;
 		
 		struct Identifier : std::string {}; 
 		
+		/// Variant type containing all possible values types for variables.
 		using Value = std::variant < double, std::string, Callable, Identifier >;
 		
 	// Execution state
@@ -132,6 +145,12 @@ namespace worldlang {
 			});
 		}
 		
+		virtual ~ProgramExecutor() = default;
+		
+		/// Moves the interpreter's program counter to the end of the current block.
+		/// 
+		/// @param nest Optional starting nest value (defaults to zero)
+		/// Begins as if it was nested within this many `start_block` operations.
 		void skipBlock(int nest = 0){
 			do {
 				auto& unit = code.at(++index);
@@ -140,18 +159,40 @@ namespace worldlang {
 			} while(nest);
 			// points to one past end_block
 			index--;
+			// points to end_block
 		}
 		
+		/// @brief Registers a function on this ProgramExecutor object.
+		/// 
+		/// This allows the given function to be called from the interpreter via
+		/// a function called `name`.
+		/// 
+		/// @note Names can be overridden by the user's program if they overwrite @p name.
+		/// 
+		/// @param name Function name
+		/// @param callable Function accepting a ProgramExecutor& with no return.
 		void registerFunction(std::string name, Callable callable){
 			variables.insert_or_assign(name, callable);
 		}
 		
+		/// @brief Retrieves a single value from the interpreter value stack.
+		///
+		/// @return Value object from stack.
 		Value popStack(){
 			auto v = stack.top();
 			stack.pop();
 			return v;
 		}
 		
+		/// @brief Returns all arguments passed to an interpreter function.
+		///
+		/// This function retrieves the arguments of the function in the same
+		/// order as in the source code. The end of the argument list is determined
+		/// by an internal special Identifier 
+		/// 
+		/// This function should be called once for any Callable to get the arguments passed.
+		/// 
+		/// @return Vector of Values provided to an interpreter function.
 		std::vector<Value> popArgs(){
 			std::vector< Value > values;
 			do {
@@ -163,11 +204,21 @@ namespace worldlang {
 			return values;
 		}
 		
-		void pushStack(Value v){
-			stack.push(v);
+		/// @brief Pushes a single Value onto the interpreter value stack.
+		/// 
+		/// @param value Value to push to interpreter stack
+		void pushStack(Value value){
+			stack.push(value);
 		}
 		
-		// check whether or not this Value contains the expected type
+		/// @brief Check whether or not this Value contains the expected type.
+		/// 
+		/// Checks the type of the given Value. If the type does not match and
+		/// cannot be obtained, sets the interpreter error message and returns
+		/// false. Otherwise, returns true.
+		/// 
+		/// @param a Value to validate type of.
+		/// @return true if type is usable
 		template <typename T>
 		bool has(const Value& a){
 			if (std::holds_alternative<T>(a)){
@@ -183,14 +234,20 @@ namespace worldlang {
 			return false;
 		}
 		
-		// TODO figure out what kind of doc comments we're actually using
-		/// Get a value of Value, whether it contains a value or an identifier
-		/// that contains that value
+		/// @brief Get a value of type T from provided Value
 		/// 
-		/// Example:
-		/// If your program consists of a=5\nb=a\n
+		/// Gets the value of type T from given Value whether it contains a
+		/// value or an identifier storing that value.
+		/// 
+		/// If the value cannot be accessed, sets the error message and returns
+		/// a default-constructed value.
+		/// 
+		/// For example, if your program consists of `a=5` and `b=a`
 		/// then as<double> will handle both 5 and a correctly as arguments
 		/// std::get<double> is longer and only handles 5.
+		/// 
+		/// @param a Value to retrieve value from
+		/// @return Value of type T
 		template <typename T>
 		T as(const Value& a){
 			if (std::holds_alternative<T>(a)){
@@ -206,42 +263,65 @@ namespace worldlang {
 			return T{};
 		}
 		
-		// Gets the value of a variable
-		// Throws std::out_of_range if it is not defined
-		// Throws std::bad_variant_access if variable is wrong type
+		/// @brief Gets the value of a variable as type T.
+		/// 
+		/// @throw std::out_of_range if it is not defined
+		/// @throw std::bad_variant_access if variable is wrong type
+		/// @param name Variable name to check
+		/// @return Value of variable as type T
 		template <typename T>
 		T var(const std::string& name){
 			auto val = variables.at(name);
 			return std::get<T>(val);
 		}
 		
+		/// @brief Sets the error message and end interpreter execution.
+		/// 
+		/// Sets the stored error message for the interpreter. Only the first
+		/// error set is saved.
+		/// 
+		/// @param error Message to store
 		void error(const std::string& error){
 			if (error_message.empty()){
 				error_message = error;
 			}
 		}
 		
+		/// @brief Gets the error message stored.
+		/// 
+		/// Gets the error message from the interpreter. If no error was set,
+		/// this will be the empty string.
+		///
+		/// @return Error message
 		std::string getErrorMessage(){
 			return error_message;
 		}
 		
+		/// @brief Executes a program from a file.
+		/// 
+		/// @param filename File to load
+		/// @return true if program ran successfully, false if an error occured
 		bool runFile(const std::string& filename){
 			std::ifstream in{filename};
 			std::string s;
 			std::string filedata;
 			while (getline(in, s))
 				filedata += s + '\n';
-			// probably works idk
-			std::cout << "Program from file: " << filedata << std::endl;
 			return run(filedata);
 		}
 		
-		/// Returns false if program had an error
+		/// @brief Executes a program from a string.
+		/// 
+		/// Executes a program from a string. This is the main interpreter function.
+		/// See Language.hpp for most interesting syntax and parsing details.
+		/// 
+		/// @param program Program to run.
+		/// @return true if program ran successfully, false if an error occured
 		bool run(const std::string& program){
 			//TODO: program preprocessing (add newline to end, remove spaces)
 			error_message = "";
 			code = parse_to_code(program);
-			//TODO: check for parse success
+			//TODO: check for parse success?
 			
 			index = 0;
 			while (error_message.empty() && index < code.size()){

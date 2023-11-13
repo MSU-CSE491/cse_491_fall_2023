@@ -1,3 +1,4 @@
+/// @brief File defining language syntax and parsing.
 #pragma once
 
 // Debug
@@ -10,6 +11,7 @@
 
 namespace pegtl = tao::pegtl;
 
+/// Namespace for scripting language stuff
 namespace worldlang{
 	// Equivalent regex
 	// \-?[0-9]+(.[0-9]+)?
@@ -216,22 +218,10 @@ namespace worldlang{
 	struct program : statement_list
 	{};
 	
-	// Rules
-	template <typename Rule>
-	struct action : pegtl::nothing< Rule > {};
-	
-	// Specialize to capture numbers
-	template <>
-	struct action<number> 
-	{
-		template <typename ActionInput>
-		static void apply(const ActionInput& in, std::string& s){
-			s += in.string() + " ";
-			std::cout << in.string() << std::endl;
-		}	
-	};
-	
-	// Selector
+	/// Selector for tree generation
+	/// This is used by PEGTL's parse_tree function to determine
+	/// which nodes are kept, which are folded into their parent when possible,
+	/// and which are ignored (these are not listed here).
 	template< typename Rule >
 	using selector = tao::pegtl::parse_tree::selector< Rule,
 		tao::pegtl::parse_tree::store_content::on<
@@ -256,16 +246,23 @@ namespace worldlang{
 		>
 	>;
 	
+	/// A singular code unit.
+	/// Will have some specific meaning within the interpreter itself.
 	struct Unit {
+		/// Various types of code Units.
+		/// @note that most internal interpreter functions all fall under `operation`.
 		enum class Type {
 			number,
 			string,
 			identifier,
 			function,
 			operation,
-		} type;
+		};
+		/// This determines how this unit is used within the interpreter.
+		/// The type of this code unit.
+		Type type;
 		
-		// todo: make variant?
+		/// The value of this code unit. What it means depends on the type.
 		std::string value;
 	};
 	
