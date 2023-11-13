@@ -92,32 +92,41 @@ void ProcessBitFieldFlags(const BitFieldFlags& data) {
 }
 
 int main() {
-  UnpackedFlags unpackedData;
-  BitFieldFlags bitFieldData;
+  int NUM_TRIALS = 1000;
+  std::chrono::duration<double> elapsedUnpacked = std::chrono::duration<double>::zero();
+  std::chrono::duration<double> elapsedBitField = std::chrono::duration<double>::zero();
 
-  // Initialize data
-  for (int i = 0; i < NUM_FLAGS; ++i) {
-    unpackedData.flags[i] = (i % 2 == 0);  // Set every other flag to true
-    bitFieldData.bits[i / 4].flag1 = (i % 2 == 0);
-    bitFieldData.bits[i / 4].flag2 = (i % 3 == 0);
-    bitFieldData.bits[i / 4].flag3 = (i % 5 == 0);
-    bitFieldData.bits[i / 4].flag4 = (i % 7 == 0);
+  for (int i = 0; i < NUM_TRIALS; ++i){
+    UnpackedFlags unpackedData;
+    BitFieldFlags bitFieldData;
+
+    // Initialize data
+    for (int i = 0; i < NUM_FLAGS; ++i) {
+      unpackedData.flags[i] = (i % 2 == 0);  // Set every other flag to true
+      bitFieldData.bits[i / 4].flag1 = (i % 2 == 0);
+      bitFieldData.bits[i / 4].flag2 = (i % 2 == 0);
+      bitFieldData.bits[i / 4].flag3 = (i % 2 == 0);
+      bitFieldData.bits[i / 4].flag4 = (i % 2 == 0);
+      // ... Initialize more flags here
+    }
+
+    // Measure time for processing unpacked flags
+    auto startUnpacked = std::chrono::high_resolution_clock::now();
+    ProcessUnpackedFlags(unpackedData);
+    auto endUnpacked = std::chrono::high_resolution_clock::now();
+    elapsedUnpacked += endUnpacked - startUnpacked;
+
+    // Measure time for processing bit field flags
+    auto startBitField = std::chrono::high_resolution_clock::now();
+    ProcessBitFieldFlags(bitFieldData);
+    auto endBitField = std::chrono::high_resolution_clock::now();
+    elapsedBitField += endBitField - startBitField;
   }
 
-  // Measure time for processing unpacked flags
-  auto startUnpacked = std::chrono::high_resolution_clock::now();
-  ProcessUnpackedFlags(unpackedData);
-  auto endUnpacked = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> elapsedUnpacked = endUnpacked - startUnpacked;
 
-  // Measure time for processing bit field flags
-  auto startBitField = std::chrono::high_resolution_clock::now();
-  ProcessBitFieldFlags(bitFieldData);
-  auto endBitField = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> elapsedBitField = endBitField - startBitField;
+  std::cout << "Average time for processing << NUM_TRIALS << unpacked flags: " << elapsedUnpacked.count()/NUM_TRIALS << " seconds\n";
+  std::cout << "Average time for processing << NUM_TRIALS << bit field flags: " << elapsedBitField.count()/NUM_TRIALS << " seconds\n";
 
-  std::cout << "Time for processing unpacked flags: " << elapsedUnpacked.count() << " seconds\n";
-  std::cout << "Time for processing bit field flags: " << elapsedBitField.count() << " seconds\n";
 
   return 0;
 }
@@ -126,11 +135,11 @@ int main() {
 The output on my following machine is as follows:
 
 ```
-Time for processing unpacked flags: 0.00213605 seconds
-Time for processing bit field flags: 0.00171141 seconds
-```
+Average time for processing 1000 unpacked flags: 0.00173472 seconds
+Average time for processing 1000 bit field flags: 0.00135095 seconds
+``` 
 
-The use of bitfields has sped up our program by ~19%. Note this may not be the same output depending on compiler and
+The use of bitfields has sped up our program by ~25%. Note this may not be the same output depending on compiler and
 hardware used.
 
 #### 3. Data Serialization:
@@ -150,6 +159,7 @@ implement bit packing in C++ and leverage its advantages in your projects.
 Now lets go over the syntax of bit packing. Things to note:
 
 - Only integral data types are allowed to be used in bit packing
+  - These are int, long, short, byte, and char
 - Can work either with classes or structs
 
 ```
@@ -159,7 +169,7 @@ struct StructName {
 };
 ```
 
-Below is an example implmentation of where bit packing can become useful.
+Below is an example implementation of where bit packing can become useful.
 
 ```
 struct PackedFlags {
@@ -225,7 +235,7 @@ auto x = &packedFlags.flag1;
 
 #### Possible speed loss due to time accessing bits
 
-While the example above demonstrated an approximate 19% improvement in processing time by employing bit packing, it's
+While the example above demonstrated an approximate 25% improvement in processing time by employing bit packing, it's
 essential to acknowledge that this performance gain is not always guaranteed. The effectiveness of bit packing depends
 on various factors, including the specific hardware architecture and the compiler being used. In certain situations,
 accessing individual bits within packed data structures can be slower than dealing with larger byte-sized memory units.
@@ -250,3 +260,9 @@ it's a game-changer, enabling you to make the most of your resources, reduce mem
 execution. As you continue your journey in the world of C++, remember that bit packing is your ally, waiting to help you
 craft more efficient and responsive code. So, go ahead, implement bit packing, and unleash its transformative power in
 your C++ projects.
+
+## Sources:
+
+1. [Geeks For Geeks Article](https://www.geeksforgeeks.org/cpp-bit-fields/)
+2. [CPP Reference for Bit Packing](https://en.cppreference.com/w/cpp/language/bit_field)
+3. [ChatGPT Chat Log](https://chat.openai.com/share/c17794b3-eaa0-4982-a2cd-75f098b0b080)
