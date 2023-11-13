@@ -35,8 +35,11 @@ namespace worldlang {
 		/// Variables
 		std::map < std::string, Value > variables{};
 		
-		/// Execution stack
+		/// Execution arguments stack
 		std::stack < Value > stack{};
+		
+		/// Call/scope stack
+		std::stack < std::vector< Value > > call_stack{};
 		
 		/// Error message
 		std::string error_message{};
@@ -45,22 +48,44 @@ namespace worldlang {
 	public:
 		/// Constructor
 		ProgramExecutor(){
+			// if function
+			// skips a block if value is false
 			registerFunction("if", [this](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
 				// jump to end of block if false
+				
 				if (pe.as<double>(args.at(0)) == 0){
-					int nest = 0;
-					do {
-						auto& unit = pe.code.at(++index);
-						if (unit.type == Unit::Type::operation && unit.value == "start_block") nest++;
-						if (unit.type == Unit::Type::operation && unit.value == "end_block") nest--;
-					} while(nest);
-					// points to one past end_block
-					index--;
+					skipBlock();
 				} else {
 					// advance to start of block automatically
 				}
+				// mark type of block entered
+				call_stack.push({"__IF_BLOCK"});
+			});
+			// for function
+			registerFunction("for", [this](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 3 && args.size() != 4) { error("Wrong number of arguments!"); return; }
+				auto var = pe.as<Identifier>(args.at(0));
+				auto start = pe.as<double>(args.at(1));
+				auto end = pe.as<double>(args.at(2));
+				auto step = args.size() == 4 ? pe.as<double>(args.at(3)) : 1.0;
+				
+				variables.insert_or_assign(static_cast<std::string>(var), start);
+				
+				auto value = pe.as<double>(args.at(0));
+				if ((start < end && step > 0 && value <= end)
+					|| (start >= end && step < 0 && value >= end)){
+					// enter the loop if conditions are met
+					call_stack.push({"__FOR_BLOCK", var, start, end, step, static_cast<double>(index)});
+					index++; // skip start_block which checks condition + increments
+				} else {
+					// skip loop entirely
+					skipBlock();
+					index++; // skip end_block or else it tries to jump to beginning
+				}
+				
 			});
 		}
 		
@@ -105,6 +130,16 @@ namespace worldlang {
 				
 				pe.pushStack(static_cast<double>(agent->GetID()));
 			});
+		}
+		
+		void skipBlock(int nest = 0){
+			do {
+				auto& unit = code.at(++index);
+				if (unit.type == Unit::Type::operation && unit.value == "start_block") nest++;
+				if (unit.type == Unit::Type::operation && unit.value == "end_block") nest--;
+			} while(nest);
+			// points to one past end_block
+			index--;
 		}
 		
 		void registerFunction(std::string name, Callable callable){
@@ -323,8 +358,42 @@ namespace worldlang {
 						} else if (unit.value == "endargs"){
 							// this could absolutely be broken but that's OK
 							pushStack(Identifier{"__INTERNAL_ENDARGS"});
-						} else if (unit.value == "start_block" || unit.value == "end_block"){
+						} else if (unit.value == "start_block"){
 							std::cout << unit.value << std::endl;
+							auto type = as<std::string>(call_stack.top().at(0));
+							if (type == "__FOR_BLOCK"){
+								auto info = call_stack.top();
+								
+								double value = as<double>(info.at(1));
+								double start = as<double>(info.at(2));
+								double end = as<double>(info.at(3));
+								double step = as<double>(info.at(4));
+								
+								if ((start < end && step > 0 && value + step <= end)
+									|| (start >= end && step < 0 && value + step >= end)){
+									// continue
+									variables.insert_or_assign(static_cast<std::string>(as<Identifier>(info.at(1))), value + step);
+									// jump back to the beginning to check the condiiton
+//									index = static_cast<int>(as<double>(call_stack.top().at(5)));
+								} else {
+									// end loop
+									call_stack.pop();
+									skipBlock(1);
+									index++; // skip end_block or else it tries to jump to beginning
+									break;
+								}
+							}
+						} else if (unit.value == "end_block"){
+							// check for for loop if needed 
+							auto type = as<std::string>(call_stack.top().at(0));
+							if (type == "__FOR_BLOCK"){
+								// jump back to the beginning to check the condiiton
+								index = static_cast<int>(as<double>(call_stack.top().at(5)));
+							} else if (type == "__IF_BLOCK"){
+								// this only runs once, don't really need to save this
+								call_stack.pop();
+							}
+//							std::cout << unit.value << std::endl;
 						} else {
 							error("Unknown operation '" + unit.value + "'");
 						}

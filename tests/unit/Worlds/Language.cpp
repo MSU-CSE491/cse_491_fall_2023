@@ -279,13 +279,50 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 		}
 	}
 	
-	SECTION("IF block"){
+	SECTION("if block"){
 		PROGRAM_RUN("if(1){\na=3\n}\nb=2\nif(0){\nb=6\n}\n"){
 			CHECK(pe.var<double>("a") == 3.0);
 			CHECK(pe.var<double>("b") == 2.0);
 		}
 	}
+	
+	SECTION("for block"){
+		PROGRAM_RUN("s=0\nfor(i,1,10){\ns=s+i\n}\n"){
+			CHECK(pe.var<double>("s") == 55.0);
+			CHECK(pe.var<double>("i") == 10.0);
+		}
+	}
+	
+	SECTION("for block with step"){
+		PROGRAM_RUN("s=0\nfor(i,2,10,2){\ns=s+i\n}\n"){
+			CHECK(pe.var<double>("s") == 30.0);
+			CHECK(pe.var<double>("i") == 10.0);
+		}
+	}
+	
+	SECTION("for block with negative step"){
+		PROGRAM_RUN("s=0\nfor(i,10,-10,-2){\ns=s+i\n}\n"){
+			CHECK(pe.var<double>("s") == 0.0);
+			CHECK(pe.var<double>("i") == -10.0);
+		}
+	}
+	
+	SECTION("for block with invalid condition"){
+		PROGRAM_RUN("s=3\nfor(i,0,-1){\ns=6\n}\n"){
+			CHECK(pe.var<double>("s") == 3.0);
+			CHECK(pe.var<double>("i") == 0.0);
+		}
+	}
+	
+	SECTION("nested for block"){
+		PROGRAM_RUN("s=0\nfor(i,0,10){\nfor(j,0,10){\ns=s+i+j\n}\n}\n"){
+			CHECK(pe.var<double>("s") == 1210.0);
+			CHECK(pe.var<double>("i") == 10.0);
+			CHECK(pe.var<double>("j") == 10.0);
+		}
+	}
 }
+
 
 TEST_CASE("Program execution errors", "[World][Langauge]"){
 	SECTION("Error check for wrong number of arguments"){

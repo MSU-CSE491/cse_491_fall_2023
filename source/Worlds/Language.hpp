@@ -294,20 +294,13 @@ namespace worldlang{
 			} else if (type == "worldlang::identifier"){
 				out.push_back(Unit{Unit::Type::identifier, node->string()});
 			} else if (type == "worldlang::string"){
-				std::cout << "String?: " << node->string() << "\n";
+				// trim quotes off
 				out.push_back(Unit{Unit::Type::string, node->string().substr(1,node->string().size()-2)});
 			} else if (type == "worldlang::function"){
 				// (operator_endargs) arg arg arg function_name
 				out.push_back(Unit{Unit::Type::operation, "endargs"});
 				if (node->children.size() > 1)
 					traverse(node->children[1]);
-/*				// expression_list or expression child
-				int argcount = 0;
-				if (node->children.size() == 1){
-					argcount = 0;
-				} else {
-					argcount = count(node->children.at(1));
-				}*/
 				
 //				out.push_back(Unit{Unit::Type::number, std::to_string(argcount)});
 				out.push_back(Unit{Unit::Type::function, node->children.at(0)->string()});
@@ -366,12 +359,12 @@ namespace worldlang{
 		
 		if (root){
 			traverse(root->children[0]);
+    		return out;
 		} else {
 			// parse error lol
 			std::cout << "Parse error!!" << std::endl;
+			return {};
 		}
-			
-		return out;
 	}
 	
 } //worldlang

@@ -12,6 +12,8 @@
 #include "../Agents/PacingAgent.hpp"
 #include "../core/WorldBase.hpp"
 
+#include <algorithm>
+
 namespace group4 {
 /// @brief Filename for the first floor grid file
 const std::string FIRST_FLOOR_FILENAME = "../assets/grids/group4_maze.grid";
