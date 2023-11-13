@@ -22,3 +22,5 @@ cmake-build-*/
 
 #mac
 .DS_Store
+
+AgentData_*.xml
