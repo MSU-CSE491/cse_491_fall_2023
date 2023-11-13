@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <bitset>
 #include <cassert>
 #include <functional>
@@ -7,7 +8,6 @@
 #include <random>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "GraphNode.hpp"
@@ -24,17 +24,18 @@ namespace cowboys {
   constexpr char NODE_SEP = ':';
 
   /// @brief A namespace for base64 encoding and decoding. Does not convert to and from base64 in the typical way. Only
-  /// guarantees that x == b64_inv(b64(x)), aside from doubles which have problems with precision, 
+  /// guarantees that x == b64_inv(b64(x)), aside from doubles which have problems with precision,
   /// so x ~= b64_inv(b64(x)).
   namespace base64 {
     /// The characters used to represent digits in base64.
-    static constexpr char chars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
-    static const std::unordered_map<char, size_t> char_to_ull_map = []() {
-      std::unordered_map<char, size_t> map;
+    static constexpr char CHARS[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+    static constexpr size_t MAX_CHAR = *std::max_element(CHARS, CHARS + 64);
+    static constexpr std::array<size_t, MAX_CHAR + 1> CHAR_TO_IDX = []() {
+      std::array<size_t, MAX_CHAR + 1> indices{};
       for (size_t i = 0; i < 64; ++i) {
-        map[chars[i]] = i;
+        indices[CHARS[i]] = i;
       }
-      return map;
+      return indices;
     }();
 
     /// @brief Converts a number in base10 to base64.
@@ -50,7 +51,7 @@ namespace cowboys {
       size_t n = 1 + std::floor(std::log(ull) / std::log(64));
       std::string result(n, ' ');
       for (size_t i = 0; ull > 0; ++i) {
-        result[n - 1 - i] = chars[ull % 64];
+        result[n - 1 - i] = CHARS[ull % 64];
         ull /= 64;
       }
       return result;
@@ -64,7 +65,7 @@ namespace cowboys {
       for (size_t i = 0; i < num_base64.size(); ++i) {
         const char ch = num_base64[i];
         const size_t coeff = std::pow(64, num_base64.size() - i - 1);
-        result += char_to_ull_map.at(ch) * coeff;
+        result += CHAR_TO_IDX[ch] * coeff;
       }
       return result;
     }
@@ -87,12 +88,12 @@ namespace cowboys {
       for (size_t i = 0; i < binary.size(); i += 6) {
         std::string buffer = binary.substr(i, 6);
         size_t ull = std::bitset<6>(buffer).to_ulong();
-        result += chars[ull];
+        result += CHARS[ull];
         if (ull != 0)
           all_zeros = false;
       }
       if (all_zeros) // If all 0s, compress to 1 character
-        return std::string(1, chars[0]);
+        return std::string(1, CHARS[0]);
       return result;
     }
 
@@ -103,11 +104,11 @@ namespace cowboys {
       std::string result = "";
       for (size_t i = 0; i < base64.size(); ++i) {
         const char ch = base64[i];
-        const size_t ull = char_to_ull_map.at(ch);
+        const size_t ull = CHAR_TO_IDX[ch];
         result += std::bitset<6>(ull).to_string();
       }
       // Remove leading 0s and return result: https://stackoverflow.com/a/31226728/13430191
-      return result.erase(0, std::min(result.find_first_not_of(chars[0]), result.size() - 1));
+      return result.erase(0, std::min(result.find_first_not_of(CHARS[0]), result.size() - 1));
     }
 
     /// @brief Converts a double to a base64 string. Assumes that the stoull(to_string(value)) is possible. Only
@@ -120,9 +121,9 @@ namespace cowboys {
 
       // Sign
       // Store if it is positive or negative using the first base64 character or the second
-      char sign_b64 = chars[0];
+      char sign_b64 = CHARS[0];
       if (value < 0) {
-        sign_b64 = chars[1];
+        sign_b64 = CHARS[1];
         // Remove the negative sign
         double_str.erase(0, 1);
       }
@@ -134,7 +135,7 @@ namespace cowboys {
       // Location of the decimal from the right end of the string, so that leading 0s that are dropped can be recovered
       size_t decimal_loc_from_right = double_str.size() - decimal_loc;
       // Store decimal location using 1 base64 character (arbitrary choice, assumes decimal_loc < 64)
-      char decimal_loc_b64 = chars[decimal_loc_from_right];
+      char decimal_loc_b64 = CHARS[decimal_loc_from_right];
 
       // ULL
       // Take the rest of the string as a ULL
@@ -151,13 +152,13 @@ namespace cowboys {
     static double B64ToDouble(const std::string &value) {
       assert(value.size() > 0);
       // Get decimal location
-      size_t decimal_loc_from_right = char_to_ull_map.at(value[0]);
+      size_t decimal_loc_from_right = CHAR_TO_IDX[value[0]];
       // Get sign
-      double sign = value[1] == chars[0] ? 1 : -1;
+      double sign = value[1] == CHARS[0] ? 1 : -1;
       // Get ULL
       std::string ull = std::to_string(B64ToULL(value.substr(2)));
       if (ull.size() < decimal_loc_from_right)
-        ull = std::string(decimal_loc_from_right - ull.size() + 1, chars[0]) + ull;
+        ull = std::string(decimal_loc_from_right - ull.size() + 1, CHARS[0]) + ull;
       // Insert decimal point
       ull.insert(ull.size() - decimal_loc_from_right, ".");
       // Return double
