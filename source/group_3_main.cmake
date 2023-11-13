@@ -3,9 +3,11 @@
 
 # Here, add one .cpp per line. Only the strings should
 add_source_to_target(${EXE_NAME} "source/Interfaces/MainInterface.cpp")
+add_source_to_target(${EXE_NAME} "source/Interfaces/TextureHolder.cpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Component.cpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Component.hpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Container.cpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Container.hpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Button.cpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Menu.cpp")
+add_source_to_target(${EXE_NAME} "source/Worlds/BiomeGenerator.cpp")

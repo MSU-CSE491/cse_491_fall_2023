@@ -34,6 +34,18 @@ namespace cse491 {
     [[nodiscard]] bool IsOwnedByItem() const { return owner_type == OwnerType::ITEM; }
     [[nodiscard]] bool IsOwnedByAgent() const { return owner_type == OwnerType::AGENT; }
     [[nodiscard]] bool IsOwned() const { return IsOwnedByItem() || IsOwnedByAgent(); }
+    [[nodiscard]] bool IsOnGrid(size_t grid_id) const {
+      return IsOnGrid() && owner_id == grid_id;
+    }
+    [[nodiscard]] bool IsOwnedByItem(size_t item_id) const {
+      return IsOwnedByItem() && owner_id == item_id;
+    }
+    [[nodiscard]] bool IsOwnedByAgent(size_t agent_id) const {
+      return IsOwnedByAgent() && owner_id == agent_id;
+    }
+    [[nodiscard]] bool IsOwnedBy(size_t entity_id) const {
+      return IsOwned() && owner_id == entity_id;
+    }
     [[nodiscard]] size_t GetOwnerID() const { return owner_id; }
 
     /// @brief Identify the entity (item or agent) that now owns this item.
