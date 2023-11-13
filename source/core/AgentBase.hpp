@@ -15,7 +15,6 @@
 #include "Entity.hpp"
 #include "GridPosition.hpp"
 #include "WorldGrid.hpp"
-#include "Inventory.hpp"
 #include "../DataCollection/AgentData.hpp"
 
 namespace cse491 {
@@ -30,12 +29,8 @@ namespace cse491 {
 
     int action; // The action that the agent is currently performing
 
-    walle::Inventory mInventory;
-
   public:
-    AgentBase(size_t id, const std::string & name) : Entity(id, name) {
-		mInventory.SetAgent(this);
-	}
+    AgentBase(size_t id, const std::string & name) : Entity(id, name) {}
     ~AgentBase() = default; // Already virtual from Entity
 
     [[nodiscard]] size_t GetGridID() const { return grid_id; }
@@ -96,8 +91,6 @@ namespace cse491 {
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }
 
-    /// Gets the Inventory item
-    walle::Inventory GetInventory() const {return mInventory; }
 
     /// @brief Send a notification to this agent, typically from the world.
     /// @param message Contents of the notification
