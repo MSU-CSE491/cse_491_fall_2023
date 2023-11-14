@@ -6,9 +6,9 @@ name: Build and run unit tests
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main", "testing" ]
+    branches: [ "main", "testing", "development" ]
   pull_request:
-    branches: [ "main", "testing" ]
+    branches: [ "main", "testing", "development" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -30,13 +30,16 @@ jobs:
       - run: sudo apt-get update -qq
       - run: sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
       - run: sudo apt-get update -qq
-      - run: sudo apt-get install -qq cmake build-essential python3-pip python3-virtualenv nodejs tar gzip libpthread-stubs0-dev libc6-dbg gdb
+      - run: sudo apt-get install -qq cmake build-essential python3-pip python3-virtualenv nodejs tar gzip libpthread-stubs0-dev libc6-dbg gdb g++-12
+      - run: sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 1200
       - run: g++ --version
+      - name: Create build directory
+        run: mkdir cmake-build-test
       - name: Build tests
         run: |
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Test ..
           cmake --build .
-        working-directory: tests/build
+        working-directory: cmake-build-test
       - name: Run tests
-        run: ./run_tests.sh
-        working-directory: tests/build
+        run: ctest --output-on-failure
+        working-directory: cmake-build-test
