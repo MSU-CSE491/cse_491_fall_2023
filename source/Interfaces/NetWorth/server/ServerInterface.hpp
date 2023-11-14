@@ -6,6 +6,7 @@
 
 #pragma once
 #include <thread>
+#include <sstream>
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 
 namespace netWorth{
@@ -16,8 +17,6 @@ namespace netWorth{
      */
     class ServerInterface : public NetworkingInterface {
         private:
-            unsigned short m_initConnectionPort;
-            unsigned short m_maxClientPort;
 
             UdpSocket m_serverToClientSocket;
         protected:
@@ -29,40 +28,33 @@ namespace netWorth{
              * @param name agent name
              */
             ServerInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name),
-                                                                   NetworkingInterface(id, name)
-            {
-                m_initConnectionPort = 55000;
-                m_maxClientPort = 55000;
-                InitialConnection(m_ip, m_port);
-            }
+                                                                   NetworkingInterface(id, name){}
 
-            /**
-             * Redirects an incoming client connection to another port number
-             * @return
-             */
-            bool RedirectClient(){
-                ++m_maxClientPort;
-                /**
-                 * As of right now it will take in the new connection but forget the old one.
-                 * We need to make it so that a new socket is made for the client in the new thread and the NEW socket
-                 * is what is bound using the new port number
-                 */
-                 //Attempt at creating a thread, does nothing important right now
-                 std::thread clientThread (
-                         [this] () {
-                             //Testing how I can access other things
-//                             m_maxClientPort++;
-                             std::cout << "This is a temp thing" << std::endl;
-                         }
-                         );
-                 clientThread.join();
+//            /**
+//             * Redirects an incoming client connection to another port number
+//             * @return
+//             */
+//            bool RedirectClient(){
+//                ++m_maxClientPort;
+//                /**
+//                 * As of right now it will take in the new connection but forget the old one.
+//                 * We need to make it so that a new socket is made for the client in the new thread and the NEW socket
+//                 * is what is bound using the new port number
+//                 */
+//                 //Attempt at creating a thread, does nothing important right now
+//
+//                 std::thread clientThread (
+//                         [this] () {
+//                             //Testing how I can access other things
+//                           m_maxClientPort++;
+//                             std::cout << "This is a temp thing" << std::endl;
+//                         }
+//                         );
+//                 clientThread.join();
+//
+//                BindSocket(m_serverToClientSocket, m_maxClientPort);
+//            }
 
-                BindSocket(m_serverToClientSocket, m_maxClientPort);
-            }
-
-            void HandleClient(){
-                std::cout<< "This does nothing as of right now, just a template of sorts" << std::endl;
-            }
 
         /**
          * Sends a packet across the socket
@@ -92,41 +84,6 @@ namespace netWorth{
             }
             return true;
         }
-
-            /**
-             * The initial connection for the server to a client
-             * @param sender address of the sender
-             * @param port port of the connection
-             * @return true if successful
-             */
-            bool InitialConnection(std::optional<IpAddress> &sender, unsigned short &port) {
-                Packet send_pkt, recv_pkt;
-                std::string str;
-
-                std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
-                BindSocket(m_socket, m_initConnectionPort);
-
-                // Await client
-                if (!NetworkingInterface::ReceivePacket(recv_pkt, sender, port)) return false;
-                RedirectClient();
-
-                recv_pkt >> str;
-                std::cout << str << std::endl;
-                std::cout << sender.value() << " has connected successfully." << std::endl;
-
-                // Acknowledge client
-                std::string clientAck = "Connection established on server port: " + std::to_string(m_maxClientPort);
-                send_pkt << clientAck;
-                if (!SendPacket(send_pkt, sender.value(), port)) return false;
-
-                // await request for map
-                if (!ReceivePacket(recv_pkt, sender, port)) return false;
-
-                recv_pkt >> str;
-                std::cout << str << std::endl;
-
-                return true;
-            }
 
             /**
              * The grid that will be sent to the client from the server after the connection
