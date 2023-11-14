@@ -26,7 +26,6 @@ namespace netWorth{
     private:
         std::shared_ptr<netWorth::ServerInterface> m_server; /// The server that will be used to make changes to the world
         /// and send back to the client
-        std::string m_player_action;
 
     protected:
         enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT };
@@ -51,7 +50,7 @@ namespace netWorth{
             main_grid.Read(filePath, type_options);
         }
 
-        ~NetworkMazeWorld() = default;
+
 
         /**
          * Set a server to the one that is connected to the clients
@@ -72,10 +71,6 @@ namespace netWorth{
 
         /// Allow the agents to move around the maze.
         int DoAction(cse491::AgentBase & agent, size_t action_id) override {
-            if (agent.HasProperty("isPlayer")) {
-                action_id = agent.GetActionID(m_player_action);
-            }
-
             // Determine where the agent is trying to move.
             cse491::GridPosition new_position;
             switch (action_id) {
@@ -90,14 +85,10 @@ namespace netWorth{
             if (!main_grid.IsValid(new_position)) { return false; }
             if (main_grid.At(new_position) == wall_id) { return false; }
 
-            // Set the agent to its new postion.
+            // Set the agent to its new position.
             agent.SetPosition(new_position);
 
             return true;
-        }
-
-        void SetPlayerAction(const std::string &action) {
-            m_player_action = action;
         }
 
     };
