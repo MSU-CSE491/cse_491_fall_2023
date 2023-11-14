@@ -30,7 +30,7 @@ namespace cse491 {
     int action; // The action that the agent is currently performing
 
   public:
-    AgentBase(size_t id, const std::string & name) : Entity(id, name) { }
+    AgentBase(size_t id, const std::string & name) : Entity(id, name) {}
     ~AgentBase() = default; // Already virtual from Entity
 
     [[nodiscard]] size_t GetGridID() const { return grid_id; }
@@ -92,6 +92,7 @@ namespace cse491 {
 
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }
+
 
     /// @brief Send a notification to this agent, typically from the world.
     /// @param message Contents of the notification

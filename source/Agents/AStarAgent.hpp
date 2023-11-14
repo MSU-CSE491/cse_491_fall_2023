@@ -44,7 +44,41 @@ public:
    * @brief Set where the agent should head towards
    * @param gp position agent should go towards
    */
-  void SetGoalPosition(const cse491::GridPosition gp) { goal_position = gp; }
+
+  void SetGoalPosition(const cse491::GridPosition gp) {
+    goal_position = gp;
+  }
+
+  /**
+   * @brief gets the goal position and returns it
+   * @return goal_position member variable
+   */
+  cse491::GridPosition GetGoalPosition() const {return goal_position; }
+
+  /**
+   * Returns the recalculate value
+   * @return
+   */
+  int GetRecalculateValue() const {return recalculate_after_x_turns; }
+
+  /**
+   * Returns if the agent has a world
+   * @return
+   */
+//  bool HasWorld() {
+//      if(world !=nullptr){
+//          return true;
+//      }
+//      return false;
+//  }
+
+  /**
+   * Gets the size of the current path
+   * @return
+   */
+  int GetPathLength() const {return path.size(); }
+
+
   /**
    * @brief Set how many moves should occur before recalculating path
    *  A lower number will react faster to updates in the world but will call A*
