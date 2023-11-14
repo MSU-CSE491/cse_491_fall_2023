@@ -64,6 +64,7 @@ if(BUILD_GP_ONLY)
 
   target_link_libraries(gp_train_main
           PRIVATE tinyxml2
+          PRIVATE pthread
           )
 
 
