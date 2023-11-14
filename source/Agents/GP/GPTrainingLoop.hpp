@@ -20,6 +20,8 @@
 #include <chrono>
 
 
+
+
 #include "tinyxml2.h"
 //#include <algorithm>
 
@@ -223,13 +225,15 @@ namespace cowboys {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
               averageFitness += TEMPAgentFitness[arena][a];
-              if (TEMPAgentFitness[arena][a] > maxFitness) {
+
+
+              if (abs(TEMPAgentFitness[arena][a] - maxFitness) > 0.01 && TEMPAgentFitness[arena][a] > maxFitness   ) {
                 maxFitness = TEMPAgentFitness[arena][a];
                 bestAgent = std::make_pair(arena, a);
                 countMaxAgents = 1;
               }
 
-              if (abs(TEMPAgentFitness[arena][a] - maxFitness) < 0.001) {
+              if (abs(TEMPAgentFitness[arena][a] - maxFitness) < 0.01) {
                 countMaxAgents++;
               }
             }
@@ -399,6 +403,7 @@ namespace cowboys {
 
           // Determine the number of threads to use
           const int num_threads = std::thread::hardware_concurrency();
+//          const int num_threads = 1;
           std::vector<std::thread> threads;
 
           // Calculate the number of agents per thread
@@ -541,7 +546,7 @@ namespace cowboys {
               environments[arena]->UpdateWorld();
             }
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              int tempscore = simpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[size]);
+              double tempscore = simpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[size]);
               TEMPAgentFitness[arena][a] += tempscore;
             }
           }

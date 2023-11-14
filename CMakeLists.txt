@@ -11,6 +11,9 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Test")
   set(BUILD_TESTS 1)
 endif()
 
+
+
+
 # Create a function to make .cmake files simpler
 function(add_source_to_target TARGET_NAME SOURCE_PATH)
   message(STATUS "Loading source: ${SOURCE_PATH}")
@@ -33,6 +36,43 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
 
 # Move assets to build directory
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+
+
+
+option(BUILD_GP_ONLY "Build only gp_main.cpp" OFF)
+if(BUILD_GP_ONLY)
+  set(BUILD_MAIN 0)
+  set(BUILD_TESTS 0)
+
+
+  set(XML_SRC_DIR third_party/tinyxml2)
+  set(XML_BUILD_DIR xml_build)
+  add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
+
+
+
+
+  add_executable(gp_train_main source/gp_train_main.cpp)
+  target_sources(gp_train_main PRIVATE source/core/Entity.cpp)
+
+  target_include_directories(gp_train_main
+          PRIVATE ${CMAKE_SOURCE_DIR}/source/core
+                  ${CMAKE_SOURCE_DIR}/source/Agents
+          )
+
+  target_link_libraries(gp_train_main
+          PRIVATE tinyxml2
+          )
+
+
+
+
+
+endif()
+
+
 
 # Build the main application executables, if requested
 if(${BUILD_MAIN})
