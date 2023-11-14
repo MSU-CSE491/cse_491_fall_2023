@@ -82,6 +82,7 @@ namespace cowboys {
             // instantiate a new environment
             environments.emplace_back(new EnvironmentType());
 
+
             agents.emplace_back(std::vector<cowboys::GPAgent_ *>());
             TEMPinitialAgentPositions.emplace_back(std::vector<cse491::GridPosition>());
             for (size_t j = 0; j < NumAgentsForArena; ++j) {
@@ -148,9 +149,11 @@ namespace cowboys {
           const std::string lastGenerationsFilename = "lastGenerations_" + dateTimeStr + ".xml";
           auto lastGenerationsFullPath = normalizedAbsolutePath / lastGenerationsFilename;
 
+          auto startTime = std::chrono::high_resolution_clock::now();
 
           for (size_t generation = 0; generation < numGenerations; ++generation) {
 
+            auto generationStartTime = std::chrono::high_resolution_clock::now();
 
             initTEMPAgentFitness();
 
@@ -204,8 +207,15 @@ namespace cowboys {
 
             resetEnvironments();
 
+            auto generationEndTime = std::chrono::high_resolution_clock::now();
+            auto generationDuration = std::chrono::duration_cast<std::chrono::microseconds>(generationEndTime - generationStartTime);
+            std::cout << "Generation " << generation << " took " << generationDuration.count() / 1000000.0 << " seconds" << std::endl;
 
           }
+
+          auto endTime = std::chrono::high_resolution_clock::now();
+          auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+          std::cout << "Time taken by run: " << duration.count() / 1000000.0 << " seconds" << std::endl;
 
 
           saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
