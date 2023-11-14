@@ -183,12 +183,12 @@ TEST_CASE("base64", "[group7][base64]") {
     // 64 bits for ull; 1 char represents 6 bits => 64 / 6 = 10.6666 => 11 chars
     // 64 bits set to all 1s => 10 chars of largest char + another char for left over bits
     // 64 % 6 = 4 => 4 bits left over => 4 bits of 1s => 16th char
-    std::string max_encoded_ull = base64::chars[15] + std::string(10, base64::chars[63]);
+    std::string max_encoded_ull = base64::CHARS[15] + std::string(10, base64::CHARS[63]);
     CHECK(base64::ULLToB64(max_ull) == max_encoded_ull);
     CHECK(base64::B64ToULL(max_encoded_ull) == max_ull);
   }
   SECTION("Binary") {
-    std::string max_encoded_ull = base64::chars[15] + std::string(10, base64::chars[63]);
+    std::string max_encoded_ull = base64::CHARS[15] + std::string(10, base64::CHARS[63]);
     CHECK(base64::B2ToB64(std::string(64, '1')) == max_encoded_ull);
     CHECK(base64::B64ToB2(max_encoded_ull) == std::string(64, '1'));
   }
