@@ -263,7 +263,6 @@ namespace cse491_team8 {
                 agent.SetProperty<int>("Health", 15);
                 agent.SetProperty<int>("Direction", 0);
                 agent.SetPosition(40, 3);
-                reset_run = true;
                 break;
               }
               else
