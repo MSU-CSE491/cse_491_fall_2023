@@ -24,15 +24,13 @@ namespace cowboys
         // For example group 1 has a function for the shortest path
 
         std::vector<std::string> possibleInstructionsList = {};
-        std::vector<std::string> actionsList = {"up", "down", "left", "right"};
+        std::vector<std::string> actionsList = {};
         std::vector<std::string> operationsList = {"lessthan", "greaterthan", "equals"};
+        std::vector<std::string> sensorsNamesList = {"getLeft", "getRight", "getUp", "getDown"};
         std::vector<int> resultsList = std::vector<int>(LISTSIZE);
 
         std::vector<std::tuple<std::string, int, int>> instructionsList = {};
         size_t currentInstructionIndex = 0;
-
-        std::vector<cowboys::Sensors> sensorsList;
-        std::vector<std::string> sensorsNamesList = {"getLeft", "getRight", "getUp", "getDown"};
 
         std::random_device rd;
         std::mt19937 gen;
@@ -49,7 +47,7 @@ namespace cowboys
         /// @return Success.
         bool Initialize() override
         {
-            possibleInstructionsList = EncodeActions(action_map, sensorsNamesList);
+            possibleInstructionsList = EncodeActions(action_map, sensorsNamesList, operationsList, actionsList);
             GenerateRandomActionList();
             return true;
         }
@@ -58,14 +56,14 @@ namespace cowboys
         {
             // generate a random list of actions
             std::uniform_int_distribution<size_t> dist(0, possibleInstructionsList.size() - 1);
-            std::uniform_int_distribution<size_t> dist2(0, resultsList.size() - 1);
+            std::uniform_int_distribution<size_t> dist2(0, LISTSIZE - 1);
             for (int i = 0; i < LISTSIZE; i++)
             {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
             for (auto i = 0; i < LISTSIZE; i++)
             {
-                std::cout << get<0>(instructionsList[i]) << " ";
+                std::cout << std::get<0>(instructionsList[i]) << " ";
             }
             std::cout << std::endl;
         }
@@ -73,16 +71,18 @@ namespace cowboys
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
         /// @param action_map The action map from the agent.
         /// @return A vector of strings, representing action names.
-        static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map, const std::vector<std::string> &sensorsNamesList)
+        static std::vector<std::string> EncodeActions(const std::unordered_map<std::string, size_t> &action_map, const std::vector<std::string> &sensorsNamesList, const std::vector<std::string> &operationsList, std::vector<std::string> &actionsList)
         {
             std::vector<std::string> instructions;
             for (const auto &[action_name, action_id] : action_map)
             {
                 instructions.push_back(action_name);
+                actionsList.push_back(action_name);
             }
-            instructions.push_back("lessthan");
-            instructions.push_back("greaterthan");
-            instructions.push_back("equals");
+            for (const auto &sensor : operationsList)
+            {
+                instructions.push_back(sensor);
+            }
 
             for (const auto &sensor : sensorsNamesList)
             {
@@ -93,10 +93,47 @@ namespace cowboys
         }
 
 
-        void MutateAgent(double mutation_rate = 0.8) override {}
+        void MutateAgent(double mutation_rate = 0.01) override
+        {
+            std::uniform_int_distribution<size_t> rnd_mutate(1, 100);
+            std::uniform_int_distribution<size_t> dist(0, possibleInstructionsList.size() - 1);
+            std::uniform_int_distribution<size_t> dist2(0, LISTSIZE - 1);
 
+            for (auto i = 0; i < LISTSIZE; i++)
+            {
+                if (rnd_mutate(gen) / 100.0 <= mutation_rate)
+                {
+                    instructionsList[i] = std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen));
+                }
+            }
 
-        void Copy(const GPAgent_ &other) override {}
+            resultsList = std::vector<int>(LISTSIZE);
+            currentInstructionIndex = 0;
+        }
+
+        /// @brief Get the instruction list for this agent.
+        /// @return A const reference to the instruction list for this agent.
+        const std::vector<std::tuple<std::string, int, int>> &GetInstructionsList(){ return instructionsList; }
+
+        /// @brief Copies the behavior of another LGPAgent into this agent.
+        /// @param other The LGPAgent to copy.
+        void Configure(const LGPAgent &other) {
+            instructionsList = other.instructionsList;
+            possibleInstructionsList = other.possibleInstructionsList;
+            actionsList = other.actionsList;
+            operationsList = other.operationsList;
+            sensorsNamesList = other.sensorsNamesList;
+            resultsList = other.resultsList;
+            currentInstructionIndex = other.currentInstructionIndex;
+        }
+
+        /// @brief Copy the behavior of another agent into this agent.
+        /// @param other The agent to copy.
+        void Copy(const GPAgent_ &other) override
+        {
+            assert(dynamic_cast<const LGPAgent *>(&other) != nullptr);
+            Configure(dynamic_cast<const LGPAgent &>(other));
+        }
 
         std::string Export() {
           return "";
@@ -107,7 +144,6 @@ namespace cowboys
                             [[maybe_unused]] const cse491::item_map_t &item_set,
                             [[maybe_unused]] const cse491::agent_map_t &agent_set) override
         {
-
             std::string action;
             std::string sensor;
             std::string operation;
@@ -123,16 +159,16 @@ namespace cowboys
                 resultsList[LISTSIZE - 1] = action_result;
             }
 
-            while (i < LISTSIZE && action.empty())
+            while (i < LISTSIZE * 2 && action.empty())
             {
-                if (std::find(actionsList.begin(), actionsList.end(), get<0>(instruction)) != actionsList.end())
+                if (std::find(actionsList.begin(), actionsList.end(), std::get<0>(instruction)) != actionsList.end())
                 {
-                    action = get<0>(instruction);
+                    action = std::get<0>(instruction);
                 }
-                else if (std::find(sensorsNamesList.begin(), sensorsNamesList.end(), get<0>(instruction)) != sensorsNamesList.end())
+                else if (std::find(sensorsNamesList.begin(), sensorsNamesList.end(), std::get<0>(instruction)) != sensorsNamesList.end())
                 {
                     // the instruction is in the sensor list (getLeft, getRight, getUp, getDown)
-                    sensor = get<0>(instruction);
+                    sensor = std::get<0>(instruction);
 
                     SensorDirection direction = Sensors::getSensorDirectionEnum(sensor);
                     int distance = Sensors::wallDistance(grid, *this, direction);
@@ -141,47 +177,47 @@ namespace cowboys
                 else
                 {
                     // the instruction is an operation (lessthan, greaterthan, equals)
-                    operation = get<0>(instruction);
+                    operation = std::get<0>(instruction);
                     if (operation == "lessthan")
                     {
-                        if (get<1>(instruction) < get<2>(instruction))
+                        if (std::get<1>(instruction) < std::get<2>(instruction))
                         {
                             resultsList[currentInstructionIndex] = 1;
-                            ++currentInstructionIndex;
                         }
                         else
                         {
                             resultsList[currentInstructionIndex] = 0;
+                            ++currentInstructionIndex;
                         }
                     }
                     else if (operation == "greaterthan")
                     {
-                        if (get<1>(instruction) > get<2>(instruction))
+                        if (std::get<1>(instruction) > std::get<2>(instruction))
                         {
                             resultsList[currentInstructionIndex] = 1;
-                            ++currentInstructionIndex;
                         }
                         else
                         {
                             resultsList[currentInstructionIndex] = 0;
+                            ++currentInstructionIndex;
                         }
                     }
                     else if (operation == "equals")
                     {
-                        if (get<1>(instruction) == get<2>(instruction))
+                        if (std::get<1>(instruction) == std::get<2>(instruction))
                         {
                             resultsList[currentInstructionIndex] = 1;
-                            ++currentInstructionIndex;
                         }
                         else
                         {
                             resultsList[currentInstructionIndex] = 0;
+                            ++currentInstructionIndex;
                         }
                     }
                 }
 
                 ++currentInstructionIndex;
-                if (currentInstructionIndex >= instructionsList.size())
+                if (currentInstructionIndex >= LISTSIZE)
                 {
                     currentInstructionIndex = 0;
                 }
