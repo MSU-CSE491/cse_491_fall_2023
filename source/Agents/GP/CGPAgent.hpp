@@ -12,7 +12,7 @@
 #include <random>
 #include <string>
 
-#include "GPAgent_.hpp"
+#include "GPAgentBase.hpp"
 #include "GraphBuilder.hpp"
 
 namespace cowboys {
@@ -29,7 +29,7 @@ namespace cowboys {
   constexpr size_t LAYERS_BACK = 2;
 
   /// @brief An agent based on cartesian genetic programming.
-  class CGPAgent : public GPAgent_ {
+  class CGPAgent : public GPAgentBase {
   protected:
     /// The genotype for this agent.
     CGPGenotype genotype;
@@ -40,9 +40,9 @@ namespace cowboys {
 
 
   public:
-    CGPAgent(size_t id, const std::string &name) : GPAgent_(id, name) {}
+    CGPAgent(size_t id, const std::string &name) : GPAgentBase(id, name) {}
     CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype)
-        : GPAgent_(id, name), genotype(genotype) {}
+        : GPAgentBase(id, name), genotype(genotype) {}
 
 
     void printAgent() override {
@@ -109,7 +109,7 @@ namespace cowboys {
 
     /// @brief Copy the behavior of another agent into this agent.
     /// @param other The agent to copy.
-    void Copy(const GPAgent_ &other) override {
+    void Copy(const GPAgentBase &other) override {
       assert(dynamic_cast<const CGPAgent *>(&other) != nullptr);
       Configure(dynamic_cast<const CGPAgent &>(other));
     }

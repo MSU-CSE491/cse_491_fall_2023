@@ -33,8 +33,8 @@ TEST_CASE("Copying", "[group7][agent][genotype]") {
     CHECK(agent.GetGenotype() != agent2.GetGenotype());
     
     // Generic references to CGPAgent
-    GPAgent_ &agent_ref = agent;
-    GPAgent_ &agent2_ref = agent2;
+    GPAgentBase &agent_ref = agent;
+    GPAgentBase &agent2_ref = agent2;
     agent2_ref.Copy(agent_ref); // Copy agent into agent2
     CHECK(agent.GetGenotype() == agent2.GetGenotype());
   }
@@ -47,8 +47,8 @@ TEST_CASE("Copying", "[group7][agent][genotype]") {
     CHECK(agent.GetGenotype() != agent2.GetGenotype());
     
     // Generic references to CGPAgent
-    GPAgent_ &agent_ref = agent;
-    GPAgent_ &agent2_ref = agent2;
+    GPAgentBase &agent_ref = agent;
+    GPAgentBase &agent2_ref = agent2;
     agent2_ref.Copy(agent_ref); // Copy agent into agent2
     CHECK(agent.GetGenotype() == agent2.GetGenotype());
   }

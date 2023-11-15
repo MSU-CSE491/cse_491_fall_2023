@@ -17,14 +17,14 @@
 #include "../../core/AgentBase.hpp"
 
 namespace cowboys {
-  class GPAgent_ : public cse491::AgentBase {
+  class GPAgentBase : public cse491::AgentBase {
   protected:
     /// A map of extra state information.
     std::unordered_map<std::string, double> extra_state;
 
   public:
-    GPAgent_(size_t id, const std::string &name) : AgentBase(id, name) { extra_state["previous_action"] = 0; }
-    ~GPAgent_() = default;
+    GPAgentBase(size_t id, const std::string &name) : AgentBase(id, name) { extra_state["previous_action"] = 0; }
+    ~GPAgentBase() = default;
 
     /// @brief Setup graph.
     /// @return Success.
@@ -54,7 +54,7 @@ namespace cowboys {
 
     /// @brief Copy the behavior of another agent into this agent.
     /// @param other The agent to copy. Should be the same type.
-    virtual void Copy(const GPAgent_ &other) = 0;
+    virtual void Copy(const GPAgentBase &other) = 0;
 
     virtual void printAgent(){
 
@@ -66,7 +66,7 @@ namespace cowboys {
 
     virtual void reset() { extra_state["previous_action"] = 0; };
 
-    //    virtual void crossover(const GPAgent_ &other) {};
+    //    virtual void crossover(const GPAgentBase &other) {};
     //    virtual void Import(const std::string &genotype) {};
   };
 

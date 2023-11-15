@@ -4,7 +4,7 @@
 #include "../../core/AgentBase.hpp"
 #include "../../core/WorldBase.hpp"
 //#include "GPAgent.hpp"
-#include "GPAgent_.hpp"
+#include "GPAgentBase.hpp"
 
 
 #include "CGPAgent.hpp"
@@ -33,7 +33,7 @@ namespace cowboys {
     private:
 
         std::vector<cse491::WorldBase *> environments;
-        std::vector<std::vector<cowboys::GPAgent_ *>> agents;
+        std::vector<std::vector<cowboys::GPAgentBase *>> agents;
 
 
         std::vector<std::vector<cse491::GridPosition>> TEMPinitialAgentPositions;
@@ -83,11 +83,11 @@ namespace cowboys {
             environments.emplace_back(new EnvironmentType());
 
 
-            agents.emplace_back(std::vector<cowboys::GPAgent_ *>());
+            agents.emplace_back(std::vector<cowboys::GPAgentBase *>());
             TEMPinitialAgentPositions.emplace_back(std::vector<cse491::GridPosition>());
             for (size_t j = 0; j < NumAgentsForArena; ++j) {
 
-              cowboys::GPAgent_ &addedAgent = static_cast<cowboys::GPAgent_ &>(environments[i]->template AddAgent<AgentType>(
+              cowboys::GPAgentBase &addedAgent = static_cast<cowboys::GPAgentBase &>(environments[i]->template AddAgent<AgentType>(
                       "Agent " + std::to_string(j)));
               addedAgent.SetPosition(0, 0);
               cse491::GridPosition position = addedAgent.GetPosition();
@@ -344,7 +344,7 @@ namespace cowboys {
         }
 
 
-        void mutateAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgent_ *>>& agents, double mutationRate) {
+        void mutateAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgentBase *>>& agents, double mutationRate) {
           for (int i = start; i < end; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
             agents[arenaIDX][agentIDX]->MutateAgent(mutationRate);
@@ -355,7 +355,7 @@ namespace cowboys {
           }
         }
 
-        void mutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgent_ *>>& agents, int elitePopulationSize) {
+        void mutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgentBase *>>& agents, int elitePopulationSize) {
           for (int i = start; i < end; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
             auto eliteINDEX = rand() % elitePopulationSize;

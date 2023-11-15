@@ -27,7 +27,7 @@
  */
 namespace cowboys {
 
-    class GPAgentTest : public GPAgent_ {
+    class GPAgentTest : public GPAgentBase {
     protected:
         const std::vector<std::string> predefinedMovement = {
                 "down",  "down",  "down",  "down",  "right", "right", "up",    "up",
@@ -37,7 +37,7 @@ namespace cowboys {
         size_t movementIndex = 0;  ///< current move of the agent
 
     public:
-        GPAgentTest(size_t id, const std::string &name) : GPAgent_(id, name) {
+        GPAgentTest(size_t id, const std::string &name) : GPAgentBase(id, name) {
           std::random_device rd;
           std::mt19937 gen(rd());
 
@@ -59,13 +59,13 @@ namespace cowboys {
 
         /// @brief Copy the behavior of another agent into this agent.
         /// @param other The agent to copy. Should be the same type.
-        virtual void Copy(const GPAgent_ &other) {};
+        virtual void Copy(const GPAgentBase &other) {};
 
         virtual void printAgent() {};
 
         virtual std::string Export() { return ""; }
 
-        virtual void crossover(const GPAgent_ &other) {};
+        virtual void crossover(const GPAgentBase &other) {};
         virtual void Import(const std::string &genotype) {};
 
 
