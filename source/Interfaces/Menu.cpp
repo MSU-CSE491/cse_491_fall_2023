@@ -53,49 +53,14 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::HandleMouseMove(sf::RenderWindow &window) {
-        if (mMenuBar[0]->isMouseOver(window)){
-            mMenuBar[0]->setBackColor(sf::Color::Magenta);
-            mMenuBar[1]->setBackColor(sf::Color::Black);
-            mMenuBar[2]->setBackColor(sf::Color::Black);
-            mMenuBar[3]->setBackColor(sf::Color::Black);
-            mMenuBar[4]->setBackColor(sf::Color::Black);
-        }else if (mMenuBar[1]->isMouseOver(window)){
-            mMenuBar[0]->setBackColor(sf::Color::Black);
-            mMenuBar[1]->setBackColor(sf::Color::Magenta);
-            mMenuBar[2]->setBackColor(sf::Color::Black);
-            mMenuBar[3]->setBackColor(sf::Color::Black);
-            mMenuBar[4]->setBackColor(sf::Color::Black);
-        }else if (mMenuBar[2]->isMouseOver(window)){
-            mMenuBar[0]->setBackColor(sf::Color::Black);
-            mMenuBar[1]->setBackColor(sf::Color::Black);
-            mMenuBar[2]->setBackColor(sf::Color::Magenta);
-            mMenuBar[3]->setBackColor(sf::Color::Black);
-            mMenuBar[4]->setBackColor(sf::Color::Black);
-
-        }else if (mMenuBar[3]->isMouseOver(window)){
-            mMenuBar[0]->setBackColor(sf::Color::Black);
-            mMenuBar[1]->setBackColor(sf::Color::Black);
-            mMenuBar[2]->setBackColor(sf::Color::Black);
-            mMenuBar[3]->setBackColor(sf::Color::Magenta);
-            mMenuBar[4]->setBackColor(sf::Color::Black);
-
-        }else if (mMenuBar[4]->isMouseOver(window)){
-            mMenuBar[0]->setBackColor(sf::Color::Black);
-            mMenuBar[1]->setBackColor(sf::Color::Black);
-            mMenuBar[2]->setBackColor(sf::Color::Black);
-            mMenuBar[3]->setBackColor(sf::Color::Black);
-            mMenuBar[4]->setBackColor(sf::Color::Magenta);
-
-        }
-        else{
-            mMenuBar[0]->setBackColor(sf::Color::Black);
-            mMenuBar[1]->setBackColor(sf::Color::Black);
-            mMenuBar[2]->setBackColor(sf::Color::Black);
-            mMenuBar[3]->setBackColor(sf::Color::Black);
-            mMenuBar[4]->setBackColor(sf::Color::Black);
+        for (int i = 0; i < mMenuBar.size(); ++i) {
+            if (mMenuBar[i]->isMouseOver(window)) {
+                mMenuBar[i]->setBackColor(sf::Color::Magenta);
+            } else {
+                mMenuBar[i]->setBackColor(sf::Color::Black);
+            }
         }
     }
-
     /**
      * @brief check if the mouse click the exit button
      * closes window accordingly

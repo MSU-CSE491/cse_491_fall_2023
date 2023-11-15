@@ -18,8 +18,8 @@ namespace i_2D {
                                                                        mWindow(sf::VideoMode({1000, 800}),
                                                                                "Maze Window") {
         ///Font for all objects
-        if(!mFont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
-            std::cout << "Error loading font file" << std::endl;
+        if (!mFont.loadFromFile("../../assets/font/ArialNarrow7.ttf")) {
+            std::cout << "Error loading font file: ../assets/font/ArialNarrow7.ttf" << std::endl;
         }
         mMessageBoard = std::make_unique<MessageBoard>(mFont);
         mTextBox = std::make_unique<TextBox>(mFont);
@@ -41,21 +41,19 @@ namespace i_2D {
     std::vector<std::string> MainInterface::CreateVectorMaze(
 
             const WorldGrid &grid, const type_options_t &type_options,
-            const item_map_t &item_map, const agent_map_t &agent_map)
-
-    {
+            const item_map_t &item_map, const agent_map_t &agent_map) {
         std::vector<std::string> symbol_grid(grid.GetHeight());
 
         // Load the world into the symbol_grid;
-        for (size_t y=0; y < grid.GetHeight(); ++y) {
+        for (size_t y = 0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
-            for (size_t x=0; x < grid.GetWidth(); ++x) {
-                symbol_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
+            for (size_t x = 0; x < grid.GetWidth(); ++x) {
+                symbol_grid[y][x] = type_options[grid.At(x, y)].symbol;
             }
         }
 
         // Add in the agents / entities
-        for (const auto & [id, item_ptr] : item_map) {
+        for (const auto &[id, item_ptr]: item_map) {
             GridPosition pos = item_ptr->GetPosition();
             char c = '+';
             if (item_ptr->HasProperty("symbol")) {
@@ -64,10 +62,10 @@ namespace i_2D {
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
 
-        for (const auto & [id, agent_ptr] : agent_map) {
+        for (const auto &[id, agent_ptr]: agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
-            if(agent_ptr->HasProperty("symbol")){
+            if (agent_ptr->HasProperty("symbol")) {
                 c = agent_ptr->GetProperty<char>("symbol");
             }
             symbol_grid[pos.CellY()][pos.CellX()] = c;
@@ -82,18 +80,16 @@ namespace i_2D {
      * @return sf::Vector2f The size of each cell as a 2D vector.
      */
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
-        float cellSizeWide ,cellSizeTall;
-        if(mGridSizeLarge)
-        {
+        float cellSizeWide, cellSizeTall;
+        if (mGridSizeLarge) {
             cellSizeWide = mWindow.getSize().x / COL;
             cellSizeTall = mWindow.getSize().y / ROW;
-        }
-        else{
+        } else {
             cellSizeWide = mWindow.getSize().x / grid.GetWidth();
             cellSizeTall = mWindow.getSize().y / grid.GetHeight();
         }
 
-        float cellSize = std::min(cellSizeWide, cellSizeTall) ;
+        float cellSize = std::min(cellSizeWide, cellSizeTall);
         return sf::Vector2f(cellSize, cellSize);
     }
 
@@ -105,10 +101,10 @@ namespace i_2D {
     * @param item_map     The map of ids to items in the maze.
     * @param agent_map    The map of ids to agents in t
     */
-    void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_map_t &item_map, const agent_map_t &agent_map)
-    {
+    void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_map_t &item_map,
+                                 const agent_map_t &agent_map) {
         // Check player's position
-        mPlayerPosition = sf::Vector2i (this->position.GetX(), this->position.GetY());
+        mPlayerPosition = sf::Vector2i(this->position.GetX(), this->position.GetY());
 
         mWindow.clear(sf::Color::White);
 
@@ -155,17 +151,18 @@ namespace i_2D {
         mMessageBoard->drawTo(mWindow);
         mWindow.display();
     }
+
     /**
- * @brief Creates a 9x23 window of the symbol grid centered around the player's position.
- *
- * @param symbol_grid   The original symbol grid.
- * @return              A new symbol grid representing the 9x23 window.
- */
-    std::vector<std::string> MainInterface::LargeDisplayGrid(const std::vector<std::string> &symbol_grid)
-    {
+     * @brief Creates a 9x23 window of the symbol grid centered around the player's position.
+     *
+     * @param symbol_grid   The original symbol grid.
+     * @return              A new symbol grid representing the 9x23 window.
+     */
+    std::vector<std::string> MainInterface::LargeDisplayGrid(const std::vector<std::string> &symbol_grid) {
         // Determine the top-left corner of the 9x23 window
-        int topLeftX = std::max(0, std::min(mPlayerPosition.x - COL/2, static_cast<int>(symbol_grid[0].size()) - COL));
-        int topLeftY = std::max(0, std::min(mPlayerPosition.y - ROW/2, static_cast<int>(symbol_grid.size()) - ROW));
+        int topLeftX = std::max(0,
+                                std::min(mPlayerPosition.x - COL / 2, static_cast<int>(symbol_grid[0].size()) - COL));
+        int topLeftY = std::max(0, std::min(mPlayerPosition.y - ROW / 2, static_cast<int>(symbol_grid.size()) - ROW));
 
         // Create a new symbol grid for the 9x23 display window
         std::vector<std::string> display_grid;
@@ -195,14 +192,11 @@ namespace i_2D {
      * @param drawCenterY Reference to the variable to store the y-coordinate of the center of the drawing space.
      */
     void MainInterface::CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth,
-                                           float &drawSpaceHeight, float &drawCenterX, float &drawCenterY)
-    {
-        if(mGridSizeLarge)
-        {
+                                           float &drawSpaceHeight, float &drawCenterX, float &drawCenterY) {
+        if (mGridSizeLarge) {
             drawSpaceWidth = static_cast<float>(COL) * cellSize;
             drawSpaceHeight = static_cast<float>(ROW) * cellSize;
-        }
-        else{
+        } else {
             drawSpaceWidth = static_cast<float>(grid.GetWidth()) * cellSize;
             drawSpaceHeight = static_cast<float>(grid.GetHeight()) * cellSize;
         }
@@ -246,32 +240,27 @@ namespace i_2D {
                     mWindow.close();
                     exit(0);
 
-                }else if (event.type == sf::Event::TextEntered){
+                } else if (event.type == sf::Event::TextEntered) {
                     mTextBox->TypedOn(event);
-                }else if (event.type == sf::Event::KeyPressed) {
+                } else if (event.type == sf::Event::KeyPressed) {
                     return HandleKeyEvent(event);
 
-                } else if(event.type == sf::Event::Resized) {
+                } else if (event.type == sf::Event::Resized) {
                     HandleResize(event, grid);
 
-                } else if(event.type == sf::Event::MouseMoved){
+                } else if (event.type == sf::Event::MouseMoved) {
                     mMenu.HandleMouseMove(mWindow);
 
-                } else if(event.type == sf::Event::MouseButtonPressed){
-                    if (mMenu.GetMenu()[3]->isMouseOver(mWindow))
-                    {
+                } else if (event.type == sf::Event::MouseButtonPressed) {
+                    if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
                         mGridSizeLarge = false;
-                    }
-                    else if (mMenu.GetMenu()[4]->isMouseOver(mWindow))
-                    {
+                    } else if (mMenu.GetMenu()[4]->isMouseOver(mWindow)) {
                         mGridSizeLarge = true;
 
-                    }
-                    else
+                    } else
                         mMenu.HandleMouseButtonPressed(mWindow);
 
-                }else if(event.type == sf::Event::MouseWheelScrolled)
-                {
+                } else if (event.type == sf::Event::MouseWheelScrolled) {
 //                    HandleScroll(event);
                 }
             }
@@ -294,38 +283,38 @@ namespace i_2D {
      * @param event The SFML event object containing the key event information.
      * @return size_t The action ID corresponding to the key event.
      */
-    size_t MainInterface::HandleKeyEvent(const sf::Event& event) {
+    size_t MainInterface::HandleKeyEvent(const sf::Event &event) {
         size_t action_id = 0;
         switch (event.key.code) {
             case sf::Keyboard::Enter:
-                if(!mTextBox->IsSelected()) {
+                if (!mTextBox->IsSelected()) {
                     mTextBox->SetSelected(true);
-                }else{
+                } else {
                     mMessageBoard->Send(mTextBox->GetText());
                     mTextBox->SetString("");
                     mTextBox->SetSelected(false);
                 }
                 break;
             case sf::Keyboard::Escape:
-                if(mTextBox->IsSelected()) {
+                if (mTextBox->IsSelected()) {
                     mTextBox->SetSelected(false);
                     mTextBox->SetString("");
                 }
                 break;
             case sf::Keyboard::W:
-                if(mTextBox->IsSelected())break;
+                if (mTextBox->IsSelected())break;
                 action_id = GetActionID("up");
                 break;
             case sf::Keyboard::A:
-                if(mTextBox->IsSelected())break;
+                if (mTextBox->IsSelected())break;
                 action_id = GetActionID("left");
                 break;
             case sf::Keyboard::S:
-                if(mTextBox->IsSelected())break;
+                if (mTextBox->IsSelected())break;
                 action_id = GetActionID("down");
                 break;
             case sf::Keyboard::D:
-                if(mTextBox->IsSelected())break;
+                if (mTextBox->IsSelected())break;
                 action_id = GetActionID("right");
                 break;
             case sf::Keyboard::Up:
@@ -365,27 +354,24 @@ namespace i_2D {
      * @param event The SFML event object containing the resize event information.
      * @param grid The WorldGrid containing information on the world structure.
      */
-    void MainInterface::HandleResize(const sf::Event& event, const WorldGrid &grid)
-    {
+    void MainInterface::HandleResize(const sf::Event &event, const WorldGrid &grid) {
         // Check size limits of window
         float widthWindow = event.size.width;
         float heightWindow = event.size.height;
-        float widthMin,heightMin;
-        if(mGridSizeLarge)
-        {
+        float widthMin, heightMin;
+        if (mGridSizeLarge) {
             widthMin = COL * MIN_SIZE_CELL;
             heightMin = ROW * MIN_SIZE_CELL;
-        }
-        else{
-           widthMin = grid.GetWidth() * MIN_SIZE_CELL;
-           heightMin = grid.GetHeight() * MIN_SIZE_CELL;
+        } else {
+            widthMin = grid.GetWidth() * MIN_SIZE_CELL;
+            heightMin = grid.GetHeight() * MIN_SIZE_CELL;
         }
 
         widthWindow = std::max(widthWindow, widthMin);
         heightWindow = std::max(heightWindow, heightMin);
 
         // Restrict window size if necessary
-        if(widthWindow <= widthMin || heightWindow <= heightMin) {
+        if (widthWindow <= widthMin || heightWindow <= heightMin) {
             mWindow.setSize(sf::Vector2u(widthWindow, heightWindow));
         }
 
@@ -393,6 +379,7 @@ namespace i_2D {
         sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
         mWindow.setView(sf::View(viewArea));
     }
+
     /**
      * @brief Draw the wall texture based on the provided parameters.
      *
@@ -400,9 +387,9 @@ namespace i_2D {
      * @param wallTexture The texture for the wall.
      * @param isVerticalWall for vertical wall
     */
-    void MainInterface::DrawWall(sf::RectangleShape& cellRect, sf::Texture& wallTexture, bool isVerticalWall) {
+    void MainInterface::DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall) {
         // TODO below if the wall has to be placed vertical
-        if(isVerticalWall){}
+        if (isVerticalWall) {}
 //        if (isVerticalWall) {
 //            sf::Transform transform;
 //            transform.rotate(270.0f, sf::Vector2f(cellPosX + cellSize / 2.0f, cellPosY + cellSize / 2.0f));
@@ -421,17 +408,17 @@ namespace i_2D {
      *
      * @param cellRect The rectangle shape of the cell.
      */
-    void MainInterface::DrawEmptyCell(sf::RectangleShape& cellRect) {
+    void MainInterface::DrawEmptyCell(sf::RectangleShape &cellRect) {
         cellRect.setFillColor(sf::Color::Black);
         mWindow.draw(cellRect);
     }
-    
+
     /**
      * @brief Draw the cell with a bright pink that is hard to miss
      *
      * @param cellRect The rectangle shape of the cell.
      */
-    void MainInterface::DrawDefaultCell(sf::RectangleShape& cellRect) {
+    void MainInterface::DrawDefaultCell(sf::RectangleShape &cellRect) {
         cellRect.setFillColor(sf::Color::Magenta);
         mWindow.draw(cellRect);
     }
@@ -444,40 +431,34 @@ namespace i_2D {
      * @param color The color to be set for the cell.
      */
 
-    void MainInterface::DrawAgentCell(sf::RectangleShape& cellRect, sf::RectangleShape& cell, sf::Texture& agent) {
+    void MainInterface::DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent) {
         cellRect.setTexture(&agent);
         cell.setFillColor(sf::Color::Black);
         mWindow.draw(cell);
         mWindow.draw(cellRect);
     }
+
     /*
      * This function chooses the world to load the texture for it's images
      * and sets the current texture map for drawing
      */
-    void MainInterface::ChooseTexture()
-    {
-        if(GetName() == "Interface1")
-        {
+    void MainInterface::ChooseTexture() {
+        if (GetName() == "Interface1") {
             mTexturesDefault = mTextureHolder.MazeTexture();
             mTexturesCurrent = mTexturesDefault;
-        }
-        else if(GetName() == "Interface")
-        {
+        } else if (GetName() == "Interface") {
             mTexturesSecondWorld = mTextureHolder.SecondWorldTexture();
             mTexturesCurrent = mTexturesSecondWorld;
-        }
-        else if(GetName() == "Interface3")
-        {
-            mTexturesManualWorld =mTextureHolder. ManualWorldTexture();
+        } else if (GetName() == "Interface3") {
+            mTexturesManualWorld = mTextureHolder.ManualWorldTexture();
             mTexturesCurrent = mTexturesManualWorld;
-        }
-        else if(GetName() == "Interface2")
-        {
-            mTexturesGenerativeWorld =mTextureHolder. GenerativeWorldTexture();
+        } else if (GetName() == "Interface2") {
+            mTexturesGenerativeWorld = mTextureHolder.GenerativeWorldTexture();
             mTexturesCurrent = mTexturesGenerativeWorld;
         }
 
     }
+
     /**
      * This is a helper function for DrawGrid. jsut using the switch statement to draw the grids
      * @param cellRect - cell for texture
@@ -485,8 +466,8 @@ namespace i_2D {
      * @param symbol  - symbol of the cell
      * @param isVerticalWall  - to the wall
      */
-    void MainInterface::SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall)
-    {
+    void MainInterface::SwitchCellSelect(sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol,
+                                         bool isVerticalWall) {
         switch (symbol) {
             case ' ':
                 DrawEmptyCell(cellRect);

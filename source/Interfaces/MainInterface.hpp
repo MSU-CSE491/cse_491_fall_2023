@@ -59,7 +59,6 @@ namespace i_2D {
 
         // Render range vars
         sf::Vector2i mPlayerPosition = sf::Vector2i(0,0); ///< xy world grid location of the player
-        int mRenderRange = 10; ///< radius of cells shown around the player
         bool mGridSizeLarge = false;
         int const ROW = 9;
         int const COL = 23;

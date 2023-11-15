@@ -11,3 +11,6 @@ add_source_to_target(${EXE_NAME} "source/Interfaces/Container.hpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Button.cpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/Menu.cpp")
 add_source_to_target(${EXE_NAME} "source/Worlds/BiomeGenerator.cpp")
+add_source_to_target(${EXE_NAME} "source/Interfaces/TextBox.cpp")
+add_source_to_target(${EXE_NAME} "source/Interfaces/MessageBoard.cpp")
+
