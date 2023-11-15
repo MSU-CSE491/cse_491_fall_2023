@@ -101,16 +101,16 @@ namespace cse491_team8 {
     /// @return None
     void AddMove(cse491::AgentBase& agent, std::string& move, char stat, double modification)
     {
-        if (!agent.HasProperty("MoveSet")) {
-            std::cout << "Error: Agent does not have a Move Set" << std::endl;
-            return;
-        }
-        else
-        {
-            std::map<std::string, std::tuple<char, double>> move_set = agent.GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
-            move_set[move] = std::make_tuple(stat, modification);
-            agent.SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
-        }
+      if (!agent.HasProperty("MoveSet")) {
+        agent.Notify("Error: Agent does not have a Move Set\n");
+        return;
+      }
+      else
+      {
+        std::map<std::string, std::tuple<char, double>> move_set = agent.GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
+        move_set[move] = std::make_tuple(stat, modification);
+        agent.SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+      }
     }
     /// @brief removes a move from the move set for an agent
     /// @param agent the agent to remove a move from
@@ -119,17 +119,17 @@ namespace cse491_team8 {
     /// @return true for success, false for failure
     bool RemoveMove(cse491::AgentBase& agent, std::string& move)
     {
-        if (!agent.HasProperty("MoveSet")) {
-            std::cout << "Error: Agent does not have a Move Set" << std::endl;
-            return false;
-        }
-        else
-        {
-            std::map<std::string, std::tuple<char, double>> move_set = agent.GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
-            move_set.erase(move);
-            agent.SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
-            return true;
-        }
+      if (!agent.HasProperty("MoveSet")) {
+        agent.Notify("Error: Agent does not have a Move Set\n");
+        return false;
+      }
+      else
+      {
+        std::map<std::string, std::tuple<char, double>> move_set = agent.GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
+        move_set.erase(move);
+        agent.SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+        return true;
+      }
     }
 
     /// @brief Determines the damage of the other agent
