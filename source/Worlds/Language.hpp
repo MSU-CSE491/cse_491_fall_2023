@@ -64,6 +64,17 @@ namespace worldlang{
 	struct op_prio_mul : pegtl::one< '*', '/' >
 	{};
 	
+	// Match operators of same priority as comparison ops
+	struct op_prio_comp : pegtl::sor< 
+		TAO_PEGTL_STRING("=="),
+		TAO_PEGTL_STRING("!="),
+		TAO_PEGTL_STRING("<="),
+		TAO_PEGTL_STRING(">="),
+		pegtl::one< '<' >,
+		pegtl::one< '>' >
+	>
+	{};
+	
 	// Must forward-declare for recursion
 	struct expression;
 	struct expression_list;	
@@ -136,8 +147,6 @@ namespace worldlang{
 	{};	
 	
 	// Matches entire addition expression
-	// Because this is currently the top level of expression, it matches any
-	// expression as well.
 	struct add;
 	struct add : pegtl::sor<
 		pegtl::seq<
@@ -149,9 +158,31 @@ namespace worldlang{
 	>
 	{};
 	
+	struct comp_a : pegtl::sor<
+		pegtl::seq<
+			add,
+			op_prio_comp,
+			add
+		>,
+		add
+	>
+	{};	
+	
+	// Matches entire comparison expression
+	struct comp;
+	struct comp : pegtl::sor<
+		pegtl::seq<
+			comp_a,
+			op_prio_comp,
+			comp
+		>,
+		comp_a
+	>
+	{};
+	
 	// Match an expression intended to evaluate to a single value.
 	struct expression : pegtl::sor<
-		add	
+		comp
 	>
 	{};
 	
@@ -238,7 +269,8 @@ namespace worldlang{
 			program,
 			assignment,
 			op_prio_add,
-			op_prio_mul
+			op_prio_mul,
+			op_prio_comp
 		>,
 		tao::pegtl::parse_tree::fold_one::on<
 			add_a,

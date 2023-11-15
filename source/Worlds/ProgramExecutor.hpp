@@ -143,6 +143,75 @@ namespace worldlang {
 				
 				pe.pushStack(static_cast<double>(agent->GetID()));
 			});
+			// Set agent property
+			registerFunction("setAgentProperty", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
+				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto prop = pe.as<std::string>(args[1]);
+				auto value = args[2];
+				
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				if (pe.has<double>(value)){
+					agent.SetProperty(prop, as<double>(value));
+				} else if (pe.has<std::string>(value)){
+					agent.SetProperty(prop, as<std::string>(value));
+				} else {
+					error("Unsupported property type!");
+				}
+//				pe.pushStack(static_cast<double>(agent->GetID()));
+			});
+			// Get agent property
+			registerFunction("getAgentProperty", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto prop = pe.as<std::string>(args[1]);
+				
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				if(agent.HasProperty(prop)){
+					// property exists but type is unknown
+					pushStack(agent.GetProperty<double>(prop));
+				}
+				error("Unsupported property type!");
+//				pe.pushStack(static_cast<double>(agent->GetID()));
+			});
+			// Get agent position
+			registerFunction("getAgentPosition", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
+				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				auto x = agent.GetPosition().GetX();
+				auto y = agent.GetPosition().GetY();
+				pushStack(x);
+				pushStack(y);
+//				pe.pushStack(static_cast<double>(agent->GetID()));
+			});
+			// Set agent position
+			registerFunction("setAgentPosition", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
+				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto x = pe.as<double>(args[1]);
+				auto y = pe.as<double>(args[2]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				agent.SetPosition(x, y);
+//				pe.pushStack(static_cast<double>(agent->GetID()));
+			});
 		}
 		
 		virtual ~ProgramExecutor() = default;
@@ -275,6 +344,10 @@ namespace worldlang {
 			return std::get<T>(val);
 		}
 		
+		void setVariable(const std::string& name, Value value){
+			variables.insert_or_assign(name, value);
+		}
+		
 		/// @brief Sets the error message and end interpreter execution.
 		/// 
 		/// Sets the stored error message for the interpreter. Only the first
@@ -351,45 +424,7 @@ namespace worldlang {
 					case Unit::Type::operation:
 						// perform operation!
 						std::cout << "Perform operation " << unit.value << std::endl;
-						if (std::string{"+-*/"}.find(unit.value) != std::string::npos){
-							// binary expressions
-							auto b = popStack();
-							auto a = popStack();
-							if (unit.value == "+"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) + as<double>(b));
-								} else if (has<std::string>(a) && has<std::string>(b)){
-									pushStack(as<std::string>(a) + as<std::string>(b));
-								} else {
-									error("Runtime type error (plus)");
-								}
-							} else if (unit.value == "-"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) - as<double>(b));
-								} else {
-									error("Runtime type error (minus)");
-								}
-							} else if (unit.value == "*"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) * as<double>(b));
-								} else if (has<std::string>(a) && has<double>(b)){
-									std::string n;
-									double c = as<double>(b);
-									for (int i = 0; i < c; ++i){
-										n += as<std::string>(a);
-									}
-									pushStack(n);
-								} else {
-									error("Runtime type error (times)");
-								}
-							} else if (unit.value == "/"){
-								if (has<double>(a) && has<double>(b)){
-									pushStack(as<double>(a) / as<double>(b));
-								} else {
-									error("Runtime type error (divide)");
-								}
-							}
-						} else if (unit.value == "="){
+						if (unit.value == "="){
 							// values to assign
 							std::vector< Value > values = popArgs();
 							// identifiers to assign to
@@ -429,6 +464,92 @@ namespace worldlang {
 									} catch (const std::out_of_range& e){
 										error("Variable did not exist!");
 									}
+								}
+							}
+						} else if (std::string{"+ - * / == != <= >= < >"}.find(unit.value) != std::string::npos){
+							// binary expressions
+							auto b = popStack();
+							auto a = popStack();
+							if (unit.value == "+"){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(as<double>(a) + as<double>(b));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(as<std::string>(a) + as<std::string>(b));
+								} else {
+									error("Runtime type error (plus)");
+								}
+							} else if (unit.value == "-"){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(as<double>(a) - as<double>(b));
+								} else {
+									error("Runtime type error (minus)");
+								}
+							} else if (unit.value == "*"){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(as<double>(a) * as<double>(b));
+								} else if (has<std::string>(a) && has<double>(b)){
+									std::string n;
+									double c = as<double>(b);
+									for (int i = 0; i < c; ++i){
+										n += as<std::string>(a);
+									}
+									pushStack(n);
+								} else {
+									error("Runtime type error (times)");
+								}
+							} else if (unit.value == "/"){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(as<double>(a) / as<double>(b));
+								} else {
+									error("Runtime type error (divide)");
+								}
+							} else if (unit.value == "=="){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(static_cast<double>(as<double>(a) == as<double>(b)));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(static_cast<double>(as<std::string>(a) == as<std::string>(b)));
+								} else {
+									error("Runtime type error (==)");
+								}
+							} else if (unit.value == "!="){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(static_cast<double>(as<double>(a) != as<double>(b)));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(static_cast<double>(as<std::string>(a) != as<std::string>(b)));
+								} else {
+									error("Runtime type error (!=)");
+								}
+							} else if (unit.value == "<"){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(static_cast<double>(as<double>(a) < as<double>(b)));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(static_cast<double>(as<std::string>(a) < as<std::string>(b)));
+								} else {
+									error("Runtime type error (<)");
+								}
+							} else if (unit.value == ">"){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(static_cast<double>(as<double>(a) > as<double>(b)));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(static_cast<double>(as<std::string>(a) > as<std::string>(b)));
+								} else {
+									error("Runtime type error (>)");
+								}
+							} else if (unit.value == "<="){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(static_cast<double>(as<double>(a) <= as<double>(b)));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(static_cast<double>(as<std::string>(a) <= as<std::string>(b)));
+								} else {
+									error("Runtime type error (<=)");
+								}
+							} else if (unit.value == ">="){
+								if (has<double>(a) && has<double>(b)){
+									pushStack(static_cast<double>(as<double>(a) >= as<double>(b)));
+								} else if (has<std::string>(a) && has<std::string>(b)){
+									pushStack(static_cast<double>(as<std::string>(a) >= as<std::string>(b)));
+								} else {
+									error("Runtime type error (>=)");
 								}
 							}
 						} else if (unit.value == "endline"){

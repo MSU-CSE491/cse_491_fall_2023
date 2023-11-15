@@ -136,6 +136,19 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_FALSE(worldlang::code_block, "{\nb=\"STR\"\n}");
 	}
 	
+	SECTION("Comparison rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::expression);
+		
+		PARSE_TRUE(worldlang::expression, "6+3<=10");
+		PARSE_TRUE(worldlang::expression, "6+3>=5");
+		PARSE_TRUE(worldlang::expression, "1!=3");
+		PARSE_TRUE(worldlang::expression, "\"A\"==\"B\"");
+		PARSE_TRUE(worldlang::expression, "1<2");
+		PARSE_TRUE(worldlang::expression, "1>2");
+		
+		PARSE_FALSE(worldlang::expression, "(A=B)");
+	}
+	
 	SECTION("Program rules"){
 		PEGTL_GRAMMAR_CHECK(worldlang::program);
 		
@@ -319,6 +332,13 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 			CHECK(pe.var<double>("s") == 1210.0);
 			CHECK(pe.var<double>("i") == 10.0);
 			CHECK(pe.var<double>("j") == 10.0);
+		}
+	}
+	
+	SECTION("comparison operations"){
+		PROGRAM_RUN("s=5==5\nx=3<0\n"){
+			CHECK(pe.var<double>("s") == 1.0);
+			CHECK(pe.var<double>("x") == 0.0);
 		}
 	}
 }

@@ -86,6 +86,10 @@ public:
 		if (!(stable = pe.runFile(filename))){
 			std::cout << "Error: Failed to run initial script!" << std::endl;
 		}
+		pe.setVariable("MOVE_UP", static_cast<double>(MOVE_UP));
+		pe.setVariable("MOVE_DOWN", static_cast<double>(MOVE_DOWN));
+		pe.setVariable("MOVE_LEFT", static_cast<double>(MOVE_LEFT));
+		pe.setVariable("MOVE_RIGHT", static_cast<double>(MOVE_RIGHT));
 	}
 	~WorldDerived() = default;
 	
@@ -95,27 +99,32 @@ public:
 	/// Allow the agents to perform an action.
 	int DoAction(AgentBase &agent, size_t action_id) override {
 		// Determine where the agent is trying to move.
-		GridPosition new_position;
-		switch (action_id) {
-			case REMAIN_STILL: new_position = agent.GetPosition();
-				break;
-			case MOVE_UP: new_position = agent.GetPosition().Above();
-				break;
-			case MOVE_DOWN: new_position = agent.GetPosition().Below();
-				break;
-			case MOVE_LEFT: new_position = agent.GetPosition().ToLeft();
-				break;
-			case MOVE_RIGHT: new_position = agent.GetPosition().ToRight();
-				break;
+		if (agent.HasProperty("DoAction")){
+			pe.setVariable("action_id", (double)action_id);
+			pe.runFile(agent.GetProperty<std::string>("DoAction"));
+		} else {
+			GridPosition new_position;
+			switch (action_id) {
+				case REMAIN_STILL: new_position = agent.GetPosition();
+					break;
+				case MOVE_UP: new_position = agent.GetPosition().Above();
+					break;
+				case MOVE_DOWN: new_position = agent.GetPosition().Below();
+					break;
+				case MOVE_LEFT: new_position = agent.GetPosition().ToLeft();
+					break;
+				case MOVE_RIGHT: new_position = agent.GetPosition().ToRight();
+					break;
+			}
+			
+			// Don't let the agent move off the world or into a wall.
+			if (!main_grid.IsValid(new_position)) { return false; }
+			if (!IsTraversable(agent, new_position)) { return false; }
+			
+			// Set the agent to its new postion.
+			agent.SetPosition(new_position);
+			return true;
 		}
-		
-		// Don't let the agent move off the world or into a wall.
-		if (!main_grid.IsValid(new_position)) { return false; }
-		if (!IsTraversable(agent, new_position)) { return false; }
-		
-		// Set the agent to its new postion.
-		agent.SetPosition(new_position);
-		return true;
 	}
 
 	/// Can walk on all tiles except for walls
