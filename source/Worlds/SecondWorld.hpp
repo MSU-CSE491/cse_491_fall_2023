@@ -245,21 +245,31 @@ class SecondWorld : public cse491::WorldBase {
       }
     }
 
-    // TODO: we need to tell the world which level we're on so we know which
-    // grid to look at for items
+    // TODO: we need to tell the world which level we're on so we know which grid to look at for items
+    // TODO: we should also add a dropping feature, agent can drop an item at any point in the game, does not necessarily have to be at a chest location
     auto items_found = FindItemsAt(new_position, 0);
     // If there are items at this position
-    if (!items_found.empty()) {
+    if (!items_found.empty() && agent.GetName() == "Interface") {
       auto& item_found = GetItem(items_found.at(0));
 
       // Item is a chest
       if (item_found.HasProperty("Chest")) {
-        // TODO: Check to see if the chest is empty, if !empty -> move them to
-        // agent's inventory
+          // TODO: Check to see if the chest is empty, if !empty -> move them to agent's inventory
+          // TODO: If we are able to set the ownership of the items to the chest,
+          //  we should be able to check what item's the chest owns, rather than checking to see what items are on that GridPosition
 
-        agent.Notify("You found a chest!", "item_alert");
+//           if (!chest.GetOwnedItems().empty()) {
+//               agent.Notify("You found a chest that contains: {}", "item_alert");
+//               agent.Notify("If you would like all the items, enter '0'; otherwise enter the number seperated by a comma for which item(s) you would like!", "item_alert");
+//
+//               // TODO: If the agent's inventory is full, prompt player they can remove items if they want to
+//               agent.Nofity("It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
+//           } else {
+//               agent.Notify("The chest is empty! Do you want to store any items in here?", "item_alert");
+//           }
 
       } else {
+          // TODO: We should also check to see if the inventory is full, if so, agent cannot pickup item and is notified
         agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
 
         // Transfer ownership to agent
