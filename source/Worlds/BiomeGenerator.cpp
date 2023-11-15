@@ -55,7 +55,7 @@ void BiomeGenerator::generate() {
 
 
     if (biome == BiomeType::Maze) {
-        placeSpecialTiles(tile1, spike_id, 0.08); // Placing spike tiles
+        placeSpecialTiles(tile1, spike_id, 0.05); // Placing spike tiles
         placeSpecialTiles(tile1, tar_id, 0.08); // Placing tar tiles
         placeDoorTile(door_id); // placing door tile
         placeKeyTile(key_id); // placing key tile

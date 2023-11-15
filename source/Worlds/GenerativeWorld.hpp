@@ -120,26 +120,64 @@ namespace group6 {
             if (!main_grid.IsValid(new_position)) { return false; }
             if (main_grid.At(new_position) == wall_id) { return false; }
 
-            //check to see if player has shield on and is walking across spike tile
-            if (main_grid.At(new_position) == spike_id) {
-                for (const auto &pair: item_map) {
-                    if (agent.HasItem(pair.first) && pair.second->GetName() == "Shield") {
-                        agent.SetPosition(new_position);
-                        return true;
-                    }
+    //check to see if player has shield on and is walking across spike tile
+    if( main_grid.At(new_position) == spike_id )
+    {
+        for( const auto &pair : item_map )
+        {
+            //agent has shield item
+            if( agent.HasItem(pair.first) && pair.second->GetName() == "Shield" )
+            {
+                //agent's shield has enough health and will protect player from spike tile
+                if( pair.second->GetProperty("Health") > 0 )
+                {
+                    pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
+                    agent.SetPosition(new_position);
+                    return true;
+                }
+                //agent's shield has no health and game will end
+                else
+                {
+                    std::cout << "Game over, try again!" << std::endl;
+                    exit(0);  // Halting the program
                 }
             }
+            //item is not a shield and program continues to loop through inventory
+            else
+            {
+                continue;
+            }
+        }
+    }
 
-            //check to see if player has boots on and is walking across tar
-            if (main_grid.At(new_position) == tar_id) {
-                for (const auto &pair: item_map) {
-                    //agent has boots item and will not get stuck on next turn
-                    if (agent.HasItem(pair.first) && pair.second->GetName() == "Boots") {
-                        agent.SetPosition(new_position);
-                        return true;
-                    }
+    //check to see if player has boots on and is walking across tar
+    if( main_grid.At(new_position) == tar_id)
+    {
+        for( const auto &pair : item_map )
+        {
+            //agent has boots item
+            if( agent.HasItem(pair.first) && pair.second->GetName() == "Boots" )
+            {
+                //agent's boots have enough health and will protect player from tar
+                if( pair.second->GetProperty("Health") > 0 )
+                {
+                    pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
+                    agent.SetPosition(new_position);
+                    return true;
+                }
+                //agents boots have no health and will not work
+                else
+                {
+                    break;
                 }
             }
+            //item is not boots and program continues to loop through inventory
+            else
+            {
+                continue;
+            }
+        }
+    }
 
             //check to see if agent is walking on an item
             for (const auto &pair: item_map) {
@@ -149,19 +187,12 @@ namespace group6 {
                 }
             }
 
-
-            // Check if the agent is trying to move onto a spike.
-            if (main_grid.At(new_position) == spike_id) {
-                DamageAgent(agent);
-
-                return false;
-            }
-
-            // Agent is moving onto a key tile and picking it up
-            if (main_grid.At(new_position) == key_id) {
-                agent.SetProperty("key_property", 1.0);
-                main_grid.At(new_position) = floor_id;
-            }
+    // agent is moving onto a key tile and picking it up
+    if( main_grid.At(new_position) == key_id )
+    {
+        agent.SetProperty("key_property", 1.0);
+        main_grid.At(new_position) = floor_id;
+    }
 
             // player is exiting through door with key and ending game
             if (main_grid.At(new_position) == door_id && agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
