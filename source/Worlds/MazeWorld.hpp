@@ -37,6 +37,16 @@ class MazeWorld : public WorldBase {
     // Load map
     main_grid.Read("../assets/grids/default_maze.grid", type_options);
   }
+
+  // Constructor from serialized string
+  explicit MazeWorld(const std::string &str) {
+      std::istringstream is(str);
+      Deserialize(is);
+      floor_id = 1;
+      wall_id = 2;
+      type_options.at(floor_id).SetProperty(CellType::CELL_WALL);
+  }
+
   ~MazeWorld() = default;
 
   /// Allow the agents to move around the maze.

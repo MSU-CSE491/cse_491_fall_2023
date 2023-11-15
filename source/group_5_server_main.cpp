@@ -7,11 +7,47 @@
 // Include the modules that we will be using.
 
 #include "Agents/PacingAgent.hpp"
-#include "Interfaces/NetWorth/server/networkingworld.hpp"
 #include "Interfaces/NetWorth/server/ServerInterface.hpp"
+#include "Worlds/MazeWorld.hpp"
 
 int main() {
-    netWorth::NetworkMazeWorld world;
+    std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
+
+    cse491::MazeWorld world;
+    sf::UdpSocket socket;
+    if (socket.bind(55000) != sf::Socket::Status::Done) {
+        std::cerr << "Failed to bind socket" << std::endl;
+        return 1;
+    }
+
+    std::ostringstream os;
+    world.Serialize(os);
+    std::string serialized = os.str();
+
+//    std::cout << serialized << std::endl;
+//
+//    std::istringstream is(serialized);
+//    world.Deserialize(is);
+
+    sf::Packet recv_pkt, send_pkt;
+    std::optional<sf::IpAddress> ip;
+    unsigned short port;
+    if (socket.receive(recv_pkt, ip, port) != sf::Socket::Status::Done) {
+        std::cerr << "Failed to receive" << std::endl;
+        return 1;
+    }
+    std::cout << ip.value() << std::endl;
+    std::string str;
+    recv_pkt >> str;
+    std::cout << str << std::endl;
+    send_pkt << serialized;
+
+    if (socket.send(send_pkt, ip.value(), port) != sf::Socket::Status::Done) {
+        std::cerr << "Failed to send" << std::endl;
+        return 1;
+    }
+
+
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
     world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@');

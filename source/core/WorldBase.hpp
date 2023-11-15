@@ -391,6 +391,78 @@ public:
     return true;
   }
 
+  /**
+   * Serialize cells into an ostream
+   * @param os ostream
+   */
+  void SerializeTypeOptions(std::ostream &os) {
+    os << ":::START type_options\n";
+    os << type_options.size() << '\n';
+
+    // serialize each important variable/property
+    for (const CellType &cell : type_options) {
+      os << cell.name << '\n';
+      os << cell.desc << '\n';
+      os << cell.symbol << '\n';
+    }
+    os << ":::END type_options\n";
+  }
+
+  /**
+   * Deserialize cells from istream
+   * @param is istream
+   */
+  void DeserializeTypeOptions(std::istream &is) {
+    // find beginning of type_options serialization (after WorldGrid)
+    std::string read;
+    std::getline(is, read, '\n');
+    if (read != ":::START type_options") {
+      std::cerr << "Could not find start of type_options serialization" << std::endl;
+      return;
+    }
+
+    std::string name, desc, symbol_str;
+    char symbol;
+    size_t size;
+
+    // how many cell types?
+    std::getline(is, read, '\n');
+    size = stoi(read);
+
+    // read each cell type
+    for (size_t i = 0; i < size; i++) {
+      std::getline(is, name, '\n');
+      std::getline(is, desc, '\n');
+      std::getline(is, symbol_str, '\n');
+      symbol = symbol_str[0];
+      if (name != "Unknown") type_options.push_back(CellType{name, desc, symbol});
+    }
+
+    std::getline(is, read, '\n');
+    if (read != ":::END type_options") {
+      std::cerr << "Could not find end of type_options serialization" << std::endl;
+      return;
+    }
+  }
+
+  /**
+   * Serialize world grid and cells into ostream
+   * @param os ostream
+   */
+  void Serialize(std::ostream &os) {
+    main_grid.Serialize(os);
+    SerializeTypeOptions(os);
+  }
+
+  /**
+   * Deserialize world grid and cells from istream
+   * @param is
+   */
+  virtual void Deserialize(std::istream &is) {
+    main_grid.Deserialize(is);
+    DeserializeTypeOptions(is);
+  }
+
 };
 
 } // End of namespace cse491

@@ -22,7 +22,24 @@ int main(int argc, char *argv[]) {
     // will probably need to find a way to receive the world from the server first
     // this will be confusing
     // receive initial world, set of agents, etc?? This will have to be separate from ClientInterface
-    cse491::MazeWorld world;
+    sf::UdpSocket socket;
+    sf::Packet send_pkt, recv_pkt;
+    std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(ip_string);
+    std::string serialized;
+
+    send_pkt << "Requesting connection";
+    if (socket.send(send_pkt, ip_addr.value(), port) != sf::Socket::Status::Done) {
+        std::cerr << "Failed to send" << std::endl;
+        return 1;
+    }
+    if (socket.receive(recv_pkt, ip_addr, port) !=  sf::Socket::Status::Done) {
+        std::cerr << "Failed to receive" << std::endl;
+        return 1;
+    }
+    recv_pkt >> serialized;
+    cse491::MazeWorld world(serialized);
+    port = 55002;
+
     world.AddAgent<netWorth::ClientInterface>("Interface", "ip", ip_string, "port", port).SetProperty("symbol", '@');
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
