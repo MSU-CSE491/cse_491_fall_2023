@@ -3,6 +3,7 @@
 #include "Language.hpp"
 
 #include "core/WorldBase.hpp"
+#include "core/EasyLogging.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -14,6 +15,9 @@
 #include "Interfaces/TrashInterface.hpp"
 
 using cse491::AgentBase;
+using clogged::Logger;
+using clogged::Team;
+using clogged::LogLevel;
 
 /// Namespace for scripting language stuff
 namespace worldlang {
@@ -40,10 +44,14 @@ namespace worldlang {
 		
 	// Execution state
 	private:
-		size_t index;
+		/// A map of loaded files to parsed programs
+		std::map<std::string, std::vector<Unit>> scripts;
 		
-		/// Executable code units (set by run())
-		std::vector<Unit> code{};
+		/// Executable code units (set by run(), etc.)
+		std::vector<Unit>* code;
+		
+		/// Program counter
+		size_t index;
 		
 		/// Variables
 		std::map < std::string, Value > variables{};
@@ -127,8 +135,6 @@ namespace worldlang {
 				auto symbol = pe.as<std::string>(args[2]);
 				auto x = pe.as<double>(args[3]);
 				auto y = pe.as<double>(args[4]);
-		//		std::cout << type << "," << name << "," << symbol << ",";
-		//		std::cout << x << "," << y << "\n";
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
@@ -222,7 +228,7 @@ namespace worldlang {
 		/// Begins as if it was nested within this many `start_block` operations.
 		void skipBlock(int nest = 0){
 			do {
-				auto& unit = code.at(++index);
+				auto& unit = code->at(++index);
 				if (unit.type == Unit::Type::operation && unit.value == "start_block") nest++;
 				if (unit.type == Unit::Type::operation && unit.value == "end_block") nest--;
 			} while(nest);
@@ -375,12 +381,23 @@ namespace worldlang {
 		/// @param filename File to load
 		/// @return true if program ran successfully, false if an error occured
 		bool runFile(const std::string& filename){
-			std::ifstream in{filename};
-			std::string s;
-			std::string filedata;
-			while (getline(in, s))
-				filedata += s + '\n';
-			return run(filedata);
+			//TODO: program preprocessing (add newline to end, remove spaces)
+			if (!scripts.count(filename)){
+				std::ifstream in{filename};
+				std::string s;
+				std::string filedata;
+				while (getline(in, s))
+					filedata += s + '\n';
+				
+				scripts[filename] = parse_to_code(filedata);
+				if (scripts[filename].empty()){
+					// implies a parse error
+					error("Error parsing program from file");
+					return false;
+				}
+			}
+			code = &scripts[filename];
+			return run();
 		}
 		
 		/// @brief Executes a program from a string.
@@ -391,17 +408,29 @@ namespace worldlang {
 		/// @param program Program to run.
 		/// @return true if program ran successfully, false if an error occured
 		bool run(const std::string& program){
-			//TODO: program preprocessing (add newline to end, remove spaces)
+			scripts["__STRING_PROGRAM"] = parse_to_code(program);
+			code = &scripts["__STRING_PROGRAM"];
+			if (code->empty()){
+				error("Error parsing program from string");
+				return false;
+			}
+			return run();
+		}
+		
+		bool run(){
+			auto log = Logger::Log();
+			log << Team::TEAM_4 << LogLevel::INFO << "Entering program execution" << std::endl;
+			
 			error_message = "";
-			code = parse_to_code(program);
-			//TODO: check for parse success?
+			
+			log << LogLevel::DEBUG;
 			
 			index = 0;
-			while (error_message.empty() && index < code.size()){
-				auto& unit = code.at(index);
+			while (error_message.empty() && index < code->size()){
+				auto& unit = code->at(index);
 				switch (unit.type){
 					case Unit::Type::number:
-						std::cout << "Push number " << unit.value << std::endl;
+						log << "Push number " << unit.value << std::endl;
 						try {
 							pushStack(std::stod(unit.value));
 						} catch (const std::invalid_argument& e) {
@@ -412,18 +441,18 @@ namespace worldlang {
 						break;
 					
 					case Unit::Type::string:
-						std::cout << "Push string " << unit.value << std::endl;
+						log << "Push string " << unit.value << std::endl;
 						pushStack(unit.value);
 						break;
 					
 					case Unit::Type::identifier:
-						std::cout << "Push identifier " << unit.value << std::endl;
+						log << "Push identifier " << unit.value << std::endl;
 						pushStack(Identifier{unit.value});
 						break;
 					
 					case Unit::Type::operation:
 						// perform operation!
-						std::cout << "Perform operation " << unit.value << std::endl;
+						log << "Perform operation " << unit.value << std::endl;
 						if (unit.value == "="){
 							// values to assign
 							std::vector< Value > values = popArgs();
@@ -560,7 +589,6 @@ namespace worldlang {
 							// this could absolutely be broken but that's OK
 							pushStack(Identifier{"__INTERNAL_ENDARGS"});
 						} else if (unit.value == "start_block"){
-							std::cout << unit.value << std::endl;
 							auto type = as<std::string>(call_stack.top().at(0));
 							if (type == "__FOR_BLOCK"){
 								auto info = call_stack.top();
@@ -594,14 +622,13 @@ namespace worldlang {
 								// this only runs once, don't really need to save this
 								call_stack.pop();
 							}
-//							std::cout << unit.value << std::endl;
 						} else {
 							error("Unknown operation '" + unit.value + "'");
 						}
 						break;
 					
 					case Unit::Type::function:
-						std::cout << "Perform function " << unit.value << std::endl;
+						log << "Perform function " << unit.value << std::endl;
 						if (variables.count(unit.value)){
 							auto& func = variables.at(unit.value);
 							if (std::holds_alternative<Callable>(func)){
@@ -621,9 +648,9 @@ namespace worldlang {
 				index++;
 			}
 			
-			std::cout << "Program execution ends" << std::endl;
+			log << "Program execution ends" << std::endl;
 			if (!error_message.empty()){
-				std::cout << "With error: " << error_message << std::endl;
+				log << LogLevel::WARNING << "With error: " << error_message << std::endl;
 			}
 			
 			return error_message.empty();

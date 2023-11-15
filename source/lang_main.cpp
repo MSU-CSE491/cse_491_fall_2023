@@ -102,35 +102,17 @@ public:
 		if (agent.HasProperty("DoAction")){
 			pe.setVariable("action_id", (double)action_id);
 			pe.runFile(agent.GetProperty<std::string>("DoAction"));
-		} else {
-			GridPosition new_position;
-			switch (action_id) {
-				case REMAIN_STILL: new_position = agent.GetPosition();
-					break;
-				case MOVE_UP: new_position = agent.GetPosition().Above();
-					break;
-				case MOVE_DOWN: new_position = agent.GetPosition().Below();
-					break;
-				case MOVE_LEFT: new_position = agent.GetPosition().ToLeft();
-					break;
-				case MOVE_RIGHT: new_position = agent.GetPosition().ToRight();
-					break;
-			}
-			
-			// Don't let the agent move off the world or into a wall.
-			if (!main_grid.IsValid(new_position)) { return false; }
-			if (!IsTraversable(agent, new_position)) { return false; }
-			
-			// Set the agent to its new postion.
-			agent.SetPosition(new_position);
-			return true;
 		}
 	}
 
-	/// Can walk on all tiles except for walls
-	// Temp hack until more detail is implemented here
-	bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
-		return GetCellTypeSymbol(main_grid.At(pos)) != '#';
+	/// Can walk on all tiles except for walls and water (unless agent has property set)
+	bool IsTraversable(const AgentBase & agent, cse491::GridPosition pos) const override {
+		if (GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL))
+			return false;
+		else if (GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WATER))
+			return agent.HasProperty("Swimmer");
+		else
+			return true;
 	}
 	
 	/// @brief  Add a new type of cell to this world.
@@ -141,10 +123,17 @@ public:
 	size_t AddCellType(const std::string &name, const std::string &desc, char symbol) {
 		return WorldBase::AddCellType(name, desc, symbol);
 	}
+	
+	void SetCellProperty(size_t	id, std::string prop){
+		type_options[id].SetProperty(prop);
+	}
 };
 
 
 DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
+	// Set up constants
+	setVariable("CELL_WALL", CellType::CELL_WALL);
+	setVariable("CELL_WATER", CellType::CELL_WATER);
 	// Create a new cell type
 	registerFunction("addCellType", [this, &world](ProgramExecutor& pe){
 		auto args = pe.popArgs();
@@ -158,8 +147,32 @@ DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
 		std::cout << (int)symbol[0] << "\n";
 		
 		auto id = world.AddCellType(name, desc, symbol[0]);
+		for (size_t i = 3; i < args.size(); ++i){
+			world.SetCellProperty(id, pe.as<std::string>(args[i]));
+		}
 		
 		pe.pushStack(static_cast<double>(id));
+	});
+	// Check if location is valid (on current grid of this world)
+	registerFunction("isValid", [this, &world](ProgramExecutor& pe){
+		auto args = pe.popArgs();
+		if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+		
+		auto x = pe.as<double>(args[0]);
+		auto y = pe.as<double>(args[1]);
+		
+		pe.pushStack(static_cast<double>(world.GetGrid().IsValid(x,y)));
+	});
+	// Check if tile is traversable (for this agent)
+	registerFunction("isTraversable", [this, &world](ProgramExecutor& pe){
+		auto args = pe.popArgs();
+		if (args.size() != 3) { error("Wrong number of arguments!"); return; }
+		
+		auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+		auto x = pe.as<double>(args[1]);
+		auto y = pe.as<double>(args[2]);
+		
+		pe.pushStack(static_cast<double>(world.IsTraversable(world.GetAgent(agent_id), {x,y})));
 	});
 }
 

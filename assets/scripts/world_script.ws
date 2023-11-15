@@ -1,8 +1,8 @@
 _="List of cell types"
 floor=addCellType("floor","An empty space"," ")
-wall=addCellType("wall","A solid wall","#","Solid")
-one=addCellType("one","The number 1","1","Solid")
-two=addCellType("water","A water tile","w","Water")
+wall=addCellType("wall","A solid wall","#",CELL_WALL)
+one=addCellType("one","The number 1","1",CELL_WALL)
+two=addCellType("water","A water tile","w",CELL_WATER)
 three=addCellType("three","The number 3","3","Collectible")
 
 _="Load the actual world"

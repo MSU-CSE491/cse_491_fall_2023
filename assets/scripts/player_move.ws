@@ -14,7 +14,10 @@ if(action_id==MOVE_RIGHT){
 nx,ny=x+1,y
 }
 
-_="if (!main_grid.IsValid(new_position)) { return false; }"
-_="if (!IsTraversable(agent, new_position)) { return false; }"
-
+if(isValid(nx,ny)){
+if(isTraversable(player,nx,ny)){
+_="Only set position if movement is allowed"
+_="TODO check for other agents in this cell"
 setAgentPosition(player,nx,ny)
+}
+}

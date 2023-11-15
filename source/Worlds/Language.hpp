@@ -9,6 +9,12 @@
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/parse_tree.hpp>
 
+#include "core/EasyLogging.hpp"
+
+using clogged::Logger;
+using clogged::Team;
+using clogged::LogLevel;
+
 namespace pegtl = tao::pegtl;
 
 /// Namespace for scripting language stuff
@@ -306,16 +312,11 @@ namespace worldlang{
 		pegtl::string_input in(program, "program");
 		std::vector<Unit> out{};
 		
-		// recursive "count arugments" function
-		std::function<int(const std::unique_ptr<pegtl::parse_tree::node>&)> count =
-		[&count](const std::unique_ptr<pegtl::parse_tree::node>& node) -> int{
-			if (node->children.size() > 1)
-				return 1 + count(node->children[1]);
-			return 1;
-		};
+		auto log = Logger::Log() << Team::TEAM_4 << LogLevel::DEBUG;
+		log << "Entering parser" << std::endl;
 		
 		std::function<void(const std::unique_ptr<pegtl::parse_tree::node>&)> traverse =
-		[&out, &traverse, &count](const std::unique_ptr<pegtl::parse_tree::node>& node) -> void{
+		[&out, &traverse, &log](const std::unique_ptr<pegtl::parse_tree::node>& node) -> void{
 			const std::string_view& type = node->type;
 			// visit:
 			if (type == "worldlang::number"){
@@ -356,14 +357,14 @@ namespace worldlang{
 				}
 			} else if (type == "worldlang::expression_list"
 					|| type == "worldlang::identifier_list"){
-				std::cout << "Traversing " << type << "\n";
+				log << "Traversing " << type << "\n";
 				if (node->children.size()){
 					for (const auto& c : node->children){
 						traverse(c);
 					}
 				}
 			} else if (type == "worldlang::code_block"){
-				std::cout << "Traversing " << type << "\n";
+				log << "Traversing " << type << "\n";
 				out.push_back(Unit{Unit::Type::operation, "start_block"});
 				traverse(node->children.at(0));
 				out.push_back(Unit{Unit::Type::operation, "end_block"});
@@ -373,10 +374,10 @@ namespace worldlang{
 				}
 				out.push_back(Unit{Unit::Type::operation, "endline"});
 			} else {
-				std::cout << "Type: " << type;
+				log << "Type: " << type;
 				if (node->has_content())
-					std::cout << " Content: " << node->string();
-				std::cout << std::endl;
+					log << " Content: " << node->string();
+				log << std::endl;
 				// visit all children
 				for (const auto& child : node->children){
 					traverse(child);
@@ -391,7 +392,7 @@ namespace worldlang{
     		return out;
 		} else {
 			// parse error lol
-			std::cout << "Parse error!!" << std::endl;
+			log << LogLevel::WARNING << "Parse error!!" << std::endl;
 			return {};
 		}
 	}
