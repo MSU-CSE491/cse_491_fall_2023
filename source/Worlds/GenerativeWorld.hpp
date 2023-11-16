@@ -23,10 +23,11 @@ namespace group6 {
         size_t floor_id; ///< Easy access to floor CellType ID.
         size_t wall_id;  ///< Easy access to wall CellType ID.
 
-        size_t spike_id;  ///< Easy access to spike CellType ID.
-        size_t tar_id; ///< Easy access to tar CellTypeID
-        size_t key_id; ///< Easy access to key CellTypeID
-        size_t door_id; ///< Easy access to door CellTypeID
+        size_t spike_id;      ///< Easy access to spike CellType ID.
+        size_t tar_id;        ///< Easy access to tar CellTypeID
+        size_t key_id;        ///< Easy access to key CellTypeID
+        size_t door_id;       ///< Easy access to door CellTypeID
+        size_t teleporter_id; ///< Easy access to teleporter CellTypeId
 
         size_t tree_id;
         size_t grass_id;
@@ -75,8 +76,8 @@ namespace group6 {
 
             tar_id = AddCellType("tar", "Slow tile that makes you take two steps to get through it", 'O');
             key_id = AddCellType("key", "item that can be picked up to unlock door and escape maze", 'K');
-            door_id = AddCellType("door", "Door that can be walked through only with possession of key to leave maze",
-                                  'D');
+            door_id = AddCellType("door", "Door that can be walked through only with possession of key to leave maze",'D');
+            teleporter_id = AddCellType("teleporter", "Teleports agent to other teleporter", 'T');
 
             tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
@@ -95,8 +96,14 @@ namespace group6 {
 
         /// Allow the agents to move around the maze.
         int DoAction(AgentBase &agent, size_t action_id) override {
+            // Skip turn if stuck on tar
+            if (agent.GetProperty("tar_property") == 6.0) {
+                agent.SetProperty("tar_property", 5.0);
+
+                return true;
+            }
+
             // Determine where the agent is trying to move.
-            GridPosition currentPosition = agent.GetPosition();
             GridPosition new_position;
             switch (action_id) {
                 case REMAIN_STILL:
@@ -120,110 +127,66 @@ namespace group6 {
             if (!main_grid.IsValid(new_position)) { return false; }
             if (main_grid.At(new_position) == wall_id) { return false; }
 
-    //check to see if player has shield on and is walking across spike tile
-    if( main_grid.At(new_position) == spike_id )
-    {
-        for( const auto &pair : item_map )
-        {
-            //agent has shield item
-            if( agent.HasItem(pair.first) && pair.second->GetName() == "Shield" )
-            {
-                //agent's shield has enough health and will protect player from spike tile
-                if( pair.second->GetProperty("Health") > 0 )
-                {
-                    pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
-                    agent.SetPosition(new_position);
-                    return true;
-                }
-                //agent's shield has no health and game will end
-                else
-                {
-                    std::cout << "Game over, try again!" << std::endl;
-                    exit(0);  // Halting the program
-                }
-            }
-            //item is not a shield and program continues to loop through inventory
-            else
-            {
-                continue;
-            }
-        }
-    }
+            if (main_grid.At(new_position) == spike_id) { ///< Spike tile check
+                bool spike_immune = false;
 
-    //check to see if player has boots on and is walking across tar
-    if( main_grid.At(new_position) == tar_id)
-    {
-        for( const auto &pair : item_map )
-        {
-            //agent has boots item
-            if( agent.HasItem(pair.first) && pair.second->GetName() == "Boots" )
-            {
-                //agent's boots have enough health and will protect player from tar
-                if( pair.second->GetProperty("Health") > 0 )
-                {
-                    pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
-                    agent.SetPosition(new_position);
-                    return true;
+                //check to see if player has shield on
+                for (const auto &pair: item_map) {
+                    if (agent.HasItem(pair.first) && pair.second->GetName() == "Shield") {
+                        //agent's shield has enough health and will protect player from spike tile
+                        if (pair.second->GetProperty("Health") > 0) {
+                            pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
+                            spike_immune = true;
+
+                            break;
+                        }
+                    }
                 }
-                //agents boots have no health and will not work
-                else
-                {
-                    break;
+
+                // Damage agent if not immune to spike
+                if (!spike_immune) {
+                    DamageAgent(agent);
+                }
+            } else if (main_grid.At(new_position) == tar_id) { ///< Tar tile check
+                bool tar_immune = false;
+
+                //check to see if player has boots on
+                for (const auto &pair: item_map) {
+                    if (agent.HasItem(pair.first) && pair.second->GetName() == "Boots") {
+                        //agent's boots have enough health and will protect player from tar
+                        if (pair.second->GetProperty("Health") > 0) {
+                            pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
+                            tar_immune = true;
+
+                            break;
+                        }
+                    }
+                }
+
+                // Slow agent if not immune to tar
+                if (!tar_immune) {
+                    agent.SetProperty("tar_property", 6.0);
+                }
+            } else if (main_grid.At(new_position) == key_id) { ///< Key tile check
+                // Only player can pick up keys
+                if (agent.IsInterface()) {
+                    agent.SetProperty("key_property", 1.0);
+                    main_grid.At(new_position) = floor_id;
+                }
+            } else if (main_grid.At(new_position) == door_id) { ///< Door tile check
+                // Only player with key can win game
+                if (agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
+                    EndGame(true);
                 }
             }
-            //item is not boots and program continues to loop through inventory
-            else
-            {
-                continue;
-            }
-        }
-    }
 
             //check to see if agent is walking on an item
             for (const auto &pair: item_map) {
                 if (pair.second->GetPosition() == new_position) {
                     //Add item to inventory
                     agent.AddItem(pair.first);
-                }
-            }
 
-    // agent is moving onto a key tile and picking it up
-    if( main_grid.At(new_position) == key_id )
-    {
-        agent.SetProperty("key_property", 1.0);
-        main_grid.At(new_position) = floor_id;
-    }
-
-            // player is exiting through door with key and ending game
-            if (main_grid.At(new_position) == door_id && agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
-                EndGame(true);
-            }
-
-            // Agent is on tar tile and trying to move to a tar tile
-            if (main_grid.At(new_position) == tar_id && main_grid.At(currentPosition) == tar_id) {
-                // Agent is stuck on tar
-                if (agent.GetProperty("tar_property") == 6.0) {
-                    agent.SetProperty("tar_property", 5.0);
-                    new_position = currentPosition;
-                    return false;
-                } else {
-                    agent.SetProperty("tar_property", 6.0);
-                    agent.SetPosition(new_position);
-                    return true;
-                }
-            }
-            // determining if player is moving onto a tar tile and setting tar property to 6.0 if so
-            if (main_grid.At(new_position) == tar_id) {
-                agent.SetProperty("tar_property", 6.0);
-            }
-
-            //Determining if agent is stuck on tar or not
-            if (main_grid.At(currentPosition) == tar_id) {
-                // Agent is stuck on tar
-                if (agent.GetProperty("tar_property") == 6.0) {
-                    agent.SetProperty("tar_property", 5.0);
-                    new_position = currentPosition;
-                    return false;
+                    break;
                 }
             }
 
@@ -232,7 +195,6 @@ namespace group6 {
 
             return true;
         }
-
     };
 
-} // End of namespace cse491
+} // End of namespace group6
