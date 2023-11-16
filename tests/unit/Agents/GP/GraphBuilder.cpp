@@ -12,6 +12,12 @@
 
 using namespace cowboys;
 
+struct MockWorld : cse491::WorldBase {
+  int DoAction(cse491::AgentBase &, size_t) override { return 0; }
+};
+MockWorld world;
+
+
 TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
   constexpr size_t INPUT_SIZE = 10;
   constexpr size_t NUM_OUTPUTS = 10;
@@ -48,7 +54,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
     for (size_t i = 0; i < iterations; ++i) {
       CGPGenotype genotype({INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       genotype.SetSeed(i);
-      genotype.MutateDefault(1);
+      genotype.MutateDefault(1, world);
       auto graph = builder.CartesianGraph(genotype, FUNCTION_SET);
       auto action_to_take = graph->MakeDecision(inputs, actions);
       choose_same_action = choose_same_action && (action_to_take == action);

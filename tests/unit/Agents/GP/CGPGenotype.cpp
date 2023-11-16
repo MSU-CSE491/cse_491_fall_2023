@@ -223,7 +223,7 @@ TEST_CASE("base64", "[group7][base64]") {
   }
 }
 TEST_CASE("Genotype overloads", "[group7][genotype]") {
-  SECTION("operator==") {
+  SECTION("operator== and operator!=") {
     auto genotype = CGPGenotype({7, 2, 0, 10, 3});
     auto genotype2 = CGPGenotype({7, 2, 0, 10, 3});
     CHECK(genotype == genotype2);
