@@ -52,8 +52,7 @@ namespace cowboys {
     void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
-      // genotype.SetSeed(rand());
-      genotype.MutateDefault(mutation);
+      genotype.MutateDefault(mutation, GetWorld());
 
       decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
     }
