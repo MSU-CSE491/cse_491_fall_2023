@@ -65,7 +65,7 @@ namespace cowboys {
 
         auto &[connections, function_idx, output] = *genes_it;
         (*nodes_it)->SetFunctionPointer(function_set.at(function_idx));
-        (*nodes_it)->SetOutput(output);
+        (*nodes_it)->SetDefaultOutput(output);
         
         // Copy the all nodes iterator and move it backwards by the number of connections
         auto nodes_it_copy = all_nodes_it;
