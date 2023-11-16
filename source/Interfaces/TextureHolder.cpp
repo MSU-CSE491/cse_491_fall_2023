@@ -76,6 +76,7 @@ namespace i_2D
         LoadTexture("daggerTexture", "../assets/weapons/dagger.png");
         LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
         LoadTexture("flagTexture", "../assets/weapons/flag.png");
+        LoadTexture("pathTexture", "../assets/Ground_tiles/Grass2.png");
         textures['#'] = GetTexture("wallTexture");
         textures['*'] = GetTexture("trollTexture");
         textures['@'] = GetTexture("agentTexture");
@@ -85,6 +86,7 @@ namespace i_2D
         textures['D'] = GetTexture("daggerTexture");
         textures['C'] = GetTexture("chestTexture");
         textures['g'] = GetTexture("flagTexture");
+        textures[' '] = GetTexture("pathTexture");
         return textures;
     }
     /*
@@ -104,6 +106,7 @@ namespace i_2D
         LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
         LoadTexture("boatTexture", "../assets/weapons/Boat_color1_2.png");
+        LoadTexture("pathTexture", "../assets/Ground_tiles/Sand1.png");
         textures['P'] = GetTexture("axeTexture");
         textures['U'] = GetTexture("boatTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -111,6 +114,7 @@ namespace i_2D
         textures['@'] = GetTexture("agentTexture");
         textures['^'] = GetTexture("treeTexture");
         textures['~'] = GetTexture("waterTexture");
+        textures[' '] = GetTexture("pathTexture");
 
 
         return textures;
@@ -132,6 +136,7 @@ namespace i_2D
         LoadTexture("doorTexture", "../assets/walls/castledoors.png");
         LoadTexture("spikeTexture", "../assets/weapons/Individual_Spike.png");
         LoadTexture("keyTexture", "../assets/weapons/key.png");
+        LoadTexture("pathTexture", "../assets/Ground_tiles/Dirt1.png");
         textures['X'] = GetTexture("spikeTexture");
         textures['O'] = GetTexture("tarTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -139,6 +144,7 @@ namespace i_2D
         textures['@'] = GetTexture("agentTexture");
         textures['D'] = GetTexture("doorTexture");
         textures['K'] = GetTexture("keyTexture");
+        textures[' '] = GetTexture("pathTexture");
 
         return textures;
     }

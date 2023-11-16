@@ -409,7 +409,7 @@ namespace i_2D {
      * @param cellRect The rectangle shape of the cell.
      */
     void MainInterface::DrawEmptyCell(sf::RectangleShape &cellRect) {
-        cellRect.setFillColor(sf::Color::Black);
+//        cellRect.setFillColor(sf::Color::Black);
         mWindow.draw(cellRect);
     }
 
@@ -433,7 +433,7 @@ namespace i_2D {
 
     void MainInterface::DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent) {
         cellRect.setTexture(&agent);
-        cell.setFillColor(sf::Color::Black);
+        cell.setTexture(&mTexturesCurrent[' ']);
         mWindow.draw(cell);
         mWindow.draw(cellRect);
     }
@@ -469,9 +469,9 @@ namespace i_2D {
     void MainInterface::SwitchCellSelect(sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol,
                                          bool isVerticalWall) {
         switch (symbol) {
-            case ' ':
-                DrawEmptyCell(cellRect);
-                break;
+//            case ' ':
+//                DrawEmptyCell(cellRect);
+//                break;
             case '#':
                 DrawWall(cellRect, mTexturesCurrent[symbol], isVerticalWall);
                 break;
