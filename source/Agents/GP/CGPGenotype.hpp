@@ -596,7 +596,8 @@ namespace cowboys {
     /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
     CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions, cse491::WorldBase &world) {
-      Mutate(mutation_rate, [num_functions, &world](CGPNodeGene &node) { node.function_idx = world.GetRandomULL(num_functions); });
+      Mutate(mutation_rate,
+             [num_functions, &world](CGPNodeGene &node) { node.function_idx = world.GetRandomULL(num_functions); });
       return *this;
     }
 
@@ -605,7 +606,8 @@ namespace cowboys {
     /// @param min The minimum value to generate for mutation.
     /// @param max The maximum value to generate for mutation.
     /// @return This genotype.
-    CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, cse491::WorldBase &world, bool additive = true) {
+    CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, cse491::WorldBase &world,
+                               bool additive = true) {
       Mutate(mutation_rate, [mean, std, &world, additive](CGPNodeGene &node) {
         double mutation = std::stod(std::to_string(world.GetRandomNormal(mean, std)));
         if (additive) {
@@ -646,6 +648,15 @@ namespace cowboys {
         all_same = all_same && (*it == *it2); // Compare CGPNodeGenes for equality
       }
       return all_same;
+    }
+
+    /// @brief Write the genotype representation to an output stream.
+    /// @param os The output stream to write to.
+    /// @param genotype The genotype to write.
+    /// @return The output stream.
+    friend std::ostream &operator<<(std::ostream &os, const CGPGenotype &genotype) {
+      os << genotype.ExportRaw();
+      return os;
     }
   };
 } // namespace cowboys
