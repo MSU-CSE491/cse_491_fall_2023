@@ -434,6 +434,10 @@ namespace i_2D {
     void MainInterface::DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent) {
         cellRect.setTexture(&agent);
         cell.setTexture(&mTexturesCurrent[' ']);
+        if(&agent == &mTexturesCurrent['+'])
+        {
+            cellRect.setFillColor(sf::Color::Green);
+        }
         mWindow.draw(cell);
         mWindow.draw(cellRect);
     }
@@ -469,9 +473,6 @@ namespace i_2D {
     void MainInterface::SwitchCellSelect(sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol,
                                          bool isVerticalWall) {
         switch (symbol) {
-//            case ' ':
-//                DrawEmptyCell(cellRect);
-//                break;
             case '#':
                 DrawWall(cellRect, mTexturesCurrent[symbol], isVerticalWall);
                 break;

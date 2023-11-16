@@ -67,7 +67,7 @@ namespace i_2D
         std::map<char, sf::Texture> textures;
 
         // Load textures
-        LoadTexture("wallTexture", "../assets/walls/brick_wall-red.png");
+        LoadTexture("wallTexture", "../assets/walls/wall.png");
         LoadTexture("trollTexture", "../assets/agents/troll.png");
         LoadTexture("agentTexture", "../assets/agents/witch-girl.png");
         LoadTexture("armourTexture", "../assets/weapons/leather_armor.png");
