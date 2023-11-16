@@ -26,5 +26,7 @@ int main() {
 //    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
     world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
 
+    world.AddTeleporters();
+
     world.Run();
 }

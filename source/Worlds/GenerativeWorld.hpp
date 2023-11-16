@@ -91,13 +91,15 @@ namespace group6 {
             biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
             main_grid.Read("../assets/grids/generated_maze.grid", type_options);
+        }
 
+        ~GenerativeWorld() override = default;
+
+        void AddTeleporters() {
             // TODO: remove hard-coded positions
             main_grid.At(2, 5) = teleporter_id;
             main_grid.At(95, 15) = teleporter_id;
         }
-
-        ~GenerativeWorld() override = default;
 
         [[nodiscard]] static vector<GridPosition> FindTiles(WorldGrid grid, size_t tile_id) {
             vector<GridPosition> result;
