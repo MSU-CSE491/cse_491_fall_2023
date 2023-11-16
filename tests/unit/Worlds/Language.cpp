@@ -115,7 +115,7 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::program, "func(3+func2(5))\n");
 		PARSE_TRUE(worldlang::program, "b=64\nfunc(b,23)\n");
 		PARSE_TRUE(worldlang::program, "b=1+2*3/4-5\nc=(8*5)+6-7*(42/7+0)\nfunc(func2(b),func3(c))\n");
-	}
+}
 }
 
 using worldlang::ProgramExecutor;
@@ -248,4 +248,10 @@ TEST_CASE("Program execution errors", "[World][Langauge]"){
 		}
 	}
 
+	SECTION("Check if spaces were removed"){
+			CHECK(worldlang::stripWhitespace("  func (a, b)") == "func(a,b)"); // simple check
+			CHECK(worldlang::stripWhitespace("if(1) {\n\ttest()  \n}\n") == "if(1){\ntest()\n}\n"); // doesn't strip newlines
+			CHECK(worldlang::stripWhitespace("print( \"Hello world\" )   ") == "print(\"Hello world\")"); // doesn't remove spaces from strings
+	}
+	
 }
