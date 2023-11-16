@@ -13,6 +13,11 @@
 
 using namespace cowboys;
 
+struct MockWorld : cse491::WorldBase {
+  int DoAction(cse491::AgentBase &, size_t) override { return 0; }
+};
+MockWorld world;
+
 TEST_CASE("Graph", "[group7][graph]") {
   SECTION("Empty Graph") {
     std::vector<size_t> actions{1, 2, 3, 4};
@@ -53,7 +58,7 @@ TEST_CASE("Graph", "[group7][graph]") {
 
     bool all_same = true;
     for (size_t i = 0; i < 10; ++i) {
-      genotype.MutateDefault(1);
+      genotype.MutateDefault(1, world);
       graph = builder.CartesianGraph(genotype, FUNCTION_SET);
       auto new_action = graph->MakeDecision({1, 2, 3, 4, 5, 6, 7, 8}, {1, 2, 3, 4});
       all_same = all_same && (action == new_action);
