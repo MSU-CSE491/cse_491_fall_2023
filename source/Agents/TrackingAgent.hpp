@@ -16,6 +16,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -57,6 +58,37 @@ class TrackingAgent : public cse491::AgentBase {
   /// How close the target needs to be to begin tracking
   double tracking_distance_ = 50;
 
+  class Alerter {
+    cse491::WorldBase* world_ptr_;
+    std::unordered_set<size_t> agent_network_set_;
+
+    Alerter(cse491::WorldBase* world_ptr, size_t id) : world_ptr_(world_ptr) {
+      assert(world_ptr != nullptr);
+      agent_network_set_.insert(id);
+    }
+
+    void AddAgent(size_t id) {
+      agent_network_set_.insert(id);
+    }
+
+    void RemoveAgent(size_t id) {
+      agent_network_set_.erase(id);
+    }
+
+    void AlertAllTrackingAgents() {
+      for (auto id : agent_network_set_) {
+        auto & agent = world_ptr_->GetAgent(id);
+        assert(reinterpret_cast<TrackingState*>(&agent) != nullptr);
+        auto & tracking_agent = static_cast<TrackingAgent&>(agent);
+        // TODO
+        //
+        //
+        //
+        // TODO
+      }
+    };
+  };
+
  public:
   /**
    * Delete default constructor
@@ -68,8 +100,9 @@ class TrackingAgent : public cse491::AgentBase {
    * @param id unique agent id
    * @param name name of path agent
    */
-  TrackingAgent(size_t id, std::string const &name) : cse491::AgentBase(id, name),
-                                                      inner_(std::in_place_type<PathAgent>, id, name) {}
+  TrackingAgent(size_t id, std::string const &name) :
+    cse491::AgentBase(id, name),
+    inner_(std::in_place_type<PathAgent>, id, name) {}
 
   /**
    * Constructor (vector)
@@ -78,14 +111,10 @@ class TrackingAgent : public cse491::AgentBase {
    * @param offsets collection of offsets to move the agent
    * @attention The sequence of offsets must not be empty
    */
-  TrackingAgent(size_t id, std::string const &name, std::vector<cse491::GridPosition> &&offsets) : cse491::AgentBase(id,
-                                                                                                                     name),
-                                                                                                   inner_(std::in_place_type<
-                                                                                                              PathAgent>,
-                                                                                                          id,
-                                                                                                          name,
-                                                                                                          offsets),
-                                                                                                   offsets_(offsets) {}
+  TrackingAgent(size_t id, std::string const &name, std::vector<cse491::GridPosition> &&offsets) :
+    cse491::AgentBase(id, name),
+    inner_(std::in_place_type<PathAgent>, id, name, offsets), offsets_(offsets) {}
+
   /**
    * Constructor (string view)
    * @param id unique agent id
@@ -94,8 +123,8 @@ class TrackingAgent : public cse491::AgentBase {
    * @attention The sequence of offsets must not be empty
    */
   TrackingAgent(size_t id, std::string const &name, std::string_view commands) :
-      cse491::AgentBase(id, name),
-      inner_(std::in_place_type<PathAgent>, id, name, commands), offsets_(StrToOffsets(commands)) {}
+    cse491::AgentBase(id, name),
+    inner_(std::in_place_type<PathAgent>, id, name, commands), offsets_(StrToOffsets(commands)) {}
 
   /**
    * Destructor
