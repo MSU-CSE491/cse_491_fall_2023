@@ -363,5 +363,12 @@ TEST_CASE("Program execution errors", "[World][Langauge]"){
 			CHECK(!pe.getErrorMessage().empty());
 		}
 	}
+}
 
+TEST_CASE("Space stripping", "[Langauge]"){
+	SECTION("Check if spaces were removed"){
+		CHECK(worldlang::stripWhitespace("  func (a, b)") == "func(a,b)"); // simple check
+		CHECK(worldlang::stripWhitespace("if(1) {\n\ttest()  \n}\n") == "if(1){\ntest()\n}\n"); // doesn't strip newlines
+		CHECK(worldlang::stripWhitespace("print( \"Hello world\" )   ") == "print(\"Hello world\")"); // doesn't remove spaces from strings
+	}
 }

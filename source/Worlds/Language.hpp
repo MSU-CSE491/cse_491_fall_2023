@@ -19,6 +19,27 @@ namespace pegtl = tao::pegtl;
 
 /// Namespace for scripting language stuff
 namespace worldlang{
+	/**
+	 * function to strip whitespace
+	*/
+	std::string stripWhitespace(const std::string& input) {
+        std::string result;
+        bool insideString = false;
+
+        for (char c : input) {
+            if (c == '\"') {
+                insideString = !insideString;
+            }
+			// https://en.cppreference.com/w/cpp/string/byte/isspace
+            if (!insideString && std::isspace(c) && c != '\n') {
+                // Skip whitespace outside of strings, excluding newlines
+                continue;
+            }
+            result += c;
+        }
+        return result;
+    }
+	
 	// Equivalent regex
 	// \-?[0-9]+(.[0-9]+)?
 	struct number : pegtl::seq < 
@@ -309,6 +330,9 @@ namespace worldlang{
 	 * Converts a program string into code units using PEGTL
 	 */
 	std::vector<Unit> parse_to_code(std::string program){
+
+		
+
 		pegtl::string_input in(program, "program");
 		std::vector<Unit> out{};
 		

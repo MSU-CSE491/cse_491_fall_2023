@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Jim Harbaugh",
+        "x": 7,
+        "y": 8,
+        "hp": 1000,
+        "entities": [
+            "invisibility_cloak"
+        ],
+        "hasInventory": false
+    }
+]

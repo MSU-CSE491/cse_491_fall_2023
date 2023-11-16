@@ -42,7 +42,8 @@ class SecondWorld : public cse491::WorldBase {
     MOVE_UP,
     MOVE_DOWN,
     MOVE_LEFT,
-    MOVE_RIGHT
+    MOVE_RIGHT,
+    DROP_ITEM
   };
 
   /// Easy access to floor CellType ID.
@@ -54,8 +55,12 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to wall CellType ID.
   size_t wall_id;
 
-  /// Easy access to Entity char
-  const size_t entity_id = '+';
+  /// Will pretend this is the agent's inventory
+  std::vector<size_t> inventory;
+
+  /// Map of the chests that hold items
+  // TODO: No longer need b/c entities can have inventories which include agents and items
+  std::map<cse491::ItemBase, std::vector<cse491::ItemBase>> chest_map;
 
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
@@ -63,6 +68,7 @@ class SecondWorld : public cse491::WorldBase {
     agent.AddAction("down", MOVE_DOWN);
     agent.AddAction("left", MOVE_LEFT);
     agent.AddAction("right", MOVE_RIGHT);
+    agent.AddAction("drop", DROP_ITEM);
   }
 
  public:
@@ -152,15 +158,12 @@ class SecondWorld : public cse491::WorldBase {
     }
   }
 
-  void UpdateWorld() override {}
-
   /**
    * This function gives us an output.json file
    */
   virtual void Run() override {
     while (!run_over) {
       RunAgents();
-      UpdateWorld();
     }
 
     SaveToFile();
@@ -190,9 +193,110 @@ class SecondWorld : public cse491::WorldBase {
     ofs << output_data.dump(2);        // indentation
   }
 
+
+    // TODO: we should also add a dropping feature, agent can drop an item at any point in the game,
+    //  does not necessarily have to be at a chest location
   /**
-   * Allows agents to move around the maze.
-   * Also checks if the next agent position will be the win flag.
+   * Drops the item in the agent's inventory
+   * @param agent This agent's item we're dropping
+   * @param pos The position where the item will be dropped
+   */
+  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+
+  }
+
+  /**
+   * Checks to see if there is a flag or item at the agent's current position
+   * @param agent The agent
+   * @param pos The position
+   */
+  void CheckPosition(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+      // First check to see if agent is on win flag
+      if ((main_grid.At(pos) == flag_id) && (agent.IsInterface())) {
+          // Set win flag to true
+
+          // TODO: Confirm 2nd param
+          agent.Notify("Flag found ", "item_alert");
+
+          agent.Notify("Leaving " + world_filename, "world_switched");
+
+          if (world_filename == FIRST_FLOOR_FILENAME) {
+              agent.Notify("Going to " + SECOND_FLOOR_FILENAME, "world_switched");
+
+              world_filename = SECOND_FLOOR_FILENAME;
+              agents_filename = "../assets/second_floor_input.json";
+
+              // Need to clear item_map so that items don't stay for the next floor.
+              item_map.clear();
+
+              // Resetting the current new_position to the top left of the new grid.
+              pos = cse491::GridPosition(0, 0);
+              main_grid.Read(SECOND_FLOOR_FILENAME, type_options);
+              LoadFromFile(agents_filename);
+
+          } else if (world_filename == FINAL_FLOOR_FILENAME) {
+              agent.Notify("Congrats, you won the game!", "congrats_msg");
+              run_over = true;
+          }
+
+      // then checks if agent is on any items
+      } else {
+          auto items_found = FindItemsAt(pos, 0);
+          // If there are items at this position
+          if (!items_found.empty() && agent.IsInterface()) {
+              auto& item_found = GetItem(items_found.at(0));
+
+              // Item is a chest
+              if (item_found.HasProperty("Chest")) {
+                  // TODO: Check to see if the chest is empty, if !empty -> move them to agent's inventory
+                  // TODO: If we are able to set the ownership of the items to the chest,
+                  //  we should be able to check what item's the chest owns, rather than checking to see what items are on that GridPosition
+
+                  if (!item_found.GetInventory().empty()) {
+                      auto temp_inventory = item_found.GetInventory();
+                      std::cout << "This is inside the chest: " << std::endl;
+                      for (auto x : temp_inventory) {
+                          std::cout << "Name: " << GetItem(x).GetName() << " -- ID: " << x << std::endl;
+                      }
+
+                       agent.Notify("If you would like all the items, enter '0'; otherwise enter the number seperated by a comma for which item(s) you would like!", "item_alert");
+
+                      // TODO: Need to determine max size of inventory
+                      if (agent.GetInventory().size() == 10) {
+                          agent.Notify("It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
+                      }
+
+                   } else {
+                       agent.Notify("The chest is empty! Do you want to store any items in here?", "item_alert");
+                   }
+
+              } else {
+                  if (agent.GetInventory().size() == 10) {
+                      agent.Notify("It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
+                  } else {
+                      agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
+
+                      // Transfer ownership to agent
+                      item_found.SetOwner(agent);
+
+                      // Removes item from item_map
+                      RemoveItem(item_found.GetID());
+
+                      // Change the grid position to floor_id, so it's not seen on the grid
+                      main_grid.At(pos) = floor_id;
+                  }
+              }
+          }
+      }
+  }
+
+  // TODO: I think we should break up the DoAction into smaller functions instead of having one really large
+  //  function. Would be easier to read and it's not good to mix multiple functions into one...
+  /**
+   * Allows agents to perform an action and sets each agent's new position
+   * @param agent The agent performing the action
+   * @param action_id The id that represents the move
+   * @return An int that declares if the move is legal or illegal (true / false)
    */
   int DoAction(cse491::AgentBase& agent, size_t action_id) override {
     cse491::GridPosition new_position;
@@ -212,7 +316,11 @@ class SecondWorld : public cse491::WorldBase {
       case MOVE_RIGHT:
         new_position = agent.GetPosition().ToRight();
         break;
+      case DROP_ITEM:
+          DropItem(agent, new_position);
+        break;
     }
+
     if (!main_grid.IsValid(new_position)) {
       return false;
     }
@@ -220,68 +328,7 @@ class SecondWorld : public cse491::WorldBase {
       return false;
     }
 
-    if ((main_grid.At(new_position) == flag_id) && (agent.GetName() == "Interface")) {
-      // Set win flag to true
-      std::cout << "flag found" << std::endl;
-
-      agent.Notify("Leaving " + world_filename, "world_switched");
-
-      if (world_filename == FIRST_FLOOR_FILENAME) {
-        agent.Notify("Going to " + SECOND_FLOOR_FILENAME, "world_switched");
-
-        world_filename = SECOND_FLOOR_FILENAME;
-        agents_filename = "../assets/second_floor_input.json";
-
-        // Need to clear item_map so that items don't stay for the next floor.
-        item_map.clear();
-
-        // Resetting the current new_position to the top left of the new grid.
-        new_position = cse491::GridPosition(0, 0);
-        main_grid.Read(SECOND_FLOOR_FILENAME, type_options);
-        LoadFromFile(agents_filename);
-      } else if (world_filename == FINAL_FLOOR_FILENAME) {
-        agent.Notify("Congrats, you won the game!", "congrats_msg");
-        run_over = true;
-      }
-    }
-
-    // TODO: we need to tell the world which level we're on so we know which grid to look at for items
-    // TODO: we should also add a dropping feature, agent can drop an item at any point in the game, does not necessarily have to be at a chest location
-    auto items_found = FindItemsAt(new_position, 0);
-    // If there are items at this position
-    if (!items_found.empty() && agent.GetName() == "Interface") {
-      auto& item_found = GetItem(items_found.at(0));
-
-      // Item is a chest
-      if (item_found.HasProperty("Chest")) {
-          // TODO: Check to see if the chest is empty, if !empty -> move them to agent's inventory
-          // TODO: If we are able to set the ownership of the items to the chest,
-          //  we should be able to check what item's the chest owns, rather than checking to see what items are on that GridPosition
-
-//           if (!chest.GetOwnedItems().empty()) {
-//               agent.Notify("You found a chest that contains: {}", "item_alert");
-//               agent.Notify("If you would like all the items, enter '0'; otherwise enter the number seperated by a comma for which item(s) you would like!", "item_alert");
-//
-//               // TODO: If the agent's inventory is full, prompt player they can remove items if they want to
-//               agent.Nofity("It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
-//           } else {
-//               agent.Notify("The chest is empty! Do you want to store any items in here?", "item_alert");
-//           }
-
-      } else {
-          // TODO: We should also check to see if the inventory is full, if so, agent cannot pickup item and is notified
-        agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
-
-        // Transfer ownership to agent
-        item_found.SetOwner(agent);
-
-        // Removes item from item_map
-        RemoveItem(item_found.GetID());
-
-        // Change the grid position to floor_id, so it's not seen on the grid
-        main_grid.At(new_position) = floor_id;
-      }
-    }
+    CheckPosition(agent, new_position);
 
     agent.SetPosition(new_position);
     return true;

@@ -48,17 +48,30 @@ int main()
   axe->SetGrid(level_zero);
   world.AddItem(std::move(axe));
 
+  // Adding a dagger with id = 4; name = Electric Dagger
   auto dagger = std::make_unique<cse491::ItemBase>(4, "Electric Dagger");
   dagger->SetProperties("symbol", 'D', "Damage", 25);
   dagger->SetPosition(6, 2);
   dagger->SetGrid(level_zero);
   world.AddItem(std::move(dagger));
 
+  // Adding a chest with id = 5; name = Ender Chest
   auto chest = std::make_unique<cse491::ItemBase>(5, "Ender Chest");
   chest->SetProperties("symbol", 'C', "Chest", 0);
   chest->SetPosition(0, 4);
   chest->SetGrid(level_zero);
-  world.AddItem(std::move(chest));
+  auto& temp_chest = world.AddItem(std::move(chest));
+
+  // Adding an item that will be owned by the chest w/ id = 6; name = Diamond
+  auto temp_item1 = std::make_unique<cse491::ItemBase>(6, "Diamond");
+  // TODO: Should we allow the symbol to be empty? Not setting the position will always default to (0, 0).
+  //  This may be a problem if we later want to drop the item. It will not show unless we change the property value
+  temp_item1->SetProperties("symbol", ' ', "Currency", 100);
+
+  auto& temp = world.AddItem(std::move(temp_item1));
+  temp_chest.AddItem(temp);
+
+//  world.AddItem(std::move(chest));
 
   world.Run();
 }
