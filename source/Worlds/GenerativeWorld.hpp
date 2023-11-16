@@ -13,6 +13,7 @@
 
 namespace group6 {
     using namespace cse491;
+    using std::vector;
 
     class GenerativeWorld : public WorldBase {
     protected:
@@ -90,9 +91,27 @@ namespace group6 {
             biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
             main_grid.Read("../assets/grids/generated_maze.grid", type_options);
+
+            // TODO: remove hard-coded positions
+            main_grid.At(2, 5) = teleporter_id;
+            main_grid.At(95, 15) = teleporter_id;
         }
 
         ~GenerativeWorld() override = default;
+
+        [[nodiscard]] static vector<GridPosition> FindTiles(WorldGrid grid, size_t tile_id) {
+            vector<GridPosition> result;
+
+            for (size_t x = 0; x < grid.GetWidth(); ++x) {
+                for (size_t y = 0; y < grid.GetHeight(); ++y) {
+                    if (grid.At(x, y) == tile_id) {
+                        result.emplace_back(x, y);
+                    }
+                }
+            }
+
+            return result;
+        }
 
         /// Allow the agents to move around the maze.
         int DoAction(AgentBase &agent, size_t action_id) override {
@@ -166,6 +185,16 @@ namespace group6 {
                 // Slow agent if not immune to tar
                 if (!tar_immune) {
                     agent.SetProperty("tar_property", 6.0);
+                }
+            } else if (main_grid.At(new_position) == teleporter_id) { ///< Teleporter tile check
+                vector<GridPosition> teleporters = FindTiles(main_grid, teleporter_id);
+
+                for (GridPosition teleporter: teleporters) {
+                    if (new_position != teleporter) {
+                        new_position = teleporter;
+
+                        break;
+                    }
                 }
             } else if (main_grid.At(new_position) == key_id) { ///< Key tile check
                 // Only player can pick up keys
