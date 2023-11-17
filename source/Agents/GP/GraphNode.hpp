@@ -213,7 +213,7 @@ namespace cowboys {
 //    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
 //                                 [](const double val) { return std::sin(val); });
 
-    std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::sin(val); });
   }
 
