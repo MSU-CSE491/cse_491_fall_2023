@@ -27,8 +27,8 @@ TEST_CASE("Copying", "[group7][agent]") {
     CHECK(agent.GetInstructionsList() != agent2.GetInstructionsList());
     
     // Generic references to LGPAgent
-    GPAgent_ &agent_ref = agent;
-    GPAgent_ &agent2_ref = agent2;
+    GPAgentBase &agent_ref = agent;
+    GPAgentBase &agent2_ref = agent2;
     agent2_ref.Copy(agent_ref); // Copy agent into agent2
     CHECK(agent.GetInstructionsList() == agent2.GetInstructionsList());
   }
