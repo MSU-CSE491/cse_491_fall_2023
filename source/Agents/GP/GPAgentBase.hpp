@@ -56,15 +56,15 @@ namespace cowboys {
     /// @param other The agent to copy. Should be the same type.
     virtual void Copy(const GPAgentBase &other) = 0;
 
-    virtual void printAgent(){
+    virtual void PrintAgent(){
 
     };
 
-    virtual void serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, int fitness = -1) = 0;
+    virtual void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, int fitness = -1) = 0;
 
     virtual std::string Export() { return ""; }
 
-    virtual void reset() { extra_state["previous_action"] = 0; };
+    virtual void Reset(bool hard = false) { extra_state["previous_action"] = 0; };
 
     //    virtual void crossover(const GPAgentBase &other) {};
     //    virtual void Import(const std::string &genotype) {};

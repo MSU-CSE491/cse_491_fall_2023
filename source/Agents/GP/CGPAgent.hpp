@@ -45,7 +45,7 @@ namespace cowboys {
         : GPAgentBase(id, name), genotype(genotype) {}
 
 
-    void printAgent() override {
+    void PrintAgent() override {
       std::cout << "Genotype: " << genotype.Export() << std::endl;
     }
 
@@ -81,7 +81,7 @@ namespace cowboys {
     }
 
 
-    void serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, int fitness = -1) override {
+    void Serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, int fitness = -1) override {
       auto agentElem = doc.NewElement("CGPAgent");
       parentElem->InsertEndChild(agentElem);
 

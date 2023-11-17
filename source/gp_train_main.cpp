@@ -18,6 +18,12 @@ int main() {
 //    //GP agent
 //    world.AddAgent<cowboys::LGPAgent>("GP 1").SetPosition(1, 0).SetProperty("symbol", 'G');
 
+#ifdef  __gnu__
+    std::cout << "Clang" << std::endl;
+#else
+    std::cout << "Not Clang" << std::endl;
+#endif
+
 
     const int num_threads = std::thread::hardware_concurrency();
     std::cout << "Number of threads: " << num_threads << std::endl;

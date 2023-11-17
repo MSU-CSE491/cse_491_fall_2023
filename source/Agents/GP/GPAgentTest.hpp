@@ -61,7 +61,7 @@ namespace cowboys {
         /// @param other The agent to copy. Should be the same type.
         virtual void Copy(const GPAgentBase &other) {};
 
-        virtual void printAgent() {};
+        virtual void PrintAgent() {};
 
         virtual std::string Export() { return ""; }
 

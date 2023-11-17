@@ -314,9 +314,9 @@ namespace cowboys {
 
           for (int i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
+            agents[arenaIDX][agentIDX]->Serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
 
-            agents[arenaIDX][agentIDX]->serialize(lastGenerationsDoc, lastGenerationsRoot,
+            agents[arenaIDX][agentIDX]->Serialize(lastGenerationsDoc, lastGenerationsRoot,
                                                   TEMPAgentFitness[arenaIDX][agentIDX]);
           }
 
@@ -541,7 +541,7 @@ namespace cowboys {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
               agents[arena][a]->SetPosition(TEMPinitialAgentPositions[arena][a]);
-              agents[arena][a]->reset();
+              agents[arena][a]->Reset();
             }
           }
 

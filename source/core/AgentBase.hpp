@@ -101,7 +101,7 @@ namespace cse491 {
                         const std::string & /*msg_type*/="none") { }
 
 
-//    virtual void serialize(std::ostream & os) {};
+//    virtual void Serialize(std::ostream & os) {};
 //
 //    virtual void deserialize(std::istream & is) {};
 //

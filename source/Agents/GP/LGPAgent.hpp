@@ -196,6 +196,6 @@ namespace cowboys
             return 0;
         }
 
-        void serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *, int fitness = -1) override {}
+        void Serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *, int fitness = -1) override {}
     };
 }
