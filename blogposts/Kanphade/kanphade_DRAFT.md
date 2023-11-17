@@ -1,12 +1,29 @@
 # An Efficiency Comparison between Hash Maps and Bloom Filters in C++
 
-Monika Kanphade - October 14<sup>th</sup>, 2023
+Monika Kanphade - November 9<sup>th</sup>, 2023
 
 ### What is a Hash Map?
 
 Hash Maps are a data structure resembling a dictionary, storing elements in a key-value fashion. \
 They use buckets to store values in unique keys determined by hash functions. \
 The keys are unique indexes into the data structure that allow efficient retrival of a certain value from the lookup table.
+
+<b>How does it work?</b>
+
+Hash Maps work like a dictionary storing key-value pairs. The specific bucket that the key-value pair \
+ gets mapped to is dependant on the Hash Function used to calculate it. 
+
+For example, if you wanted to store numbers efficiently, one hash function you could use to store them \
+ in seperate buckets would be to differentiate based on the digit in the tens place of each number, \
+ resulting in buckets for digits 0-9. 
+
+- The number 13 would go in Bucket 3  
+- The number 27 would go in Bucket 7  
+- The number 5 would go in Bucket 5  
+- The number 147238674 would go in Bucket 4  
+
+Retrieval or search of the values is based on running the key through the Hash Function and determining if the \
+exact value is present in the location returned.
 
 <img title="Hash map example" alt="Hash map example" src="images/hash_map.png" width=500>
 
@@ -34,12 +51,45 @@ int main() {
 }
 ```
     
+---
+
 ### What is a Bloom filter?
 
 Bloom filters are a probabalistic data structure that determine if a given key has been seen by the structure before. \
 Oftentimes, they are used to determine data that has not been seen yet for particularly large datasets, however, \
 the larger the dataset the more likely the bloom filter is to report a false positive (i.e. claiming that a key has been \
 seen before when it hasn't).
+
+<b>How does it work?</b>
+
+A Bloom Filter works similarly to a Hash Map, with some distinct differences. It works like a dictionary, however, \
+instead of storing the exact key-value pairs, it stores a numerical representation (usually a bit representation) \
+of the value. It determines what bits are to be set (in a sequence of <i>n</i> bits determined at initialization of \
+the Bloom Filter), by one or more Hash Functions. 
+
+For example, using keys from the image below, we can initialize the Bloom Filter's length <i>n</i> to 12 bits, \
+all set to 0. According to a Hash Function (I won't specifiy the details of how it works for simplicity's sake), \
+if I input the word 'cat' the function might output bits 1 and 6 to be set (starting from 0).
+
+- The word 'cat' sets bits 1 and 6  
+- The word 'dog' sets bits 0 and 9  
+- The word 'hat' sets bits 4 and 8  
+
+In order to check whether one of these words is present in the Bloom Filter, you would simply evaluate the Hash Function \
+for that word and if all the calculated bits are set to a 1, then it has <b>most likely</b> been seen.
+
+I say most likely under the pretense that the calculation may be a false positive. The idea of false positives comes \
+from the idea that the more bits set, the less unique the encoding of the word becomes. 
+
+In our example, say you want to know whether the word 'hog' has been seen or not. You run it through the Hash Function \
+and it calculates that bits 4 and 9 must be set to 1 in order to return <i>True</i>. Well, looking at our Bloom Filter, \
+we can say that bits 4 and 9 have been set to 1, but not necessarily together. They were set under the context of other \
+words being seen. This pattern would mean that the Bloom Filter returning <i>True</i> for the word 'hog' would be a \
+false positive as we never actually saw it.
+
+Some ways to reduce the number of false postives appearing in your Bloom Filter search would be to increase the \
+size of the array of bits, increase the number of Hash Functions used to create more unique outcomes in which bits to set, \
+or reduce the size of the data being input.
 
 <img title="Bloom filter example" alt="Bloom filter example" src="images/bloom_filter.png" width=500>
 
