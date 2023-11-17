@@ -23,6 +23,7 @@ cmake-build-*/
 #mac
 .DS_Store
 
-savedata/
+#savedata/ #issues with xml save location
 
-AgentData_*.xml
+savedata/GPAgent/*.xml
+#AgentData_*.xml
