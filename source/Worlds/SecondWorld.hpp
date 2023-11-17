@@ -20,7 +20,7 @@ const std::string FIRST_FLOOR_FILENAME = "../assets/grids/group4_maze.grid";
 const std::string SECOND_FLOOR_FILENAME = "../assets/grids/second_floor.grid";
 
 /// @brief Filename for the last floor grid file
-const std::string FINAL_FLOOR_FILENAME = SECOND_FLOOR_FILENAME;
+const std::string FINAL_FLOOR_FILENAME = "../assets/grids/third_floor.grid";
 
 /**
  * Creates a world with agents and a win flag
@@ -41,7 +41,8 @@ class SecondWorld : public cse491::WorldBase {
     MOVE_DOWN,
     MOVE_LEFT,
     MOVE_RIGHT,
-    DROP_ITEM
+    DROP_ITEM,
+    WARP_TO_FLOOR_3 // New action for hidden warp tile
   };
 
   /// Easy access to floor CellType ID.
@@ -52,6 +53,9 @@ class SecondWorld : public cse491::WorldBase {
 
   /// Easy access to wall CellType ID.
   size_t wall_id;
+
+  // Add identifier for the hidden warp tile
+  size_t hidden_warp_id;
 
   /// Will pretend this is the agent's inventory
   std::vector<size_t> inventory;
@@ -67,6 +71,8 @@ class SecondWorld : public cse491::WorldBase {
     agent.AddAction("left", MOVE_LEFT);
     agent.AddAction("right", MOVE_RIGHT);
     agent.AddAction("drop", DROP_ITEM);
+    // Add the new action for the hidden warp tile
+    agent.AddAction("warp", WARP_TO_FLOOR_3);
   }
 
  public:
@@ -79,7 +85,10 @@ class SecondWorld : public cse491::WorldBase {
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
+    hidden_warp_id = AddCellType("hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
+
     main_grid.Read(FIRST_FLOOR_FILENAME, type_options);
+    
   }
 
   /**
@@ -94,8 +103,9 @@ class SecondWorld : public cse491::WorldBase {
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
-    main_grid.Read(grid_filename, type_options);
+     hidden_warp_id = AddCellType("hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
 
+    main_grid.Read(grid_filename, type_options);
     LoadFromFile(agent_filename);
   }
 
@@ -238,7 +248,30 @@ class SecondWorld : public cse491::WorldBase {
           }
 
       // then checks if agent is on any items
-      } else {
+      } 
+      else if ((main_grid.At(pos) == hidden_warp_id) && (agent.IsInterface())) {
+        // Agent used the hidden warp tile action
+        std::cout << "Hidden warp tile activated! Warping to floor 3." << std::endl;
+
+        agent.Notify("Leaving " + world_filename, "world_switched");
+
+        // Update the world to floor 3
+        world_filename = "../assets/grids/third_floor.grid";
+        agents_filename = "../assets/final_floor_input.json";
+
+        // Clear item_map for the next floor
+        item_map.clear();
+
+        // Reset the current new_position to the top left of the new grid.
+        pos = cse491::GridPosition(0, 0);
+        main_grid.Read(FINAL_FLOOR_FILENAME, type_options);
+        LoadFromFile(agents_filename);
+
+        // Update the agent's position on the new floor
+        agent.SetPosition(pos);
+
+      }
+      else {
           auto items_found = FindItemsAt(pos, 0);
           // If there are items at this position
           if (!items_found.empty() && agent.IsInterface()) {
@@ -316,7 +349,7 @@ class SecondWorld : public cse491::WorldBase {
         break;
       case DROP_ITEM:
           DropItem(agent, new_position);
-        break;
+        break;      
     }
 
     if (!main_grid.IsValid(new_position)) {
