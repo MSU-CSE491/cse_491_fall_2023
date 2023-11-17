@@ -28,6 +28,8 @@
 
 namespace cowboys {
 
+  unsigned int TRAINING_SEED = 111;
+
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
     private:
@@ -80,7 +82,7 @@ namespace cowboys {
 
           for (size_t i = 0; i < numArenas; ++i) {
             // instantiate a new environment
-            environments.emplace_back(new EnvironmentType());
+            environments.emplace_back(new EnvironmentType(TRAINING_SEED));
 
 
             agents.emplace_back(std::vector<cowboys::GPAgentBase *>());
