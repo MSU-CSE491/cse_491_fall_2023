@@ -14,7 +14,7 @@ Since this project is still in use for the course, I won't go into the specifics
 ### Part 1 -  Value Iteration
 As described in the project, value iteration computes *k*-step estimates of the optimal values, $V_k$. In simpler terms, it looks at Pacman's "score" at each possible step, and picks the direction that optimizes that score. This happens in a batch, meaning the best values at *every* possible state are calculated. Provided in the project specs was the following image, which demonstrates how taking certain steps from the bottom left starting position could result in better scores.
 
-![ID: A 4 by 3 grid of squares ranging from black to light green, with values ranging from zero to one written on them respectively. There is also a single red square with a value of negative one.](https://inst.eecs.berkeley.edu/~cs188/sp12/projects/reinforcement/value.png)
+![ID: A 4 by 3 grid of squares ranging from black to light green, with values ranging from zero to one written on them respectively. There is also a single red square with a value of negative one.](iterationsquares.png)
 
 To begin with, I prompted ChatGPT with the following:
 
@@ -26,7 +26,7 @@ The resulting code was pretty solid, as it knew to keep track of the maximum Q-v
 
 I also asked ChatGPT to write the `computeActionFromValues(state)` and the `computeQValueFromValues(state, action)` functions, but because these were simple implementations that involved iterating over every possible Q-Value and action, things looked clean from the outset. The only sticking point was in the Q-Value function, where there was some confusion with the math being performed. Ideally, it would perform in accordance with the value iteration state update equation:
 
-$$ V_{k+1}(s) \leftarrow \max _{a} \sum_{s^{\prime}} T\left(s, a, s^{\prime}\right)\left[R\left(s, a, s^{\prime}\right)+\gamma V_{k}\left(s^{\prime}\right)\right] $$
+![value iteration state update equation image](iterationequation.png)
 
 Or, equivalently:
 
@@ -36,10 +36,12 @@ In this equation, 'gamma' is the discount factor, ranging from 0 to 1. As gamma 
 
 In terms of how this mattered to Pacman, consider the following images:
 
-![ID: A wide screen with Pacman at the far right, near some food pellets. There are two ghosts far away from him on the left.](https://www.researchgate.net/profile/Baihan-Lin-2/publication/341344004/figure/fig4/AS:890654011977729@1589359872283/Layout-of-an-ongoing-PacMan-game.ppm)
+![ID: A wide screen with Pacman at the far right, near some food pellets. There are two ghosts far away from him on the left.](goodposition.png)
+
 Pacman is in a very desirable position here - he has plenty of food pellets nearby, and with Inky and Clyde far away, he is not in any immediate danger. He could keep gathering food pellets and staying alive, both of which are worth points. Since this would result in a higher score for this sort of position (one where Pacman is near food pellets, but not near ghosts), positions (or "states") similar to this one would be correlated to a higher score, or "value."
 
-![ID: A wide screen with Pacman at the right, directly adjacent to a ghost. A second ghost is very close by, and a third is far away from him on the left. A single large food pellet is diagonal to him.](https://inst.eecs.berkeley.edu/~cs188/sp12/projects/reinforcement/capsule.png)
+![ID: A wide screen with Pacman at the right, directly adjacent to a ghost. A second ghost is very close by, and a third is far away from him on the left. A single large food pellet is diagonal to him.](badposition.png)
+
 Here, Pacman is much worse off. He is only one wrong step away from dying to Clyde, and a few moves away from being caught by another ghost. Additionally, he only has one food pellet readily available, even if it is a bigger one - these functions don't know that power pellets would normally let Pacman eat a ghost. All of this together would result in a position similar to this (near a ghost, and not near much food) having a very low score, or "value," so the corresponding state would not be prioritized as much in the functions above.
 
 Taken together, if these two states were fed to the function, the one assigned to $V_{k+1}(s)$ would be the state with the better value - namely, the first of the two. Over a greater number of states with less obvious differences, it becomes more important to select one with a higher value, while also considering the probability of ever *reaching* that state.
@@ -58,7 +60,8 @@ This version of the iteration is 'asynchronous' because it only updates one stat
 
 Consider again the first image provided in Part 1:
 
-![ID: A 4 by 3 grid of squares ranging from black to light green, with values ranging from zero to one written on them respectively. There is also a single red square with a value of negative one. There is a path from the beginning to a state labeled 0.27, and from there to one labeled 0.51. There is also a path from the beginning to a state labelled 0.22.](https://inst.eecs.berkeley.edu/~cs188/sp12/projects/reinforcement/value.png)
+![ID: A 4 by 3 grid of squares ranging from black to light green, with values ranging from zero to one written on them respectively. There is also a single red square with a value of negative one. There is a path from the beginning to a state labeled 0.27, and from there to one labeled 0.51. There is also a path from the beginning to a state labelled 0.22.](iterationsquares.png)
+
 With the value iteration function before, every state's possible values were considered. For asynchronous iteration, we can begin by looking at the squares labelled $0.27$ and $0.22$. On the first iteration, with $i=0$, we would look at state $0$, and calculate its value, which turns out to be $0.27$. We would ignore all the other states. The next time through with $i=1$, state $1$ would be considered, and given its value of $0.22$. All of the states are visited once per loop in this fashion, and after each has been seen once, the cycle begins again at $i=0$. It starts over like this because there is new information for each state about its neighbors. For example, suppose the square directly above the state happened to be valued at $0.7$ - then a state leading there would be worth more, right? So the state labelled $0.27$ would then earn a higher value on its turn through the iteration.
 
 #### Part 2 Critique
@@ -80,7 +83,8 @@ For all of the functions written so far, the reinforcement learning was in-place
 
 Consider this image:
 
-![ID: A four by three grid of black squares, each divided with a white X into four triangles. Most of the triangles are labelled with zeros. The top-right square is labeled 0.94, and the top row's eastward triangles have values from 0.05 to 0.62.](https://inst.eecs.berkeley.edu/~cs188/sp12/projects/reinforcement/q-learning.png)
+![ID: A four by three grid of black squares, each divided with a white X into four triangles. Most of the triangles are labelled with zeros. The top-right square is labeled 0.94, and the top row's eastward triangles have values from 0.05 to 0.62.](triangleqvalues.png)
+
 Similar to the first three parts, Pacman begins in the bottom left, and the goal state is at the top right. The values along the top come from manually guiding Pacman directly upward, then directly to the right. The project specs mention how the agent "leaves learning in its wake" - that is, after reaching the goal with the north-then-east path, there's a brief trail showing how each state's value improved with their proximity to the goal. Since the rewards diminish with distance from the goal, the state directly above the start remained at zero, and since none of the other states were explored, they all remained zero as well. This is also why the goal is less than $1$ - Pacman doesn't *know* that this is a goal state with a value of $1$, only that he gets a good reward when he reaches that state.
 
 I asked ChatGPT to implement the Q-Learning agent stub as it was provided in the starter code, largely by prompting it with each function declaration and giving it the details we had when doing the project in class. The functions of note were `update(state, action, nextState, reward)`, `computeValueFromQValues(state)`, `getQValue(state, action)`, `computeActionFromQValues(state)`, and `getAction(state)`. Individually, these functions were all rather simple, and the complexity came more from all of them needing to be operational in order to call each other.
