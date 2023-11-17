@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Imp",
+        "x": 3,
+        "y": 1,
+        "entities": [
+            "chocolate_bar"
+        ],
+        "hasInventory": false
+    },
+    {
+        "name": "Pinky",
+        "x": 11,
+        "y": 2,
+        "entities": [
+            
+        ],
+        "hasInventory": false
+    }
+]

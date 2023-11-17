@@ -34,14 +34,26 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
 # Move assets to build directory
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-# Build the main application executables, if requested
-if(${BUILD_MAIN})
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+
+
+# Configure json
+set(JSON_SRC_DIR third_party/json)
+set(JSON_BUILD_DIR json_build)
+add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
+
+if (${BUILD_MAIN})
 
   # Configure all of SFML
   set(SFML_SRC_DIR third_party/SFML)
   set(SFML_BUILD_DIR sfml_build)
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
+  # Configure PEGTL
+  set(PEGTL_INCLUDE_DIR third_party/PEGTL/include)
 
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
@@ -56,10 +68,11 @@ if(${BUILD_MAIN})
     # Create executable and link to includes / libraries
     add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
     target_include_directories(${EXE_NAME}
-      PRIVATE ${CMAKE_SOURCE_DIR}/source
+      PRIVATE ${CMAKE_SOURCE_DIR}/source ${PEGTL_INCLUDE_DIR}
       )
     target_link_libraries(${EXE_NAME}
       PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
+      nlohmann_json::nlohmann_json
       )
     if(EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
       message(STATUS "Loading ${EXE_NAME}.cmake")

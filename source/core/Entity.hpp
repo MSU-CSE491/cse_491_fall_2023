@@ -12,6 +12,8 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <nlohmann/json.hpp>
+
 #include "GridPosition.hpp"
 
 namespace cse491 {
@@ -130,6 +132,20 @@ namespace cse491 {
 
     Entity & RemoveItem(size_t id);
     Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
+
+    /**
+     * Serializes an entity's name, x position, and y position
+     * into a JSON string. The keys are sorted alphabetically in the output string.
+     * @return String representing the entity data.
+     */
+    virtual std::string Serialize() {
+      nlohmann::json entity_data;
+      entity_data["name"] = name;
+      entity_data["entity_x"] = position.GetX();
+      entity_data["entity_y"] = position.GetY();
+
+      return entity_data.dump();
+    }
   };
 
 } // End of namespace cse491
