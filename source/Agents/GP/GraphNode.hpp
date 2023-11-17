@@ -32,7 +32,7 @@ namespace cowboys {
     double default_output{0};
 
     /// The nodes connected to this node's output.
-    std::vector<std::weak_ptr<GraphNode>> outputs;
+    std::vector<GraphNode *> outputs;
 
     /// The cached output of this node.
     mutable double cached_output{0};
@@ -42,15 +42,13 @@ namespace cowboys {
 
     /// @brief Add an output node to this node. Used for cache invalidation.
     /// @param node The node to add as an output.
-    void AddOutput(std::weak_ptr<GraphNode> node) { outputs.push_back(node); }
+    void AddOutput(GraphNode *node) { outputs.push_back(node); }
 
     /// @brief Invalidates this node's cache and the caches of all nodes that depend on this node.
     void RecursiveInvalidateCache() const {
       cached_output_valid = false;
       for (auto &output : outputs) {
-        if (auto output_node = output.lock()) {
-          output_node->RecursiveInvalidateCache();
-        }
+        output->RecursiveInvalidateCache();
       }
     }
 
@@ -118,7 +116,7 @@ namespace cowboys {
     void AddInput(std::shared_ptr<GraphNode> node) {
       inputs.push_back(node);
       // Add a weak pointer to this node to the input node's outputs
-      node->AddOutput(weak_from_this());
+      node->AddOutput(this);
       RecursiveInvalidateCache();
     }
 
