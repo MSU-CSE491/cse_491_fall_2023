@@ -37,6 +37,24 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         {
             return mMenuBar;
         }
+        void SetWorldSize(sf::Vector2f size){
+            mWorldSize = size;
+        }
+
+        bool IsInventoryOpen(){
+            if(mInventory){
+                return true;
+            }else return false;
+        }
+
+        void ConstructInventory(){
+            mInventory = std::make_unique<Inventory>(mWorldSize);
+            mInventory->ConstructInventory(*mFont);
+        }
+
+        void DeconstructInventory(){
+            mInventory.reset();
+        }
 
     };
 }

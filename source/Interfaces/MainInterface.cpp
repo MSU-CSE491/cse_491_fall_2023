@@ -26,8 +26,10 @@ namespace i_2D {
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
         mMenu.initialize(mFont,sf::Vector2f {a,b});
-//        mButton = std::make_unique<Button>("test", sf::Vector2f(a/2,50.f), sf::Color::Black, sf::Color::White, mFont);
-//        mButton->setPosition({0.f,50.f});
+//        mTestButton = std::make_unique<Button>("test",
+//                                               sf::Vector2f (200,50),sf::Color::Black,
+//                                               sf::Color::White,mFont);
+//        mTestButton->setPosition(sf::Vector2f (200,50));
 
         ChooseTexture();
     }
@@ -153,7 +155,6 @@ namespace i_2D {
         mMenu.drawto(mWindow);
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
-//        mButton->drawTo(mWindow);
         mWindow.display();
     }
 
@@ -375,6 +376,11 @@ namespace i_2D {
         widthWindow = std::max(widthWindow, widthMin);
         heightWindow = std::max(heightWindow, heightMin);
 
+        mMenu.SetWorldSize(sf::Vector2f(widthWindow, heightWindow));
+        if(mMenu.IsInventoryOpen()){
+            mMenu.DeconstructInventory();
+            mMenu.ConstructInventory();
+        }
         // Restrict window size if necessary
         if (widthWindow <= widthMin || heightWindow <= heightMin) {
             mWindow.setSize(sf::Vector2u(widthWindow, heightWindow));

@@ -65,6 +65,9 @@ namespace i_2D {
                 mMenuBar[i]->setBackColor(sf::Color::Black);
             }
         }
+        if(mInventory){
+            mInventory->HandleMouseMove(window);
+        }
     }
     /**
      * @brief check if the mouse click the exit button
@@ -77,10 +80,9 @@ namespace i_2D {
             exit(0);
         }else if(mMenuBar[1]->isMouseOver(window)){
             if(mInventory){
-                mInventory.reset();
+                DeconstructInventory();
             }else {
-                mInventory = std::make_unique<Inventory>(mWorldSize);
-                mInventory->ConstructInventory(*mFont);
+                ConstructInventory();
             }
         }
 
