@@ -13,9 +13,11 @@ namespace i_2D {
     /**
      * @brief initialize the buttons at the top of the window
      */
-    void Menu::initialize(const sf::Font &font) {
+    void Menu::initialize(sf::Font &font, sf::Vector2f size) {
         sf::Color backgroundcolor = sf::Color::Black;
         sf::Color textcolor = sf::Color::White;
+        mFont = &font;
+        mWorldSize = size;
 
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
@@ -44,6 +46,9 @@ namespace i_2D {
         for( const auto &button : mMenuBar){
             button->drawTo(window);
         }
+        if(mInventory) {
+            mInventory->DrawTo(window);
+        }
     }
 
     /**
@@ -70,6 +75,13 @@ namespace i_2D {
     void Menu::HandleMouseButtonPressed(sf::RenderWindow &window) {
         if(mMenuBar[2]->isMouseOver(window)){
             exit(0);
+        }else if(mMenuBar[1]->isMouseOver(window)){
+            if(mInventory){
+                mInventory.reset();
+            }else {
+                mInventory = std::make_unique<Inventory>(mWorldSize);
+                mInventory->ConstructInventory(*mFont);
+            }
         }
 
     }

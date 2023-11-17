@@ -18,7 +18,7 @@
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
 #include "TextureHolder.hpp"
-#include "TextBox.h"
+#include "TextBox.hpp"
 #include "MessageBoard.h"
 
 
@@ -48,6 +48,8 @@ namespace i_2D {
         sf::Font mFont; ///< one font for all objects using font
         std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
         std::unique_ptr<MessageBoard> mMessageBoard;
+        //TESTING BUTTON!!!
+//        std::unique_ptr<Button> mButton;
 
         // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder

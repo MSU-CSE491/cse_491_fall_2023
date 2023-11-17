@@ -1,8 +1,7 @@
 /**
- * @file Button.h
- * @author
- *
- *
+ * @author : Team - 3
+ * @date: 11/02/2023
+ * Button class creates a SF::Rectangle and SF::Text on top
  */
 
 #ifndef CSE_491_BUTTON_HPP

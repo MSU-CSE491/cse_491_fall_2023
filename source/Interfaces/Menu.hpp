@@ -11,6 +11,7 @@
 #include "Button.hpp"
 #include <vector>
 #include <memory>
+#include "Inventory.hpp"
 
 namespace i_2D {
 const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
@@ -19,9 +20,13 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
     private:
         /// Top menubar on the window
         std::vector<std::unique_ptr<Button>> mMenuBar;
+        /// Interface Entitiy's inventory
+        std::unique_ptr<Inventory> mInventory;
+        sf::Font * mFont;
+        sf::Vector2f mWorldSize;
 
     public:
-        void initialize(const sf::Font &font);
+        void initialize(sf::Font &font,sf::Vector2f size);
 
         void drawto(sf::RenderWindow &window);
 

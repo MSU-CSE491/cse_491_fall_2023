@@ -1,7 +1,8 @@
-//
-// Created by muiph on 11/3/2023.
-//
-
+/**
+ * @author : Team - 3
+ * @date: 11/03/2023
+ * MessageBoard class communicate messages to the interface entity
+ */
 #ifndef CSE_491_MESSAGEBOARD_H
 #define CSE_491_MESSAGEBOARD_H
 
@@ -18,22 +19,8 @@ namespace i_2D {
         std::chrono::time_point<std::chrono::system_clock> mStartTime;
 
     public:
-        explicit MessageBoard(sf::Font &font){
-            mText = std::make_unique<sf::Text>(font);
-            mText->setString("Hello World!");
-            mText->setCharacterSize(35);
-            mText->setFillColor(sf::Color::Blue);
-            mText->setPosition({5,165});
-            mStartTime = std::chrono::system_clock::now();
-        }
-
-        void drawTo(sf::RenderWindow &window){
-            if(std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::system_clock::now() - mStartTime).count() > 2000){
-                mText->setString("");
-            }else
-            window.draw(*mText);
-        }
+        explicit MessageBoard(sf::Font &font);
+        void DrawTo(sf::RenderWindow &window);
 
         void Send(const std::string &message){
             mText->setString(message);

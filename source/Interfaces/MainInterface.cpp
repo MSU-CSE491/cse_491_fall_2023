@@ -23,7 +23,11 @@ namespace i_2D {
         }
         mMessageBoard = std::make_unique<MessageBoard>(mFont);
         mTextBox = std::make_unique<TextBox>(mFont);
-        mMenu.initialize(mFont);
+        auto a = mWindow.getSize().x;
+        auto b = mWindow.getSize().y;
+        mMenu.initialize(mFont,sf::Vector2f {a,b});
+//        mButton = std::make_unique<Button>("test", sf::Vector2f(a/2,50.f), sf::Color::Black, sf::Color::White, mFont);
+//        mButton->setPosition({0.f,50.f});
 
         ChooseTexture();
     }
@@ -148,7 +152,8 @@ namespace i_2D {
         // Display everything
         mMenu.drawto(mWindow);
         mTextBox->DrawTo(mWindow);
-        mMessageBoard->drawTo(mWindow);
+        mMessageBoard->DrawTo(mWindow);
+//        mButton->drawTo(mWindow);
         mWindow.display();
     }
 
@@ -330,8 +335,8 @@ namespace i_2D {
                 action_id = GetActionID("right");
                 break;
 
-            case sf::Keyboard::Q:
-                exit(0);
+//            case sf::Keyboard::Q:
+//                exit(0);
 //            case sf::Keyboard::Escape:
 //                exit(0);
             default:
