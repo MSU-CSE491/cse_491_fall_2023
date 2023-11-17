@@ -29,6 +29,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_FLAGS_COVERAGE "-O2 -g -fcoverage-mapping -fprofile-instr-generate -fprofile-arcs")
 
 
 # Place all executables in the executable directory
