@@ -41,7 +41,7 @@ namespace cowboys
             gen = std::mt19937(rd());
         }
 
-        ~LGPAgent() override = default;
+
 
         /// @brief This agent needs a specific set of actions to function.
         /// @return Success.
@@ -61,11 +61,7 @@ namespace cowboys
             {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
-            for (auto i = 0; i < LISTSIZE; i++)
-            {
-                std::cout << std::get<0>(instructionsList[i]) << " ";
-            }
-            std::cout << std::endl;
+
         }
 
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
@@ -107,7 +103,10 @@ namespace cowboys
                 }
             }
 
-            resultsList = std::vector<int>(LISTSIZE);
+
+//            resultsList = std::vector<int>(LISTSIZE);
+            resultsList.clear();
+            resultsList.resize(LISTSIZE);
             currentInstructionIndex = 0;
         }
 
@@ -233,5 +232,13 @@ namespace cowboys
         }
 
         void Serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *, int fitness = -1) override {}
+
+        void PrintAgent() override {
+          for (auto i = 0; i < LISTSIZE; i++)
+          {
+            std::cout << std::get<0>(instructionsList[i]) << " ";
+          }
+          std::cout << std::endl;
+        }
     };
 }
