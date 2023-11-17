@@ -7,23 +7,26 @@
 // Include the modules that we will be using.
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/TrashInterface.hpp"
+#include "Interfaces/MainInterface.hpp"
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
 
+using namespace group6;
+
 int main() {
-    static const unsigned int SEED = 973;
-    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
-    biomeGenerator.generate();
+//    static const unsigned int SEED = time(nullptr);
+    static const unsigned int SEED = 5;
+    auto biome = BiomeType::Maze; // specify biome type here
 
-    srand(time(NULL));
-    auto path = biomeGenerator.clearPath();
-    biomeGenerator.applyPathToGrid(path);
-    biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
-
-    cse491::GenerativeWorld world(SEED);
+    GenerativeWorld world(biome, 100, 20, SEED);
+    world.AddItem("Boots", "symbol", 'B').SetPosition(1, 3).SetName("Boots").SetProperty("Health", 4.0);
+    world.AddItem("Shield", "symbol", 'S').SetPosition(1, 4).SetName("Shield").SetProperty("Health", 4.0);
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
-    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("char", '@');
+//    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+    world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
+
+    world.AddTeleporters();
 
     world.Run();
 }
