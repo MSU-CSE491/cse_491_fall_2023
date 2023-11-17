@@ -21,7 +21,10 @@
 
 
 #include "tinyxml2.h"
-//#include <algorithm>
+#include "Worlds/GenerativeWorld.hpp"
+#include "Worlds/ManualWorld.hpp"
+#include "Worlds/SecondWorld.hpp"
+#include <type_traits>
 
 
 namespace cowboys {
@@ -81,7 +84,28 @@ namespace cowboys {
 
           for (size_t i = 0; i < numArenas; ++i) {
             // instantiate a new environment
-            environments.emplace_back( std::make_unique<EnvironmentType>(TRAINING_SEED));
+
+            if constexpr (std::is_same<EnvironmentType, cse491_team8::ManualWorld>::value)
+            {
+              /// GROUP 8
+
+              environments.emplace_back( std::make_unique<EnvironmentType>());
+            }
+            else if constexpr (std::is_same<EnvironmentType, group6::GenerativeWorld>::value)
+            {
+              /// GROUP 6
+              static const unsigned int SEED = 5;
+              auto biome = group6::BiomeType::Maze; // specify biome type here
+
+              environments.emplace_back( std::make_unique<EnvironmentType>(biome, 100, 20,TRAINING_SEED));
+            }
+            else if constexpr (std::is_same<EnvironmentType,  group4::SecondWorld>::value){
+              environments.emplace_back( std::make_unique<EnvironmentType>());
+            }
+            else
+            {
+              environments.emplace_back( std::make_unique<EnvironmentType>(TRAINING_SEED));
+            }
 
 
             agents.push_back(std::vector<cowboys::GPAgentBase *>());

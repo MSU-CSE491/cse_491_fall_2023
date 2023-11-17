@@ -5,7 +5,7 @@
 
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/ManualWorld.hpp"
-
+#include "Worlds/GenerativeWorld.hpp"
 
 #include <thread>
 
@@ -22,7 +22,7 @@ int main() {
 //    for (size_t i = 0; i < 10; ++i){
 
 
-    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
+    cowboys::GPTrainingLoop <cowboys::CGPAgent, group6::GenerativeWorld> loop;
 
 
     loop.initialize(12, 20);
