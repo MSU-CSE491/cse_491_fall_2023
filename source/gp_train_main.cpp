@@ -26,14 +26,14 @@ int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
-    cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop;
+    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 //    loop.initialize(20, 200);
 //
 //    loop.run(100, 100);
 
-    loop.initialize(100, 2000);
-    loop.run(50, 100, num_threads);
+    loop.initialize(1, 20);
+    loop.run(10, 100, num_threads);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
