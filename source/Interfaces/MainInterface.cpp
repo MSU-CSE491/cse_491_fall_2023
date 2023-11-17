@@ -142,9 +142,9 @@ namespace i_2D {
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
                 cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
-                bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
-                                      (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-                SwitchCellSelect(cellRect, cell, symbol, isVerticalWall);
+//                bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
+//                                      (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
+                SwitchCellSelect(cellRect, cell, symbol, false);
 
 
             }

@@ -1,9 +1,19 @@
-//
-// Created by muiph on 11/2/2023.
-//
+/**
+ * @author : Team - 3
+ * @date: 11/02/2023
+ * TextBox class enables interface entity to send message to the MessageBoard and World
+ */
 
 #include "TextBox.hpp"
 
+/**
+ * @brief Constructor
+ *
+ * @param font The font used by TextBox
+ * @param size The size of the text
+ * @param color The color of the text
+ * @param sel Set the activity of TextBox
+ */
 i_2D::TextBox::TextBox(const sf::Font &font, int size, sf::Color color, bool sel) {
     mTextBox = std::make_unique<sf::Text>(font);
     mTextBox->setCharacterSize(size);
@@ -16,7 +26,11 @@ i_2D::TextBox::TextBox(const sf::Font &font, int size, sf::Color color, bool sel
         mTextBox->setString("");
     }
 }
-
+/**
+ * @brief Set the string of the text
+ *
+ * @param s The string to be set to
+ */
 void i_2D::TextBox::SetString(const std::string &s) {
     mTextBox->setString(s);
     mText.str("");

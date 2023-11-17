@@ -1,7 +1,7 @@
 /**
  * @author : Team - 3
  * @date: 11/15/2023
- * Inventory class creates an array of buttons and displays the inventory
+ * Inventory class creates an array of buttons and uses it as inventory
  */
 
 #ifndef CSE_491_INVENTORY_HPP
@@ -13,17 +13,25 @@
 #include <memory>
 
 namespace i_2D {
+    /***
+     * @class Inventory
+     *
+     * @brief Represent the inventory of entities.
+     *
+     * An interface/visual representation of an inventory.
+     */
     class Inventory {
     private:
+        /// Projected inventory screen
         std::unique_ptr<sf::RectangleShape> mInventoryWindow;
+        /// List of items in an inventory
         std::vector<std::vector<std::unique_ptr<Button>>> mInventoryList;
-        sf::Vector2f mWorldSize;
-        int mCol=0;
-        int mRow=0;
+        sf::Vector2f mWorldSize; ///< Size of the world
+        int mCol=0; ///< Number of columns enumerating the inventory list
+        int mRow=0; ///< Number of rows enumerating the inventory list
 
     public:
         explicit Inventory(const sf::Vector2f size) : mWorldSize(size) {}
-
         void SetSize(const sf::Vector2f size) {mWorldSize = size;}
         void ConstructInventory(sf::Font &font);
         void DrawTo(sf::RenderWindow &window);

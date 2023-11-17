@@ -1,7 +1,8 @@
 /**
- * @file Menu.cpp
- * @author
- */
+* @author : Team - 3
+* @date: 10/3/2023
+* Menu class creates a menu and displays it in the render window
+*/
 
 #include "Menu.hpp"
 #include <SFML/Window.hpp>

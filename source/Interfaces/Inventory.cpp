@@ -1,9 +1,16 @@
-//
-// Created by muiph on 11/15/2023.
-//
+/**
+ * @author : Team - 3
+ * @date: 11/15/2023
+ * Inventory class creates an array of buttons and uses it as inventory
+ */
 
 #include "Inventory.hpp"
 
+/**
+ * @brief Build an inventory window and an inventory list
+ *
+ * @param font The font used by the inventory list
+ */
 void i_2D::Inventory::ConstructInventory(sf::Font &font) {
     mInventoryWindow = std::make_unique<sf::RectangleShape>();
     mInventoryWindow->setSize({mWorldSize.x,mWorldSize.y/2});
@@ -28,6 +35,11 @@ void i_2D::Inventory::ConstructInventory(sf::Font &font) {
     }
 }
 
+/**
+ * @brief Draws the inventory onto the render window
+ *
+ * @param window The render window of the world
+ */
 void i_2D::Inventory::DrawTo(sf::RenderWindow &window) {
     window.draw(*mInventoryWindow);
     for(const auto &x : mInventoryList){
@@ -37,6 +49,11 @@ void i_2D::Inventory::DrawTo(sf::RenderWindow &window) {
     }
 }
 
+/**
+ * @brief Handle the mouse move event
+ *
+ * @param window The render window of the world
+ */
 void i_2D::Inventory::HandleMouseMove(sf::RenderWindow &window) {
     for(auto &x : mInventoryList){
         for(auto &y : x){
