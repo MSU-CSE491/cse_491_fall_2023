@@ -23,5 +23,7 @@ int main()
   world.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 30, "Health", 40, "Max_Health", 30, "Direction", 0).SetPosition(45,17);
 
   world.GenerateMoveSets();
+  
   world.Run();
+  
 }
