@@ -4,7 +4,7 @@
 #include "../../core/AgentBase.hpp"
 #include "../../core/WorldBase.hpp"
 //#include "GPAgent.hpp"
-#include "GPAgent_.hpp"
+#include "GPAgentBase.hpp"
 
 
 #include "CGPAgent.hpp"
@@ -20,20 +20,20 @@
 #include <chrono>
 
 
-
-
 #include "tinyxml2.h"
 //#include <algorithm>
 
 
 namespace cowboys {
 
+    unsigned int TRAINING_SEED = 111;
+
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
     private:
 
         std::vector<cse491::WorldBase *> environments;
-        std::vector<std::vector<cowboys::GPAgent_ *>> agents;
+        std::vector<std::vector<cowboys::GPAgentBase *>> agents;
 
 
         std::vector<std::vector<cse491::GridPosition>> TEMPinitialAgentPositions;
@@ -54,7 +54,7 @@ namespace cowboys {
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(4,4), cse491::GridPosition(19,5), cse491::GridPosition(20,1) };
-        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0) };
+        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0, 0)};
 
     public:
 
@@ -80,14 +80,14 @@ namespace cowboys {
 
           for (size_t i = 0; i < numArenas; ++i) {
             // instantiate a new environment
-            environments.emplace_back(new EnvironmentType());
+            environments.emplace_back(new EnvironmentType(TRAINING_SEED));
 
 
-            agents.emplace_back(std::vector<cowboys::GPAgent_ *>());
+            agents.emplace_back(std::vector<cowboys::GPAgentBase *>());
             TEMPinitialAgentPositions.emplace_back(std::vector<cse491::GridPosition>());
             for (size_t j = 0; j < NumAgentsForArena; ++j) {
 
-              cowboys::GPAgent_ &addedAgent = static_cast<cowboys::GPAgent_ &>(environments[i]->template AddAgent<AgentType>(
+              cowboys::GPAgentBase &addedAgent = static_cast<cowboys::GPAgentBase &>(environments[i]->template AddAgent<AgentType>(
                       "Agent " + std::to_string(j)));
               addedAgent.SetPosition(0, 0);
               cse491::GridPosition position = addedAgent.GetPosition();
@@ -99,7 +99,6 @@ namespace cowboys {
             }
 
           }
-
 
 
         }
@@ -208,8 +207,10 @@ namespace cowboys {
             resetEnvironments();
 
             auto generationEndTime = std::chrono::high_resolution_clock::now();
-            auto generationDuration = std::chrono::duration_cast<std::chrono::microseconds>(generationEndTime - generationStartTime);
-            std::cout << "Generation " << generation << " took " << generationDuration.count() / 1000000.0 << " seconds" << std::endl;
+            auto generationDuration = std::chrono::duration_cast<std::chrono::microseconds>(
+                    generationEndTime - generationStartTime);
+            std::cout << "Generation " << generation << " took " << generationDuration.count() / 1000000.0 << " seconds"
+                      << std::endl;
 
           }
 
@@ -225,7 +226,7 @@ namespace cowboys {
         }
 
 
-        int AgentAnalysisComputations(int generation){
+        int AgentAnalysisComputations(int generation) {
           // print average fitness
           double averageFitness = 0;
           double maxFitness = 0;
@@ -237,7 +238,7 @@ namespace cowboys {
               averageFitness += TEMPAgentFitness[arena][a];
 
 
-              if (abs(TEMPAgentFitness[arena][a] - maxFitness) > 0.01 && TEMPAgentFitness[arena][a] > maxFitness   ) {
+              if (abs(TEMPAgentFitness[arena][a] - maxFitness) > 0.01 && TEMPAgentFitness[arena][a] > maxFitness) {
                 maxFitness = TEMPAgentFitness[arena][a];
                 bestAgent = std::make_pair(arena, a);
                 countMaxAgents = 1;
@@ -264,7 +265,7 @@ namespace cowboys {
         }
 
 
-        void sortThemAgents(){
+        void sortThemAgents() {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
               sortedAgents.push_back(std::make_pair(arena, a));
@@ -274,7 +275,7 @@ namespace cowboys {
           std::sort(sortedAgents.begin(), sortedAgents.end(),
                     [&](const std::pair<int, int> &a, const std::pair<int, int> &b) {
                         return TEMPAgentFitness[a.first][a.second] > TEMPAgentFitness[b.first][b.second];
-          });
+                    });
         }
 
         /**
@@ -313,9 +314,9 @@ namespace cowboys {
 
           for (int i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
+            agents[arenaIDX][agentIDX]->Serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
 
-            agents[arenaIDX][agentIDX]->serialize(lastGenerationsDoc, lastGenerationsRoot,
+            agents[arenaIDX][agentIDX]->Serialize(lastGenerationsDoc, lastGenerationsRoot,
                                                   TEMPAgentFitness[arenaIDX][agentIDX]);
           }
 
@@ -337,14 +338,15 @@ namespace cowboys {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             TEMPAgentFitness.emplace_back(std::vector<double>());
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-                double fitness = 0;
-                TEMPAgentFitness[arena].push_back(fitness);
+              double fitness = 0;
+              TEMPAgentFitness[arena].push_back(fitness);
             }
           }
         }
 
 
-        void mutateAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgent_ *>>& agents, double mutationRate) {
+        void mutateAgents(int start, int end, const std::vector<std::pair<int, int>> &sortedAgents,
+                          std::vector<std::vector<cowboys::GPAgentBase *>> &agents, double mutationRate) {
           for (int i = start; i < end; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
             agents[arenaIDX][agentIDX]->MutateAgent(mutationRate);
@@ -355,7 +357,8 @@ namespace cowboys {
           }
         }
 
-        void mutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>>& sortedAgents, std::vector<std::vector<cowboys::GPAgent_ *>>& agents, int elitePopulationSize) {
+        void mutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>> &sortedAgents,
+                                 std::vector<std::vector<cowboys::GPAgentBase *>> &agents, int elitePopulationSize) {
           for (int i = start; i < end; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
             auto eliteINDEX = rand() % elitePopulationSize;
@@ -384,8 +387,6 @@ namespace cowboys {
             }
           }
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
-
-
 
 
           std::sort(sortedAgents.begin(), sortedAgents.end(),
@@ -429,7 +430,7 @@ namespace cowboys {
           }
 
           // Join the threads
-          for (auto& t : threads) {
+          for (auto &t: threads) {
             t.join();
           }
 
@@ -447,7 +448,7 @@ namespace cowboys {
             }));
           }
 
-          for (auto& t : threads) {
+          for (auto &t: threads) {
             t.join();
           }
 
@@ -540,7 +541,7 @@ namespace cowboys {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
               agents[arena][a]->SetPosition(TEMPinitialAgentPositions[arena][a]);
-              agents[arena][a]->reset();
+              agents[arena][a]->Reset();
             }
           }
 

@@ -48,7 +48,7 @@ namespace cowboys {
         double input = 0;
         if (i < inputs.size())
           input = inputs.at(i);
-        node->SetOutput(input);
+        node->SetDefaultOutput(input);
         ++i;
       }
 

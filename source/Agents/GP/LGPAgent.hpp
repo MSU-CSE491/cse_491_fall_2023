@@ -9,13 +9,13 @@
 #include "../../core/AgentBase.hpp"
 #include "GPAgentSensors.hpp"
 
-#include "./GPAgent_.hpp"
+#include "./GPAgentBase.hpp"
 
 namespace cowboys
 {
     const int LISTSIZE = 100;
 
-    class LGPAgent : public GPAgent_
+    class LGPAgent : public GPAgentBase
     {
     protected:
         // A dictionary of actions and a dictionary of sensors
@@ -36,7 +36,7 @@ namespace cowboys
         std::mt19937 gen;
 
     public:
-        LGPAgent(size_t id, const std::string &name) : GPAgent_(id, name)
+        LGPAgent(size_t id, const std::string &name) : GPAgentBase(id, name)
         {
             gen = std::mt19937(rd());
         }
@@ -129,7 +129,7 @@ namespace cowboys
 
         /// @brief Copy the behavior of another agent into this agent.
         /// @param other The agent to copy.
-        void Copy(const GPAgent_ &other) override
+        void Copy(const GPAgentBase &other) override
         {
             assert(dynamic_cast<const LGPAgent *>(&other) != nullptr);
             Configure(dynamic_cast<const LGPAgent &>(other));
@@ -232,6 +232,6 @@ namespace cowboys
             return 0;
         }
 
-        void serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *, int fitness = -1) override {}
+        void Serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *, int fitness = -1) override {}
     };
 }
