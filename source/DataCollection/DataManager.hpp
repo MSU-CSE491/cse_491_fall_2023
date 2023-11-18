@@ -27,7 +27,7 @@ namespace DataCollection {
           * Get a handle to the agent receiver
           * @return Const reference to the agent receiver
           */
-         const AgentReceiver& GetAgentReceiver() {
+         AgentReceiver& GetAgentReceiver() {
              return agentReceiver;
          }
 

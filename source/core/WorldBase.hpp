@@ -19,6 +19,7 @@
 #include "ItemBase.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
+#include "DataCollection/DataManager.hpp"
 
 namespace cse491 {
 
@@ -42,7 +43,7 @@ protected:
   bool run_over = false;        ///< Should the run end?
   
   std::string action;           ///< The action that the agent is currently performing
-  std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
+  std::shared_ptr<DataCollection::DataManager> data_manager;
 
   unsigned int seed;            ///< Seed used for generator
   std::mt19937 random_gen;      ///< Random number generator
@@ -196,8 +197,8 @@ public:
     return *agent_map[agent_id];
   }
 
-  void SetAgentReceiver(DataCollection::AgentReceiver r) {
-    agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
+  void SetDataManager(const DataCollection::DataManager& d) {
+    data_manager = std::make_shared<DataCollection::DataManager>(d);
   }
 
   /// @brief Add a new, already-built item
@@ -280,9 +281,9 @@ public:
   }
 
   void CollectData() {
-    if (agent_receiver != nullptr) {
+    if (data_manager != nullptr) {
       for (const auto & [id, agent_ptr] : agent_map) {
-        agent_receiver->StoreData(
+        data_manager->GetAgentReceiver().StoreData(
           agent_ptr->GetName(), 
           agent_ptr->GetPosition(), agent_ptr->GetActionResult()
         );
