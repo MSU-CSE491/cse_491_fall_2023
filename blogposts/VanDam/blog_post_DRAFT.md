@@ -110,36 +110,37 @@ As stated above, I did have to change the `brickSize` initialization in order
 to compile `arkanoid.cpp` correctly. I did not have to change any other code for
 the functionality to work, but there were also a few compiler warnings:
 
-    ```
-    arkanoid.cpp:62:26: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    62 | static Player player = { 0 };
-       |                          ^
-       |                          {}
-    arkanoid.cpp:63:22: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    63  | static Ball ball = { 0 };
-        |                      ^
-        |                      {}
-    arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
-        |                                                          ^
-        |                                                          {}
-    arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
-        |                                                          ^
-        |                                                          {}
-    arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
-        |                                                          ^
-        |                                                          {}
-    ```
+```cpp
+arkanoid.cpp:62:26: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+62  | static Player player = { 0 };
+    |                          ^
+    |                          {}
+arkanoid.cpp:63:22: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+63  | static Ball ball = { 0 };
+    |                      ^
+    |                      {}
+arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
+    |                                                          ^
+    |                                                          {}
+arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
+    |                                                          ^
+    |                                                          {}
+arkanoid.cpp:64:58: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+64  | static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { 0 };
+    |                                                          ^
+    |                                                          {}
+```
 
 To get rid of these compiler warnings, I changed lines 62-64 of `arkanoid.cpp`
 to include curly braces around the initializations: <br />
-    ```
-    static Player player = { {0} };
-    static Ball ball = { {0} };
-    static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { { { { 0 } } } };
-    ```
+
+```cpp
+static Player player = { {0} };
+static Ball ball = { {0} };
+static Brick brick[LINES_OF_BRICKS][BRICKS_PER_LINE] = { { { { 0 } } } };
+```
 
 ### Difficulty of integration and making changes
 I think that Raylib should be relatively easy to integrate and make changes with.
