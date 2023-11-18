@@ -51,7 +51,7 @@ This is a screenshot of where I got the
 ["Using Makefile"](https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)#22-using-makefile)
 instructions for compiling the Raylib library:
 
-[Using Makefile instructions](/blogposts/VanDam/using_makefile_instructions.png)
+![Using Makefile instructions](/blogposts/VanDam/using_makefile_instructions.png?raw=true)
 
 When compiling the Arkanoid example game with `mingw32-make PLATFORM=PLATFORM_WEB -B -e`,
 it failed at first with this error message:
@@ -77,7 +77,7 @@ For assistance with this error, I looked to the
 [Using raylib with Cpp page](https://github.com/raysan5/raylib/wiki/Using-raylib-with-Cpp).
 This is a screenshot of the relevant part of the guide I looked at:
 
-[Compound literals instructions](/blogposts/VanDam/compound_literals_instructions.png)
+![Compound literals instructions](/blogposts/VanDam/compound_literals_instructions.png?raw=true)
 
 
 Since I changed the `arkanoid.c` example to `arkanoid.cpp`,
