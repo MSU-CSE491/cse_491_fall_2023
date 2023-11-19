@@ -57,6 +57,8 @@ According to [Cppreference](https://en.cppreference.com/w/cpp/language/lifetime)
   >     - `x` and `y` are both complete objects, or
   >     - `x` and `y` are direct subobjects of objects `ox` and `oy` respectively, and `ox` is transparently replaceable by `oy`.
 
+Some of these definitions are outside of this article's scope, but the most important non-obvious definition is that of subobjects. You can think of a base class subobject as a class that other classes derive from, for which memory must be allocated inside the derived class.
+
 These requirements suggest that transparent replacability is rather strict. The example was also a tad contrived: why go through all the trouble of writing a special copy assignment operator when `C & c2_ref = c2` works just as fine?
 
 If we break the rules of transparent replaceability, it allows for more general memory-reuse. Recall our `Foo` struct:
@@ -173,8 +175,8 @@ int main() {
     assert(m + n == 3);
 }
 ```
-
-In this example, the first call to `transmogrify` changes the underlying type of `base` from `Base` to `Derived`. However, the compiler views `base` as a `Base` object and doesn't know which call to `transmogrify` to use the second time. It assumes that the "pointer" to the memory at `base` and the **actual** type of the memory it points to should be the same, leading to undefined behavior. Once again, a band-aid solution here is to use `std::launder` to tell the compiler "trust me, there really is a valid, freshly-made object at this address." Since launder doesn't affects its arguments, its return value must be stored in a variable in order to avoid the problem that **not storing the result of placement `new`** caused. 
+Here is another case where transparent replacability fails: we attempt to replace a type `Base` with `Derived`, but `Base` is a base class subobject.
+The first call to `transmogrify` changes the underlying type of `base` from `Base` to `Derived`. However, the compiler views `base` as a `Base` object and doesn't know which call to `transmogrify` to use the second time. It assumes that the "pointer" to the memory at `base` and the **actual** type of the memory it points to should be the same, leading to undefined behavior. Once again, a band-aid solution here is to use `std::launder` to tell the compiler "trust me, there really is a valid, freshly-made object at this address." Since launder doesn't affects its arguments, its return value must be stored in a variable in order to avoid the problem that **not storing the result of placement `new`** caused. 
 
 What's the solution here? Unless we absolutely must use placement `new`, it's likely a better option to let each variable point to its own memory and/or to use higher-level memory-management options like smart pointers. In cases where we *must* use placement new, a good way to forgo this indirection is to save the result of placement `new` somewhere since we'll need to eventually call `std::launder` if we do not. Although `std::launder`'s use is niche, its necessity comes about when the compiler cannot reason about the memory lifetime of objects.
 
