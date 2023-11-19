@@ -113,7 +113,12 @@ How does this arcane definition apply in this example?
 4. the type of `foo` is `Foo`
 5. every byte in the returned pointer is reachable through `&buf`
 
-In order to safely reach the memory through `&buf`, we must wrap the cast in a call to launder: `std::launder(reinterpret_cast<Foo *>(&buf))->bar`. This informs the compiler that we *can* access the memory through that pointer because a call to launder effectively treats that pointer as if it were a freshly made object (similar to a normal call to `new`). The full example is below:
+In order to safely reach the memory through `&buf`, we must wrap the cast in a call to launder:
+```cpp
+std::launder(reinterpret_cast<Foo *>(&buf))->bar;
+```
+
+This informs the compiler that we *can* access the memory through that pointer because a call to launder effectively treats that pointer as if it were a freshly made object (similar to a normal call to `new`). The full example is below:
 
 ```cpp
 #include <new>
@@ -163,7 +168,7 @@ int main() {
     // it is a base subobject but the old object is a complete object.
     Base base;
     int n = base.transmogrify();
-    // int m = base.transmogrify(); // undefined Behavior
+    // int m = base.transmogrify(); // Undefined Behavior
     int m = std::launder(&base)->transmogrify(); // OK
     assert(m + n == 3);
 }
