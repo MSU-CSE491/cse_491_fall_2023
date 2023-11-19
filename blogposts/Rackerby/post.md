@@ -4,7 +4,7 @@ C++ has a wide variety of memory-management options, offering many different lev
 
 These high-level abstractions have made memory-management and its associated bugs easier to work with. Modern C++ compilers have been fine-tuned to generate efficient low-level code from these abstractions, and optimizers aid in this step by making assumptions about the operations programmers are allowed to write. However, as a general-purpose systems programming language, C++ must give the programmer access to all levels of abstraction. This includes low levels that allow the user to write programs that violate assumptions the compiler makes. Here, we consider how `std::launder` acts as a back door when the compiler doesn't know how to handle certain uses of placement `new`.
 
-First, a brief overview of placement `new` and transparent replaceability. The familiar call to `operator new` ([full documentation](https://en.cppreference.com/w/cpp/language/new)) is of the form `new (type) (initializer)`. For example:
+First, a brief overview of placement `new` and transparent replaceability. The familiar call to `operator new` ([full documentation](https://en.cppreference.com/w/cpp/language/new)) is of the form `new <type> <initializer>`. For example:
 ```cpp
 struct Foo {
     int bar;
@@ -14,7 +14,11 @@ struct Foo {
 // Allocate the memory and initialize the object
 Foo* a = new Foo{1, 2};
 ```
- This syntax both allocates memory and initializes it with the supplied arguments. However, if one wishes to decouple the memory allocation from its initialization, a different syntax called placement `new` exists for that purpose. Cppreference provides an example of such:
+ This syntax both allocates memory and initializes it with the supplied arguments. However, if one wishes to decouple the memory allocation from its initialization, a different syntax called placement `new` exists for that purpose.
+```cpp
+new (address_to_store_memory_at) <type> <initializer>
+``` 
+ Cppreference provides an example of such:
 
 ```cpp
 struct C {
