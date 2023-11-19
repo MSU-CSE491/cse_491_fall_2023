@@ -16,18 +16,18 @@ int main() {
 
     const int num_threads = std::thread::hardware_concurrency();
     std::cout << "Number of threads: " << num_threads << std::endl;
-
+    
 
     auto start_time = std::chrono::high_resolution_clock::now();
-//    for (size_t i = 0; i < 10; ++i){
+    for (size_t i = 0; i < 2; ++i){
 
 
-    cowboys::GPTrainingLoop <cowboys::CGPAgent, group6::GenerativeWorld> loop;
+    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 
-    loop.initialize(12, 20);
-    loop.run(100, 100, num_threads);
-//    }
+    loop.initialize(2, 20);
+    loop.run(15, 100, num_threads);
+    }
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);

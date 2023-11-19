@@ -24,7 +24,7 @@ namespace cowboys {
 
   public:
     GPAgentBase(size_t id, const std::string &name) : AgentBase(id, name) { extra_state["previous_action"] = 0; }
-    ~GPAgentBase() = default;
+    virtual ~GPAgentBase() = default;
 
     /// @brief Setup graph.
     /// @return Success.

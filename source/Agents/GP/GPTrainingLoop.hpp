@@ -21,9 +21,9 @@
 
 
 #include "tinyxml2.h"
-#include "Worlds/GenerativeWorld.hpp"
-#include "Worlds/ManualWorld.hpp"
-#include "Worlds/SecondWorld.hpp"
+#include "../Worlds/GenerativeWorld.hpp"
+#include "../Worlds/ManualWorld.hpp"
+#include "../Worlds/SecondWorld.hpp"
 #include <type_traits>
 
 
