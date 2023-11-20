@@ -22,7 +22,8 @@ namespace group6 {
 
     enum class BiomeType {
         Maze,
-        Grasslands
+        Grasslands,
+        Ocean
     };
 
     /**
@@ -61,6 +62,9 @@ namespace group6 {
 
         size_t tree_id = 8;
 
+        size_t sand_id = 9;
+        size_t water_id = 10;
+
     public:
         BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
         ~BiomeGenerator() = default;
@@ -83,5 +87,8 @@ namespace group6 {
         void applyPathToGrid(const std::vector<GridPosition>& path);
 
         void placeTrees();
+
+        void oceanHandler();
+        
     };
 } // End of namespace group6

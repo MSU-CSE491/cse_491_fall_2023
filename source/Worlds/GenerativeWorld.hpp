@@ -34,6 +34,9 @@ namespace group6 {
         size_t grass_id;
         size_t dirt_id;
 
+        size_t water_id;
+        size_t sand_id;
+
         /// Provide the agent with movement actions.
         void ConfigAgent(AgentBase &agent) override {
             agent.AddAction("up", MOVE_UP);
@@ -83,6 +86,9 @@ namespace group6 {
             tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
+
+            water_id = AddCellType("water", "Water that you may be able to swim on.", 'W');
+            sand_id = AddCellType("sand", "Sand you can walk on.", 'S');
 
             BiomeGenerator biomeGenerator(biome, width, height, seed);
             biomeGenerator.setWorld(this);

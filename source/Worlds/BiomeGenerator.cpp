@@ -27,6 +27,10 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
         setTiles(grass_id, dirt_id);
     }
 
+    if (biome == BiomeType::Ocean) {
+        setTiles(water_id, sand_id); 
+    }
+
     perlinNoise = PerlinNoise(seed);
     grid.Resize(width, height);
 }
@@ -227,6 +231,22 @@ void BiomeGenerator::placeTrees() {
     }
 }
 
-
+void BiomeGenerator::oceanHandler(){
+    for (unsigned int y = 1; y < height - 1; ++y) {
+        for (unsigned int x = 1; x < width - 1; ++x) {
+            if (grid.At(x, y) == water_id) {
+                if (worldPtr->GetRandom(100) < 15) { 
+                    for (int i = -1; i <= 1; ++i) {
+                        for (int j = -1; j <= 1; ++j) {
+                            if (x + i > 0 && x + i < width - 1 && y + j > 0 && y + j < height - 1) {
+                                grid.At(x + i, y + j) = sand_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 
