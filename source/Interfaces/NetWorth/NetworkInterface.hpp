@@ -34,7 +34,9 @@ namespace netWorth{
              * @param id agent ID
              * @param name agent name
              */
-            NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {}
+            NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {
+
+            }
 
             /**
              * Receives a socket that has been connected between client and server

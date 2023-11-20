@@ -37,10 +37,12 @@ void HandleConnection(netWorth::ServerManager &serverManager, netWorth::NetworkM
     std::optional<sf::IpAddress> sender;
     unsigned short port;
 
+    std::cout << sf::IpAddress::getLocalAddress()->toString() << "poop\n";
     if (socket.receive(pkt, sender, port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to receive" << std::endl;
         exit(0);
     }
+    std::cout << "piss" << std::endl;
 
     std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
 
