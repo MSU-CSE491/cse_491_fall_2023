@@ -6,7 +6,7 @@ ChatGPT is a powerful tool that allows users to prompt a LLM (Large Language Mod
 
 ## House Robbers:
 
-The house robeers problem is a simple DP problem where you have to find the maximum sum of non-adjacent elements of a list. So, for example, if you have a list that contains [2, 10, 12, 5, 20], then the maximum sum will be 34. 
+The house robbers problem is a simple DP problem where you have to find the maximum sum of non-adjacent elements of a list. So, for example, if you have a list that contains [2, 10, 12, 5, 20], then the maximum sum will be 34. 
 
 ### ChatGPT's Solution
 
@@ -266,10 +266,109 @@ It seems like ChatGPT was stumped with this problem because the solution it prod
 
 This is the solution produced by ChatGPT when I asked it for a more efficient solution. It claims that this solution reduces the search space, however, the for loop still runs for O(N) time. The only change of the function was to return the number of odd and even digits instead of returning a boolean, however, these numbers are used in an and statement to produce a boolean anyways, so this solution actually requires more computations than the one ChatGPT gave before. Both the syntax and logic are correct again, but it is obvious that ChatGPT does not automatically know about the DP solution when not prompted about it. 
 
-## Add Another Example that Stumps ChatGPT
+## Count of Non-Consecutive Ones in Binary Range
 
-Place Review Here
+Given two positive integers ‘L’ and ‘R‘, the task is to return the number of the integers in the range [L, R] inclusive, whose binary representations do not contain consecutive ones where 0 ≤ l ≤ r ≤ 10^9.
 
+### ChatGPT's Solution
+
+    #include <iostream>
+    #include <vector>
+    
+    using namespace std;
+    
+    int countNonConsecutiveOnes(int L, int R) {
+        int count = 0;
+    
+        for (int i = L; i <= R; ++i) {
+            bool consecutiveOnes = false;
+            int num = i;
+    
+            while (num > 0) {
+                int lastBit = num & 1;
+                num >>= 1;
+                
+                if (lastBit == 1 && (num & 1) == 1) {
+                    consecutiveOnes = true;
+                    break;
+                }
+            }
+    
+            if (!consecutiveOnes) {
+                count++;
+            }
+        }
+    
+        return count;
+    }
+    
+    int main() {
+        // Example usage
+        int L = 10;
+        int R = 20;
+    
+        int result = countNonConsecutiveOnes(L, R);
+    
+        cout << "Number of integers with non-consecutive ones in binary representation: " << result << endl;
+    
+        return 0;
+    }
+
+
+The code that ChatGPT generates solves the problem, however, it is quite inefficient when compared with the most efficient solution. The most optimized solution for this problem uses a 3D array to save answers seen before, which makes the time complexity close to linear. For the ChatGPT solution, there is no use of any additional memory to store previous answers, so because of this, ChatGPT's solution has to search through the whole answer space for each number, which leads to a runtime closer to exponential than linear. 
+
+### ChatGPT's More Optimal Solution
+
+    #include <iostream>
+    
+    using namespace std;
+    
+    int countNonConsecutiveOnes(int L, int R) {
+        auto getBit = [](int num, int pos) -> int {
+            return (num >> pos) & 1;
+        };
+    
+        int count = 0;
+    
+        for (int bitPos = 30; bitPos >= 0; --bitPos) {
+            int bitL = getBit(L, bitPos);
+            int bitR = getBit(R, bitPos);
+    
+            if (bitL == 1 && bitR == 1) {
+                // If both bits are 1, no more valid numbers for this bit position
+                break;
+            }
+    
+            if (bitL == 0 && bitR == 0) {
+                // If both bits are 0, the count remains the same
+            } else if (bitL == 0 && bitR == 1) {
+                // If transitioning from 0 to 1, valid numbers for this bit position are counted from both states
+                count += (1 << bitPos);
+            } else if (bitL == 1 && bitR == 0) {
+                // If transitioning from 1 to 0, no more valid numbers for this bit position
+                break;
+            }
+        }
+    
+        return count;
+    }
+    
+    int main() {
+        // Example usage
+        int L = 10;
+        int R = 20;
+    
+        int result = countNonConsecutiveOnes(L, R);
+    
+        cout << "Number of integers with non-consecutive ones in binary representation: " << result << endl;
+    
+        return 0;
+    }
+
+This solution is not that much more efficient than the last, it now just uses more space to keep track of numbers that end with 0 and numbers that end with 1. That is not the right intuition to approach this problem with DP. It is also interesting how ChatGPT states that it uses DP in the generated output, however, there is no DP readily apparent in the solution. It seems as if ChatGPT does not know what path to go down in order to approach this problem. I am not surprised as a DP problem requiring a 3D array is one that I did not suspect AI to be able to solve yet. 
+    
 ---
 
 Link to the Chat: https://chat.openai.com/share/5f6bd9fb-4934-4031-9e03-1c4276eb3fbb
+
+The first half contains Python solutions that I then converted to C++ and the second half contains the solutions directly generated as C++. 
