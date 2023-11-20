@@ -369,6 +369,6 @@ This solution is not that much more efficient than the last, it now just uses mo
     
 ---
 
-Link to the Chat: https://chat.openai.com/share/5f6bd9fb-4934-4031-9e03-1c4276eb3fbb
+Link to the Chat: https://chat.openai.com/share/42ba9a47-7d87-4940-b55a-6065662640d8
 
 The first half contains Python solutions that I then converted to C++ and the second half contains the solutions directly generated as C++. 
