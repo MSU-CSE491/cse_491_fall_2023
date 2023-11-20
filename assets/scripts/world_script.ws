@@ -11,3 +11,13 @@ loadWorld("assets/grids/lang_load_test.grid")
 _="Place the player agent into the world"
 player=addAgent("Player","PlayerAgent","%",1,1)
 setAgentProperty(player,"DoAction","../assets/scripts/player_move.ws")
+setAgentProperty(player,"Strength",7)
+setAgentProperty(player,"Defense",2)
+setAgentProperty(player,"Health",10)
+
+player2=addAgent("Player","PlayerAgent2","&",3,3)
+setAgentProperty(player2,"DoAction","../assets/scripts/player_move.ws")
+setAgentProperty(player2,"Strength",4)
+setAgentProperty(player2,"Defense",5)
+setAgentProperty(player2,"Health",15)
+

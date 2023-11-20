@@ -265,12 +265,12 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 		}
 	}
 	
-	//TODO: This has become absurdly slow?
-/*	SECTION("Multiple return into multiple args"){
+	//TODO: Figure out why this is slow?
+	SECTION("Multiple return into multiple args"){
 		PROGRAM_RUN("a=sum(seq(5))\n"){
 			CHECK(pe.var<double>("a") == 15.0);
 		}
-	}*/
+	}
 	
 	SECTION("Allow blank lines"){
 		PROGRAM_RUN("a=5\n\nb=5\n"){
@@ -342,8 +342,30 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 			CHECK(pe.var<double>("x") == 0.0);
 		}
 	}
-}
+	
+	SECTION("User defined function"){
+		PROGRAM_RUN("s(){\na=5\n}\na=0\ns()\n"){
+			CHECK(pe.var<double>("a") == 5);
+		}
+	}
+	
+	SECTION("User defined function with arguments"){
+		PROGRAM_RUN("s2(){\na=5\n}\ns(a,b){\nc=a\nd=b\ns2()\n}\ns(1,3)\n"){
+			CHECK(pe.var<double>("c") == 1.0);
+			CHECK(pe.var<double>("d") == 3.0);
+			CHECK(pe.var<double>("a") == 5.0); // assigned in s by s2
+			CHECK(pe.var<double>("b") == 3.0); // assigned via function call
+		}
+	}
+	
+	SECTION("User defined function (recursive)"){
+		PROGRAM_RUN("s=0\nf(x){\nif(x>0){\ns=s+x\nf(x-1)\n}\n}\nf(5)\n"){
+			CHECK(pe.var<double>("s") == 15.0);
+			CHECK(pe.var<double>("x") == 0.0);
+		}
+	}
 
+}
 
 TEST_CASE("Program execution errors", "[World][Langauge]"){
 	SECTION("Error check for wrong number of arguments"){

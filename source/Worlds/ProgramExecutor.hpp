@@ -37,7 +37,7 @@ namespace worldlang {
 		/// To return values from a function, use ProgramExecutor::pushStack().
 		using Callable = std::function<void(ProgramExecutor&)>;
 		
-		struct Identifier : std::string {}; 
+		struct Identifier : std::string {};
 		
 		/// Variant type containing all possible values types for variables.
 		using Value = std::variant < double, std::string, Callable, Identifier >;
@@ -48,10 +48,10 @@ namespace worldlang {
 		std::map<std::string, std::vector<Unit>> scripts;
 		
 		/// Executable code units (set by run(), etc.)
-		std::vector<Unit>* code;
+		std::vector<Unit>* code = nullptr;
 		
 		/// Program counter
-		size_t index;
+		size_t index = 0;
 		
 		/// Variables
 		std::map < std::string, Value > variables{};
@@ -106,7 +106,21 @@ namespace worldlang {
 					skipBlock();
 					index++; // skip end_block or else it tries to jump to beginning
 				}
-				
+			});
+			// Log some values
+			registerFunction("print", [this](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				for (auto a : args){
+					if (pe.has<double>(a)){
+						std::cout << pe.as<double>(a);
+					} else if (pe.has<std::string>(a)){
+						std::cout << pe.as<std::string>(a);
+					} else if (pe.has<Callable>(a)){
+						std::cout << "<Callable>";
+					}
+					std::cout << ", ";
+				}
+				std::cout << std::endl;
 			});
 		}
 		
@@ -164,11 +178,16 @@ namespace worldlang {
 				if (pe.has<double>(value)){
 					agent.SetProperty(prop, as<double>(value));
 				} else if (pe.has<std::string>(value)){
-					agent.SetProperty(prop, as<std::string>(value));
+					auto s = as<std::string>(value);
+					// silly hack
+					if (s.size() == 1){
+						agent.SetProperty(prop, s[0]);
+					} else {
+						agent.SetProperty(prop, s);
+					}
 				} else {
 					error("Unsupported property type!");
 				}
-//				pe.pushStack(static_cast<double>(agent->GetID()));
 			});
 			// Get agent property
 			registerFunction("getAgentProperty", [this, &world](ProgramExecutor& pe){
@@ -184,9 +203,9 @@ namespace worldlang {
 				if(agent.HasProperty(prop)){
 					// property exists but type is unknown
 					pushStack(agent.GetProperty<double>(prop));
+				} else {
+					error("Unsupported property type!");
 				}
-				error("Unsupported property type!");
-//				pe.pushStack(static_cast<double>(agent->GetID()));
 			});
 			// Get agent position
 			registerFunction("getAgentPosition", [this, &world](ProgramExecutor& pe){
@@ -202,7 +221,6 @@ namespace worldlang {
 				auto y = agent.GetPosition().GetY();
 				pushStack(x);
 				pushStack(y);
-//				pe.pushStack(static_cast<double>(agent->GetID()));
 			});
 			// Set agent position
 			registerFunction("setAgentPosition", [this, &world](ProgramExecutor& pe){
@@ -216,7 +234,58 @@ namespace worldlang {
 				
 				AgentBase& agent = world.GetAgent(agent_id);
 				agent.SetPosition(x, y);
-//				pe.pushStack(static_cast<double>(agent->GetID()));
+			});
+			// Get agent at this position
+			registerFunction("findAgentAt", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto x = pe.as<double>(args[0]);
+				auto y = pe.as<double>(args[1]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				auto res = world.FindAgentsAt({x, y});
+				if (res.size()){
+					pe.pushStack(static_cast<double>(res[0]));
+				} else {
+					pe.pushStack(-1.0);
+				}
+			});
+			// Get item at this position
+			registerFunction("findItemAt", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto x = pe.as<double>(args[0]);
+				auto y = pe.as<double>(args[1]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				auto res = world.FindItemsAt({x, y});
+				if (res.size()){
+					pe.pushStack(static_cast<double>(res[0]));
+				} else {
+					pe.pushStack(-1.0);
+				}
+			});
+			// Get a random number
+			registerFunction("rand", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() > 2) { error("Wrong number of arguments!"); return; }
+				if (args.size() == 0){
+					// random double in [0,1]
+					pushStack(world.GetRandom());
+				} else if (args.size() == 1){
+					// random int in [0,max]
+					auto max = pe.as<double>(args[0]) + 1;
+					pushStack((double)(int)world.GetRandom(max)); // casts for rounding
+				} else if (args.size() == 2){
+					// random int in [min,max]
+					auto min = pe.as<double>(args[0]);
+					auto max = pe.as<double>(args[1]) + 1;
+					pushStack((double)(int)world.GetRandom(min,max)); // casts for rounding
+				}
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
 			});
 		}
 		
@@ -484,12 +553,12 @@ namespace worldlang {
 								auto b = values[i];
 								
 								if (!std::holds_alternative<Identifier>(b)){
-									variables.insert_or_assign(static_cast<std::string>(a), b);
+									setVariable(static_cast<std::string>(a), b);
 								} else {
 									// exception if variable b does not exist
 									try {
 										auto& b_var = variables.at(static_cast<std::string>(as<Identifier>(b)));
-										variables.insert_or_assign(static_cast<std::string>(a), b_var);
+										setVariable(static_cast<std::string>(a), b_var);
 									} catch (const std::out_of_range& e){
 										error("Variable did not exist!");
 									}
@@ -621,6 +690,10 @@ namespace worldlang {
 							} else if (type == "__IF_BLOCK"){
 								// this only runs once, don't really need to save this
 								call_stack.pop();
+							} else if (type == "__FUNCTION_BLOCK"){
+								// return from function
+								index = static_cast<int>(as<double>(call_stack.top().at(1)));
+								call_stack.pop();
 							}
 						} else {
 							error("Unknown operation '" + unit.value + "'");
@@ -639,6 +712,57 @@ namespace worldlang {
 							break;
 						} else {
 							error("Function " + unit.value + " does not exist!");
+						}
+						break;
+					
+					case Unit::Type::function_decl:
+						{
+						log << "Create function " << unit.value << std::endl;
+						auto vars = popArgs(); // should consist of variable names only
+						for (auto& v : vars){
+							if (!std::holds_alternative<Identifier>(v)){
+								error("Function definition only accepts identifiers!");
+							}
+						}
+						
+						if (!getErrorMessage().empty()) break;
+						// args are all vars
+						auto func_body_index = index;
+						auto func = [this, vars, func_body_index](ProgramExecutor& pe){
+							// first: assign to all vars the values on the stack
+							auto values = pe.popArgs();
+							if (values.size() != vars.size()){
+								error("Invalid number of arguments (to user-defined function)!");
+								return;
+							}
+							
+							for (size_t i = 0; i < vars.size(); ++i){
+								auto a = static_cast<std::string>(std::get<Identifier>(vars[i]));
+								auto b = values[i];
+								
+								if (!std::holds_alternative<Identifier>(b)){
+									setVariable(a, b);
+								} else {
+									// exception if variable b does not exist
+									try {
+										auto& b_var = variables.at(static_cast<std::string>(as<Identifier>(b)));
+										setVariable(a, b_var);
+									} catch (const std::out_of_range& e){
+										error("Variable did not exist!");
+									}
+								}
+							}
+							// Assigned stack values to vars (as best as possible)
+							// Store return index
+							call_stack.push({"__FUNCTION_BLOCK", static_cast<double>(this->index)});
+							// Assign PC to start of code block
+							this->index = func_body_index;
+						};
+						
+						// Assign this created function to this name
+						setVariable(unit.value, func);
+						skipBlock(); // skip past the function definition
+						++index;
 						}
 						break;
 					

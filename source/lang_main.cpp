@@ -83,13 +83,14 @@ protected:
 	
 public:
 	WorldDerived(const std::string& filename) : WorldBase(), pe{*this} {
-		if (!(stable = pe.runFile(filename))){
-			std::cout << "Error: Failed to run initial script!" << std::endl;
-		}
 		pe.setVariable("MOVE_UP", static_cast<double>(MOVE_UP));
 		pe.setVariable("MOVE_DOWN", static_cast<double>(MOVE_DOWN));
 		pe.setVariable("MOVE_LEFT", static_cast<double>(MOVE_LEFT));
 		pe.setVariable("MOVE_RIGHT", static_cast<double>(MOVE_RIGHT));
+		
+		if (!(stable = pe.runFile(filename))){
+			std::cout << "Error: Failed to run initial script!" << std::endl;
+		}
 	}
 	~WorldDerived() = default;
 	
@@ -100,9 +101,12 @@ public:
 	int DoAction(AgentBase &agent, size_t action_id) override {
 		// Determine where the agent is trying to move.
 		if (agent.HasProperty("DoAction")){
+			pe.setVariable("agent", (double)agent.GetID());
 			pe.setVariable("action_id", (double)action_id);
 			pe.runFile(agent.GetProperty<std::string>("DoAction"));
+			return 1;
 		}
+		return 0;
 	}
 
 	/// Can walk on all tiles except for walls and water (unless agent has property set)
@@ -128,7 +132,6 @@ public:
 		type_options[id].SetProperty(prop);
 	}
 };
-
 
 DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
 	// Set up constants

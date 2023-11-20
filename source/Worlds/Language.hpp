@@ -273,7 +273,10 @@ namespace worldlang{
 	>
 	{};
 	
-	struct program : statement_list
+	struct program : pegtl::seq<
+		statement_list,
+		pegtl::eolf
+	>
 	{};
 	
 	/// Selector for tree generation
@@ -316,6 +319,7 @@ namespace worldlang{
 			identifier,
 			function,
 			operation,
+			function_decl,
 		};
 		/// This determines how this unit is used within the interpreter.
 		/// The type of this code unit.
@@ -330,9 +334,7 @@ namespace worldlang{
 	 * Converts a program string into code units using PEGTL
 	 */
 	std::vector<Unit> parse_to_code(std::string program){
-
-		
-
+		program = stripWhitespace(program);
 		pegtl::string_input in(program, "program");
 		std::vector<Unit> out{};
 		
@@ -393,8 +395,25 @@ namespace worldlang{
 				traverse(node->children.at(0));
 				out.push_back(Unit{Unit::Type::operation, "end_block"});
 			} else if (type == "worldlang::statement"){
-				for (const auto& child : node->children){
-					traverse(child);
+				if (node->children.size()){
+//					auto value = node->children.at(0)->string();
+					auto& first = node->children.at(0);
+					if (first->type == "worldlang::function" 
+						&& first->children.at(0)->string() != "if"
+						&& first->children.at(0)->string() != "for"
+						&& node->children.size() > 1
+						&& node->children.at(1)->type == "worldlang::code_block"){
+						// encode differently here to use for definitions
+						// <values> . a b c d e funcname(decl)
+						// funcname assigns variables, then jumps to code
+						traverse(node->children.at(0)); // function
+						out.back().type = Unit::Type::function_decl;
+						traverse(node->children.at(1)); // function code
+					} else {
+						for (const auto& child : node->children){
+							traverse(child);
+						}
+					}
 				}
 				out.push_back(Unit{Unit::Type::operation, "endline"});
 			} else {
