@@ -13,21 +13,13 @@ int main()
 {
   cse491_team8::ManualWorld world;
 
-  auto axe1 = std::make_unique<cse491::ItemBase>(1, "Axe");
-  axe1->SetProperties("Uses", 5, "symbol", 'P');
-  axe1->SetPosition(37, 3);
-  world.AddItem(std::move(axe1));
-
-  auto axe2 = std::make_unique<cse491::ItemBase>(2, "Axe");
-  axe2->SetProperties("Uses", 10, "symbol", 'P');
-  axe2->SetPosition(40, 5);
-  world.AddItem(std::move(axe2));
-
-  auto boat2 = std::make_unique<cse491::ItemBase>(3, "Boat");
-  boat2->SetProperties("Uses", 7, "symbol", 'U');
-  boat2->SetPosition(18, 4);
-  world.AddItem(std::move(boat2));
+  world.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(37, 3);
+  world.AddItem("Axe", "Uses", 10, "symbol", 'P').SetPosition(40, 5);
+  world.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
   
+  world.AddItem("Sword", "Strength", 4, "symbol", 't').SetPosition(27, 11);
+  world.AddItem("Health Potion", "Health", 6, "symbol", 'j').SetPosition(38, 16);
+
   world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 15, "Health", 15, "Max_Health", 40, "Direction", 0).SetProperty("symbol", '@').SetPosition(40,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health",  5, "Max_Health", 30, "Direction", 0).SetPosition(45, 3);
   world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 15, "Health", 10, "Max_Health", 30, "Direction", 0).SetPosition(3,14);
