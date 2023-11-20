@@ -1,8 +1,8 @@
 # Navigating the C++ Ranges Library: A User's Journey
-
+###### By Ahmad Arman Newaz
 If you've been keeping an eye on C++ developments, you've probably heard of the C++ Ranges library, introduced in C++20. 
 This library promises to revolutionize the way we work with sequences of data, making our code cleaner, more expressive,
-and efficient. But what's it like for a newcomer to download, compile, and integrate this library into their code? In 
+and more efficient. But what's it like for a newcomer to download, compile, and integrate this library into their code? In 
 this blog post, I'm going to share my experience and insights on working with the C++ Ranges library.
 
 ## Getting Started
