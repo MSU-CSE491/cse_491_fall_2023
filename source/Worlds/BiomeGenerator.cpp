@@ -137,7 +137,7 @@ vector<GridPosition> BiomeGenerator::clearPath() const {
     path.push_back(current);
 
     while (current.GetX() < width - 1) {
-        int randDirection = (int)worldPtr->GetRandom() % 3; // 0: Right, 1: Up, 2: Down
+        int randDirection = (int)worldPtr->GetRandom(1, 4) % 3; // 0: Right, 1: Up, 2: Down
 
         // Choose next point based on random direction
         GridPosition next = current;
