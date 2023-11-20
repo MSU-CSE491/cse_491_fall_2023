@@ -251,25 +251,25 @@ namespace cse491_team8 {
         if (random <= 4) {
             symbol = '/';
             loot = "Stick";
-            action = "Hit";
+            action = "Strength";
             num_actions = 2;
         }
         else if (random <= 7) {
             symbol = 'U';
             loot = "Boat";
-            action = "Swim";
+            action = "Uses";
             num_actions = 10;
         }
         else if (random <= 9) {
             symbol = 'P';
             loot = "Axe";
-            action = "Chop";
+            action = "Uses";
             num_actions = 5;
         }
         else {
             symbol = '!';
             loot = "Sword";
-            action = "Hit";
+            action = "Strength";
             num_actions = 5;
         }
 
@@ -327,6 +327,21 @@ namespace cse491_team8 {
         if (agent_ptr->IsInterface())
         {
           CheckAround(*agent_ptr);
+          for (auto & item : item_map) {
+            if (item.second->IsOwnedBy(agent_ptr->GetID())) {
+              int result = 0;
+              if (item.second->HasProperty("Uses"))
+              {
+                  result = item.second->GetProperty<int>("Uses");
+              }
+              else
+              {
+                  result = item.second->GetProperty<int>("Strength");
+              }
+              std::cout << item.second->GetName() << ": " << result << std::endl;
+            }
+          }
+          std::cout << "Strength: " << agent_ptr->GetProperty<int>("Strength") << std:: endl;
           break;
         }
       }
@@ -356,12 +371,12 @@ namespace cse491_team8 {
         if (item_ptr->GetPosition() == new_position)
         {
           std::string uses_property = "";
-          if (item_ptr->GetName() == "Stick") { uses_property = "Hit"; }
-          if (item_ptr->GetName() == "Sword") { uses_property = "Hit"; }
-          if (item_ptr->GetName() == "Boat") { uses_property = "Swim"; }
-          if (item_ptr->GetName() == "Axe")  { uses_property = "Chop"; }
+          if (item_ptr->GetName() == "Stick") { uses_property = "Strength"; }
+          if (item_ptr->GetName() == "Sword") { uses_property = "Strength"; }
+          if (item_ptr->GetName() == "Boat") { uses_property = "Uses"; }
+          if (item_ptr->GetName() == "Axe")  { uses_property = "Uses"; }
 
-          if (uses_property != "")
+          if (uses_property == "Strength")
           {
             if (agent.HasProperty(uses_property))
             {
@@ -374,10 +389,11 @@ namespace cse491_team8 {
           }
 
           std::cout << "Picked up the " << item_ptr->GetName() << "!\n"
-                    << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
+                    << "You now have " << item_ptr->GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
 
           // remove it from the board
-          RemoveItem(item_ptr->GetID());
+          item_ptr->SetOwner(agent);
+          // RemoveItem(item_ptr->GetID());
 
           break;
         }
@@ -438,16 +454,29 @@ namespace cse491_team8 {
     /// @param new_position The position being interacted with
     /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
     void DoActionTestNewPositionTree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
-        if (agent.HasProperty("Chop") && agent.GetProperty<int>("Chop") > 0)
+        int item_id = -1;
+        for (auto & item : item_map)
+        {
+          if (item.second->GetName() == "Axe" && item.second->IsOwnedBy(agent.GetID()) && item.second->GetProperty<int>("Uses") > 0)
+          {
+            item_id = item.second->GetID();
+            break;
+          }
+        }
+        // if (agent.HasProperty("Uses") && agent.GetProperty<int>("Uses") > 0)
+        if (item_id > -1)
         {
             std::cout << "You can use your Axe once to chop down this tree. You have "
-                << agent.GetProperty<int>("Chop") << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
+                << item_map[item_id]->GetProperty<int>("Uses") << " uses remaining. Chop this tree? Y/N:\n" << std::endl;
             char chop;
             std::cin >> chop;
             if (chop == 'Y' || chop == 'y')
             {
                 // decrement uses by 1, change the tree to grass, but don't move the agent's position
-                agent.SetProperty("Chop", agent.GetProperty<int>("Chop") - 1);
+                item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
+                if (item_map[item_id]->GetProperty<int>("Uses") == 0) {
+                  RemoveItem(item_id);
+                }
                 main_grid[new_position] = grass_id;
             }
         }
@@ -459,42 +488,55 @@ namespace cse491_team8 {
     /// @param agent The agent trying to interact
     /// @return True if the agent is able to (and chooses) to move to the new spot, else false
     bool DoActionTestNewPositionWater(cse491::AgentBase& agent) {
-        if (agent.HasProperty("Swim") && agent.GetProperty<int>("Swim") > 0)
+        if (agent.HasProperty("OnlyWater"))
+        {
+            return true;
+        }
+
+        int item_id = -1;
+        for (auto & item : item_map)
+        {
+          if (item.second->GetName() == "Boat" && item.second->IsOwnedBy(agent.GetID()) && item.second->GetProperty<int>("Uses") > 0)
+          {
+            item_id = item.second->GetID();
+            break;
+          }
+        }
+
+        if (item_id > -1)
         {
             agent.Notify("You can use your Boat once to float over this tile. You have "
-                + std::to_string(agent.GetProperty<int>("Swim")) + " uses remaining. Use your boat? Y/N:\n");
+                + std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Use your boat? Y/N:\n");
             char boat;
             std::cin >> boat;
             if (boat == 'Y' || boat == 'y')
             {
-                // decrement uses by 1, and display agent over top of water tile
-                agent.SetProperty("Swim", agent.GetProperty<int>("Swim") - 1);
-
-                if (agent.GetProperty<int>("Swim") == 0)
-                {
+                item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
+                if (item_map[item_id]->GetProperty<int>("Uses") == 0) {
+                    RemoveItem(item_id);
+                    
                     // they're on the water, and they no longer have a boat
                     agent.Notify("No boat uses left! Try again? Y/N:\n");
                     char again;
                     std::cin >> again;
                     if (again == 'N' || again == 'n')
                     {
-                        exit(0);
+                        run_over = true;
                     }
                     else
                     {
                         // reset the interface to starting position, don't update
                         // with the new position back in the calling function
                         agent.SetPosition(40, 3);
-                        return false;
                     }
+                    return false;
                 }
                 
                 // still have boat uses left, used the boat so position is valid
                 return true;
             }
-            else { return false; }    // did not use boat
         }
-        else { return false; }        // does not have boat
+        return false;
     }
 
     /// Allow the agents to move around the maze.
@@ -525,6 +567,14 @@ namespace cse491_team8 {
           // if they didn't move onto the water tile, we don't update their position
           // return false from here
           if (not moved) { return false; }
+      }
+
+      if (main_grid.At(new_position) == grass_id)
+      {
+        if (agent.HasProperty("OnlyWater"))
+        {
+          return false;
+        }
       }
 
       // Set the agent to its new postion.
