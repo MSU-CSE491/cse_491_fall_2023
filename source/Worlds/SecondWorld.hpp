@@ -34,6 +34,32 @@ class SecondWorld : public cse491::WorldBase {
   /// @brief File name for agent input JSON file.
   std::string agents_filename = "";
 
+  /**
+   * Switches to the next grid file
+   * and resets player position and item map.
+   * @param agent The player agent
+   * @param pos The player position
+   */
+  void SwitchGrid(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+    if (world_filename == FIRST_FLOOR_FILENAME) {
+      world_filename = SECOND_FLOOR_FILENAME;
+      agents_filename = "../assets/second_floor_input.json";
+    } else if (world_filename == SECOND_FLOOR_FILENAME) {
+      world_filename = FINAL_FLOOR_FILENAME;
+      agents_filename = "../assets/third_floor_input.json";
+    }
+
+    agent.Notify("Going to " + world_filename, "world_switched");
+
+    // Need to clear item_map so that items don't stay for the next floor.
+    item_map.clear();
+
+    // Resetting the current new_position to the top left of the new grid.
+    pos = cse491::GridPosition(0, 0);
+    main_grid.Read(world_filename, type_options);
+    LoadFromFile(agents_filename);
+  }
+
  protected:
   enum ActionType {
     REMAIN_STILL = 0,
@@ -228,20 +254,12 @@ class SecondWorld : public cse491::WorldBase {
 
       agent.Notify("Leaving " + world_filename, "world_switched");
 
-      if (world_filename == FIRST_FLOOR_FILENAME) {
-        agent.Notify("Going to " + SECOND_FLOOR_FILENAME, "world_switched");
-
-        world_filename = SECOND_FLOOR_FILENAME;
-        agents_filename = "../assets/second_floor_input.json";
-
-        // Need to clear item_map so that items don't stay for the next floor.
-        item_map.clear();
-
-        // Resetting the current new_position to the top left of the new grid.
-        pos = cse491::GridPosition(0, 0);
-        main_grid.Read(SECOND_FLOOR_FILENAME, type_options);
-        LoadFromFile(agents_filename);
-
+      if (world_filename == FIRST_FLOOR_FILENAME ||
+          world_filename == SECOND_FLOOR_FILENAME) {
+        // We are currently on floor 1 or 2,
+        // so switch to the next world
+        // and reset the item_map and player position.
+        SwitchGrid(agent, pos);
       } else if (world_filename == FINAL_FLOOR_FILENAME) {
         agent.Notify("Congrats, you won the game!", "congrats_msg");
         run_over = true;
