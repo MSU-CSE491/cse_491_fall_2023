@@ -396,10 +396,10 @@ namespace cse491_team8 {
         if (item_ptr->GetPosition() == new_position)
         {
           std::string uses_property = "";
-          if (item_ptr->GetName() == "Stick") { uses_property = "Hit"; }
-          if (item_ptr->GetName() == "Sword") { uses_property = "Hit"; }
+          if (item_ptr->GetName() == "Stick" || item_ptr->GetName() == "Sword") { uses_property = "Strength"; }
           if (item_ptr->GetName() == "Boat") { uses_property = "Swim"; }
           if (item_ptr->GetName() == "Axe")  { uses_property = "Chop"; }
+          if (item_ptr->GetName() == "Health Potion") { uses_property = "Health"; }
 
           if (uses_property != "")
           {
@@ -413,8 +413,9 @@ namespace cse491_team8 {
             }
           }
 
-          agent.Notify("Picked up the " + item_ptr->GetName() + "!\nYou now have " +
-                        std::to_string(agent.GetProperty<int>(uses_property)) + " uses left of this item.\n");
+          agent.Notify("Picked up the " + item_ptr->GetName() + "!\nYou gained " +
+                        std::to_string(agent.GetProperty<int>(uses_property)) + " " +
+                        uses_property + "!\n");
 
           // remove it from the board
           RemoveItem(item_ptr->GetID());
