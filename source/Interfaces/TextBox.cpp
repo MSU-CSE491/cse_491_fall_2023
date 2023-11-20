@@ -15,16 +15,15 @@
  * @param sel Set the activity of TextBox
  */
 i_2D::TextBox::TextBox(const sf::Font &font, int size, sf::Color color, bool sel) {
+
     mTextBox = std::make_unique<sf::Text>(font);
     mTextBox->setCharacterSize(size);
     mTextBox->setFillColor(color);
-    mTextBox->setPosition({5,600});
+    mTextBox->setPosition({10,650});
     isSelected = sel;
-    if(sel){
-        mTextBox->setString("_");
-    }else{
-        mTextBox->setString("");
-    }
+    if(!isSelected)
+        mTextBox->setString("Press Enter!");
+
 }
 /**
  * @brief Set the string of the text
@@ -54,9 +53,9 @@ void i_2D::TextBox::TypedOn(sf::Event input) {
         int charTyped = static_cast<int>(input.text.unicode);
         if(charTyped < 128){
             if(hasLimit){
-                if(static_cast<int>(mText.str().length()) <= limit){
+                if(static_cast<int>(mText.str().length()) <= MAX_CHAR){
                     InputLogic(charTyped);
-                }else if( static_cast<int>(mText.str().length()) > limit && charTyped == DELETE_KEY){
+                }else if( static_cast<int>(mText.str().length()) > MAX_CHAR && charTyped == DELETE_KEY){
                     DeleteLastChar();
                 }
             }else{
@@ -67,13 +66,28 @@ void i_2D::TextBox::TypedOn(sf::Event input) {
 }
 
 void i_2D::TextBox::InputLogic(int charTyped) {
-    if(charTyped != DELETE_KEY && charTyped != ENTER_KEY && charTyped != ESCAPE_KEY){
-        mText << static_cast<char>(charTyped);
-    }else if (charTyped == DELETE_KEY){
-        if(mText.str().length() > 0){
-            DeleteLastChar();
+    if(isSelected)
+    {
+        if (charTyped != DELETE_KEY && charTyped != ENTER_KEY && charTyped != ESCAPE_KEY) {
+            if (mText.str().length() < MAX_CHAR) {
+                mText << static_cast<char>(charTyped);
+            }
+            else if (mText.str().length() >= MAX_CHAR) {
+                hasLimit = true;
+            }
+        } else if (charTyped == ENTER_KEY) {
+            // Handle line breaks
+            if (mText.str().length() < MAX_CHAR) {
+                mText << '\n';
+                hasLimit = false;
+            }
+        } else if (charTyped == DELETE_KEY) {
+            if (mText.str().length() > 0) {
+                DeleteLastChar();
+            }
         }
     }
+
     mTextBox->setString(mText.str() + "_");
 }
 
@@ -87,3 +101,23 @@ void i_2D::TextBox::DeleteLastChar() {
     mText << newT;
     mTextBox->setString(mText.str());
 }
+/**
+* @brief Draws the text to the render window
+*
+* @param window The render window to be drawn on
+*/
+void i_2D::TextBox::DrawTo(sf::RenderWindow &window){
+
+    mBorderRect.setSize(sf::Vector2f(800, 50));
+    //Subtracts the vector (5, 5) from the position of mTextBox. This creates a new position
+    // slightly to the left and up from the original position, effectively creating a margin.
+    mBorderRect.setPosition(mTextBox->getPosition() - sf::Vector2f(5, 5));
+    mBorderRect.setFillColor(sf::Color(200, 200, 200));
+    mBorderRect.setOutlineThickness(2.0f);  //  thickness of the border
+    mBorderRect.setOutlineColor(sf::Color::Black);
+
+    window.draw(mBorderRect);
+    window.draw(*mTextBox);
+
+}
+

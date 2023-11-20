@@ -4,8 +4,7 @@
  * TextBox class enables interface entity to send message to the MessageBoard and World
  */
 
-#ifndef CSE_491_TEXTBOX_HPP
-#define CSE_491_TEXTBOX_HPP
+#pragma once
 
 #include<iostream>
 #include<SFML/Graphics.hpp>
@@ -27,10 +26,13 @@ namespace i_2D {
         bool isSelected = false; /// Flag for checking text mode
         bool hasLimit = false; /// Flag for checking limit mode
         int limit = 10000; /// The limit of characters allowed
+        const int MAX_CHAR = 60; ///< max character per line in the textbox
+        // Draw the border around the TextBox
+        sf::RectangleShape mBorderRect;
 
     public:
         TextBox()=default;
-        explicit TextBox(const sf::Font &font ,int size = 35, sf::Color color = sf::Color::Green, bool sel = true);
+        explicit TextBox(const sf::Font &font ,int size = 25, sf::Color color = sf::Color::Red, bool sel = false);
         void SetString(const std::string &s);
         /**
          * @brief Set the font of the TextBox
@@ -75,14 +77,7 @@ namespace i_2D {
         std::string GetText(){
             return mText.str();
         }
-        /**
-         * @brief Draws the text to the render window
-         *
-         * @param window The render window to be drawn on
-         */
-        void DrawTo(sf::RenderWindow &window){
-            window.draw(*mTextBox);
-        }
+        void DrawTo(sf::RenderWindow &window);
         void TypedOn(sf::Event input);
         /**
          * @brief Checks if TextBox is active
@@ -92,10 +87,14 @@ namespace i_2D {
         bool IsSelected() const{
             return isSelected;
         }
+
+        bool Contains(sf::Vector2f point) const {
+            return mBorderRect.getGlobalBounds().contains(point);
+        }
+
     private:
         void InputLogic(int charTyped);
         void DeleteLastChar();
     };
 }
 
-#endif //CSE_491_TEXTBOX_HPP

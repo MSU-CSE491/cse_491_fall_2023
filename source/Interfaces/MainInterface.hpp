@@ -98,11 +98,8 @@ namespace i_2D {
 
         size_t HandleKeyEvent(const sf::Event &event);
 
-        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall);
+        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture);
 
-        void DrawEmptyCell(sf::RectangleShape &cellRect);
-
-        void DrawDefaultCell(sf::RectangleShape &cellRect);
 
         void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
 
@@ -115,7 +112,7 @@ namespace i_2D {
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
 
         void ChooseTexture();
-        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall);
+        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol);
 
         void Notify(const std::string & message,
                     const std::string & /*msg_type*/="none") override
@@ -124,6 +121,8 @@ namespace i_2D {
             mMessageBoard->Send(message);
         }
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
+
+        void MouseClickEvent(const sf::Event &event);
     };
 
 } // End of namespace 2D

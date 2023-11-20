@@ -25,7 +25,7 @@ namespace i_2D {
         mTextBox = std::make_unique<TextBox>(mFont);
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
-        mMenu.initialize(mFont,sf::Vector2f {a,b});
+        mMenu.initialize(mFont,sf::Vector2f {static_cast<float>(a),static_cast<float>(b)});
 //        mTestButton = std::make_unique<Button>("test",
 //                                               sf::Vector2f (200,50),sf::Color::Black,
 //                                               sf::Color::White,mFont);
@@ -142,9 +142,8 @@ namespace i_2D {
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
                 cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
-//                bool isVerticalWall = (iterY > 0 && symbol_grid[iterY - 1][iterX] == '#') ||
-//                                      (iterY < grid.GetHeight() - 1 && symbol_grid[iterY + 1][iterX] == '#');
-                SwitchCellSelect(cellRect, cell, symbol, false);
+
+                SwitchCellSelect(cellRect, cell, symbol);
 
 
             }
@@ -247,7 +246,10 @@ namespace i_2D {
                     exit(0);
 
                 } else if (event.type == sf::Event::TextEntered) {
-                    mTextBox->TypedOn(event);
+                    if (mTextBox->IsSelected()) {
+                        mTextBox->TypedOn(event);
+                    }
+
                 } else if (event.type == sf::Event::KeyPressed) {
                     return HandleKeyEvent(event);
 
@@ -258,13 +260,9 @@ namespace i_2D {
                     mMenu.HandleMouseMove(mWindow);
 
                 } else if (event.type == sf::Event::MouseButtonPressed) {
-                    if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
-                        mGridSizeLarge = false;
-                    } else if (mMenu.GetMenu()[4]->isMouseOver(mWindow)) {
-                        mGridSizeLarge = true;
+                    MouseClickEvent(event);
 
-                    } else
-                        mMenu.HandleMouseButtonPressed(mWindow);
+
 
                 } else if (event.type == sf::Event::MouseWheelScrolled) {
 //                    HandleScroll(event);
@@ -311,6 +309,14 @@ namespace i_2D {
                 if (mTextBox->IsSelected())break;
                 action_id = GetActionID("up");
                 break;
+//            case sf::Keyboard::Y:
+//                if (mTextBox->IsSelected())break;
+//                action_id = GetActionID("Y");
+//                break;
+//            case sf::Keyboard::N:
+//                if (mTextBox->IsSelected())break;
+//                action_id = GetActionID("N");
+//                break;
             case sf::Keyboard::A:
                 if (mTextBox->IsSelected())break;
                 action_id = GetActionID("left");
@@ -389,6 +395,12 @@ namespace i_2D {
         // Resize the view to match window size to prevent deformation
         sf::FloatRect viewArea(sf::Vector2f(0, 0), sf::Vector2f(widthWindow, heightWindow));
         mWindow.setView(sf::View(viewArea));
+
+        // Update TextBox position for resizing
+        if (mTextBox) {
+            mTextBox->SetPosition({10, 800});
+//            mTextBox->DrawTo(mWindow);
+        }
     }
 
     /**
@@ -398,39 +410,9 @@ namespace i_2D {
      * @param wallTexture The texture for the wall.
      * @param isVerticalWall for vertical wall
     */
-    void MainInterface::DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall) {
-        // TODO below if the wall has to be placed vertical
-        if (isVerticalWall) {}
-//        if (isVerticalWall) {
-//            sf::Transform transform;
-//            transform.rotate(270.0f, sf::Vector2f(cellPosX + cellSize / 2.0f, cellPosY + cellSize / 2.0f));
-//            transform.rotate(270.0f,sf::Vector2f(cellPosX + cellSize / 2.0f, cellPosY + cellSize / 2.0f));
-//            mWindow.draw(cellRect, transform);
-//            mWindow.draw(cellRect);
-//        } else {
-//            mWindow.draw(cellRect);
-//        }
+    void MainInterface::DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
+
         cellRect.setTexture(&mTextureHolder.GetTexture("wallTexture"));
-        mWindow.draw(cellRect);
-    }
-
-    /**
-     * @brief Draw the cell with black color.
-     *
-     * @param cellRect The rectangle shape of the cell.
-     */
-    void MainInterface::DrawEmptyCell(sf::RectangleShape &cellRect) {
-//        cellRect.setFillColor(sf::Color::Black);
-        mWindow.draw(cellRect);
-    }
-
-    /**
-     * @brief Draw the cell with a bright pink that is hard to miss
-     *
-     * @param cellRect The rectangle shape of the cell.
-     */
-    void MainInterface::DrawDefaultCell(sf::RectangleShape &cellRect) {
-        cellRect.setFillColor(sf::Color::Magenta);
         mWindow.draw(cellRect);
     }
 
@@ -481,17 +463,45 @@ namespace i_2D {
      * @param symbol  - symbol of the cell
      * @param isVerticalWall  - to the wall
      */
-    void MainInterface::SwitchCellSelect(sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol,
-                                         bool isVerticalWall) {
+    void MainInterface::SwitchCellSelect(sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol) {
         switch (symbol) {
             case '#':
-                DrawWall(cellRect, mTexturesCurrent[symbol], isVerticalWall);
+                DrawWall(cellRect, mTexturesCurrent[symbol]);
                 break;
             default:
                 DrawAgentCell(cellRect, cell, mTexturesCurrent[symbol]);
                 break;
         }
     }
+    /**
+     * this function handles mouseclick event
+     * @param event for mouse click
+     */
+    void MainInterface::MouseClickEvent(const sf::Event &event) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            sf::Vector2f mousePos(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
+
+            // Check if the mouse click is inside the TextBox bounds
+            if (mTextBox->Contains(mousePos)) {
+                // Toggle the selected state of the TextBox
+                mTextBox->SetSelected(!mTextBox->IsSelected());
+            } else {
+                // If the click is outside the TextBox, deselect it
+                mTextBox->SetSelected(false);
+            }
+
+            // Check if the mouse is over specific menu items
+            if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
+                mGridSizeLarge = false;
+            } else if (mMenu.GetMenu()[4]->isMouseOver(mWindow)) {
+                mGridSizeLarge = true;
+            } else {
+                // Handle mouse button press for the general menu
+                mMenu.HandleMouseButtonPressed(mWindow);
+            }
+        }
+    }
+
 
 }
 
