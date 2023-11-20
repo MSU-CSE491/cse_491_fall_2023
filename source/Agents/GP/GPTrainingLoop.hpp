@@ -62,11 +62,11 @@ namespace cowboys {
         GPTrainingLoop() {
 
           doc.InsertFirstChild(root);
-          resetMainTagLastGenerations();
+          ResetMainTagLastGenerations();
 
         }
 
-        void resetMainTagLastGenerations() {
+        void ResetMainTagLastGenerations() {
           rootTEMP = lastGenerationsDoc.NewElement("GPLoop");
           lastGenerationsDoc.InsertFirstChild(rootTEMP);
         }
@@ -76,12 +76,12 @@ namespace cowboys {
          * @param numArenas
          * @param NumAgentsForArena
          */
-        void initialize(size_t numArenas = 5, size_t NumAgentsForArena = 100) {
+        void Initialize(size_t numArenas = 5, size_t NumAgentsForArena = 100) {
 
 
           for (size_t i = 0; i < numArenas; ++i) {
             // instantiate a new environment
-            environments.emplace_back( std::make_unique<EnvironmentType>(TRAINING_SEED));
+            environments.emplace_back(std::make_unique<EnvironmentType>(TRAINING_SEED));
 
 
             agents.push_back(std::vector<cowboys::GPAgentBase *>());
@@ -101,13 +101,13 @@ namespace cowboys {
 
           }
 
-          printgrid(0);
+          Printgrid(0);
 
 
         }
 
 
-        double simpleFitnessFunction(cse491::AgentBase &agent, cse491::GridPosition startPosition) {
+        double SimpleFitnessFunction(cse491::AgentBase &agent, cse491::GridPosition startPosition) {
 
           cse491::GridPosition currentPosition = agent.GetPosition();
 
@@ -125,12 +125,15 @@ namespace cowboys {
           return distance - complexity;
         }
 
-
-        void run(size_t numGenerations,
-                 size_t numberOfTurns = 100,
-                 size_t maxThreads = 0) {
-
+        std::filesystem::path getSystemPath(){
           /// XML save filename data
+          std::string relativePath = "../../savedata/GPAgent/";
+          std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
+          std::filesystem::path normalizedAbsolutePath = std::filesystem::canonical(absolutePath);
+          return normalizedAbsolutePath;
+        }
+
+        std::string getDateStr() {
           auto now = std::chrono::system_clock::now();
           std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 
@@ -140,10 +143,52 @@ namespace cowboys {
           oss << std::put_time(&tm_time, "%Y-%m-%d__%H_%M_%S");
           std::string dateTimeStr = oss.str();
 
+          return dateTimeStr;
+        }
 
-          std::string relativePath = "../../savedata/GPAgent/";
-          std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
-          std::filesystem::path normalizedAbsolutePath = std::filesystem::canonical(absolutePath);
+        /**
+         *
+         * @param maxThreads
+         * @param numberOfTurns
+         */
+        void ThreadTrainLoop(int maxThreads = 1, int numberOfTurns = 100) {
+          std::vector<std::thread> threads;
+
+          for (size_t arena = 0; arena < environments.size(); ++arena) {
+            if (maxThreads == 0 || threads.size() < maxThreads) {
+              threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
+            } else {
+              // Wait for one of the existing threads to finish
+              threads[0].join();
+              threads.erase(threads.begin());
+              threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
+            }
+          }
+
+          // Wait for all threads to finish
+          for (auto &thread: threads) {
+            thread.join();
+            //progress for the threads
+            std::cout << ".";
+
+          }
+        }
+
+        /**
+         * @brief: runs the Genetic Programming training loop for a number of generations to evolve the agents
+         *
+         * @param numGenerations
+         * @param numberOfTurns
+         * @param maxThreads
+         */
+        void Run(size_t numGenerations,
+                 size_t numberOfTurns = 100,
+                 size_t maxThreads = 0) {
+
+
+
+          std::filesystem::path normalizedAbsolutePath = getSystemPath();
+          std::string dateTimeStr = getDateStr();
 
           const std::string filename = "AgentData_" + dateTimeStr + ".xml";
           auto fullPath = normalizedAbsolutePath / filename;
@@ -151,55 +196,37 @@ namespace cowboys {
           const std::string lastGenerationsFilename = "lastGenerations_" + dateTimeStr + ".xml";
           auto lastGenerationsFullPath = normalizedAbsolutePath / lastGenerationsFilename;
 
+
           auto startTime = std::chrono::high_resolution_clock::now();
 
           for (size_t generation = 0; generation < numGenerations; ++generation) {
 
             auto generationStartTime = std::chrono::high_resolution_clock::now();
 
-            initTEMPAgentFitness();
+            InitTEMPAgentFitness();
 
-            std::vector<std::thread> threads;
 
-            for (size_t arena = 0; arena < environments.size(); ++arena) {
-              if (maxThreads == 0 || threads.size() < maxThreads) {
-                threads.emplace_back(&GPTrainingLoop::runArena, this, arena, numberOfTurns);
-              } else {
-                // Wait for one of the existing threads to finish
-                threads[0].join();
-                threads.erase(threads.begin());
-                threads.emplace_back(&GPTrainingLoop::runArena, this, arena, numberOfTurns);
-              }
-            }
-
-            // Wait for all threads to finish
-            for (auto &thread: threads) {
-              thread.join();
-              //progress for the threads
-              std::cout << ".";
-
-            }
-
+            ThreadTrainLoop(maxThreads, numberOfTurns);
 
             std::cout.flush();
 
 
             sortedAgents.clear();
-            sortThemAgents();
+            SortThemAgents();
 
             int countMaxAgents = AgentAnalysisComputations(generation);
             if (generation % 10 == 0) {
 
               saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
               lastGenerationsDoc.Clear();
-              resetMainTagLastGenerations();
+              ResetMainTagLastGenerations();
 
               std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
             }
 
 
-            serializeAgents(countMaxAgents, generation);
+            SerializeAgents(countMaxAgents, generation);
 
             GpLoopMutateHelper();
 
@@ -225,7 +252,12 @@ namespace cowboys {
           MemGOBYE();
         }
 
-
+        /**
+         * Computes agents analysis metrics
+         *
+         * @param generation
+         * @return
+         */
         int AgentAnalysisComputations(int generation) {
           // print average fitness
           double averageFitness = 0;
@@ -264,8 +296,10 @@ namespace cowboys {
           return countMaxAgents;
         }
 
-
-        void sortThemAgents() {
+        /**
+         * @brief: sort the agents based on their fitness
+         */
+        void SortThemAgents() {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
               sortedAgents.push_back(std::make_pair(arena, a));
@@ -279,6 +313,7 @@ namespace cowboys {
         }
 
         /**
+         * @brief: save checkpoint for data
          *
          * @param fullPath
          * @param lastGenerationsFullPath
@@ -302,7 +337,14 @@ namespace cowboys {
         }
 
 
-        void serializeAgents(int countMaxAgents, int generation, size_t topN = 5) {
+        /**
+         * @brief: Serializes the agents to an XML file.
+         *
+         * @param countMaxAgents
+         * @param generation
+         * @param topN
+         */
+        void SerializeAgents(int countMaxAgents, int generation, size_t topN = 5) {
 
           const char *tagName = ("generation_" + std::to_string(generation)).c_str();
           auto *generationTag = doc.NewElement(tagName);
@@ -323,14 +365,28 @@ namespace cowboys {
 
         }
 
-        void initTEMPAgentFitness() {
+        /**
+         * @brief: initialize the TEMP agent fitness vector
+         */
+        void InitTEMPAgentFitness() {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
-             TEMPAgentFitness.push_back(std::vector<double>(agents[arena].size(), 0));
+            TEMPAgentFitness.push_back(std::vector<double>(agents[arena].size(), 0));
           }
         }
 
 
-        void mutateAgents(int start, int end, const std::vector<std::pair<int, int>> &sortedAgents,
+        /**
+         * @brief Helper function for the GP loop mutate function.
+         *         This function mutates the agents.
+         *         This function is called in a thread.
+         *
+         * @param start : The start index of the agents to mutate.
+         * @param end : The end index of the agents to mutate.
+         * @param sortedAgents : The sorted agents' index vector.
+         * @param agents : The agents vector.
+         * @param mutationRate: The mutation rate.
+         */
+        void MutateAgents(int start, int end, const std::vector<std::pair<int, int>> &sortedAgents,
                           std::vector<std::vector<cowboys::GPAgentBase *>> &agents, double mutationRate) {
           for (int i = start; i < end; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
@@ -342,7 +398,18 @@ namespace cowboys {
           }
         }
 
-        void mutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>> &sortedAgents,
+        /**
+         * @brief Helper function for the GP loop mutate function.
+         *          This function copies the elite agents and mutates them.
+         *          This function is called in a thread.
+         *          for th
+         * @param start
+         * @param end
+         * @param sortedAgents
+         * @param agents
+         * @param elitePopulationSize
+         */
+        void MutateAndCopyAgents(int start, int end, const std::vector<std::pair<int, int>> &sortedAgents,
                                  std::vector<std::vector<cowboys::GPAgentBase *>> &agents, int elitePopulationSize) {
           for (int i = start; i < end; i++) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
@@ -358,6 +425,10 @@ namespace cowboys {
           }
         }
 
+        /**
+         * @brief Helper function for the GP loop mutate function.
+         *
+         */
         void GpLoopMutateHelper() {
 
           constexpr double ELITE_POPULATION_PERCENT = 0.05;
@@ -377,7 +448,6 @@ namespace cowboys {
           std::cout << " --- average elite score " << averageEliteFitness << "------ " << std::endl;
 
 
-
           const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * (1 - UNFIT_POPULATION_PERCENT));
           const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
@@ -394,7 +464,7 @@ namespace cowboys {
             int start = MIDDLE_MUTATE_STARTBOUND + i * agents_per_thread;
             int end = (i == num_threads - 1) ? MIDDLE_MUTATE_ENDBOUND : start + agents_per_thread;
             threads.push_back(std::thread([this, start, end] {
-                this->mutateAgents(start, end, sortedAgents, agents, 0.05);
+                this->MutateAgents(start, end, sortedAgents, agents, 0.05);
             }));
           }
 
@@ -413,7 +483,7 @@ namespace cowboys {
             int end = (i == num_threads - 1) ? sortedAgents.size() : start + agents_per_thread;
 
             threads.push_back(std::thread([this, start, end, ELITE_POPULATION_SIZE] {
-                this->mutateAndCopyAgents(start, end, sortedAgents, agents, ELITE_POPULATION_SIZE);
+                this->MutateAndCopyAgents(start, end, sortedAgents, agents, ELITE_POPULATION_SIZE);
             }));
           }
 
@@ -424,8 +494,12 @@ namespace cowboys {
 
         }
 
-
-        void printgrid(int arena) {
+        /**
+         * @brief Prints the grid for a single arena.
+         * @param arenaId
+         * @author: @amantham20
+         */
+        void Printgrid(int arena) {
           auto &grid = environments[arena]->GetGrid();
           std::vector<std::string> symbol_grid(grid.GetHeight());
 
@@ -438,13 +512,6 @@ namespace cowboys {
               symbol_grid[y][x] = type_options[grid.At(x, y)].symbol;
             }
           }
-
-
-//      // Add in the agents / entities
-//      for (const auto & entity_ptr : item_set) {
-//        cse491::GridPosition pos = entity_ptr->GetPosition();
-//        symbol_grid[pos.CellY()][pos.CellX()] = '+';
-//      }
 
 
           const auto &agent_set = agents[arena];
@@ -473,14 +540,24 @@ namespace cowboys {
         }
 
 
-        void printGrids() {
+        /**
+         * @brief Prints the grid for each arena.
+         *
+         * @author: @amantham20
+         */
+        void PrintGrids() {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             std::cout << "Arena " << arena << std::endl;
-            printgrid(arena);
+            Printgrid(arena);
           }
         }
 
 
+        /**
+         * @brief Resets the environments to their initial state.
+         *     This function is called after each generation.
+         *     This function currently only soft resets the environments.
+         */
         void resetEnvironments() {
 
           for (size_t arena = 0; arena < environments.size(); ++arena) {
@@ -493,7 +570,16 @@ namespace cowboys {
           TEMPAgentFitness.clear();
         }
 
-        void runArena(size_t arena, size_t numberOfTurns) {
+        /**
+         * @brief Runs the training loop for a single arena.
+         *      This function is called in a thread.
+         *      Each arena is run in a separate thread.
+         *
+         * @author: @amantham20
+         * @param arena : The arena to run.
+         * @param numberOfTurns : The number of turns to run the arena for.
+         */
+        void RunArena(size_t arena, size_t numberOfTurns) {
           for (size_t size = 0; size < STARTPOSITIONS.size(); ++size) {
             agents[arena][size]->SetPosition(STARTPOSITIONS[size]);
 
@@ -502,7 +588,7 @@ namespace cowboys {
               environments[arena]->UpdateWorld();
             }
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              double tempscore = simpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[size]);
+              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[size]);
               TEMPAgentFitness[arena][a] += tempscore;
             }
           }
@@ -514,17 +600,16 @@ namespace cowboys {
 
         }
 
+        /**
+         * @brief Clears the memory of the training loop.
+         */
+        void MemGOBYE() {
 
-        void MemGOBYE(){
-//          const int TempSize = TEMPinitialAgentPositions.size();
-//          for (size_t grid_index = 0; grid_index < TempSize; ++grid_index) {
-//            TEMPinitialAgentPositions.pop_back();
-//          }
-            TEMPinitialAgentPositions.clear();
-            TEMPAgentFitness.clear();
-            environments.clear();
-            agents.clear();
-            sortedAgents.clear();
+          TEMPinitialAgentPositions.clear();
+          TEMPAgentFitness.clear();
+          environments.clear();
+          agents.clear();
+          sortedAgents.clear();
 
         }
 
