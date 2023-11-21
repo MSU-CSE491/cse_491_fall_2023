@@ -1,6 +1,6 @@
-FAISS in C++
+# FAISS in C++
 
-For this C++ library review, we will be discussing the FAISS (Facebook AI Similarity Search) library. According to Meta's own website, it "allows developers to quickly search for embeddings of multimedia documents that are similar to each other" (https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search). This capability has many different applications, and in this review, we will be delving into similarity searches of text.
+For this C++ library review, we will be discussing the FAISS (Facebook AI Similarity Search) library. According to Meta's own website, it "allows developers to quickly search for embeddings of multimedia documents that are similar to each other" (1). This capability has many different applications, and in this review, we will be delving into similarity searches of text.
 
 For text-based searches, FAISS can read text converted to numerical vectors (referred to as embeddings) in order to compare similar pieces of data. I will be demonstrating this capability with a dataset of 200 sentences.
 
@@ -8,13 +8,13 @@ To begin, I will discuss how I installed FAISS. As far as my IDE goes, I am usin
 
 Next, I ran into this error: "Could NOT find SWIG". If you are unaware, FAISS is written in C++ (or else, why would I be writing about it?) -- with complete wrappers for _Python._ I was unaware until hours after getting everything else working, but FAISS is almost always used with a Python wrapper. All videos and guides online use FAISS with Python, and by default, FAISS expects you to do the same. Because we are working in C++, we do not need SWIG. Achieving this was simple enough: changing the CMake configuration to "-DFAISS\_ENABLE\_PYTHON=OFF".
 
-At this point, I thought I would be good to go. However, upon attempting to build my project with FAISS, I kept running into an error that "unistd.h" not found. After doing some research, I found out that this is a Unix header file, and not available on Windows systems. Although the official FAISS GitHub repository states that "Faiss is supported on x86\_64 machines on Linux, OSX, and Windows" (https://github.com/facebookresearch/faiss/blob/main/INSTALL.md), I had a difficult time getting it working. I started to worry at this point, because I was afraid I would not be able to run FAISS on my system. My first attempt to fix this problem was to clone a git repo that ported FAISS for Windows. Unfortunately, that did not work for me.
+At this point, I thought I would be good to go. However, upon attempting to build my project with FAISS, I kept running into an error that "unistd.h" not found. After doing some research, I found out that this is a Unix header file, and not available on Windows systems. Although the official FAISS GitHub repository states that "Faiss is supported on x86\_64 machines on Linux, OSX, and Windows" (2), I had a difficult time getting it working. I started to worry at this point, because I was afraid I would not be able to run FAISS on my system. My first attempt to fix this problem was to clone a git repo that ported FAISS for Windows. Unfortunately, that did not work for me.
 
 My solution to this problem was using WSL (Windows Subsystem for Linux). This allowed me to work in a Linux environment and avoid running into Windows-specific compiler issues. At first, I was having a lot of issues with my CMake profile. Luckily, a WSL toolchain is provided in CLion. After modifying my CMake profile to use the WSL toolchain, and adding the appropriate links in my CMakeLists.txt, I was able to finally build my project with FAISS.
 
 To rate my experience installing FAISS as a Windows and C++ user, I would give it a 1.5/5. Difficulty installing CUDA/ BLAS, not being able to work directly in Windows, and lack of support for C++ FAISS use online, were the biggest reasons for me. If you want to use this library, it may be a better idea to use it with Python if possible.
 
-![](RackMultipart20231120-1-4yydme_html_cee7ab6edbf222bd.png)
+![Local image](sentences.png)
 
 Next, it is time to put FAISS to the test. In order to demonstrate its capabilities, I want to conduct a similarity search with text. First, I needed some text to work with, so I asked ChatGPT to generate 200 different sentences for me. I wrote these sentences into a .txt file line by line.
 
@@ -57,3 +57,7 @@ As you can see, there are 10 results, as I set the k value to 10. Off first-glan
 Luckily, this worked exactly how I wanted it to; the second result (index 6) is one that I manually added. Now, I knew my code was working.
 
 Overall, I would say I enjoyed using the FAISS library. It was very difficult to install for me because a few different libraries were not working. However, the end result can be very useful depending on what you are working on. For example, my implementation of FAISS search can help to find documents similar to the one you are looking at. However, there are many more use cases. If you wanted to do a similarity search with faces instead, you can generate vectors based on image data using a different pre-trained model, and then follow the same steps I did. The same can even be done for audio clips! Overall, I would recommend the FAISS library for quick similarity searches in C++ on Mac and Linux, but would recommend another library for Windows users due to lack of support.
+
+# Citations
+1.https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search
+2. https://github.com/facebookresearch/faiss/blob/main/INSTALL.md
