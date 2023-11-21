@@ -77,6 +77,14 @@ namespace netWorth{
                 return true;
             }
 
+            /**
+             * Receives a socket that has been connected between client and server
+             * @return the udp socket
+             */
+            UdpSocket * GetSocket() override{
+                return &m_serverToClientSocket;
+            }
+
                 /**
                  * The grid that will be sent to the client from the server after the connection
                  * so the client can start asking to make moves
@@ -168,6 +176,8 @@ namespace netWorth{
 
                     // TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
         //            if (input == "quit") exit(0);
+
+                    //Modify the networking action map for this server interface inside this function
 
                     return action_id;
                 }

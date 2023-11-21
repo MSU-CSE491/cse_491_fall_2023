@@ -19,14 +19,19 @@ namespace netWorth{
      */
     class ServerManager {
     private:
-        std::vector<std::thread> m_clientThreads; ///Vector of all client threads
-        std::map<unsigned short, size_t> m_action_map; ///Map of port numbers to most recent action selected
+
 
     protected:
 
     public:
+        std::vector<std::thread> m_clientThreads; ///Vector of all client threads
+
+        std::map<unsigned short, size_t> m_action_map; ///Map of port numbers to most recent action selected
+
         const static constexpr unsigned short m_initConnectionPort = 55000; ///Port for initial client connection
+
         unsigned short m_maxClientPort = 55000; ///Port that is incremented for client thread handoff
+
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
@@ -43,7 +48,10 @@ namespace netWorth{
          * Adds a thread to the container of threads for cleanup and reference purposes
          * @param thread thread to add into the vector
          */
-        void AddClient(std::thread &thread){m_clientThreads.push_back(std::move(thread));}
+        void AddClient(std::thread &thread, unsigned short clientPort){
+            m_clientThreads.push_back(std::move(thread));
+            m_action_map.insert_or_assign(clientPort, 0);
+        }
 
         /**
          * Joins all client threads at the end of the server's lifespan

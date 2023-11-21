@@ -42,7 +42,7 @@ namespace netWorth{
              * Receives a socket that has been connected between client and server
              * @return the udp socket
              */
-            UdpSocket * GetSocket(){
+            virtual UdpSocket * GetSocket(){
                 return &m_socket;
             }
 

@@ -88,6 +88,8 @@ namespace netWorth{
             // Set the agent to its new position.
             agent.SetPosition(new_position);
 
+            //set action in action map for this server interface (casted from provided agent base) to be 0
+
             return true;
         }
 

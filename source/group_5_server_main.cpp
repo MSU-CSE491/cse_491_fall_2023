@@ -14,8 +14,19 @@
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
 
 
-void ClientThread(){
+void ClientThread(netWorth::ServerInterface & interface, netWorth::NetworkMazeWorld &world,
+                  netWorth::ServerManager & serverManager){
+    //While this client is still connected (need to fix)
+    while (serverManager.m_action_map.contains(interface.GetSocket()->getLocalPort())){
+        sf::Packet clientPacket;
+        std::optional<sf::IpAddress> clientIP;
+        unsigned short clientPort;
 
+//        size_t clientAction = interface.SelectAction(world.GetGrid(), world.GetCellTypes(), world.Get);
+
+        //Might need to do this inside of do action or before DoAction.
+//        serverManager.m_action_map.insert_or_assign(interface.GetSocket()->getLocalPort(), clientAction);
+    }
 }
 
 /**
@@ -37,28 +48,34 @@ void HandleConnection(netWorth::ServerManager &serverManager, netWorth::NetworkM
     std::optional<sf::IpAddress> sender;
     unsigned short port;
 
-    std::cout << sf::IpAddress::getLocalAddress()->toString() << "poop\n";
     if (socket.receive(pkt, sender, port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to receive" << std::endl;
         exit(0);
     }
-    std::cout << "piss" << std::endl;
 
     std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
 
     serverManager.IncreasePort();
-    world.AddAgent<netWorth::ServerInterface>("Interface", "client_ip", sender->toString(),
+    //networth::ServerInterface & interface
+
+
+    cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>("Interface", "client_ip", sender->toString(),
                                               "client_port", port, "server_port", serverManager.m_maxClientPort)
                                               .SetProperty("symbol", '@');
 
-    std::thread clientThread(ClientThread);
-    serverManager.AddClient(clientThread);
+    auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
+
+
+    std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
+                             std::ref(serverManager));
+    serverManager.AddClient(clientThread, serverManager.m_maxClientPort);
     std::cout << "Added thread" << std::endl;
+
 }
 
 int main() {
 
-    std::cout << "Server started." << std::endl;
+    std::cout << "Server started on IP address: " << sf::IpAddress::getLocalAddress()->toString() << std::endl;
     netWorth::NetworkMazeWorld world;
 
     netWorth::ServerManager serverManager;
@@ -73,8 +90,8 @@ int main() {
     // that could be difficult for multiple world classes though...
 
     world.Run();
-    serverManager.JoinClients();
-    connectionThread.join();
+    //serverManager.JoinClients();
+    //connectionThread.join();
     return 0;
 }
 
