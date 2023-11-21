@@ -26,6 +26,13 @@ namespace DataCollection {
          DataManager() = default;
 
          /**
+          * Destructor
+          */
+          ~DataManager() {
+              std::cout << "test" << std::endl;
+          }
+
+         /**
           * Get a handle to the agent receiver
           * @return Reference to the agent receiver
           */

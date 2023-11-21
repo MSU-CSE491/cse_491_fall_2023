@@ -83,8 +83,6 @@ public:
       seed = rd();           // Change the seed to a random value.
     }
     random_gen.seed(seed);
-
-    data_manager = std::make_shared<DataCollection::DataManager>();
   }
 
   virtual ~WorldBase() = default;
@@ -95,6 +93,10 @@ public:
     last_entity_id = 0;
     run_over = false;
   }
+
+    void SetDataManager(const DataCollection::DataManager& d) {
+        data_manager = std::make_shared<DataCollection::DataManager>(d);
+    }
 
   // -- Accessors --
 
