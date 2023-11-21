@@ -125,7 +125,7 @@ namespace netWorth{
                 action = GameLoop_GetInput();
 
                 // TODO: Unpack recv_pkt into world grid, agent list, etc
-                // We need to serialize these classes...
+                // We need to Serialize these classes...
                 //recv_pkt >> grid >> type_options >> item_map >> agent_map;
 
                 //action = mTrash->SelectAction(grid, type_options, item_map, agent_map);
