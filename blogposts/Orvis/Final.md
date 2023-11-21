@@ -310,7 +310,7 @@ As you can see in the small sample above, there was a user input in each of the 
 
 For the last part of adding complexity, an operation for factorial was added. Note that this was after all the previous problems were fixed and the goal is to see if it can add a single semi-complex function into the mix.
 
-The last prompt that was given was: "add a operation for factorial".
+The last prompt that was given was: "add an operation for factorial".
 
 ```cpp
 #include <iostream>
@@ -463,9 +463,9 @@ int main() {
 
 Looking at this code, it is impressive that ChatGPT created a good setup for a factorial operation. In the case statement for factorial, it checks if the first number is non-negative and an integer before casting the number to an integer for the factorial function. If it is not a positive number, or not an integer, the factorial function does not get run. The real surprise was inside the factorial function where ChatGPT created a factorial algorithm with a space complexity of O(1) by using a loop, which is much more efficient than the recursive algorithm which is O(n). It was a little surprising that after many mistakes along the way, ChatGPT was able to create a new operation and function that was efficient and free from errors.
 
+Whenever errors were pointed out to ChatGPT, it quickly understood the problem and fixed it. Only in one situation did it not fully fix the problem was when removing the second number for the log function and ChatGPT removed the second variable for the entire program. Since every error that was created by ChatGPT in the code had to be individually found, the time that it took to review the code could have been spent on writing it without ChatGPT and may have even been able to save time in the end.
+
 ## Conclusion
-
-
 
 ChatGPT gets the general idea of creating a calculator correct and needs very specific inputs from the prompter to write good code. It is still important to review all the code that it creates, as it is very prone to even simple errors that beginner programmers can easily avoid. It was surprising that ChatGPT struggled with creating quality code as it is viewed in society as something that could "replace programmers". In actuality, ChatGPT is not close to this as it would need to be able to write efficient and quality code without many errors, which is not the case. It could be good at getting an idea of how to write a function as it can create simple functions, but anything that starts to get more complex would need a programmer to do it.
 
