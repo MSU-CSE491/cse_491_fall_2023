@@ -1,3 +1,9 @@
+/build/
+/debug/
+/CMakeFiles/
 *.swp
 *.swo
 game
+.idea
+simple
+.DS_Store
