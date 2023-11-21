@@ -613,7 +613,7 @@ namespace cowboys {
         if (additive) {
           node.default_output += mutation;
           // Clamp to prevent overflow during genotype export
-          double min = std::numeric_limits<double>::min();
+          double min = std::numeric_limits<double>::lowest();
           double max = std::numeric_limits<double>::max();
           // Wrap random double in stod(to_string(.)) to reliably export and import genotype from string.
           node.default_output = std::stod(std::to_string(std::clamp(node.default_output, min, max)));
