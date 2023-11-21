@@ -365,7 +365,8 @@ Finally, we define the Fun() coroutine function. We create a Chat object named c
 This is a great example of how a coroutine can be used to simulate the conversation, with the coroutine yielding messages, awaiting user input, and finally returning a response. 
 
 <br>
-## Custome vector example
+
+## Custom vector example
 Here is another example of a customizable generator coroutine that interleaves two vectors:
 
 ```C++
