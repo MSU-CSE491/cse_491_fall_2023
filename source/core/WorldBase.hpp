@@ -83,6 +83,8 @@ public:
       seed = rd();           // Change the seed to a random value.
     }
     random_gen.seed(seed);
+
+    data_manager = std::make_shared<DataCollection::DataManager>();
   }
 
   virtual ~WorldBase() = default;
@@ -195,10 +197,6 @@ public:
     }
     agent_map[agent_id] = std::move(agent_ptr);
     return *agent_map[agent_id];
-  }
-
-  void SetDataManager(const DataCollection::DataManager& d) {
-    data_manager = std::make_shared<DataCollection::DataManager>(d);
   }
 
   /// @brief Add a new, already-built item

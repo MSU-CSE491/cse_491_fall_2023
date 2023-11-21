@@ -3,6 +3,7 @@
 #include "AgentReciever.hpp"
 #include "GameReceiver.hpp"
 #include "DamageCollector.hpp"
+#include "ItemUseCollector.hpp"
 
 namespace DataCollection {
 
@@ -17,6 +18,7 @@ namespace DataCollection {
         AgentReceiver agentReceiver;        // Receiver for agent based data
         GameReceiver gameReceiver;          // Receiver for game based data
         DamageCollector damageCollector;    // Collector for item damage data
+        ItemUseCollector itemUseCollector;  // Collector for item usage data
     public:
         /**
          * Constructor
@@ -25,10 +27,18 @@ namespace DataCollection {
 
          /**
           * Get a handle to the agent receiver
-          * @return Const reference to the agent receiver
+          * @return Reference to the agent receiver
           */
          AgentReceiver& GetAgentReceiver() {
              return agentReceiver;
+         }
+
+         /**
+          * Get a handle to the item use collector
+          * @return Reference to the item use collector
+          */
+         ItemUseCollector& GetItemUseCollector() {
+             return itemUseCollector;
          }
 
         /**
