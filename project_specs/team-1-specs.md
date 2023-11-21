@@ -72,3 +72,8 @@ modules.
     ii. Params and returns will be added after discussion with other groups to
     see if this is wanted
 
+
+#### Challenge 
+1. Creating an Autonomous agent that is capable of moving around an interacting
+   with the world
+2. Working with other agent teams to implement functionality they need for their agents
