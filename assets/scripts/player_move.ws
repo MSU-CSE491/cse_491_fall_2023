@@ -1,23 +1,19 @@
+move(act_id,cx,cy){
+	if(action_id==act_id){
+		nx,ny=cx,cy
+	}
+}
+
+_="Handle player movement"
 x,y=getAgentPosition(agent)
 nx,ny=0,0
 
-if(action_id==0){
-	nx,ny=x,y
-}
-if(action_id==MOVE_UP){
-	nx,ny=x,y-1
-}
-if(action_id==MOVE_DOWN){
-	nx,ny=x,y+1
-}
-if(action_id==MOVE_LEFT){
-	nx,ny=x-1,y
-}
-if(action_id==MOVE_RIGHT){
-	nx,ny=x+1,y
-}
+move(0,x,y)
+move(MOVE_UP,x,y-1)
+move(MOVE_DOWN,x,y+1)
+move(MOVE_LEFT,x-1,y)
+move(MOVE_RIGHT,x+1,y)
 
-print(agent,nx,ny)
 if(isValid(nx,ny)){
 	if(isTraversable(agent,nx,ny)){
 		_="Check for an agent at this position: attack if this is the case"

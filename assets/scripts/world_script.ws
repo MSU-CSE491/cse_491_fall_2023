@@ -18,6 +18,6 @@ setAgentProperty(player,"Health",10)
 player2=addAgent("Player","PlayerAgent2","&",3,3)
 setAgentProperty(player2,"DoAction","../assets/scripts/player_move.ws")
 setAgentProperty(player2,"Strength",4)
-setAgentProperty(player2,"Defense",5)
+setAgentProperty(player2,"Defense",3)
 setAgentProperty(player2,"Health",15)
 
