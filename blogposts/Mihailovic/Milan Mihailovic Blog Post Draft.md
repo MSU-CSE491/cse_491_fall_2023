@@ -20,44 +20,113 @@ Next, it is time to put FAISS to the test. In order to demonstrate its capabilit
 
 Next, I needed an embedding framework to transform text into vectors with numerical representations. I downloaded a 4GB file that contained a 300d pre-trained model for text, in order to perform this transformation. However, this part was quite difficult for me to accomplish. First of all, most of these embedding libraries were for Python, (e.g. the Sentence Transformers). I then tried to use the FastText for C++, but I had issues compiling and getting it to work with CLion/CMake.
 
-![](RackMultipart20231120-1-4yydme_html_c911706b9cc2d6bb.png)
+```python
+import fasttext
+import csv
+
+# Load the pre-trained FastText model
+model = fasttext.load_model('cc.en.300.bin')
+
+# Open the file in read mode and a CSV file in write mode
+with open('sentences.txt', 'r') as file, open('vectors.csv', 'w', newline='') as out_file:
+    writer = csv.writer(out_file)
+    for sentence in file:
+        sentence = sentence.strip()
+        vector = model.get_sentence_vector(sentence).tolist()
+        writer.writerow(vector)
+```
 
 After running into many different problems, using FastText with Python was much easier. Working with Python in VSCode and WSL did the trick for me. Mind you, I just decided to use a Python file to transform the text into embeddings, and then write that all to a .csv file.
 
-![](RackMultipart20231120-1-4yydme_html_63ca7c9159f21634.png)
+![Local image](vectors.png)
 
 The actual code that works with FAISS is still in C++ and is simply reading in the .csv file. As I previously explained, these vectors have 300 dimensions (so the .csv file has 300 rows of decimal values), and there are 200 vectors. These vectors are specifically pre-trained for words – if you wanted to work with images, you would want to find another model.
 
-![](RackMultipart20231120-1-4yydme_html_b5896144d59b3dd6.png)
+```cpp
+std::vector<std::vector<float>> load_vectors(const std::string& filename) {
+    std::ifstream file(filename);
+    std::string line;
+    std::vector<std::vector<float>> vectors;
+    while (getline(file, line)) {
+        std::stringstream ss(line);
+        std::vector<float> vec;
+        float value;
+        while (ss >> value) {
+            vec.push_back(value);
+            if (ss.peek() == ',') ss.ignore();
+        }
+        vectors.push_back(vec);
+    }
+    return vectors;
+}
+```
 
 First, I read the embeddings into an array with a function I made called load\_vectors.
 
-![](RackMultipart20231120-1-4yydme_html_8aca07a55d5bbc7c.png)
+```cpp
+    std::vector<std::vector<float>> vectors = load_vectors("vectors.csv");
+    int d = 300; // 300 dimensions
+    int nb = vectors.size(); // number of vectors: 200
+
+    // Converting vectors to a single flat array
+    std::unique_ptr<float[]> data(new float[nb * d]);
+    for (int i = 0; i < nb; i++) {
+        for (int j = 0; j < d; j++) {
+            data[i * d + j] = vectors[i][j];
+        }
+    }
+
+    // Creates a FAISS index for L2 (Euclidean) distance
+    faiss::IndexFlatL2 index(d);
+
+    // Adds vectors to the index
+    index.add(nb, data.get());
+```
 
 Then, I created a flat array to hold these embeddings in a format that is suitable for FAISS. I allocated memory for the array using the fact that it has 300 dimensions with 200 vectors. Then, with "faiss::IndexFlatL2 index(d);", a Faiss index was created for L2 (Euclidean) distance searches. This helps us figure out how similar two vectors (texts) are – there are 300 points in the Euclidean space for 1 vector, and the closer these points match up to other vectors, the closer the text is. "index.add(nb, data.get());" just adds all the vectors to the FAISS index.
 
-![](RackMultipart20231120-1-4yydme_html_aeb9505895aa12fa.png)
+```cpp
+    float query_vector[d];
+
+    int some_index = 9;  // the index in the sentences.txt that will be searched against
+    for (int i = 0; i < d; i++) {
+        query_vector[i] = vectors[some_index][i];
+    }
+
+    int k = 10; // number of nearest neighbors you want
+    std::unique_ptr<float[]> distances(new float[k]);
+    std::unique_ptr<int64_t[]> indices(new int64_t[k]);
+
+    index.search(1, query_vector, k, distances.get(), indices.get());
+```
 
 Next, I created an array called query\_vector which has 300 elements in it. some\_index is a value that the user can modify to their liking – it takes the nth vector in the array of 200 (i.e., the nth sentence), and compares that to all the other ones. query\_vector is made to store all elements from the index we want to search with. We define k, which is the number of nearest neighbors we want. If we want the 5 most similar sentences, we set k to be 5. distances holds the distance in Euclidean space between the query and the neighbor, and indices simply holds the index of the neighbor. Then, the FAISS search function finally finds the closest vectors keeping all of these things in mind.
 
-![](RackMultipart20231120-1-4yydme_html_95a764831a7b3e45.png)
+```
+    std::vector<std::string> sentences = load_sentences("sentences.txt");
+
+    for (int i = 0; i < 10; i++) {  // Top 10 results
+        std::cout << "Index: " << indices[i] << " Distance: " << distances[i]
+                  << " Sentence: " << sentences[indices[i]] << std::endl;
+    }
+```
 
 To display the search results, I indexed the original .txt file of sentences I had, and indexed it for each corresponding neighbor. Let's see the results of searching by the 10th index, which corresponds to this sentence: "The envoy expressed optimism about future collaborations.":
 
-![](RackMultipart20231120-1-4yydme_html_12b5e86f2608fa3b.png)
+![Local image](results1.png)
 
 As you can see, there are 10 results, as I set the k value to 10. Off first-glance, you can see that the closest results all begin with "The". That's a good start, but not very specific. At first, I wasn't sure if FAISS was actually working or not. To test this, I searched with the 1st index: "The party's vision resonates with the aspirations of the youth.":
 
-![](RackMultipart20231120-1-4yydme_html_c995c0ebd5caa9.png)
+![Local image](results_2.png)
 
  And then I added a sentence to sentences.txt that was almost identical to that one, to see if FAISS was actually working. If it was, that sentence would be the closest one and have a very short distance. Here are the results:
 
-![](RackMultipart20231120-1-4yydme_html_ffa7c3336d699967.png)
+![Local image](results3.png)
 
 Luckily, this worked exactly how I wanted it to; the second result (index 6) is one that I manually added. Now, I knew my code was working.
 
 Overall, I would say I enjoyed using the FAISS library. It was very difficult to install for me because a few different libraries were not working. However, the end result can be very useful depending on what you are working on. For example, my implementation of FAISS search can help to find documents similar to the one you are looking at. However, there are many more use cases. If you wanted to do a similarity search with faces instead, you can generate vectors based on image data using a different pre-trained model, and then follow the same steps I did. The same can even be done for audio clips! Overall, I would recommend the FAISS library for quick similarity searches in C++ on Mac and Linux, but would recommend another library for Windows users due to lack of support.
 
 # Citations
-1.https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search
+1. https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search
 2. https://github.com/facebookresearch/faiss/blob/main/INSTALL.md
