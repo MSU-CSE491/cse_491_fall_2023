@@ -237,7 +237,28 @@ class SecondWorld : public cse491::WorldBase {
    * @param agent This agent's item we're dropping
    * @param pos The position where the item will be dropped
    */
-  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos) {}
+  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+    agent.Notify("Got here!", "item_alert");
+
+    if (agent.GetInventory().empty()) {
+        agent.Notify("Cannot drop any items, inventory is empty.", "item_alert");
+    } else {
+        // TODO: For now, will remove the first item in the agent's inventory
+        //  but we will need to remove the item that the agent has selected in the hotbar
+
+        auto& world = agent.GetWorld();
+        // Change the position of the item to the agent's current location
+        // Add the item back to the world, so the grid can display it
+        auto& item = GetItem(agent.GetInventory().at(0));
+
+        // TODO: Issue with removing item from item_map after intial pickup. It removes the item from the item_map
+        //  otherwise it will still display on the grid. Since it's removing it from the map, it's trying to check
+        //  to see if the item exists in the map before adding it to the world.
+//        world.AddItem(std::move(item));
+
+        main_grid.At(pos) = GetCellTypeSymbol(item.GetID());
+    }
+  }
 
   /**
    * Checks to see if there is a flag or item at the agent's current position
@@ -296,26 +317,25 @@ class SecondWorld : public cse491::WorldBase {
 
         // Item is a chest
         if (item_found.HasProperty("Chest")) {
-          // TODO: Check to see if the chest is empty, if !empty -> move them to
-          // agent's inventory
-          // TODO: If we are able to set the ownership of the items to the
-          // chest,
-          //  we should be able to check what item's the chest owns, rather than
-          //  checking to see what items are on that GridPosition
 
+          // Check to see if the chest owns any items
           if (!item_found.GetInventory().empty()) {
             auto temp_inventory = item_found.GetInventory();
-            std::cout << "This is inside the chest: " << std::endl;
+            agent.Notify("This is inside the chest: ", "item_alert");
             for (auto x : temp_inventory) {
-              std::cout << "Name: " << GetItem(x).GetName() << " -- ID: " << x
-                        << std::endl;
+
+              // TODO: Minor, but do we want to check if word starts with a vowel to change the wording before the constant?
+              agent.Notify("You found the " + GetItem(x).GetName() + " in the " + item_found.GetName());
+
+              agent.AddItem(GetItem(x));
+              item_found.RemoveItem(GetItem(x));
+
             }
 
-            agent.Notify(
-                "If you would like all the items, enter '0'; otherwise enter "
-                "the number seperated by a comma for which item(s) you would "
-                "like!",
-                "item_alert");
+//            agent.Notify(
+//                "If you would like all the items, enter '0'; otherwise enter "
+//                "the number seperated by a comma to pick them up",
+//                "item_alert");
 
             // TODO: Need to determine max size of inventory
             if (agent.GetInventory().size() == 10) {
@@ -342,7 +362,7 @@ class SecondWorld : public cse491::WorldBase {
                          "item_alert");
 
             // Transfer ownership to agent
-            item_found.SetOwner(agent);
+            agent.AddItem(item_found);
 
             // Removes item from item_map
             RemoveItem(item_found.GetID());
@@ -385,6 +405,7 @@ class SecondWorld : public cse491::WorldBase {
         new_position = agent.GetPosition().ToRight();
         break;
       case DROP_ITEM:
+        new_position = agent.GetPosition();
         DropItem(agent, new_position);
         break;
     }
