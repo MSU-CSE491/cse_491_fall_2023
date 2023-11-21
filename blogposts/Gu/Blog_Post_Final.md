@@ -366,9 +366,110 @@ The code that ChatGPT generates solves the problem, however, it is quite ineffic
     }
 
 This solution is not that much more efficient than the last, it now just uses more space to keep track of numbers that end with 0 and numbers that end with 1. That is not the right intuition to approach this problem with DP. It is also interesting how ChatGPT states that it uses DP in the generated output, however, there is no DP readily apparent in the solution. It seems as if ChatGPT does not know what path to go down in order to approach this problem. I am not surprised as a DP problem requiring a 3D array is one that I did not suspect AI to be able to solve yet. 
+
+## Probability of Winning In a Die-Throw Game
+
+Given that 2 players are playing a die-throw game. The game is one player throws a die and he got a point, he can move forward accordingly to the point. All occurrences to get the point have equal probability. Let player1 start a point x and player2 start a point y. Player 1 can receive a point up to A, and Player 2 can receive a point up to B.  When a player in the position p and point got in the die q, he can move forward a minimum of (p+q) and W. The first player to reach W wins the game. Find the probability modulo that player 1 wins if he goes first modulo 998244353.
+
+### ChatGPT's Solution
+
+    #include <iostream>
+    #include <vector>
     
+    const int MOD = 998244353;
+    
+    int calculateProbability(int x, int y, int A, int B, int W, std::vector<std::vector<int>>& dp) {
+        if (x >= W) return 1;
+        if (y >= W) return 0;
+        if (dp[x][y] != -1) return dp[x][y];
+    
+        long long totalWays = 0;
+        for (int q = 1; q <= A; ++q) {
+            if (x + q < W) {
+                totalWays = (totalWays + calculateProbability(y, x + q, B, A, W, dp)) % MOD;
+            }
+        }
+    
+        return dp[x][y] = totalWays;
+    }
+    
+    int main() {
+        int x, y, A, B, W;
+    
+        // Example input values
+        x = 1;
+        y = 1;
+        A = 2;
+        B = 2;
+        W = 5;
+    
+        // Create a memoization table
+        std::vector<std::vector<int>> dp(W + 1, std::vector<int>(W + 1, -1));
+    
+        int result = calculateProbability(x, y, A, B, W, dp);
+    
+        std::cout << "Probability of player 1 winning: " << result << std::endl;
+    
+        return 0;
+    }
+
+This solution is unique because it uses a 2D array when a 3D array is required. It is not taking into consideration finding a dimension of possible solutions that are required to find the optimal solution, which is the probability of winning. To be frank, I would say this is a problem that ChatGPT itself was confused on how to approach. The time complexity for this solution is exponential, while the most efficient solution is one that is in the range of quadratic runtime. 
+
+### ChatGPT's More Optimized Solution
+
+    #include <iostream>
+    #include <vector>
+    
+    const int MOD = 998244353;
+    
+    int calculateProbability(int x, int y, int A, int B, int W, std::vector<std::vector<int>>& dp) {
+        // Base case: if player 1 is already at or beyond W, he wins
+        if (x >= W) return 1;
+    
+        // If player 2 is already at or beyond W, player 1 cannot win from this state
+        if (y >= W) return 0;
+    
+        // If the probability is already calculated, return it
+        if (dp[x][y] != -1) return dp[x][y];
+    
+        long long totalWays = 0;
+    
+        // Iterate through all possible outcomes of player 1's throw
+        for (int q = 1; q <= A; ++q) {
+            if (x + q < W) {
+                // If player 1's throw is valid, recursively calculate the probability
+                totalWays = (totalWays + calculateProbability(y, x + q, B, A, W, dp)) % MOD;
+            }
+        }
+    
+        // Store the calculated probability in the memoization table
+        return dp[x][y] = totalWays;
+    }
+    
+    int main() {
+        int x, y, A, B, W;
+    
+        // Example input values
+        x = 1;
+        y = 1;
+        A = 2;
+        B = 2;
+        W = 5;
+    
+        // Create a memoization table
+        std::vector<std::vector<int>> dp(W + 1, std::vector<int>(W + 1, -1));
+    
+        int result = calculateProbability(x, y, A, B, W, dp);
+    
+        std::cout << "Probability of player 1 winning: " << result << std::endl;
+    
+        return 0;
+    }
+
+I asked ChatGPT to generate a more efficient solution and it provided me with the same solution again, but with an explanation with how it's different. It claims that it now iterates through the states in reverse order, but there is nothing in the code that reflects that. In addition, it states that it uses a top-down dynamic programming approach, but the solution is the same as what was provided before. It seems as if ChatGPT is completely stumped on this problem. 
+
 ---
 
-Link to the Chat: https://chat.openai.com/share/42ba9a47-7d87-4940-b55a-6065662640d8
+Link to the Chat: https://chat.openai.com/share/bc30b6b9-ee73-40ae-85fe-06df74f10b10
 
 The first half contains Python solutions that I then converted to C++ and the second half contains the solutions directly generated as C++. 
