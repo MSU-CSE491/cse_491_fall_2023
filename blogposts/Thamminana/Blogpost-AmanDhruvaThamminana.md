@@ -58,15 +58,120 @@ Here is a simple code snippet to get started with spdlog
 ```cpp
 #include <spdlog/spdlog.h>
 
-void sample function() {
-  
-// Create a logger for the console
+void sampleFunction() {
+    // Initialize spdlog
+    auto logger = spdlog::default_logger();
 
-return 0;
+    // Set log level (equivalent to controlling INFO, WARNING, ERROR, FATAL in glog)
+    logger->set_level(spdlog::level::trace); // This will allow all levels of logging
+
+    // Log messages
+    SPDLOG_INFO("This is an informational message.");
+    SPDLOG_WARN("This is a warning message.");
+    SPDLOG_ERROR("This is an error message.");
+    SPDLOG_CRITICAL("This is a fatal error message. The program will exit.");
+  
+    // In spdlog, there's no need for explicit shutdown like in Google Logging.
+    // It will automatically flush and shutdown on program exit.
 }
 ```
 
-**Currently, facing issues with spdlog on my macos. Will update this section once I have it working.**
+which will output
+```bash
+
+[2023-11-20 23:43:14.334] [info] [spdlog_main.cpp:12] This is an informational message.
+[2023-11-20 23:43:14.335] [warning] [spdlog_main.cpp:13] This is a warning message.
+[2023-11-20 23:43:14.335] [error] [spdlog_main.cpp:14] This is an error message.
+[2023-11-20 23:43:14.335] [critical] [spdlog_main.cpp:15] This is a fatal error message. The program will exit.
+```
+
+just more colorful and pretty.
+![img.png](images/img.png)
+
+#### Named Logging
+spdlog allows you to create multiple loggers with different names. This can be useful when you want to log different parts of your application to different files or streams.
+```cpp
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+
+void stdout_example()
+{
+  // create a color multi-threaded logger
+  auto console = spdlog::stdout_color_mt("console");
+  auto err_logger = spdlog::stderr_color_mt("stderr");
+  spdlog::get("console")->info("loggers can be retrieved from a global registry using the spdlog::get(logger_name)");
+  spdlog::get("stderr")->info("loggers can be retrieved from a global registry using the spdlog::get(logger_name)");
+}
+```
+
+which outputs
+```bash
+[2023-11-20 23:47:38.197] [console] [info] loggers can be retrieved from a global registry using the spdlog::get(logger_name)
+[2023-11-20 23:47:38.198] [stderr] [info] loggers can be retrieved from a global registry using the spdlog::get(logger_name)
+```
+
+
+Here is an example for logging to a file
+```cpp
+
+#include <iostream>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+void basic_logfile_example()
+{
+  try
+  {
+    auto logger = spdlog::basic_logger_mt("basic_logger", "logs/basic-log.txt");
+  }
+  catch (const spdlog::spdlog_ex &ex)
+  {
+    std::cout << "Log init failed: " << ex.what() << std::endl;
+  }
+}
+
+```
+
+more advanced logging can also be done with spdlog. 
+
+```cpp
+#include "spdlog/sinks/rotating_file_sink.h"
+void rotating_example()
+{
+    // Create a file rotating logger with 5 MB size max and 3 rotated files
+    auto max_size = 1048576 * 5;
+    auto max_files = 3;
+    auto logger = spdlog::rotating_logger_mt("some_logger_name", "logs/rotating.txt", max_size, max_files);
+}
+```
+This demonstrates the creation of a rotating file logger using the spdlog library in C++. It configures a logger named "some_logger_name" to write to "logs/rotating.txt", with a maximum file size of 5 MB and a limit of 3 rotated files.
+
+
+
+```cpp
+#include "spdlog/sinks/daily_file_sink.h"
+void daily_example()
+{
+    // Create a daily logger - a new file is created every day at 2:30 am
+    auto logger = spdlog::daily_logger_mt("daily_logger", "logs/daily.txt", 2, 30);
+}
+```
+
+and ability to log trace and flush periodically
+```cpp
+spdlog::enable_backtrace(32); 
+
+for(int i = 0; i < 100; i++)
+{
+  spdlog::debug("Backtrace message {}", i); 
+}
+// if some error happened
+spdlog::dump_backtrace(); 
+
+spdlog::flush_every(std::chrono::seconds(3));
+```
+
+These are some of the basic features of spdlog. There are a many more features that can be found in the documentation.
 
 ### glog (🔵🔴🟠🟢)
 The Google Logging Library (glog) is a robust and efficient logging library for C++ applications developed by Google. 
@@ -95,7 +200,7 @@ Here is a simple code snippet to get started with glog
 ```cpp
 #include <glog/logging.h>
 
-void sample function() {
+void samplefunction() {
   // Initialize Google Logging
   google::InitGoogleLogging("Aman's Blogpost");
 
@@ -261,8 +366,6 @@ from my research I have found a few good practices for logging.
 - Gather and store initial context information of the systems.
 - be cautious of logging sensitive information like credientials.
 
-## Comparing spdlog and glog
-** TB Completed **
 
 ## Conclusion
 In the course of exploring logging libraries like spdlog and glog,
