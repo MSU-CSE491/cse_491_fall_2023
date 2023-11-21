@@ -1,5 +1,13 @@
 #pragma once
 
+// Macro for parallel execution, add -DPARALLEL flag to CMAKE_CXX_FLAGS when building to enable
+#if PARALLEL
+#include <execution>
+#define PAR std::execution::par,
+#else
+#define PAR
+#endif
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -157,8 +165,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double Sum(const GraphNode &node) {
     auto vals = node.GetInputValues();
-//    return std::reduce(std::execution::par, vals.cbegin(), vals.cend(), 0.);
-    return std::reduce(vals.cbegin(), vals.cend(), 0.);
+    return std::reduce(PAR vals.cbegin(), vals.cend(), 0.);
   }
 
   /// @brief Returns 1 if all inputs are not equal to 0, 0 otherwise.
@@ -210,10 +217,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double Sin(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return std::sin(val); });
-
-    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::sin(val); });
   }
 
@@ -222,14 +226,8 @@ namespace cowboys {
   /// @return The function result as a double.
   double Cos(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return std::cos(val); });
-
-
-    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::cos(val); });
-
-
   }
 
   /// @brief Returns the product of all inputs.
@@ -237,8 +235,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double Product(const GraphNode &node) {
     auto vals = node.GetInputValues();
-//    return std::reduce(std::execution::par, vals.cbegin(), vals.cend(), 1., std::multiplies{});
-    return std::reduce(vals.cbegin(), vals.cend(), 1., std::multiplies{});
+    return std::reduce(PAR vals.cbegin(), vals.cend(), 1., std::multiplies{});
   }
 
   /// @brief Returns the sum of the exp(x) of all inputs.
@@ -246,10 +243,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double Exp(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return std::exp(val); });
-
-    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::exp(val); });
   }
 
@@ -299,10 +293,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double Square(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return val * val; });
-
-    return std::transform_reduce( vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return val * val; });
   }
 
@@ -311,10 +302,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double PosClamp(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return std::max(0., val); });
-//
-    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::max(0., val); });
   }
 
@@ -323,10 +311,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double NegClamp(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return std::min(0., val); });
-//
-    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::min(0., val); });
   }
 
@@ -335,13 +320,8 @@ namespace cowboys {
   /// @return The function result as a double.
   double Sqrt(const GraphNode &node) {
     std::vector<double> vals = node.GetInputValues();
-//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
-//                                 [](const double val) { return std::sqrt(std::max(0., val)); });
-
-    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
                                  [](const double val) { return std::sqrt(std::max(0., val)); });
-
-
   }
 
   /// @brief A vector of all the node functions.
