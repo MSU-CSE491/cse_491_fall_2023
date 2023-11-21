@@ -478,7 +478,7 @@ CPU:
 GPU:
 3.31302 1.31196 2.09196 3.70828 5.55248 7.82177 10.6128 13.7544 17.3604
 ```
-Although there are some outliers, the general trend and the difference is clear. Performing the operations with CUDA on the is roughly 10 times faster than the CPU. If the model is large, then it is definitely worth using CUDA if possible.
+Although there are some outliers, the general trend and the difference is clear. Performing the operations with CUDA on the is roughly 10 times faster than the CPU. If the model is large, then it is definitely worth using CUDA if possible. Of course, this is an unrealistic example, but it does showcase the performance of computation on the GPU.
 
 ## Tensors
 PyTorch works with tensors. A tensor in PyTorch is an n-dimensional array, similar to a NumPy array from the Python library NumPy. They can have many different types such as floats, doubles, halfs, and many more. It is done in the same way in the C++ API. Tensors are dynamically typed, which is a striking contrast to the C++ philosophy of static typing. This allows for the user to change a tensor's type at runtime, using the `Tensor.to(<data type>)` method of tensors and modules. As a consequence, the program may perform an illegal operation between tensors with different types, but it will still compile and proceed to crash at runtime. This may not be a big deal for developers coming from Python, as they have likely gotten used to this problem. Crashing at runtime due to types is not something C++ developers typically deal with, if at all, so this can be seen as a disaster to some. In my opinion, it can be pretty frustrating to wait for it to compile just for it to crash due to a type error.
