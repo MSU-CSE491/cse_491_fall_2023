@@ -480,6 +480,7 @@ GPU:
 ```
 Here is a graph of the results:
 ![Graph of the performance when using the CPU vs the GPU](cuda_performance_graph.png "CUDA Performance Graph")
+
 Although there are the possibility of outliers, the general trend and the difference is clear. Performing the operations with CUDA on the is roughly 10 times faster than the CPU. If the model is large, then it is definitely worth using CUDA if possible. Of course, this is an unrealistic example, this model architecture is very basic and it is essentially a single large matrix multiplication, but it does showcase the potential performance gains when using the GPU.
 
 ## Tensors
