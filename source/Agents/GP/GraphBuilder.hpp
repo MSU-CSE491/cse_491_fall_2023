@@ -5,7 +5,8 @@
 
 namespace cowboys {
 
-  /// @brief A class for building graphs.
+  /// @brief A class for building graphs. Graphs are a generic representation, so this class is used to build the
+  /// specific format of a Cartesian Graph, and also preset graphs.
   class GraphBuilder {
   public:
     GraphBuilder() = default;
@@ -66,7 +67,7 @@ namespace cowboys {
         auto &[connections, function_idx, output] = *genes_it;
         (*nodes_it)->SetFunctionPointer(function_set.at(function_idx));
         (*nodes_it)->SetDefaultOutput(output);
-        
+
         // Copy the all nodes iterator and move it backwards by the number of connections
         auto nodes_it_copy = all_nodes_it;
         std::advance(nodes_it_copy, -connections.size());
