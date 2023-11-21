@@ -245,7 +245,7 @@ std::cout << arr[3]; // Accessing the fourth element
 
 # In-Depth C++ References
 
-- C++ Standard Library: A detailed resource for understanding the implementations and nuances of various container 
+- cppreference.com: A detailed resource for understanding the implementations and nuances of various container 
 classes.
 - C++ Primer (5th Edition) by Stanley B. Lippman: This book provides a comprehensive introduction to C++ with a focus on modern practices.
 - Effective STL by Scott Meyers: Offers specific guidance on the effective use of the STL, including containers and algorithms.
