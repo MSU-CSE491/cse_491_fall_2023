@@ -132,6 +132,21 @@ namespace cse491_team8 {
       }
     }
 
+    /// @brief Heals an Agent
+    /// @param agent The Agent getting healed
+    /// @param stat_modification The amount to modify the stat
+    /// Calculates the healing of the agent
+    /// @return None
+    void HealAction(cse491::AgentBase & agent, double stat_modification)
+    {
+        agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") +
+                static_cast<int>(agent.GetProperty<int>("Max_Health") * stat_modification));
+        if (agent.GetProperty<int>("Health") > agent.GetProperty<int>("Max_Health"))
+        {
+            agent.SetProperty<int>("Health", agent.GetProperty<int>("Max_Health"));
+        }
+    }
+
     /// @brief Determines the damage of the other agent
     /// @param other_agent The NPC agent
     /// @param agent The player agent
@@ -153,12 +168,7 @@ namespace cse491_team8 {
             other_damage = static_cast<int>(other_agent.GetProperty<int>("Strength") * stat_modification);
         }
         if (stat_char == 'h') {
-          other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Health") +
-                  static_cast<int>(other_agent.GetProperty<int>("Max_Health") * stat_modification));
-          if (other_agent.GetProperty<int>("Health") > other_agent.GetProperty<int>("Max_Health"))
-          {
-              other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Max_Health"));
-          }
+            HealAction(other_agent, stat_modification);
         }
         if (stat_char == 's') {
           if (stat_modification < 0) {
@@ -200,13 +210,8 @@ namespace cse491_team8 {
           case 'a': case 'A': damage = agent.GetProperty<int>("Strength");    break;
           case 's': case 'S': damage = static_cast<int>(agent.GetProperty<int>("Strength") * 1.5);  break;
           case 'r': case 'R': won = false; run = true; break;
-          case 'h': case 'H': agent.SetProperty<int>("Health",
-                  agent.GetProperty<int>("Health") + static_cast<int>(agent.GetProperty<int>("Max_Health") * 0.25)); break;
+          case 'h': case 'H': HealAction(agent, 0.25); break;
           default: valid_input = false; break;
-          }
-          if (agent.GetProperty<int>("Health") > agent.GetProperty<int>("Max_Health"))
-          {
-            agent.SetProperty<int>("Health", agent.GetProperty<int>("Max_Health"));
           }
           if (!valid_input)
           {
