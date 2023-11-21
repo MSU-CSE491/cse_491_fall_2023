@@ -627,10 +627,11 @@ namespace cowboys {
     /// @brief Performs a mutation on the genotype with default parameters.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
     /// @param world The world to use for random number generation.
+    /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
-    CGPGenotype &MutateDefault(double mutation_rate, cse491::WorldBase &world) {
+    CGPGenotype &MutateDefault(double mutation_rate, cse491::WorldBase &world, size_t num_functions=FUNCTION_SET.size()) {
       MutateConnections(mutation_rate, world);
-      MutateFunctions(mutation_rate, FUNCTION_SET.size(), world);
+      MutateFunctions(mutation_rate, num_functions, world);
       MutateOutputs(mutation_rate, 0, 1, world);
       return *this;
     }

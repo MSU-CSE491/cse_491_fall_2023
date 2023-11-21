@@ -54,7 +54,7 @@ namespace cowboys {
 
       genotype.MutateDefault(mutation, GetWorld());
 
-      decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
+      decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET, this);
     }
     /// @brief Setup graph.
     /// @return Success.
@@ -103,7 +103,7 @@ namespace cowboys {
     /// @param other The CGPAgent to copy.
     void Configure(const CGPAgent &other) {
       genotype = other.GetGenotype();
-      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
+      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET, this);
     }
 
     /// @brief Copy the behavior of another agent into this agent.

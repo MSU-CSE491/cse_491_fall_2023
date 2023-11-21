@@ -18,7 +18,7 @@ TEST_CASE("GraphNode", "[group7][graphnode]") {
     node = GraphNode(7);
     CHECK(node.GetOutput() == 7);
   }
-  auto simple_add = [](const GraphNode&node) {
+  auto simple_add = [](const GraphNode &node, const cse491::AgentBase &) {
     auto vals = node.GetInputValues<2>({0, 1}).value_or(std::vector<double>{0, 0});
     return vals[0] + vals[1];
   };
@@ -72,7 +72,7 @@ TEST_CASE("GraphNode function set", "[group7][functionset]") {
   }
   SECTION("AnyEq") {
     node->SetFunctionPointer(AnyEq);
-    CHECK_NOTHROW(node->GetOutput()); // No inputs
+    CHECK_NOTHROW(node->GetOutput());               // No inputs
     node->AddInput(std::make_shared<GraphNode>(3)); // The value to check for equality
     CHECK(node->GetOutput() == 0);
     node->AddInput(std::make_shared<GraphNode>(4)); // None equal
@@ -86,7 +86,7 @@ TEST_CASE("GraphNode function set", "[group7][functionset]") {
   }
   SECTION("And") {
     node->SetFunctionPointer(And);
-    CHECK_NOTHROW(node->GetOutput()); // No inputs
+    CHECK_NOTHROW(node->GetOutput());               // No inputs
     node->AddInput(std::make_shared<GraphNode>(1)); // True
     CHECK(node->GetOutput() == 1);
     node->AddInput(std::make_shared<GraphNode>(5)); // True

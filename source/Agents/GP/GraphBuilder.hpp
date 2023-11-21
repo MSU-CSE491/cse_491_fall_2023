@@ -14,8 +14,11 @@ namespace cowboys {
 
     /// @brief Creates a decision graph from a CGP genotype.
     /// @param genotype The genotype to create the decision graph from.
+    /// @param function_set The set of functions available to the decision graph.
+    /// @param agent The agent that will be using the decision graph.
     /// @return The decision graph.
-    std::unique_ptr<Graph> CartesianGraph(const CGPGenotype &genotype, const std::vector<NodeFunction> &function_set) {
+    std::unique_ptr<Graph> CartesianGraph(const CGPGenotype &genotype, const std::vector<InnerFunction> &function_set,
+                                          const cse491::AgentBase *agent = nullptr) {
       auto decision_graph = std::make_unique<Graph>();
 
       //
@@ -65,7 +68,7 @@ namespace cowboys {
         }
 
         auto &[connections, function_idx, output] = *genes_it;
-        (*nodes_it)->SetFunctionPointer(function_set.at(function_idx));
+        (*nodes_it)->SetFunctionPointer(NodeFunction{function_set.at(function_idx), agent});
         (*nodes_it)->SetDefaultOutput(output);
 
         // Copy the all nodes iterator and move it backwards by the number of connections
