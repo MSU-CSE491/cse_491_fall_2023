@@ -62,7 +62,7 @@ faiss::IndexFlatL2 index(d);
 index.add(nb, data.get());
 ```
 
-Next, I created an array called query\_vector which has 300 elements in it. some\_index is a value that the user can modify to their liking – it takes the nth vector in the array of 200 (i.e., the nth sentence), and compares that to all the other ones. query\_vector is made to store all elements from the index we want to search with. We define k, which is the number of nearest neighbors we want. If we want the 5 most similar sentences, we set k to be 5. distances holds the distance in Euclidean space between the query and the neighbor, and indices simply holds the index of the neighbor.
+Next, I created an array called query\_vector which has 300 elements in it. some\_index is a value that the user can modify to their liking – it takes the nth vector in the array of 200 (i.e., the nth sentence), and compares that to all the other ones. query\_vector is made to store all elements from the index we want to search with. We define k, which is the number of nearest neighbors we want. If we want the 5 most similar sentences, we set k to be 5. The distances vector holds the distance in Euclidean space between the query and the neighbor, and indices simply holds the index of the neighbor.
 
 ```cpp
 float query_vector[d];
