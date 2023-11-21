@@ -53,6 +53,18 @@ class GenerativeWorld : public WorldBase {
 
     main_grid.Read("../assets/grids/generated_maze.grid", type_options);
   }
+
+  GenerativeWorld(const std::string &str) : WorldBase(str) {
+      floor_id = 1;
+      wall_id = 2;
+      spike_id = 3;
+      tar_id = 4;
+      key_id = 5;
+      door_id = 6;
+      grass_id = 7;
+      dirt_id = 8;
+  }
+
   ~GenerativeWorld() = default;
 
   /// Allow the agents to move around the maze.

@@ -52,6 +52,12 @@ namespace group4 {
 
         }
 
+        SecondWorld(const std::string &str) : WorldBase(str) {
+            floor_id = 1;
+            flag_id = 2;
+            wall_id = 3;
+        }
+
         /**
          * Destructor
          */

@@ -9,26 +9,52 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/NetWorth/server/ServerInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
+#include "Worlds/BiomeGenerator.hpp"
+#include "Worlds/GenerativeWorld.hpp"
+#include "Worlds/ManualWorld.hpp"
+#include "Worlds/SecondWorld.hpp"
 
 int main() {
     std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
 
-    cse491::MazeWorld world;
     sf::UdpSocket socket;
     if (socket.bind(55000) != sf::Socket::Status::Done) {
         std::cerr << "Failed to bind socket" << std::endl;
         return 1;
     }
 
+    // TODO: Find a better way to deal with worlds other than commenting/uncommenting
+
+    cse491::MazeWorld world;
+    int start_x = 0, start_y = 0;
+
+//    group4::SecondWorld world;
+//    int start_x = 0, start_y = 0;
+
+//    static const unsigned int SEED = 973;
+//    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
+//    biomeGenerator.generate();
+//
+//    srand(time(NULL));
+//    auto path = biomeGenerator.clearPath();
+//    biomeGenerator.applyPathToGrid(path);
+//
+//    cse491::GenerativeWorld world(SEED);
+//    int start_x = 0, start_y = 0;
+
+//    cse491_team8::ManualWorld world;
+//    int start_x = 40, start_y = 3;
+
+    // TODO: Add non-player agents before serialization (depending on world)
+//    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
+//    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
+
+    // Serialize world into string
     std::ostringstream os;
     world.Serialize(os);
     std::string serialized = os.str();
 
-//    std::cout << serialized << std::endl;
-//
-//    std::istringstream is(serialized);
-//    world.Deserialize(is);
-
+    // Await client
     sf::Packet recv_pkt, send_pkt;
     std::optional<sf::IpAddress> ip;
     unsigned short port;
@@ -40,21 +66,17 @@ int main() {
     std::string str;
     recv_pkt >> str;
     std::cout << str << std::endl;
-    send_pkt << serialized;
 
+    // Send serialized world
+    send_pkt << serialized;
     if (socket.send(send_pkt, ip.value(), port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
         return 1;
     }
 
+    // TODO: Add other agents (will probably be in WorldBase Serialize/Deserialize)
+    world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@').SetPosition(start_x,start_y);
 
-    //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-    //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@');
-
-    // will probably need to override world Run function for multiple clients
-    // assuming we use NetworkMazeWorld rather than MazeWorld
-    // that could be difficult for multiple world classes though...
     world.Run();
     return 0;
 

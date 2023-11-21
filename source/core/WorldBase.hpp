@@ -13,6 +13,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "AgentBase.hpp"
 #include "Data.hpp"
@@ -80,6 +81,18 @@ public:
     if (seed == 0) {
       std::random_device rd; // An expensive "true" random number generator.
       seed = rd();           // Change the seed to a random value.
+    }
+    random_gen.seed(seed);
+  }
+
+  // Constructor from serialized string
+  WorldBase(const std::string &str) : grids(), main_grid(grids[0]) {
+    std::istringstream is(str);
+    Deserialize(is);
+
+    if (seed == 0) {
+        std::random_device rd;
+        seed = rd();
     }
     random_gen.seed(seed);
   }
@@ -404,6 +417,15 @@ public:
       os << cell.name << '\n';
       os << cell.desc << '\n';
       os << cell.symbol << '\n';
+
+      size_t num_properties = cell.properties.size();
+      os << num_properties << '\n';
+      if (num_properties > 0) {
+          for (const std::string & property : cell.properties) {
+              os << property << '\n';
+          }
+      }
+
     }
     os << ":::END type_options\n";
   }
@@ -421,7 +443,7 @@ public:
       return;
     }
 
-    std::string name, desc, symbol_str;
+    std::string name, desc, symbol_str, property;
     char symbol;
     size_t size;
 
@@ -435,7 +457,18 @@ public:
       std::getline(is, desc, '\n');
       std::getline(is, symbol_str, '\n');
       symbol = symbol_str[0];
-      if (name != "Unknown") type_options.push_back(CellType{name, desc, symbol});
+
+      // Construct cell to add properties
+      CellType cell{name, desc, symbol};
+
+      std::getline(is, property, '\n');
+      size_t num_properties = stoi(property);
+      for (size_t j = 0; j < num_properties; j++) {
+          std::getline(is, property, '\n');
+          cell.properties.insert(property);
+      }
+
+      type_options.push_back(cell);
     }
 
     std::getline(is, read, '\n');
@@ -458,7 +491,7 @@ public:
    * Deserialize world grid and cells from istream
    * @param is
    */
-  virtual void Deserialize(std::istream &is) {
+  void Deserialize(std::istream &is) {
     main_grid.Deserialize(is);
     DeserializeTypeOptions(is);
   }

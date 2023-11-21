@@ -38,14 +38,9 @@ class MazeWorld : public WorldBase {
     main_grid.Read("../assets/grids/default_maze.grid", type_options);
   }
 
-  // Constructor from serialized string
-  explicit MazeWorld(const std::string &str) {
-      std::istringstream is(str);
-      cse491::WorldBase::Deserialize(is);
+  MazeWorld(const std::string &str) : WorldBase(str) {
       floor_id = 1;
       wall_id = 2;
-      //TODO: Actually serialize properties instead of hardcoding them
-      type_options.at(floor_id).SetProperty(CellType::CELL_WALL);
   }
 
   ~MazeWorld() = default;

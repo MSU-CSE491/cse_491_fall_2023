@@ -47,6 +47,15 @@ namespace cse491_team8 {
       rock_id = AddCellType("rock", "Rock that the player cannot cross", '$');
       main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
     }
+
+      ManualWorld(const std::string & str) : WorldBase(str) {
+        grass_id = 1;
+        tree_id = 2;
+        water_id = 3;
+        bridge_id = 4;
+        rock_id = 5;
+      }
+
     ~ManualWorld() = default;
 
     /// @brief Generates move sets for all the agents

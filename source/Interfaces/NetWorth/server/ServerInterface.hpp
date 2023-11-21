@@ -138,14 +138,13 @@ namespace netWorth{
                                 const cse491::agent_map_t & agent_set) override
             {
                 // send map to client
-                //sf::Packet send_pkt = GridToPacket(grid, type_options, item_set, agent_set);
-                sf::Packet send_pkt;
+                sf::Packet send_pkt = GridToPacket(grid, type_options, item_set, agent_set);
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
                 // print map (for test purposes)
-                //std::string map;
-                //send_pkt >> map;
-                //std::cout << map << std::endl;
+                std::string map;
+                send_pkt >> map;
+                std::cout << map << std::endl;
 
                 // receive player input
                 sf::Packet recv_pkt;
