@@ -84,8 +84,7 @@ namespace netWorth{
              * @return received packet
              */
             virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
-                auto temp = m_socket.receive(pkt, sender,port);
-                if ( temp != Socket::Status::Done) {
+                if (m_socket.receive(pkt, sender,port) != Socket::Status::Done) {
                     std::cerr << "Failed to receive" << std::endl;
                     return false;
                 }

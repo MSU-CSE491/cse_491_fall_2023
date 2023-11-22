@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     // this will be confusing
     // receive initial world, set of agents, etc?? This will have to be separate from ClientInterface
     cse491::MazeWorld world;
-    world.AddAgent<netWorth::ClientInterface>("Interface", "client_ip", ip_string, "client_port", port).SetProperty("symbol", '@');
+    world.AddAgent<netWorth::ClientInterface>("Interface", "server_ip", ip_string, "server_port", port).SetProperty("symbol", '@');
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
 

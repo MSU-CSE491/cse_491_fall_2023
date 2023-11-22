@@ -26,7 +26,7 @@ namespace netWorth{
     public:
         std::vector<std::thread> m_clientThreads; ///Vector of all client threads
 
-        std::map<unsigned short, size_t> m_action_map; ///Map of port numbers to most recent action selected
+        std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
         const static constexpr unsigned short m_initConnectionPort = 55000; ///Port for initial client connection
 
