@@ -20,7 +20,7 @@
 #include "ItemBase.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
-
+    
 namespace cse491 {
 
 class DataReceiver;
@@ -86,8 +86,7 @@ public:
   }
 
   // Constructor from serialized string
-  WorldBase(const std::string &str) : grids(), main_grid(grids[0]) {
-    std::istringstream is(str);
+  WorldBase(std::istringstream &is) : grids(), main_grid(grids[0]) {
     Deserialize(is);
 
     if (seed == 0) {
@@ -404,6 +403,19 @@ public:
     return true;
   }
 
+  void SerializeAgentSet(std::ostream &os) {
+      os << ":::START agent_set\n";
+      os << agent_map.size() << '\n';
+
+      // serialize each important variable/property
+      for (const auto &agent: agent_map) {
+          os << agent.second->GetName() << '\n';
+          os << agent.second->GetPosition().GetX() << '\n';
+          os << agent.second->GetPosition().GetY() << '\n';
+      }
+      os << ":::END agent_set\n";
+  }
+
   /**
    * Serialize cells into an ostream
    * @param os ostream
@@ -485,6 +497,7 @@ public:
   void Serialize(std::ostream &os) {
     main_grid.Serialize(os);
     SerializeTypeOptions(os);
+    SerializeAgentSet(os);
   }
 
   /**

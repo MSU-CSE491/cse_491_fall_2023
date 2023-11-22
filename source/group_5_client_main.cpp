@@ -14,6 +14,43 @@
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/ManualWorld.hpp"
 
+/**
+ * Deserialize agents and add to world
+ * @param is istream
+ * @param world world that is being added to
+ */
+void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world) {
+    // find beginning of type_options serialization (after WorldGrid)
+    std::string read;
+    std::getline(is, read, '\n');
+    if (read != ":::START agent_set") {
+        std::cerr << "Could not find start of type_options serialization" << std::endl;
+        return;
+    }
+
+    std::string name, x, y;
+    size_t size;
+
+    // how many agents?
+    std::getline(is, read, '\n');
+    size = stoi(read);
+
+    // read each cell type
+    for (size_t i = 0; i < size; i++) {
+        std::getline(is, name, '\n');
+        std::getline(is, x, '\n');
+        std::getline(is, y, '\n');
+
+        world.AddAgent<cse491::PacingAgent>(name).SetPosition(stoi(x), stoi(y));
+    }
+
+    std::getline(is, read, '\n');
+    if (read != ":::END agent_set") {
+        std::cerr << "Could not find end of type_options serialization" << std::endl;
+        return;
+    }
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         std::cerr << "Must have an argument for server IP\nUsage: ./client [IP]" << std::endl;
@@ -41,28 +78,31 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     recv_pkt >> serialized;
+    std::istringstream is(serialized);
 
     // TODO: Find a better way to deal with worlds other than commenting/uncommenting
     // Will probably find a way to determine world type from server
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
     std::string interface_name = "Interface1";
-    cse491::MazeWorld world(serialized);
+    cse491::MazeWorld world(is);
     int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface";
-//    group4::SecondWorld world(serialized);
+//    group4::SecondWorld world(is);
 //    int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface2";
-//    cse491::GenerativeWorld world(serialized);
+//    cse491::GenerativeWorld world(is);
 //    int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface3";
-//    cse491_team8::ManualWorld world(serialized);
+//    cse491_team8::ManualWorld world(is);
 //    int start_x = 40, start_y = 3;
 
     port = 55002;
+
+    DeserializeAgentSet(is, world);
 
     world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string, "port", port).SetProperty("symbol", '@').SetPosition(start_x, start_y);
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);

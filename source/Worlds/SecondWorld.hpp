@@ -52,7 +52,7 @@ namespace group4 {
 
         }
 
-        SecondWorld(const std::string &str) : WorldBase(str) {
+        SecondWorld(std::istringstream &is) : WorldBase(is) {
             floor_id = 1;
             flag_id = 2;
             wall_id = 3;

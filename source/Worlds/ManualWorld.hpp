@@ -48,7 +48,7 @@ namespace cse491_team8 {
       main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
     }
 
-      ManualWorld(const std::string & str) : WorldBase(str) {
+      ManualWorld(std::istringstream &is) : WorldBase(is) {
         grass_id = 1;
         tree_id = 2;
         water_id = 3;

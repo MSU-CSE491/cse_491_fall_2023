@@ -46,8 +46,8 @@ int main() {
 //    int start_x = 40, start_y = 3;
 
     // TODO: Add non-player agents before serialization (depending on world)
-//    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-//    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
+    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
+    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
 
     // Serialize world into string
     std::ostringstream os;

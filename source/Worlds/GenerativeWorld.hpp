@@ -54,7 +54,7 @@ class GenerativeWorld : public WorldBase {
     main_grid.Read("../assets/grids/generated_maze.grid", type_options);
   }
 
-  GenerativeWorld(const std::string &str) : WorldBase(str) {
+  GenerativeWorld(std::istringstream &is) : WorldBase(is) {
       floor_id = 1;
       wall_id = 2;
       spike_id = 3;

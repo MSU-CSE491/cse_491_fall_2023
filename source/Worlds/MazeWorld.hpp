@@ -38,7 +38,7 @@ class MazeWorld : public WorldBase {
     main_grid.Read("../assets/grids/default_maze.grid", type_options);
   }
 
-  MazeWorld(const std::string &str) : WorldBase(str) {
+  MazeWorld(std::istringstream &is) : WorldBase(is) {
       floor_id = 1;
       wall_id = 2;
   }
