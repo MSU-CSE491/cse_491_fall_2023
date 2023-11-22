@@ -26,7 +26,7 @@
 
 namespace cowboys {
 
-    unsigned int TRAINING_SEED = 111;
+    constexpr unsigned int TRAINING_SEED = 0;
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -78,10 +78,16 @@ namespace cowboys {
          */
         void Initialize(size_t numArenas = 5, size_t NumAgentsForArena = 100) {
 
+          unsigned int seed = TRAINING_SEED;
+          if (seed == 0) {
+            seed = std::random_device()();
+          }
+          std::cout << "Using seed: " << seed << std::endl;
+
 
           for (size_t i = 0; i < numArenas; ++i) {
             // instantiate a new environment
-            environments.emplace_back(std::make_unique<EnvironmentType>(TRAINING_SEED));
+            environments.emplace_back(std::make_unique<EnvironmentType>(seed));
 
 
             agents.push_back(std::vector<cowboys::GPAgentBase *>());
@@ -91,6 +97,7 @@ namespace cowboys {
               cowboys::GPAgentBase &addedAgent = static_cast<cowboys::GPAgentBase &>(environments[i]->template AddAgent<AgentType>(
                       "Agent " + std::to_string(j)));
               addedAgent.SetPosition(0, 0);
+              addedAgent.SetSeed(seed);
               cse491::GridPosition position = addedAgent.GetPosition();
 
               TEMPinitialAgentPositions[i].push_back(position);
