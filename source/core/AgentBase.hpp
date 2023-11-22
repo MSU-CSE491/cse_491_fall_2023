@@ -19,6 +19,14 @@
 
 namespace cse491 {
 
+  enum State /// States that an agent can be in.
+  {
+    Healthy,
+    Taking_Damage,
+    Dying,
+    Deceased
+  };
+
   class AgentBase : public Entity {
   protected:
     size_t grid_id=0;       ///< Which grid is this agent on?
@@ -28,6 +36,8 @@ namespace cse491 {
     int action_result=0;  ///< Usually a one (success) or zero (failure).
 
     int action; // The action that the agent is currently performing
+
+    State agent_state = Healthy;  /// Default value upon initialization
 
   public:
     AgentBase(size_t id, const std::string & name) : Entity(id, name) {}
@@ -46,13 +56,54 @@ namespace cse491 {
 
     bool IsAgent() const override { return true; }
 
+    // -- Agent Interaction --
+
+    /// @brief Get the current state of the Agent
+    /// @return State enum of agent_state
+    State GetAgentState() { return agent_state; }
+
+    /// @brief Updates an Agent's state depending on health
+    /// @param agent The agent whose state to update
+    /// If the agent's health is between Max_health and 3 -> Healthy
+    /// If the agent's health is between 0 and 3 -> Dying
+    /// If the agent is Taking_Damage -> Taking_Damage
+    /// If the agent is at 0 or below -> Dead
+    /// @see TakeDamage
+    /// @return None
+    void UpdateAgentState(cse491::AgentBase & agent) {
+      if(agent.HasProperty("Health")){
+        if(agent.GetProperty<int>("Health") <= agent.GetProperty<int>("Max_Health") 
+        && agent.GetProperty<int>("Health") > 3){
+          agent.agent_state = Healthy;
+        }
+        else if(agent.GetProperty<int>("Health") <= 3 && agent.GetProperty<int>("Health") > 0){
+          agent.agent_state = Dying;
+        }
+        else if(agent.GetProperty<int>("Health") <= 0){
+          agent.agent_state = Deceased;
+        }
+      }
+      if(agent.HasProperty("Taking_Damage")){
+        if(agent.GetProperty<bool>("Taking_Damage") == true){
+          agent.agent_state = Taking_Damage;
+        }
+      }
+    }
+
+    /// @brief If the agent is in State::Taking_Damage, decrease the health 
+    /// by the damage factor once per timestep.
+    void TakeDamage(cse491::AgentBase & agent){
+        agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - 
+        agent.GetProperty<int>("Taking_Damage"));
+        UpdateAgentState(agent);
+    }
+
     // -- Action management --
 
     /// Test if agent already has a specified action.
     [[nodiscard]] bool HasAction(const std::string & action_name) const {
       return action_map.count(action_name);
     }
-
 
     /// Return an action ID *if* that action exists, otherwise return zero.
     [[nodiscard]] size_t GetActionID(const std::string & action_name) const {
