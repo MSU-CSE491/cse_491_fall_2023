@@ -7,6 +7,8 @@
 // Include the modules that we will be using.
 
 #include "Interfaces/NetWorth/client/ClientInterface.hpp"
+#include "Interfaces/NetWorth/client/ControlledAgent.hpp"
+#include "Interfaces/NetWorth/client/ClientManager.hpp"
 #include "Worlds/MazeWorld.hpp"
 #include "Agents/PacingAgent.hpp"
 #include "Worlds/SecondWorld.hpp"
@@ -19,8 +21,8 @@
  * @param is istream
  * @param world world that is being added to
  */
-void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world) {
-    // find beginning of type_options serialization (after WorldGrid)
+void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::ClientManager *manager) {
+    // find beginning of agent_set serialization
     std::string read;
     std::getline(is, read, '\n');
     if (read != ":::START agent_set") {
@@ -41,7 +43,7 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world) {
         std::getline(is, x, '\n');
         std::getline(is, y, '\n');
 
-        world.AddAgent<cse491::PacingAgent>(name).SetPosition(stoi(x), stoi(y));
+        world.AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
     }
 
     std::getline(is, read, '\n');
@@ -61,6 +63,7 @@ int main(int argc, char *argv[]) {
     unsigned short port = 55000;
 
     // Request connection to server
+    netWorth::ClientManager manager;
     sf::UdpSocket socket;
     sf::Packet send_pkt, recv_pkt;
     std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(ip_string);
@@ -102,9 +105,9 @@ int main(int argc, char *argv[]) {
 
     port = 55002;
 
-    DeserializeAgentSet(is, world);
+    DeserializeAgentSet(is, world, &manager);
+    world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string, "port", port, "manager", &manager).SetProperty("symbol", '@').SetPosition(start_x, start_y);
 
-    world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string, "port", port).SetProperty("symbol", '@').SetPosition(start_x, start_y);
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
 

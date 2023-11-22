@@ -9,6 +9,7 @@
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Interfaces/MainInterface.hpp"
+#include "ClientManager.hpp"
 
 namespace netWorth{
     /**
@@ -18,6 +19,7 @@ namespace netWorth{
 
     class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
         private:
+            netWorth::ClientManager *m_manager;
 
         protected:
 
@@ -39,6 +41,7 @@ namespace netWorth{
                 // resolve port and IP from entity properties
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("port");
+                m_manager = GetProperty<netWorth::ClientManager *>("manager");
 
                 Packet send_pkt, recv_pkt;
                 std::string str;
@@ -81,6 +84,7 @@ namespace netWorth{
 
                 ReceivePacket(recv_pkt, m_ip, m_port);
                 ProcessPacket(recv_pkt);
+                m_manager->PacketToActionMap(recv_pkt);
 
                 // grab action ID from MainInterface
                 size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
@@ -100,9 +104,16 @@ namespace netWorth{
              * @param packet packet from server
              */
             void ProcessPacket(Packet packet) override {
-                std::string str;
-                packet >> str;
-                std::cout << str;
+                size_t data_size, data;
+                packet >> data_size;
+                std::cout << data_size << " agents" << std::endl;
+                for (size_t i = 0; i < data_size; i++) {
+                    packet >> data;
+                    std::cout << "agent " << data;
+                    packet >> data;
+                    std::cout << " action " << data << std::endl;
+                }
+                std::cout << std::endl;
             }
 
     }; // End of ClientInterface

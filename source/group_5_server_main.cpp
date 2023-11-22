@@ -8,6 +8,7 @@
 
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/NetWorth/server/ServerInterface.hpp"
+#include "Interfaces/NetWorth/server/ServerManager.hpp"
 #include "Worlds/MazeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
 #include "Worlds/GenerativeWorld.hpp"
@@ -17,6 +18,7 @@
 int main() {
     std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
 
+    netWorth::ServerManager manager;
     sf::UdpSocket socket;
     if (socket.bind(55000) != sf::Socket::Status::Done) {
         std::cerr << "Failed to bind socket" << std::endl;
@@ -74,9 +76,9 @@ int main() {
         return 1;
     }
 
-    // TODO: Add other agents (will probably be in WorldBase Serialize/Deserialize)
-    world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@').SetPosition(start_x,start_y);
+    world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
 
+    world.SetManager(&manager);
     world.Run();
     return 0;
 

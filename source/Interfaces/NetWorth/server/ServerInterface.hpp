@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "../NetworkInterface.hpp"
+#include "ServerManager.hpp"
 
 namespace netWorth{
     using namespace sf;
@@ -16,6 +17,7 @@ namespace netWorth{
      */
     class ServerInterface : public NetworkingInterface {
         private:
+            ServerManager *m_manager = nullptr;
 
         protected:
 
@@ -31,6 +33,10 @@ namespace netWorth{
                 InitialConnection(m_ip, m_port);
             }
 
+            bool Initialize() override {
+                m_manager = GetProperty<ServerManager *>("server_manager");
+                return true;
+            }
 
             /**
              * The initial connection for the server to a client
@@ -137,13 +143,14 @@ namespace netWorth{
                                 const cse491::item_map_t & item_set,
                                 const cse491::agent_map_t & agent_set) override
             {
-                // send map to client
-                sf::Packet send_pkt = GridToPacket(grid, type_options, item_set, agent_set);
+                // send action map to client
+                sf::Packet send_pkt = m_manager->ActionMapToPacket();
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
-                // print map (for test purposes)
+                // print server-side map (for test purposes)
+                sf::Packet map_pkt = GridToPacket(grid, type_options, item_set, agent_set);
                 std::string map;
-                send_pkt >> map;
+                map_pkt >> map;
                 std::cout << map << std::endl;
 
                 // receive player input
