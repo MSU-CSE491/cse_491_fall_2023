@@ -16,17 +16,23 @@
 
 void ClientThread(netWorth::ServerInterface & interface, netWorth::NetworkMazeWorld &world,
                   netWorth::ServerManager & serverManager){
+    // Send to acknowledge client
+
+    std::cout << "In client thread" << std::endl;
+
+    std::cout << interface.GetName() << std::endl;
+
     //While this client is still connected (need to fix)
-    while (serverManager.m_action_map.contains(interface.GetSocket()->getLocalPort())){
-        sf::Packet clientPacket;
-        std::optional<sf::IpAddress> clientIP;
-        unsigned short clientPort;
+//    while (serverManager.m_action_map.contains(interface.GetSocket()->getLocalPort())){
+//        sf::Packet clientPacket;
+//        std::optional<sf::IpAddress> clientIP;
+//        unsigned short clientPort;
 
 //        size_t clientAction = interface.SelectAction(world.GetGrid(), world.GetCellTypes(), world.Get);
 
         //Might need to do this inside of do action or before DoAction.
 //        serverManager.m_action_map.insert_or_assign(interface.GetSocket()->getLocalPort(), clientAction);
-    }
+//    }
 }
 
 /**
@@ -54,12 +60,22 @@ void HandleConnection(netWorth::ServerManager &serverManager, netWorth::NetworkM
     }
 
     std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
+    pkt >> str;
+    std::cout << str << std::endl;
+
 
     serverManager.IncreasePort();
     //networth::ServerInterface & interface
+    pkt.clear();
+    pkt << serverManager.m_maxClientPort;
+    if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
+        std::cerr << "Failed to send" << std::endl;
+        exit(0);
+    }
 
+    std::string serverInterfaceName = "ServerInterface" + std::to_string(serverManager.m_maxClientPort);
 
-    cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>("Interface", "client_ip", sender->toString(),
+    cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>(serverInterfaceName, "client_ip", sender->toString(),
                                               "client_port", port, "server_port", serverManager.m_maxClientPort)
                                               .SetProperty("symbol", '@');
 

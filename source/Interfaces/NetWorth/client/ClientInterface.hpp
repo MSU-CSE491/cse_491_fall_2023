@@ -37,7 +37,7 @@ namespace netWorth{
              */
             bool Initialize() override {
                 // resolve port and IP from entity properties
-                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
+                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
 
                 Packet send_pkt, recv_pkt;
@@ -45,6 +45,7 @@ namespace netWorth{
 
                 // send request message
                 send_pkt << "New client requesting connection.";
+                std::cout << "Requesting connection" << std::endl;
                 auto g = m_ip.value();
                 if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 

@@ -45,6 +45,11 @@ namespace netWorth{
                     std::cerr << "Failed to bind" << std::endl;
                     return false;
                 }
+
+//                sf::Packet send_pkt;
+//                send_pkt << 55001;
+//                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
+
                 return true;
             }
 
