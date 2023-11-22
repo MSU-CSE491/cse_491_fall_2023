@@ -402,25 +402,6 @@ namespace cse491_team8 {
       }
     }
 
-
-    /**
-     * @brief Get the ID of an Item
-     * 
-     * @param agent 
-     * @param item_name 
-     * @return int 
-     */
-    int GetItemID(cse491::AgentBase & agent, std::string item_name) {
-        for (auto & item : item_map)
-        {
-            if (item.second->GetName() == item_name && item.second->IsOwnedBy(agent.GetID()))
-            {
-                return item.second->GetID();
-            }
-        }
-        return -1;
-    }
-
     /// @brief Attempt to pick up an item for the agent.
     /// @param agent The agent that is picking up the item.
     /// @param new_position New position of the agent to check if an item is there.
