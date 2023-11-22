@@ -134,6 +134,29 @@ namespace cse491_team8 {
       }
     }
 
+    /// @brief Heals an Agent
+    /// @param agent The Agent getting healed
+    /// Calculates the healing of the agent
+    /// @return None
+    void HealAction(cse491::AgentBase & agent)
+    {
+      size_t can_heal = FindItem(agent, "Health Potion");
+      if (can_heal != SIZE_MAX) {
+        int healing_req = agent.GetProperty<int>("Max_Health") - agent.GetProperty<int>("Health");
+        int healing = item_map[can_heal]->GetProperty<int>("Healing");
+        if (healing_req >= healing) {
+          agent.Notify("You healed" + std::to_string(healing) + "!\n");
+          agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing);
+          RemoveItem(can_heal);
+        } else {
+          agent.Notify("You healed " + std::to_string(healing_req) + " health!\n");
+          agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing_req);
+          item_map[can_heal]->SetProperty("Healing", healing - healing_req);
+        }
+      }
+
+    }
+
     /// @brief Determines the damage of the other agent
     /// @param other_agent The NPC agent
     /// @param agent The player agent
@@ -155,12 +178,7 @@ namespace cse491_team8 {
             other_damage = static_cast<int>(other_agent.GetProperty<int>("Strength") * stat_modification);
         }
         if (stat_char == 'h') {
-          other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Health") +
-                  static_cast<int>(other_agent.GetProperty<int>("Max_Health") * stat_modification));
-          if (other_agent.GetProperty<int>("Health") > other_agent.GetProperty<int>("Max_Health"))
-          {
-              other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Max_Health"));
-          }
+            HealAction(other_agent);
         }
         if (stat_char == 's') {
           if (stat_modification < 0) {
@@ -202,13 +220,8 @@ namespace cse491_team8 {
           case 'a': case 'A': damage = agent.GetProperty<int>("Strength");    break;
           case 's': case 'S': damage = static_cast<int>(agent.GetProperty<int>("Strength") * 1.5);  break;
           case 'r': case 'R': won = false; run = true; break;
-          case 'h': case 'H': agent.SetProperty<int>("Health",
-                  agent.GetProperty<int>("Health") + static_cast<int>(agent.GetProperty<int>("Max_Health") * 0.25)); break;
+          case 'h': case 'H': HealAction(agent); break;
           default: valid_input = false; break;
-          }
-          if (agent.GetProperty<int>("Health") > agent.GetProperty<int>("Max_Health"))
-          {
-            agent.SetProperty<int>("Health", agent.GetProperty<int>("Max_Health"));
           }
           if (!valid_input)
           {
@@ -419,7 +432,7 @@ namespace cse491_team8 {
           std::string uses_property = "";
           if (item_ptr->GetName() == "Stick" || item_ptr->GetName() == "Sword") { uses_property = "Strength"; }
           if (item_ptr->GetName() == "Boat" || item_ptr->GetName() == "Axe")  { uses_property = "Uses"; }
-          if (item_ptr->GetName() == "Health Potion") { uses_property = "Health"; }
+          if (item_ptr->GetName() == "Health Potion") { uses_property = "Healing"; }
 
           if (uses_property == "Strength")
           {
@@ -494,18 +507,7 @@ namespace cse491_team8 {
         case HEAL:
         {
             new_position = agent.GetPosition();
-            auto curr_health = agent.GetProperty<int>("Health");
-            auto id = GetItemID(agent, "Health Potion");
-
-            if (id > -1) {
-                agent.SetProperty<int>("Health", curr_health + item_map[id]->GetProperty<int>("Health"));
-                RemoveItem(id);
-            }
-            else {
-                agent.Notify("Player does not have any health potions");
-            }
-            agent.Notify("Player Health: " + std::to_string(agent.GetProperty<int>("Health")));
-
+            HealAction(agent);
             break;
         }
         case STATS:
@@ -524,9 +526,9 @@ namespace cse491_team8 {
                     {
                         result = item.second->GetProperty<int>("Strength");
                     }
-                    else if (item.second->HasProperty("Health"))
+                    else if (item.second->HasProperty("Healing"))
                     {
-                        result = item.second->GetProperty<int>("Health");
+                        result = item.second->GetProperty<int>("Healing");
                     }
                     agent.Notify(item.second->GetName() + ": " + std::to_string(result));
                 }
@@ -543,6 +545,22 @@ namespace cse491_team8 {
     
     }
 
+      /// @brief Check if an agent owns an item
+      /// @param agent The agent to see if is an owner
+      /// @param item_name Name of the item
+      /// @return item_id
+    size_t FindItem(cse491::AgentBase & agent, const std::string & item_name) {
+      size_t item_id = SIZE_MAX;
+      for (auto & item : item_map)
+      {
+        if (item.second->GetName() == item_name && item.second->IsOwnedBy(agent.GetID()))
+        {
+          item_id = item.second->GetID();
+          break;
+        }
+      }
+      return item_id;
+    }
 
     /// @brief Attempt to interact with a tree
     /// If the agent can interact with the tree, prompts the user if they want to use one of their chops
@@ -550,11 +568,9 @@ namespace cse491_team8 {
     /// @param new_position The position being interacted with
     /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
     void DoActionTestNewPositionTree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
-        int item_id = GetItemID(agent, "Axe");
-
-        agent.Notify("Item id: " + std::to_string(item_id));
-        
-        if (item_id > -1)
+        size_t item_id = FindItem(agent, "Axe");
+        // if (agent.HasProperty("Uses") && agent.GetProperty<int>("Uses") > 0)
+        if (item_id != SIZE_MAX)
         {
           agent.Notify("You can use your Axe once to chop down this tree. You have " +
                         std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Chop this tree? Y/N:");
@@ -583,9 +599,9 @@ namespace cse491_team8 {
             return true;
         }
 
-        int item_id = GetItemID(agent, "Boat");
-        
-        if (item_id > -1)
+        size_t item_id = FindItem(agent, "Boat");
+
+        if (item_id != SIZE_MAX)
         {
             agent.Notify("You can use your Boat once to float over this tile. You have "
                 + std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Use your boat? Y/N:\n");

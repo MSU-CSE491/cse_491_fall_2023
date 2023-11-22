@@ -18,8 +18,8 @@ int main()
   world.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
   
   world.AddItem("Sword", "Strength", 4, "symbol", 't').SetPosition(27, 11);
-  world.AddItem("Health Potion", "Health", 6, "symbol", 'j').SetPosition(38, 16);
-  world.AddItem("Health Potion", "Health", 20, "symbol", 'j').SetPosition(40, 1);
+  world.AddItem("Health Potion", "Healing", 6, "symbol", 'j').SetPosition(38, 16);
+  world.AddItem("Health Potion", "Healing", 40, "symbol", 'j').SetPosition(40, 1);
 
   world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 15, "Health", 15, "Max_Health", 40, "Direction", 0).SetProperty("symbol", '@').SetPosition(40,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health",  5, "Max_Health", 30, "Direction", 0).SetPosition(45, 3);
