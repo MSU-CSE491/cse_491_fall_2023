@@ -100,6 +100,8 @@ namespace cse491 {
         case 'd': case 'D': action_id = GetActionID("right"); break;
         case 'h': case 'H': action_id = GetActionID("heal"); break;
         case 't': case 'T': action_id = GetActionID("stats"); break;
+        case 'c': case 'C': action_id = GetActionID("use_axe"); break;
+        case 'v': case 'V': action_id = GetActionID("use_boat"); break;
         case 'q': case 'Q': exit(0); // Quit!
       }
 

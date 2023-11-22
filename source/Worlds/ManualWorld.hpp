@@ -20,7 +20,7 @@ namespace cse491_team8 {
 
   class ManualWorld : public cse491::WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK, HEAL, STATS };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK, HEAL, STATS, USE_AXE, USE_BOAT };
     enum FacingDirection { UP=1, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -38,6 +38,8 @@ namespace cse491_team8 {
       agent.AddAction("attack", ATTACK);
       agent.AddAction("heal", HEAL);
       agent.AddAction("stats", STATS);
+      agent.AddAction("use_axe", USE_AXE);
+      agent.AddAction("use_boat", USE_BOAT);
     }
 
   public:
@@ -145,9 +147,12 @@ namespace cse491_team8 {
         int healing_req = agent.GetProperty<int>("Max_Health") - agent.GetProperty<int>("Health");
         int healing = item_map[can_heal]->GetProperty<int>("Healing");
         if (healing_req >= healing) {
-          agent.Notify("You healed" + std::to_string(healing) + "!\n");
+          agent.Notify("You healed " + std::to_string(healing) + " health!\n");
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing);
           RemoveItem(can_heal);
+        } 
+        else if (healing_req == 0) {
+          agent.Notify("You already have max health");
         } else {
           agent.Notify("You healed " + std::to_string(healing_req) + " health!\n");
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing_req);
@@ -155,6 +160,35 @@ namespace cse491_team8 {
         }
       }
 
+    }
+
+    void StatsAction(cse491::AgentBase & agent)
+    {
+        agent.Notify("Items owned by the player:");
+        for (auto & item : item_map)
+        {
+            if (item.second->IsOwnedBy(agent.GetID()))
+            {
+                int result = 0;
+                if (item.second->HasProperty("Uses"))
+                {
+                    result = item.second->GetProperty<int>("Uses");
+                }
+                else if (item.second->HasProperty("Strength"))
+                {
+                    result = item.second->GetProperty<int>("Strength");
+                }
+                else if (item.second->HasProperty("Healing"))
+                {
+                    result = item.second->GetProperty<int>("Healing");
+                }
+                agent.Notify(item.second->GetName() + ": " + std::to_string(result));
+            }
+        }
+        agent.Notify("\nProperties of the player:");
+        agent.Notify("Strength: " + std::to_string(agent.GetProperty<int>("Strength")));
+        agent.Notify("Health: " + std::to_string(agent.GetProperty<int>("Health")));
+        agent.Notify("Max Health: " + std::to_string(agent.GetProperty<int>("Max_Health")));
     }
 
     /// @brief Determines the damage of the other agent
@@ -492,37 +526,27 @@ namespace cse491_team8 {
             break;
         }
         case STATS:
+        {
             new_position = agent.GetPosition();
-            agent.Notify("Items owned by the player:");
-
-            for (auto & item : item_map) {
-              
-                if (item.second->IsOwnedBy(agent.GetID())) {
-                    int result = 0;
-                    if (item.second->HasProperty("Uses"))
-                    {
-                        result = item.second->GetProperty<int>("Uses");
-                    }
-                    else if (item.second->HasProperty("Strength"))
-                    {
-                        result = item.second->GetProperty<int>("Strength");
-                    }
-                    else if (item.second->HasProperty("Healing"))
-                    {
-                        result = item.second->GetProperty<int>("Healing");
-                    }
-                    agent.Notify(item.second->GetName() + ": " + std::to_string(result));
-                }
-            }
-            agent.Notify("\nProperties of the player:");
-            agent.Notify("Strength: " + std::to_string(agent.GetProperty<int>("Strength")));
-            agent.Notify("Health: " + std::to_string(agent.GetProperty<int>("Health")));
-            agent.Notify("Max Health: " + std::to_string(agent.GetProperty<int>("Max_Health")));
+            StatsAction(agent);
             break;
         }
+        case USE_AXE:
+        {
+          new_position = agent.GetPosition();
+          agent.Notify("Using an Axe");
+          break;
+        }
+        case USE_BOAT:
+        {
+          new_position = agent.GetPosition();
+          agent.Notify("Using an Boat");
+          break;
+        }
+      }
 
-        // assume new position is valid
-        return new_position;
+      // assume new position is valid
+      return new_position;
     
     }
 
@@ -654,6 +678,11 @@ namespace cse491_team8 {
         {
           return false;
         }
+      }
+
+      if (main_grid.At(new_position) == rock_id)
+      {
+        return false;
       }
 
       // Set the agent to its new postion.
