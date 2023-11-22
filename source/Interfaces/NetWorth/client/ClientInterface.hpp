@@ -40,7 +40,7 @@ namespace netWorth{
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
 
-                Packet send_pkt, recv_pkt;
+                Packet send_pkt, recv_pkt,two_pkt;
                 std::string str;
 
                 // send request message
@@ -51,7 +51,7 @@ namespace netWorth{
 
                 // receive from server
                 if (!ReceivePacket(recv_pkt, m_ip, m_port)) return false;
-
+                std::cout<<"lol";
                 // print received string (Connection established.)
                 recv_pkt >> str;
                 std::cout << str << std::endl;
@@ -61,6 +61,7 @@ namespace netWorth{
                 send_pkt << "Requesting map";
                 if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 
+                std::cout<<"I love bread";
                 return true;
             }
 
@@ -78,21 +79,23 @@ namespace netWorth{
                                 const cse491::agent_map_t & agent_set) override
             {
                 // Receive and draw map
-                sf::Packet send_pkt, recv_pkt;
+                sf::Packet send_pkt, rec_pkt;
                 std::string map;
 
-                ReceivePacket(recv_pkt, m_ip, m_port);
-                ProcessPacket(recv_pkt);
+                ReceivePacket(rec_pkt, m_ip, m_port);
+                std::cout<<"hiiiiii";
+                ProcessPacket(rec_pkt);
 
                 // grab action ID from MainInterface
                 size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
-                                                                     item_set, agent_set);
+                            item_set, agent_set);
                 std::cout << action_id << std::endl;
+
 
                 // Send instruction to server
                 send_pkt << action_id;
                 SendPacket(send_pkt, m_ip.value(), m_port);
-
+                std::cout<<"end";
                 // Do the action!
                 return action_id;
             }

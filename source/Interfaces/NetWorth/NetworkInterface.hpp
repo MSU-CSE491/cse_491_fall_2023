@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <string>
+#include <thread>
 #include <vector>
 #include <array>
 #include <SFML/Network/UdpSocket.hpp>
@@ -83,7 +84,8 @@ namespace netWorth{
              * @return received packet
              */
             virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
-                if (m_socket.receive(pkt, sender, port) != Socket::Status::Done) {
+                auto temp = m_socket.receive(pkt, sender,port);
+                if ( temp != Socket::Status::Done) {
                     std::cerr << "Failed to receive" << std::endl;
                     return false;
                 }
