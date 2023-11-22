@@ -67,7 +67,7 @@ namespace cowboys {
 
     virtual std::string Export() { return ""; }
 
-    virtual void Reset(bool hard = false) { extra_state["previous_action"] = 0; };
+    virtual void Reset(bool /*hard*/ = false) { extra_state["previous_action"] = 0; };
 
     //    virtual void crossover(const GPAgentBase &other) {};
     //    virtual void Import(const std::string &genotype) {};

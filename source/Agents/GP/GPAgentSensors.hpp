@@ -32,7 +32,7 @@ class Sensors {
    * @brief print the positions of the agent only during debug mode
    * @param printstring
    */
-  [[maybe_unused]] static void debugPosition(const std::string &printstring) {
+  [[maybe_unused]] static void debugPosition(const std::string &/*printstring*/) {
 #ifndef NDEBUG
 //    std::cout << printstring << std::endl;
 #endif

@@ -158,7 +158,7 @@ namespace cowboys {
          * @param maxThreads
          * @param numberOfTurns
          */
-        void ThreadTrainLoop(int maxThreads = 1, int numberOfTurns = 100) {
+        void ThreadTrainLoop(size_t maxThreads = 1, int numberOfTurns = 100) {
           std::vector<std::thread> threads;
 
           for (size_t arena = 0; arena < environments.size(); ++arena) {
@@ -351,7 +351,7 @@ namespace cowboys {
          * @param generation
          * @param topN
          */
-        void SerializeAgents(int countMaxAgents, int generation, size_t topN = 5) {
+        void SerializeAgents(int /*countMaxAgents*/, int generation, size_t topN = 5) {
 
           const char *tagName = ("generation_" + std::to_string(generation)).c_str();
           auto *generationTag = doc.NewElement(tagName);
@@ -361,7 +361,7 @@ namespace cowboys {
           root->InsertFirstChild(generationTag);
           rootTEMP->InsertFirstChild(lastGenerationsRoot);
 
-          for (int i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
+          for (size_t i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
             agents[arenaIDX][agentIDX]->Serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
 
@@ -483,7 +483,7 @@ namespace cowboys {
           threads.clear();
 
           // Second loop - copy and mutate agents
-          int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
+          // int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
           agents_per_thread = (sortedAgents.size() - MIDDLE_MUTATE_ENDBOUND) / num_threads;
           for (int i = 0; i < num_threads; ++i) {
             int start = MIDDLE_MUTATE_ENDBOUND + i * agents_per_thread;
