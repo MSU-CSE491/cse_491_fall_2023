@@ -422,7 +422,7 @@ namespace cse491_team8 {
           std::string uses_property = "";
           if (item_ptr->GetName() == "Stick" || item_ptr->GetName() == "Sword") { uses_property = "Strength"; }
           if (item_ptr->GetName() == "Boat" || item_ptr->GetName() == "Axe")  { uses_property = "Uses"; }
-          if (item_ptr->GetName() == "Health Potion") { uses_property = "Health"; }
+          if (item_ptr->GetName() == "Health Potion") { uses_property = "Healing"; }
 
           if (uses_property == "Strength")
           {
@@ -496,6 +496,22 @@ namespace cse491_team8 {
     
     }
 
+      /// @brief Check if an agent owns an item
+      /// @param agent The agent to see if is an owner
+      /// @param item_name Name of the item
+      /// @return item_id
+    size_t FindItem(cse491::AgentBase & agent, const std::string & item_name) {
+      size_t item_id = SIZE_T_MAX;
+      for (auto & item : item_map)
+      {
+        if (item.second->GetName() == item_name && item.second->IsOwnedBy(agent.GetID()))
+        {
+          item_id = item.second->GetID();
+          break;
+        }
+      }
+      return item_id;
+    }
 
     /// @brief Attempt to interact with a tree
     /// If the agent can interact with the tree, prompts the user if they want to use one of their chops
@@ -503,17 +519,9 @@ namespace cse491_team8 {
     /// @param new_position The position being interacted with
     /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
     void DoActionTestNewPositionTree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
-        int item_id = -1;
-        for (auto & item : item_map)
-        {
-          if (item.second->GetName() == "Axe" && item.second->IsOwnedBy(agent.GetID()) && item.second->GetProperty<int>("Uses") > 0)
-          {
-            item_id = item.second->GetID();
-            break;
-          }
-        }
+        size_t item_id = FindItem(agent, "Axe");
         // if (agent.HasProperty("Uses") && agent.GetProperty<int>("Uses") > 0)
-        if (item_id > -1)
+        if (item_id != SIZE_T_MAX)
         {
           agent.Notify("You can use your Axe once to chop down this tree. You have " +
                         std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Chop this tree? Y/N:");
