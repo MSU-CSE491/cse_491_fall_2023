@@ -20,10 +20,10 @@ namespace cowboys {
   constexpr size_t INPUT_SIZE = 6;
 
   /// Number of computational layers for each agent
-  constexpr size_t NUM_LAYERS = 5;
+  constexpr size_t NUM_LAYERS = 3;
 
   /// The number of nodes in each layer
-  constexpr size_t NUM_NODES_PER_LAYER = 10;
+  constexpr size_t NUM_NODES_PER_LAYER = 5;
 
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;
