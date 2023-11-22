@@ -20,7 +20,7 @@ namespace cse491_team8 {
 
   class ManualWorld : public cse491::WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK, HEAL, STATS };
     enum FacingDirection { UP=1, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -36,6 +36,8 @@ namespace cse491_team8 {
       agent.AddAction("left", MOVE_LEFT);
       agent.AddAction("right", MOVE_RIGHT);
       agent.AddAction("attack", ATTACK);
+      agent.AddAction("heal", HEAL);
+      agent.AddAction("stats", STATS);
     }
 
   public:
@@ -367,25 +369,6 @@ namespace cse491_team8 {
         if (agent_ptr->IsInterface())
         {
           CheckAround(*agent_ptr);
-          for (auto & item : item_map) {
-            if (item.second->IsOwnedBy(agent_ptr->GetID())) {
-              int result = 0;
-              if (item.second->HasProperty("Uses"))
-              {
-                  result = item.second->GetProperty<int>("Uses");
-              }
-              else if (item.second->HasProperty("Strength"))
-              {
-                  result = item.second->GetProperty<int>("Strength");
-              }
-              else if (item.second->HasProperty("Health"))
-              {
-                result = item.second->GetProperty<int>("Health");
-              }
-              std::cout << item.second->GetName() << ": " << result << std::endl;
-            }
-          }
-          std::cout << "Strength: " << agent_ptr->GetProperty<int>("Strength") << std:: endl;
           break;
         }
       }
@@ -404,6 +387,25 @@ namespace cse491_team8 {
         RunAgents();
         UpdateWorld();
       }
+    }
+
+
+    /**
+     * @brief Get the ID of an Item
+     * 
+     * @param agent 
+     * @param item_name 
+     * @return int 
+     */
+    int GetItemID(cse491::AgentBase & agent, std::string item_name) {
+        for (auto & item : item_map)
+        {
+            if (item.second->GetName() == item_name && item.second->IsOwnedBy(agent.GetID()))
+            {
+                return item.second->GetID();
+            }
+        }
+        return -1;
     }
 
     /// @brief Attempt to pick up an item for the agent.
@@ -484,6 +486,56 @@ namespace cse491_team8 {
             new_position = agent.GetPosition().ToRight();
             break;
         }
+        case ATTACK:
+        {
+            new_position = agent.GetPosition();
+            break;
+        }
+        case HEAL:
+        {
+            new_position = agent.GetPosition();
+            auto curr_health = agent.GetProperty<int>("Health");
+            auto id = GetItemID(agent, "Health Potion");
+
+            if (id > -1) {
+                agent.SetProperty<int>("Health", curr_health + item_map[id]->GetProperty<int>("Health"));
+                RemoveItem(id);
+            }
+            else {
+                agent.Notify("Player does not have any health potions");
+            }
+            agent.Notify("Player Health: " + std::to_string(agent.GetProperty<int>("Health")));
+
+            break;
+        }
+        case STATS:
+            new_position = agent.GetPosition();
+            agent.Notify("Items owned by the player:");
+
+            for (auto & item : item_map) {
+              
+                if (item.second->IsOwnedBy(agent.GetID())) {
+                    int result = 0;
+                    if (item.second->HasProperty("Uses"))
+                    {
+                        result = item.second->GetProperty<int>("Uses");
+                    }
+                    else if (item.second->HasProperty("Strength"))
+                    {
+                        result = item.second->GetProperty<int>("Strength");
+                    }
+                    else if (item.second->HasProperty("Health"))
+                    {
+                        result = item.second->GetProperty<int>("Health");
+                    }
+                    agent.Notify(item.second->GetName() + ": " + std::to_string(result));
+                }
+            }
+            agent.Notify("\nProperties of the player:");
+            agent.Notify("Strength: " + std::to_string(agent.GetProperty<int>("Strength")));
+            agent.Notify("Health: " + std::to_string(agent.GetProperty<int>("Health")));
+            agent.Notify("Max Health: " + std::to_string(agent.GetProperty<int>("Max_Health")));
+            break;
         }
 
         // assume new position is valid
@@ -498,16 +550,10 @@ namespace cse491_team8 {
     /// @param new_position The position being interacted with
     /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
     void DoActionTestNewPositionTree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
-        int item_id = -1;
-        for (auto & item : item_map)
-        {
-          if (item.second->GetName() == "Axe" && item.second->IsOwnedBy(agent.GetID()) && item.second->GetProperty<int>("Uses") > 0)
-          {
-            item_id = item.second->GetID();
-            break;
-          }
-        }
-        // if (agent.HasProperty("Uses") && agent.GetProperty<int>("Uses") > 0)
+        int item_id = GetItemID(agent, "Axe");
+
+        agent.Notify("Item id: " + std::to_string(item_id));
+        
         if (item_id > -1)
         {
           agent.Notify("You can use your Axe once to chop down this tree. You have " +
@@ -537,16 +583,8 @@ namespace cse491_team8 {
             return true;
         }
 
-        int item_id = -1;
-        for (auto & item : item_map)
-        {
-          if (item.second->GetName() == "Boat" && item.second->IsOwnedBy(agent.GetID()) && item.second->GetProperty<int>("Uses") > 0)
-          {
-            item_id = item.second->GetID();
-            break;
-          }
-        }
-
+        int item_id = GetItemID(agent, "Boat");
+        
         if (item_id > -1)
         {
             agent.Notify("You can use your Boat once to float over this tile. You have "

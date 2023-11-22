@@ -98,6 +98,8 @@ namespace cse491 {
         case 'a': case 'A': action_id = GetActionID("left");  break;
         case 's': case 'S': action_id = GetActionID("down");  break;
         case 'd': case 'D': action_id = GetActionID("right"); break;
+        case 'h': case 'H': action_id = GetActionID("heal"); break;
+        case 't': case 'T': action_id = GetActionID("stats"); break;
         case 'q': case 'Q': exit(0); // Quit!
       }
 
