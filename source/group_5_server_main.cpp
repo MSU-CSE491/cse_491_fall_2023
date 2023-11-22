@@ -11,9 +11,11 @@
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
 #include "Worlds/MazeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
+#include "Agents/PathAgent.hpp"
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/ManualWorld.hpp"
 #include "Worlds/SecondWorld.hpp"
+#include "Agents/AStarAgent.hpp"
 
 int main() {
     std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
@@ -47,9 +49,13 @@ int main() {
 //    cse491_team8::ManualWorld world;
 //    int start_x = 40, start_y = 3;
 
-    // TODO: Add non-player agents before serialization (depending on world)
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
+    auto & astar_agent =
+            static_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar 1"));
+    astar_agent.SetPosition(7, 3);
+    astar_agent.SetGoalPosition(20, 8);
+    astar_agent.RecalculatePath();
 
     // Serialize world into string
     std::ostringstream os;
@@ -77,6 +83,8 @@ int main() {
     }
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
+    // TODO: Serialize agents after server interface added?
+
 
     world.SetManager(&manager);
     world.Run();

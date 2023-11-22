@@ -83,7 +83,7 @@ namespace netWorth{
                 std::string map;
 
                 ReceivePacket(recv_pkt, m_ip, m_port);
-                ProcessPacket(recv_pkt);
+                //ProcessPacket(recv_pkt);
                 m_manager->PacketToActionMap(recv_pkt);
 
                 // grab action ID from MainInterface
