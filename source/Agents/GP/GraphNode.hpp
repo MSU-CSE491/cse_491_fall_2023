@@ -259,6 +259,15 @@ namespace cowboys {
     return std::reduce(PAR vals.cbegin(), vals.cend(), 1., std::multiplies{});
   }
 
+  /// @brief Returns the sum of the reciprocal of all inputs.
+  /// @param node The node to get the inputs from.
+  /// @return The function result as a double.
+  double Reciprocal(const GraphNode &node, const cse491::AgentBase &) {
+    auto vals = node.GetInputValues();
+    return std::transform_reduce(PAR vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return 1. / (val + std::numeric_limits<double>::epsilon()); });
+  }
+
   /// @brief Returns the sum of the exp(x) of all inputs.
   /// @param node The node to get the inputs from.
   /// @return The function result as a double.
@@ -373,7 +382,7 @@ namespace cowboys {
     return Sensors::wallDistance(agent.GetWorld().GetGrid(), agent, SensorDirection::RIGHT);
   }
 
-  /// @brief Returns the distance to the grid position represented by the first two inputs.
+  /// @brief Returns the distance to the grid position represented by the first two inputs using A*.
   /// @param node The node to get the inputs from.
   double AStarDistance(const GraphNode &node, const cse491::AgentBase &agent) {
     auto vals = node.GetInputValues<2>(std::array<size_t, 2>{0, 1});
