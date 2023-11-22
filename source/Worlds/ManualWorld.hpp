@@ -550,17 +550,9 @@ namespace cse491_team8 {
             return true;
         }
 
-        int item_id = -1;
-        for (auto & item : item_map)
-        {
-          if (item.second->GetName() == "Boat" && item.second->IsOwnedBy(agent.GetID()) && item.second->GetProperty<int>("Uses") > 0)
-          {
-            item_id = item.second->GetID();
-            break;
-          }
-        }
+        size_t item_id = FindItem(agent, "Boat");
 
-        if (item_id > -1)
+        if (item_id != SIZE_T_MAX)
         {
             agent.Notify("You can use your Boat once to float over this tile. You have "
                 + std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Use your boat? Y/N:\n");
