@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../../core/WorldBase.hpp"
+#include "GPAgentBase.hpp"
 #include "GraphNode.hpp"
 
 namespace cowboys {
@@ -580,12 +581,13 @@ namespace cowboys {
     /// @brief Mutates the input connections of the genotype.
     /// @param mutation_rate The probability of mutating a connection. For a given connection, if it is chosen to be
     /// mutated, there is a 50% chance it will stay the same.
+    /// @param agent The agent to use for random number generation.
     /// @return This genotype.
-    CGPGenotype &MutateConnections(double mutation_rate, cse491::WorldBase &world) {
+    CGPGenotype &MutateConnections(double mutation_rate, GPAgentBase &agent) {
       std::uniform_int_distribution<size_t> dist(0, 1);
-      Mutate(mutation_rate, [&world](CGPNodeGene &node) {
+      Mutate(mutation_rate, [&agent](CGPNodeGene &node) {
         for (char &con : node.input_connections) {
-          con = world.GetRandomULL(2) == 0 ? '0' : '1';
+          con = agent.GetRandomULL(2) == 0 ? '0' : '1';
         }
       });
       return *this;
@@ -595,9 +597,9 @@ namespace cowboys {
     /// @param mutation_rate The probability of changing the function of a node.
     /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
-    CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions, cse491::WorldBase &world) {
+    CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions, GPAgentBase &agent) {
       Mutate(mutation_rate,
-             [num_functions, &world](CGPNodeGene &node) { node.function_idx = world.GetRandomULL(num_functions); });
+             [num_functions, &agent](CGPNodeGene &node) { node.function_idx = agent.GetRandomULL(num_functions); });
       return *this;
     }
 
@@ -606,10 +608,10 @@ namespace cowboys {
     /// @param min The minimum value to generate for mutation.
     /// @param max The maximum value to generate for mutation.
     /// @return This genotype.
-    CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, cse491::WorldBase &world,
+    CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, GPAgentBase &agent,
                                bool additive = true) {
-      Mutate(mutation_rate, [mean, std, &world, additive](CGPNodeGene &node) {
-        double mutation = std::stod(std::to_string(world.GetRandomNormal(mean, std)));
+      Mutate(mutation_rate, [mean, std, &agent, additive](CGPNodeGene &node) {
+        double mutation = agent.GetRandomNormal(mean, std);
         if (additive) {
           node.default_output += mutation;
           // Clamp to prevent overflow during genotype export
@@ -626,13 +628,13 @@ namespace cowboys {
 
     /// @brief Performs a mutation on the genotype with default parameters.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
-    /// @param world The world to use for random number generation.
+    /// @param agent The agent to use for random number generation.
     /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
-    CGPGenotype &MutateDefault(double mutation_rate, cse491::WorldBase &world, size_t num_functions=FUNCTION_SET.size()) {
-      MutateConnections(mutation_rate, world);
-      MutateFunctions(mutation_rate, num_functions, world);
-      MutateOutputs(mutation_rate, 0, 1, world);
+    CGPGenotype &MutateDefault(double mutation_rate, GPAgentBase &agent, size_t num_functions=FUNCTION_SET.size()) {
+      MutateConnections(mutation_rate, agent);
+      MutateFunctions(mutation_rate, num_functions, agent);
+      MutateOutputs(mutation_rate, 0, 1, agent);
       return *this;
     }
 
