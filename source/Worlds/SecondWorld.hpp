@@ -80,16 +80,11 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to wall CellType ID.
   size_t wall_id;
 
-  // Add identifier for the hidden warp tile
+  /// Easy access to warp CellType ID.
   size_t hidden_warp_id;
 
-  /// Will pretend this is the agent's inventory
-  std::vector<size_t> inventory;
-
-  /// Map of the chests that hold items
-  // TODO: No longer need b/c entities can have inventories which include agents
-  // and items
-  std::map<cse491::ItemBase, std::vector<cse491::ItemBase>> chest_map;
+  /// Vector of the items in this world
+  std::map<size_t, std::unique_ptr<cse491::ItemBase>> inventory;
 
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
@@ -229,34 +224,39 @@ class SecondWorld : public cse491::WorldBase {
     ofs << output_data.dump(2);        // indentation
   }
 
-  // TODO: we should also add a dropping feature, agent can drop an item at any
-  // point in the game,
-  //  does not necessarily have to be at a chest location
   /**
    * Drops the item in the agent's inventory
    * @param agent This agent's item we're dropping
    * @param pos The position where the item will be dropped
    */
   void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos) {
-    agent.Notify("Got here!", "item_alert");
 
-    if (agent.GetInventory().empty()) {
+      if (agent.GetInventory().empty()) {
         agent.Notify("Cannot drop any items, inventory is empty.", "item_alert");
+
     } else {
-        // TODO: For now, will remove the first item in the agent's inventory
-        //  but we will need to remove the item that the agent has selected in the hotbar
+        // TODO: Remove the item that the agent has selected in his hot bar, instead
+        //  of the first item in the agent's inventory
+        // Get the item from the SecondWorld inventory
+        auto item_id = agent.GetInventory().at(0);
+        auto item = std::move(inventory[item_id]);
 
-        auto& world = agent.GetWorld();
-        // Change the position of the item to the agent's current location
-        // Add the item back to the world, so the grid can display it
-        auto& item = GetItem(agent.GetInventory().at(0));
+        agent.Notify("Dropping " + item->GetName(), "item_alert");
 
-        // TODO: Issue with removing item from item_map after intial pickup. It removes the item from the item_map
-        //  otherwise it will still display on the grid. Since it's removing it from the map, it's trying to check
-        //  to see if the item exists in the map before adding it to the world.
-//        world.AddItem(std::move(item));
+        // TODO: Fix issue regarding Grid not being set to anything???
+        item->SetGrid(0);
+        item->SetPosition(pos);
 
-        main_grid.At(pos) = GetCellTypeSymbol(item.GetID());
+        // Transfer ownership back to item_map
+        main_grid.At(pos) = GetCellTypeSymbol(item_id);
+        AddItem(std::move(item));
+
+        // TODO: Will need to change so it removes nullptrs and not everything
+        // Remove the nullptr from second world inventory
+        inventory.clear();
+
+        // Remove item from agent's inventory
+        agent.RemoveItem(item_id);
     }
   }
 
@@ -270,7 +270,6 @@ class SecondWorld : public cse491::WorldBase {
     if ((main_grid.At(pos) == flag_id) && (agent.IsInterface())) {
       // Set win flag to true
 
-      // TODO: Confirm 2nd param
       agent.Notify("Flag found ", "item_alert");
 
       agent.Notify("Leaving " + world_filename, "world_switched");
@@ -332,11 +331,6 @@ class SecondWorld : public cse491::WorldBase {
 
             }
 
-//            agent.Notify(
-//                "If you would like all the items, enter '0'; otherwise enter "
-//                "the number seperated by a comma to pick them up",
-//                "item_alert");
-
             // TODO: Need to determine max size of inventory
             if (agent.GetInventory().size() == 10) {
               agent.Notify(
@@ -361,14 +355,18 @@ class SecondWorld : public cse491::WorldBase {
             agent.Notify("You found " + item_found.GetName() + "!",
                          "item_alert");
 
-            // Transfer ownership to agent
+            // Add item to the agent's inventory
             agent.AddItem(item_found);
 
-            // Removes item from item_map
+            // Change ownership from item_map to this world's inventory
+            // This will prevent the item from showing on the grid
+            auto item_object = GetItemObject(item_found.GetID());
+            inventory[item_found.GetID()] = std::move(item_object);
+
+            // We also need to remove the item from the item_map, so it doesn't cause BAD_ACCESS_ERROR
             RemoveItem(item_found.GetID());
 
-            // Change the grid position to floor_id, so it's not seen on the
-            // grid
+            // Change the grid position to floor_id
             main_grid.At(pos) = floor_id;
           }
         }
@@ -376,10 +374,12 @@ class SecondWorld : public cse491::WorldBase {
     }
   }
 
-  // TODO: I think we should break up the DoAction into smaller functions
-  // instead of having one really large
-  //  function. Would be easier to read and it's not good to mix multiple
-  //  functions into one...
+  // Added this to get actual object, but this may change if we alter the inventory API
+  [[nodiscard]] std::unique_ptr<cse491::ItemBase> GetItemObject(size_t id) {
+    return std::move(item_map[id]);
+
+  }
+
   /**
    * Allows agents to perform an action and sets each agent's new position
    * @param agent The agent performing the action
@@ -388,6 +388,7 @@ class SecondWorld : public cse491::WorldBase {
    */
   int DoAction(cse491::AgentBase& agent, size_t action_id) override {
     cse491::GridPosition new_position;
+    bool IsDropped = false;
     switch (action_id) {
       case REMAIN_STILL:
         new_position = agent.GetPosition();
@@ -407,6 +408,7 @@ class SecondWorld : public cse491::WorldBase {
       case DROP_ITEM:
         new_position = agent.GetPosition();
         DropItem(agent, new_position);
+        IsDropped = true;
         break;
     }
 
@@ -417,8 +419,11 @@ class SecondWorld : public cse491::WorldBase {
       return false;
     }
 
-    CheckPosition(agent, new_position);
+    if (!IsDropped) {
+        CheckPosition(agent, new_position);
+    }
 
+    IsDropped = false;
     agent.SetPosition(new_position);
     return true;
   }
