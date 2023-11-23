@@ -18,12 +18,11 @@ namespace netWorth{
      */
     class ServerManager {
     private:
+        std::unordered_map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
     protected:
 
     public:
-        std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
-
         const static constexpr unsigned short m_initConnectionPort = 55000; ///Port for initial client connection
 
         unsigned short m_maxClientPort = 55000; ///Port that is incremented for client thread handoff

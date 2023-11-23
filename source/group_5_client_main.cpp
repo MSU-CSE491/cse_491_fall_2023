@@ -20,6 +20,7 @@
  * Deserialize agents and add to world
  * @param is istream
  * @param world world that is being added to
+ * @param manager pointer to ClientManager for agents
  */
 void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::ClientManager *manager) {
     // find beginning of agent_set serialization
@@ -88,19 +89,23 @@ int main(int argc, char *argv[]) {
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
     std::string interface_name = "Interface1";
-    cse491::MazeWorld world(is);
+    cse491::MazeWorld world;
+    world.Deserialize(is);
     int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface";
-//    group4::SecondWorld world(is);
+//    group4::SecondWorld world;
+//    world.Deserialize(is);
 //    int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface2";
-//    cse491::GenerativeWorld world(is);
+//    cse491::GenerativeWorld world;
+//    world.Deserialize(is);
 //    int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface3";
-//    cse491_team8::ManualWorld world(is);
+//    cse491_team8::ManualWorld world;
+//    world.Deserialize(is);
 //    int start_x = 40, start_y = 3;
 
     port = 55002;

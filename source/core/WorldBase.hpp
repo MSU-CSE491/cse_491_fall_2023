@@ -87,17 +87,6 @@ public:
     random_gen.seed(seed);
   }
 
-  // Constructor from serialized string
-  WorldBase(std::istringstream &is) : grids(), main_grid(grids[0]) {
-    Deserialize(is);
-
-    if (seed == 0) {
-        std::random_device rd;
-        seed = rd();
-    }
-    random_gen.seed(seed);
-  }
-
   virtual ~WorldBase() = default;
 
   virtual void Reset() {
@@ -420,96 +409,20 @@ public:
   }
 
   /**
-   * Serialize cells into an ostream
-   * @param os ostream
-   */
-  void SerializeTypeOptions(std::ostream &os) {
-    os << ":::START type_options\n";
-    os << type_options.size() << '\n';
-
-    // serialize each important variable/property
-    for (const CellType &cell : type_options) {
-      os << cell.name << '\n';
-      os << cell.desc << '\n';
-      os << cell.symbol << '\n';
-
-      size_t num_properties = cell.properties.size();
-      os << num_properties << '\n';
-      if (num_properties > 0) {
-          for (const std::string & property : cell.properties) {
-              os << property << '\n';
-          }
-      }
-
-    }
-    os << ":::END type_options\n";
-  }
-
-  /**
-   * Deserialize cells from istream
-   * @param is istream
-   */
-  void DeserializeTypeOptions(std::istream &is) {
-    // find beginning of type_options serialization (after WorldGrid)
-    std::string read;
-    std::getline(is, read, '\n');
-    if (read != ":::START type_options") {
-      std::cerr << "Could not find start of type_options serialization" << std::endl;
-      return;
-    }
-
-    std::string name, desc, symbol_str, property;
-    char symbol;
-    size_t size;
-
-    // how many cell types?
-    std::getline(is, read, '\n');
-    size = stoi(read);
-
-    // read each cell type
-    for (size_t i = 0; i < size; i++) {
-      std::getline(is, name, '\n');
-      std::getline(is, desc, '\n');
-      std::getline(is, symbol_str, '\n');
-      symbol = symbol_str[0];
-
-      // Construct cell to add properties
-      CellType cell{name, desc, symbol};
-
-      std::getline(is, property, '\n');
-      size_t num_properties = stoi(property);
-      for (size_t j = 0; j < num_properties; j++) {
-          std::getline(is, property, '\n');
-          cell.properties.insert(property);
-      }
-
-      type_options.push_back(cell);
-    }
-
-    std::getline(is, read, '\n');
-    if (read != ":::END type_options") {
-      std::cerr << "Could not find end of type_options serialization" << std::endl;
-      return;
-    }
-  }
-
-  /**
-   * Serialize world grid and cells into ostream
+   * Serialize world grid and agents into ostream
    * @param os ostream
    */
   void Serialize(std::ostream &os) {
     main_grid.Serialize(os);
-    SerializeTypeOptions(os);
     SerializeAgentSet(os);
   }
 
   /**
-   * Deserialize world grid and cells from istream
+   * Deserialize world grid from istream
    * @param is
    */
   void Deserialize(std::istream &is) {
     main_grid.Deserialize(is);
-    DeserializeTypeOptions(is);
   }
 
   void SetManager(netWorth::ServerManager *server_manager) {

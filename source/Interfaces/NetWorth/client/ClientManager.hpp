@@ -21,12 +21,11 @@ namespace netWorth{
         sf::UdpSocket *m_socket;                /// Socket shared with ClientInterface
         std::optional<sf::IpAddress> m_ip;      /// Server IP address
         unsigned short m_port;                  /// Server port
+        std::unordered_map<size_t, size_t> m_action_map;     ///Map of agent IDs to most recent action selected
 
     protected:
 
     public:
-        std::unordered_map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
-
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
@@ -69,6 +68,31 @@ namespace netWorth{
                 return;
             }
             PacketToActionMap(recv_pkt);
+        }
+
+        /**
+         * Check if Agent ID is present in agent action map
+         * @param id Agent ID
+         * @return true if ID is present
+         */
+        bool IdPresent(size_t id) {
+            return m_action_map.find(id) == m_action_map.end();
+        }
+
+        /**
+         * Return action ID correspoding to agent ID
+         * @param id Agent ID
+         * @return action ID
+         */
+        size_t GetActionID(size_t id) {
+            return m_action_map[id];
+        }
+
+        /**
+         * Clear action map after ClientInterface moves
+         */
+        void ClearActionMap() {
+            m_action_map.clear();
         }
 
     }; // End of class ClientManager

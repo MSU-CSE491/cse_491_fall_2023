@@ -83,8 +83,6 @@ int main() {
     }
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
-    // TODO: Serialize agents after server interface added?
-
 
     world.SetManager(&manager);
     world.Run();

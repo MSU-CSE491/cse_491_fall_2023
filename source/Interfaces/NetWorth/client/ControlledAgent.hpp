@@ -15,7 +15,7 @@ namespace netWorth {
 
 class ControlledAgent : public cse491::AgentBase {
     private:
-        ClientManager *m_manager;
+        ClientManager *m_manager;       /// Client manager to access agent action map
 
     protected:
 
@@ -29,17 +29,18 @@ class ControlledAgent : public cse491::AgentBase {
             m_manager = GetProperty<ClientManager *>("manager");
             return HasAction("up") && HasAction("down") && HasAction("left") && HasAction("right");
         }
+
         /// Choose the action to take a step in the appropriate direction.
         size_t SelectAction(const cse491::WorldGrid & /* grid*/,
                             const cse491::type_options_t & /* type_options*/,
                             const cse491::item_map_t & /* item_map*/,
                             const cse491::agent_map_t & /* agent_map*/) override
         {
-            if (m_manager->m_action_map.find(id) == m_manager->m_action_map.end()) {
+            if (m_manager->IdPresent(id)) {
                 // wait for server to complete agent movements
                 m_manager->RequestActionMap();
             }
-            return m_manager->m_action_map[id];
+            return m_manager->GetActionID(id);
         }
 
     };

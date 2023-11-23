@@ -52,12 +52,6 @@ namespace group4 {
 
         }
 
-        SecondWorld(std::istringstream &is) : WorldBase(is) {
-            floor_id = 1;
-            flag_id = 2;
-            wall_id = 3;
-        }
-
         /**
          * Destructor
          */

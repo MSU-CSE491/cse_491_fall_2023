@@ -79,7 +79,6 @@ namespace netWorth{
                                 const cse491::item_map_t & item_set,
                                 const cse491::agent_map_t & agent_set) override
             {
-                // Receive and draw map
                 sf::Packet send_pkt;
 
                 // grab action ID from MainInterface
@@ -91,14 +90,14 @@ namespace netWorth{
                 send_pkt << action_id;
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
-                m_manager->m_action_map.clear();
+                m_manager->ClearActionMap();
 
                 // Do the action!
                 return action_id;
             }
 
             /**
-             * Process packet from server (just print map for now)
+             * Process packet from server (just print agent action map for now)
              * @param packet packet from server
              */
             void ProcessPacket(Packet packet) override {
