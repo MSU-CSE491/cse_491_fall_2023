@@ -107,10 +107,6 @@ int main(int argc, char *argv[]) {
 
     DeserializeAgentSet(is, world, &manager);
     world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string, "port", port, "manager", &manager).SetProperty("symbol", '@').SetPosition(start_x, start_y);
-    // TODO: Deserialize agents after client interface added?
-
-    //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
-    //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
 
     world.Run();
     return 0;

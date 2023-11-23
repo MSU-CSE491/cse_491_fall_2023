@@ -42,6 +42,7 @@ namespace netWorth{
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
+                m_manager->SetupSocket(&m_socket, m_ip, m_port);
 
                 Packet send_pkt, recv_pkt;
                 std::string str;
@@ -79,21 +80,18 @@ namespace netWorth{
                                 const cse491::agent_map_t & agent_set) override
             {
                 // Receive and draw map
-                sf::Packet send_pkt, recv_pkt;
-                std::string map;
-
-                ReceivePacket(recv_pkt, m_ip, m_port);
-                //ProcessPacket(recv_pkt);
-                m_manager->PacketToActionMap(recv_pkt);
+                sf::Packet send_pkt;
 
                 // grab action ID from MainInterface
                 size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
                                                                      item_set, agent_set);
-                std::cout << action_id << std::endl;
+                //std::cout << action_id << std::endl;
 
                 // Send instruction to server
                 send_pkt << action_id;
                 SendPacket(send_pkt, m_ip.value(), m_port);
+
+                m_manager->m_action_map.clear();
 
                 // Do the action!
                 return action_id;

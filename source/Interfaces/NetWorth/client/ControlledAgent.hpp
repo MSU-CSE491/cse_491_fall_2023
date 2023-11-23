@@ -36,7 +36,8 @@ class ControlledAgent : public cse491::AgentBase {
                             const cse491::agent_map_t & /* agent_map*/) override
         {
             if (m_manager->m_action_map.find(id) == m_manager->m_action_map.end()) {
-                return 0;   // agent not found, don't move
+                // wait for server to complete agent movements
+                m_manager->RequestActionMap();
             }
             return m_manager->m_action_map[id];
         }

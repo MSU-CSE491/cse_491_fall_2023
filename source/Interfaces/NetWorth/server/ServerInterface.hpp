@@ -158,7 +158,7 @@ namespace netWorth{
                 size_t action_id;
 
                 ReceivePacket(recv_pkt, m_ip, m_port);
-                ProcessPacket(recv_pkt);
+                //ProcessPacket(recv_pkt);
                 recv_pkt >> action_id;
 
                 // TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)

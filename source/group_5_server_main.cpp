@@ -54,7 +54,7 @@ int main() {
     auto & astar_agent =
             static_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar 1"));
     astar_agent.SetPosition(7, 3);
-    astar_agent.SetGoalPosition(20, 8);
+    astar_agent.SetGoalPosition(21, 7);
     astar_agent.RecalculatePath();
 
     // Serialize world into string

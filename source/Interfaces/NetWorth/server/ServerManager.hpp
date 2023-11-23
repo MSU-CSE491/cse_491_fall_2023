@@ -42,9 +42,9 @@ namespace netWorth{
          */
         void TellAction(size_t entity_id, size_t action_id) {
             m_action_map[entity_id] = action_id;
-            for (auto pair : m_action_map) {
-                std::cout << pair.first << ' ' << pair.second << std::endl;
-            }
+//            for (auto pair : m_action_map) {
+//                std::cout << pair.first << ' ' << pair.second << std::endl;
+//            }
         }
 
         /**
@@ -57,7 +57,7 @@ namespace netWorth{
             for (auto pair : m_action_map) {
                 pkt << pair.first << pair.second;
             }
-            std::cout << m_action_map.size();
+            //std::cout << m_action_map.size();
             return pkt;
         }
 
