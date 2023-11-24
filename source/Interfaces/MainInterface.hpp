@@ -75,10 +75,10 @@ namespace i_2D {
 
 
         std::vector<std::string> CreateVectorMaze(
-          const WorldGrid &grid,
-          const type_options_t &type_options,
-          const item_map_t &item_map,
-          const agent_map_t &agent_map) ;
+                const WorldGrid &grid,
+                const type_options_t &type_options,
+                const item_map_t &item_map,
+                const agent_map_t &agent_map) ;
 
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_map_t &item_map, const agent_map_t &agent_map);
@@ -98,12 +98,6 @@ namespace i_2D {
 
         size_t HandleKeyEvent(const sf::Event &event);
 
-        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture);
-
-
-        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
-
-
         void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth, float &drawSpaceHeight,
                                 float &drawCenterX, float &drawCenterY);
 
@@ -112,7 +106,6 @@ namespace i_2D {
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
 
         void ChooseTexture();
-        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol);
 
         void Notify(const std::string & message,
                     const std::string & /*msg_type*/="none") override
@@ -123,6 +116,15 @@ namespace i_2D {
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
         void MouseClickEvent(const sf::Event &event);
+
+        void DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
+                           sf::Texture &agent);
+
+        void
+        SwitchCellSelect(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
+                         char symbol);
+
+        void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
     };
 
 } // End of namespace 2D
