@@ -58,7 +58,7 @@ int main() {
     world_2.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
     world_2.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
 
-//    world_2.Run();
+    world_2.Run();
 
     cse491_team8::ManualWorld world_3;
     world_3.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
