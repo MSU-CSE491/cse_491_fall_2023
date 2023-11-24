@@ -21,7 +21,7 @@ namespace cse491_team8 {
   class ManualWorld : public cse491::WorldBase {
   protected:
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK, HEAL, STATS, USE_AXE, USE_BOAT };
-    enum FacingDirection { UP=1, RIGHT, DOWN, LEFT};
+    enum FacingDirection { UP=0, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
     size_t tree_id;   ///< Easy access to tree CellType ID.
@@ -169,26 +169,56 @@ namespace cse491_team8 {
         {
             if (item.second->IsOwnedBy(agent.GetID()))
             {
-                int result = 0;
-                if (item.second->HasProperty("Uses"))
+                for (auto & prop : item.second.get()->GetProprtyMap())
                 {
-                    result = item.second->GetProperty<int>("Uses");
+                    std::string name = prop.first;
+                    if (name == "Uses" || name == "Strength" || name == "Healing")
+                    {
+                        size_t value = item.second.get()->GetProperty<int>(name);
+                        agent.Notify(item.second.get()->GetName() + ": " + name + ": " + std::to_string(value));
+                    }
                 }
-                else if (item.second->HasProperty("Strength"))
-                {
-                    result = item.second->GetProperty<int>("Strength");
-                }
-                else if (item.second->HasProperty("Healing"))
-                {
-                    result = item.second->GetProperty<int>("Healing");
-                }
-                agent.Notify(item.second->GetName() + ": " + std::to_string(result));
             }
         }
         agent.Notify("\nProperties of the player:");
-        agent.Notify("Strength: " + std::to_string(agent.GetProperty<int>("Strength")));
-        agent.Notify("Health: " + std::to_string(agent.GetProperty<int>("Health")));
-        agent.Notify("Max Health: " + std::to_string(agent.GetProperty<int>("Max_Health")));
+        for (auto & prop : agent.GetProprtyMap())
+        {
+            std::string name = prop.first;
+            if (name != "MoveSet" && name != "symbol")
+            {
+                size_t value = agent.GetProperty<int>(name);
+                agent.Notify(name + ": " + std::to_string(value));
+            }
+        }
+    }
+
+    cse491::GridPosition LookAhead(cse491::AgentBase & agent)
+    {
+        size_t direction = agent.GetProperty<int>("Direction");
+        cse491::GridPosition look_position;
+
+        switch (direction)
+        {
+        case (0):
+          look_position = agent.GetPosition().Above();
+          break;
+        case (1):
+          look_position = agent.GetPosition().ToRight();
+          break;
+        case (2):
+          look_position = agent.GetPosition().Below();
+          break;
+        case (3):
+          look_position = agent.GetPosition().ToLeft();
+          break;
+        
+        default:
+          agent.Notify("Invalid Position: Returning Current Position");
+          look_position = agent.GetPosition();
+          break;
+        }
+
+        return look_position;
     }
 
     /// @brief Determines the damage of the other agent
@@ -481,7 +511,7 @@ namespace cse491_team8 {
     /// @return The agent's new position
     cse491::GridPosition DoActionFindNewPosition(cse491::AgentBase& agent, size_t action_id) {
         // Determine where the agent is trying to move.
-        cse491::GridPosition new_position;
+        cse491::GridPosition new_position, look_position;
 
         // Update Direction property and get new position.
         switch (action_id) {
@@ -533,15 +563,21 @@ namespace cse491_team8 {
         }
         case USE_AXE:
         {
-          new_position = agent.GetPosition();
-          agent.Notify("Using an Axe");
-          break;
+            new_position = agent.GetPosition();
+            look_position = LookAhead(agent);
+            if (main_grid.At(look_position) == tree_id)
+            {
+                DoActionTestNewPositionTree(agent, look_position);
+            } else {
+                agent.Notify("There is not a tree to cut down");
+            }
+            break;
         }
         case USE_BOAT:
         {
-          new_position = agent.GetPosition();
-          agent.Notify("Using an Boat");
-          break;
+            new_position = agent.GetPosition();
+            agent.Notify("Using an Boat");
+            break;
         }
       }
 
@@ -574,22 +610,18 @@ namespace cse491_team8 {
     /// @return Nothing, the tree gets chopped if possible but the agent doesn't move
     void DoActionTestNewPositionTree(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
         size_t item_id = FindItem(agent, "Axe");
-        // if (agent.HasProperty("Uses") && agent.GetProperty<int>("Uses") > 0)
         if (item_id != SIZE_MAX)
         {
-          agent.Notify("You can use your Axe once to chop down this tree. You have " +
-                        std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Chop this tree? Y/N:");
-          char chop;
-          std::cin >> chop;
-          if (chop == 'Y' || chop == 'y')
+          agent.Notify("You have used your Axe to chop down this tree. You have " +
+                        std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
+          
+          // decrement uses by 1, change the tree to grass, but don't move the agent's position
+          item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
+          if (item_map[item_id]->GetProperty<int>("Uses") == 0)
           {
-            // decrement uses by 1, change the tree to grass, but don't move the agent's position
-            item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
-                if (item_map[item_id]->GetProperty<int>("Uses") == 0) {
-                  RemoveItem(item_id);
-                }
-            main_grid[new_position] = grass_id;
+            RemoveItem(item_id);
           }
+          main_grid[new_position] = grass_id;
         }
     }
 
@@ -659,7 +691,7 @@ namespace cse491_team8 {
       if (main_grid.At(new_position) == tree_id)
       {
           // chop the tree if possible, but don't move the agent either way
-          DoActionTestNewPositionTree(agent, new_position);
+          // DoActionTestNewPositionTree(agent, new_position);
           return false;
       }
 
