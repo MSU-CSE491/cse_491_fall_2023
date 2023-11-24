@@ -57,7 +57,7 @@ namespace group6 {
         size_t key_id = 4;
         size_t door_id = 5;
 
-        size_t grass_id = 6;
+        size_t grass_id = 11;
         size_t dirt_id = 7;
 
         size_t tree_id = 8;
@@ -82,6 +82,7 @@ namespace group6 {
 
         void placeDoorTile(const size_t &doorTile);
         void placeKeyTile(const size_t &keyTile);
+        void placeArmoryTile(const size_t &armoryTile);
 
         [[nodiscard]] std::vector<GridPosition> clearPath() const;
         void applyPathToGrid(const std::vector<GridPosition>& path);
