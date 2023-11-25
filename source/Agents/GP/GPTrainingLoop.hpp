@@ -26,7 +26,7 @@
 
 namespace cowboys {
 
-    constexpr unsigned int TRAINING_SEED = 0;
+    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -115,21 +115,30 @@ namespace cowboys {
 
 
         double SimpleFitnessFunction(cse491::AgentBase &agent, cse491::GridPosition startPosition) {
+          double fitness = 0;
 
+          // Euclidean distance
           cse491::GridPosition currentPosition = agent.GetPosition();
-
-          // Eucledian distance
           double distance = std::sqrt(std::pow(currentPosition.GetX() - startPosition.GetX(), 2) +
                                       std::pow(currentPosition.GetY() - startPosition.GetY(), 2));
 
+          double score = distance;
+
+          fitness += score;
+
           // Agent complexity, temporarily doing this in a bad way
-          double complexity = 0;
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)) {
             auto genotype = cgp->GetGenotype();
-            complexity = std::divides<double>()(genotype.GetNumConnections(), genotype.GetNumPossibleConnections());
+            double connection_complexity = static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
+
+            double functional_nodes = genotype.GetNumFunctionalNodes();
+            double node_complexity = functional_nodes / (functional_nodes + 1);
+
+            double complexity = connection_complexity + node_complexity;
+            fitness -= complexity;
           }
 
-          return distance - complexity;
+          return fitness;
         }
 
         std::filesystem::path getSystemPath(){
@@ -442,8 +451,8 @@ namespace cowboys {
          */
         void GpLoopMutateHelper() {
 
-          constexpr double ELITE_POPULATION_PERCENT = 0.05;
-          constexpr double UNFIT_POPULATION_PERCENT = 0.1;
+          constexpr double ELITE_POPULATION_PERCENT = 0.1;
+          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
 
 
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());

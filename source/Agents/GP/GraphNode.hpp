@@ -384,6 +384,8 @@ namespace cowboys {
 
   /// @brief Returns the distance to the grid position represented by the first two inputs using A*.
   /// @param node The node to get the inputs from.
+  /// @param agent The agent that the node belongs to.
+  /// @return The distance to the grid position using A*
   double AStarDistance(const GraphNode &node, const cse491::AgentBase &agent) {
     auto vals = node.GetInputValues<2>(std::array<size_t, 2>{0, 1});
     if (!vals.has_value())
