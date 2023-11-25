@@ -178,7 +178,7 @@ namespace cowboys
                     int distance = Sensors::wallDistance(grid, *this, direction);
 
 
-                  resultsList[currentInstructionIndex] = distance;
+                    resultsList[currentInstructionIndex] = distance;
 
 
                 }

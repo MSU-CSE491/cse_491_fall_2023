@@ -188,7 +188,7 @@ namespace cowboys {
 
 
             size_t barWidth = 64;
-            float progress = (float)(threadsComplete) / environments.size();
+            float progress = (float)(arena) / environments.size();
             size_t pos = barWidth * progress;
             std::cout << "[";
             for (size_t i = 0; i < barWidth; ++i) {
@@ -202,11 +202,12 @@ namespace cowboys {
 
           // Wait for all threads to finish
           for (auto &thread: threads) {
-//            thread.join();
             if (thread.joinable()) {
               thread.join();
             }
           }
+
+
         }
 
         /**
@@ -243,7 +244,6 @@ namespace cowboys {
 
             ThreadTrainLoop(maxThreads, numberOfTurns);
 
-//            std::cout.flush();
             std::cout << std::endl;
 
             sortedAgents.clear();
