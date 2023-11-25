@@ -10,6 +10,7 @@
 #include <cassert>
 #include <compare>    // For operator<=>
 #include <cstddef>    // For size_t
+#include <cmath>      // For sqrt and std::nan()
 
 namespace cse491 {
 
@@ -28,6 +29,8 @@ namespace cse491 {
     GridPosition(double x, double y) : x(x), y(y) { }
     GridPosition(const GridPosition &) = default;
 
+    ~GridPosition() = default;
+
     GridPosition & operator=(const GridPosition &) = default;
 
     // -- Accessors --
@@ -39,6 +42,8 @@ namespace cse491 {
 
     /// Enable all comparison operators (==, !=, <, <=, >, >=)
     auto operator<=>(const GridPosition &) const = default;
+
+    [[nodiscard]] bool IsValid() const { return std::isnan(x) || std::isnan(y); }
 
     // -- Modifiers --
 
@@ -54,6 +59,7 @@ namespace cse491 {
     GridPosition & operator+=(const GridPosition & in) { return Shift(in.x, in.y); }
     GridPosition & operator-=(const GridPosition & in) { return Shift(-in.x, -in.y); }
 
+    GridPosition & MakeInvalid() { x = y = std::nan("NAN(0)"); return *this; }
 
     // -- Const Operations --
 
@@ -77,6 +83,27 @@ namespace cse491 {
     /// Add together two grid positions and return the result.
     [[nodiscard]] GridPosition operator+(GridPosition in) const {
       return GetOffset(in.x, in.y);
+    }
+
+    [[nodiscard]] double Distance(GridPosition pos2) const {
+      const double dist1 = x - pos2.x;
+      const double dist2 = y - pos2.y;
+      return sqrt(dist1*dist1 + dist2*dist2);
+    }
+
+    /// @brief  Manhattan distance between grid positions
+    /// @param pos2 Position to compare to
+    /// @return Manhattan distance
+    [[nodiscard]] double MDistance(GridPosition pos2) const {
+      const double dist1 = x - pos2.x;
+      const double dist2 = y - pos2.y;
+      return abs(dist1) + abs(dist2);
+    }
+
+    [[nodiscard]] bool IsNear(GridPosition pos2, double max_dist=1.0) const {
+      const double dist1 = x - pos2.x;
+      const double dist2 = y - pos2.y;
+      return (dist1*dist1 + dist2*dist2) <= (max_dist * max_dist);
     }
   };
 

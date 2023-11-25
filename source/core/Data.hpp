@@ -6,9 +6,11 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include <set>
 
 namespace cse491 {
   
@@ -17,17 +19,38 @@ namespace cse491 {
     std::string name;  ///< Unique name for this type of cell (e.g., "wall", "tree", "moon")
     std::string desc;  ///< Full description of what this type of cell is
     char symbol;       ///< Symbol for text representations (files or interface)
+    std::set<std::string> properties{}; ///< Set of properties for this cell type.
+    
+    /// Adds the specifed property to this CellType.
+    CellType& SetProperty(const std::string& property){
+      properties.insert(property);
+      return *this;
+    }
+    
+    /// Removes the specifed property from this CellType.
+    CellType& RemoveProperty(const std::string& property){
+      properties.erase(property);
+      return *this;
+    }
+    
+    /// Checks if the given property is set on this CellType.
+    bool HasProperty(const std::string& property) const {
+      return properties.count(property);
+    }
+    
+    constexpr static std::string CELL_WALL = "wall";
+    constexpr static std::string CELL_WATER = "water";
   };
 
   /// @brief Available CellTypes will be passed around as a vector of options.
   using type_options_t = std::vector<CellType>;
 
-  class Entity;
-  /// @brief Sets of items will be represented as vectors of pointers to the base class
-  using item_set_t = std::vector<std::unique_ptr<Entity>>;
+  class ItemBase;
+  /// @brief Maps of item IDs to item pointers
+  using item_map_t = std::map<size_t, std::unique_ptr<ItemBase>>;
 
   class AgentBase;
-  /// @brief Sets of agents will be represented as vectors of pointers to the base class
-  using agent_set_t = std::vector<std::unique_ptr<AgentBase>>;
+  /// @brief Maps of agent IDs to agent pointers
+  using agent_map_t = std::map<size_t, std::unique_ptr<AgentBase>>;
 
 }

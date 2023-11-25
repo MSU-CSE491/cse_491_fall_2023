@@ -12,6 +12,32 @@
  *  Deserialize_impl() - To restore the object from a stream.
  **/
 
+/**
+ * @author @amantham20
+ * uses as attibute to mark experimental classes and functions
+ */
+#ifndef NDEBUG
+
+#define EXPERIMENTAL_FUNCTION  \
+  __attribute__((annotate("experimental_function")))
+
+#define EXPERIMENTAL_CLASS  \
+  __attribute__((annotate("experimental_class")))
+
+#else
+
+#define EXPERIMENTAL_CLASS            \
+  __attribute__((                     \
+      annotate("experimental_class"), \
+      warning(                        \
+          "This is an experimental class and should be used with caution.")))
+#define EXPERIMENTAL_FUNCTION                                              \
+  __attribute__((annotate("experimental_function"),                        \
+                 warning("This is an experimental function and should be " \
+                         "used with caution.")))
+
+#endif
+
 #pragma once
 
 #include <fstream>
@@ -49,13 +75,13 @@ namespace cse491 {
     // The functions below can be used in derived classes to implement above functionality.
 
     /// @brief Set up beginning of the serialization for this class (allows checking later)
-    /// @param os Output stream to serialize into.
+    /// @param os Output stream to Serialize into.
     void StartSerialize(std::ostream & os) const {
       os << ":::START " << GetTypeName() << "\n";
     }
 
     /// @brief Set up end of the serialization for this class (allows checking later)
-    /// @param os Output stream to serialize into.
+    /// @param os Output stream to Serialize into.
     void EndSerialize(std::ostream & os) const {
       os << ":::END " << GetTypeName() << "\n";
     }
