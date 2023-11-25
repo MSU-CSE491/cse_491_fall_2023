@@ -20,7 +20,7 @@ namespace cse491_team8 {
 
   class ManualWorld : public cse491::WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ATTACK, HEAL, STATS, USE_AXE, USE_BOAT };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, ATTACK, SPECIAL, RUN };
     enum FacingDirection { UP=0, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -35,11 +35,13 @@ namespace cse491_team8 {
       agent.AddAction("down", MOVE_DOWN);
       agent.AddAction("left", MOVE_LEFT);
       agent.AddAction("right", MOVE_RIGHT);
-      agent.AddAction("attack", ATTACK);
-      agent.AddAction("heal", HEAL);
-      agent.AddAction("stats", STATS);
       agent.AddAction("use_axe", USE_AXE);
       agent.AddAction("use_boat", USE_BOAT);
+      agent.AddAction("stats", STATS);
+      agent.AddAction("heal", HEAL);
+      agent.AddAction("attack", ATTACK);
+      agent.AddAction("special", SPECIAL);
+      agent.AddAction("run", RUN);
     }
 
   public:
@@ -184,7 +186,7 @@ namespace cse491_team8 {
         for (auto & prop : agent.GetProprtyMap())
         {
             std::string name = prop.first;
-            if (name != "MoveSet" && name != "symbol")
+            if (name != "MoveSet" && name != "symbol" && name != "Direction")
             {
                 size_t value = agent.GetProperty<int>(name);
                 agent.Notify(name + ": " + std::to_string(value));
@@ -231,7 +233,7 @@ namespace cse491_team8 {
         int other_damage = 0;
         std::map<std::string, std::tuple<char, double>> move_set = other_agent.GetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet");
         auto iterator = move_set.begin();
-        int random = rand() % move_set.size();
+        int random = GetRandom(move_set.size());
         std::advance(iterator, random);
         std::string random_key = iterator->first;
         agent.Notify("\nThe enemy has used: " + random_key);
@@ -363,7 +365,7 @@ namespace cse491_team8 {
           this->RemoveAgent(other_agent.GetName());
 
           // get the loot dropped from the agent
-          int random = rand() % 10;
+          int random = (int) GetRandom(10);
           char symbol = ' ';
           std::string loot = "";
           std::string action = "";
@@ -497,8 +499,6 @@ namespace cse491_team8 {
 
           // remove it from the board
           item_ptr->SetOwner(agent);
-          // RemoveItem(item_ptr->GetID());
-
           break;
         }
       }
@@ -544,23 +544,6 @@ namespace cse491_team8 {
             new_position = agent.GetPosition().ToRight();
             break;
         }
-        case ATTACK:
-        {
-            new_position = agent.GetPosition();
-            break;
-        }
-        case HEAL:
-        {
-            new_position = agent.GetPosition();
-            HealAction(agent);
-            break;
-        }
-        case STATS:
-        {
-            new_position = agent.GetPosition();
-            StatsAction(agent);
-            break;
-        }
         case USE_AXE:
         {
             new_position = agent.GetPosition();
@@ -569,14 +552,45 @@ namespace cse491_team8 {
             {
                 DoActionTestNewPositionTree(agent, look_position);
             } else {
-                agent.Notify("There is not a tree to cut down");
+                agent.Notify("You can not use an Axe here!");
             }
             break;
         }
         case USE_BOAT:
         {
             new_position = agent.GetPosition();
-            agent.Notify("Using an Boat");
+            if (main_grid.At(new_position) == water_id)
+            {
+              agent.Notify("Already on Water");
+              break;
+            }
+            look_position = LookAhead(agent);
+            if (main_grid.At(look_position) == water_id)
+            {
+                if (DoActionTestNewPositionWater(agent))
+                {
+                    new_position.Set(look_position.GetX(), look_position.GetY());
+                }
+            } else {
+                agent.Notify("You can not use a Boat here!");
+            }
+            break;
+        }
+        case STATS:
+        {
+            new_position = agent.GetPosition();
+            StatsAction(agent);
+            break;
+        }
+        case HEAL:
+        {
+            new_position = agent.GetPosition();
+            HealAction(agent);
+            break;
+        }
+        case ATTACK:
+        {
+            new_position = agent.GetPosition();
             break;
         }
       }
@@ -615,7 +629,7 @@ namespace cse491_team8 {
           agent.Notify("You have used your Axe to chop down this tree. You have " +
                         std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
           
-          // decrement uses by 1, change the tree to grass, but don't move the agent's position
+          // decrement uses by 1, change the tree to grass
           item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
           if (item_map[item_id]->GetProperty<int>("Uses") == 0)
           {
@@ -631,45 +645,19 @@ namespace cse491_team8 {
     /// @param agent The agent trying to interact
     /// @return True if the agent is able to (and chooses) to move to the new spot, else false
     bool DoActionTestNewPositionWater(cse491::AgentBase& agent) {
-        if (agent.HasProperty("OnlyWater"))
-        {
-            return true;
-        }
-
         size_t item_id = FindItem(agent, "Boat");
-
         if (item_id != SIZE_MAX)
         {
-            agent.Notify("You can use your Boat once to float over this tile. You have "
-                + std::to_string(item_map[item_id]->GetProperty<int>("Uses")) + " uses remaining. Use your boat? Y/N:\n");
-            char boat;
-            std::cin >> boat;
-            if (boat == 'Y' || boat == 'y')
+            agent.Notify("You have used your Boat to float over this tile. You have " + 
+                          std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
+            
+            // decrement uses by 1
+            item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
+            if (item_map[item_id]->GetProperty<int>("Uses") == 0)
             {
-                item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
-                if (item_map[item_id]->GetProperty<int>("Uses") == 0) {
-                    RemoveItem(item_id);
-                    
-                    // they're on the water, and they no longer have a boat
-                    agent.Notify("No boat uses left! Try again? Y/N:\n");
-                    char again;
-                    std::cin >> again;
-                    if (again == 'N' || again == 'n')
-                    {
-                        run_over = true;
-                    }
-                    else
-                    {
-                        // reset the interface to starting position, don't update
-                        // with the new position back in the calling function
-                        agent.SetPosition(40, 3);
-                    }
-                    return false;
-                }
-                
-                // still have boat uses left, used the boat so position is valid
-                return true;
+                RemoveItem(item_id);
             }
+            return true;
         }
         return false;
     }
@@ -690,26 +678,22 @@ namespace cse491_team8 {
 
       if (main_grid.At(new_position) == tree_id)
       {
-          // chop the tree if possible, but don't move the agent either way
-          // DoActionTestNewPositionTree(agent, new_position);
           return false;
       }
 
       if (main_grid.At(new_position) == water_id)
       {
-          bool moved = DoActionTestNewPositionWater(agent);
-          
-          // if they didn't move onto the water tile, we don't update their position
-          // return false from here
-          if (not moved) { return false; }
+          if (agent.HasProperty("OnlyWater"))
+          {
+              agent.SetPosition(new_position);
+              return true;
+          }
+          if (action_id != USE_BOAT && main_grid.At(agent.GetPosition()) != water_id) { return false; }
       }
 
       if (main_grid.At(new_position) == grass_id)
       {
-        if (agent.HasProperty("OnlyWater"))
-        {
-          return false;
-        }
+        if (agent.HasProperty("OnlyWater")) { return false; }
       }
 
       if (main_grid.At(new_position) == rock_id)
