@@ -164,11 +164,6 @@ public:
     return min + GetRandom(max - min);
   }
 
-  /// @brief  Return a uniform random unsigned long long between 0 (inclusive) and max (exclusive)
-  size_t GetRandomULL(size_t max) {
-    return static_cast<size_t>(GetRandom(max));
-  }
-
   /// @brief  Return a gaussian random value with mean 0.0 and sd 1.0
   double GetRandomNormal() { return norm_dist(random_gen); }
 

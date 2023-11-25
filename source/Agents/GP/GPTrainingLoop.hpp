@@ -26,7 +26,7 @@
 
 namespace cowboys {
 
-    unsigned int TRAINING_SEED = 111;
+    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -78,10 +78,16 @@ namespace cowboys {
          */
         void Initialize(size_t numArenas = 5, size_t NumAgentsForArena = 100) {
 
+          unsigned int seed = TRAINING_SEED;
+          if (seed == 0) {
+            seed = std::random_device()();
+          }
+          std::cout << "Using seed: " << seed << std::endl;
+
 
           for (size_t i = 0; i < numArenas; ++i) {
             // instantiate a new environment
-            environments.emplace_back(std::make_unique<EnvironmentType>(TRAINING_SEED));
+            environments.emplace_back(std::make_unique<EnvironmentType>(seed));
 
 
             agents.push_back(std::vector<cowboys::GPAgentBase *>());
@@ -91,6 +97,7 @@ namespace cowboys {
               cowboys::GPAgentBase &addedAgent = static_cast<cowboys::GPAgentBase &>(environments[i]->template AddAgent<AgentType>(
                       "Agent " + std::to_string(j)));
               addedAgent.SetPosition(0, 0);
+              addedAgent.SetSeed(seed);
               cse491::GridPosition position = addedAgent.GetPosition();
 
               TEMPinitialAgentPositions[i].push_back(position);
@@ -108,21 +115,30 @@ namespace cowboys {
 
 
         double SimpleFitnessFunction(cse491::AgentBase &agent, cse491::GridPosition startPosition) {
+          double fitness = 0;
 
+          // Euclidean distance
           cse491::GridPosition currentPosition = agent.GetPosition();
-
-          // Eucledian distance
           double distance = std::sqrt(std::pow(currentPosition.GetX() - startPosition.GetX(), 2) +
                                       std::pow(currentPosition.GetY() - startPosition.GetY(), 2));
 
+          double score = distance;
+
+          fitness += score;
+
           // Agent complexity, temporarily doing this in a bad way
-          double complexity = 0;
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)) {
             auto genotype = cgp->GetGenotype();
-            complexity = std::divides<double>()(genotype.GetNumConnections(), genotype.GetNumPossibleConnections());
+            double connection_complexity = static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
+
+            double functional_nodes = genotype.GetNumFunctionalNodes();
+            double node_complexity = functional_nodes / (functional_nodes + 1);
+
+            double complexity = connection_complexity + node_complexity;
+            fitness -= complexity;
           }
 
-          return distance - complexity;
+          return fitness;
         }
 
         std::filesystem::path getSystemPath(){
@@ -151,27 +167,47 @@ namespace cowboys {
          * @param maxThreads
          * @param numberOfTurns
          */
-        void ThreadTrainLoop(int maxThreads = 1, int numberOfTurns = 100) {
+        void ThreadTrainLoop(size_t maxThreads = 1, int numberOfTurns = 100) {
           std::vector<std::thread> threads;
+
+          size_t threadsComplete = 0;
+
 
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             if (maxThreads == 0 || threads.size() < maxThreads) {
               threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
+
             } else {
               // Wait for one of the existing threads to finish
               threads[0].join();
               threads.erase(threads.begin());
+              threadsComplete++;
               threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
             }
+
+
+
+            size_t barWidth = 64;
+            float progress = (float)(arena) / environments.size();
+            size_t pos = barWidth * progress;
+            std::cout << "[";
+            for (size_t i = 0; i < barWidth; ++i) {
+              if (i < pos) std::cout << "=";
+              else if (i == pos) std::cout << ">";
+              else std::cout << " ";
+            }
+            std::cout << "] " << int(progress * 100.0) << " % - " << threadsComplete << " threads done\r";
+            std::cout.flush();
           }
 
           // Wait for all threads to finish
           for (auto &thread: threads) {
-            thread.join();
-            //progress for the threads
-            std::cout << ".";
-
+            if (thread.joinable()) {
+              thread.join();
+            }
           }
+
+
         }
 
         /**
@@ -183,7 +219,7 @@ namespace cowboys {
          */
         void Run(size_t numGenerations,
                  size_t numberOfTurns = 100,
-                 size_t maxThreads = 0) {
+                 size_t maxThreads = 0, bool saveData=false) {
 
 
 
@@ -208,16 +244,16 @@ namespace cowboys {
 
             ThreadTrainLoop(maxThreads, numberOfTurns);
 
-            std::cout.flush();
-
+            std::cout << std::endl;
 
             sortedAgents.clear();
             SortThemAgents();
 
             int countMaxAgents = AgentAnalysisComputations(generation);
             if (generation % 10 == 0) {
-
-              saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
+              if(saveData){
+                saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
+              }
               lastGenerationsDoc.Clear();
               ResetMainTagLastGenerations();
 
@@ -225,8 +261,10 @@ namespace cowboys {
 
             }
 
+            if (saveData){
+              SerializeAgents(countMaxAgents, generation);
+            }
 
-            SerializeAgents(countMaxAgents, generation);
 
             GpLoopMutateHelper();
 
@@ -245,9 +283,10 @@ namespace cowboys {
           auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
           std::cout << "Time taken by run: " << duration.count() / 1000000.0 << " seconds" << std::endl;
 
-
+          if(saveData){
           saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+          }
 
           MemGOBYE();
         }
@@ -344,7 +383,7 @@ namespace cowboys {
          * @param generation
          * @param topN
          */
-        void SerializeAgents(int countMaxAgents, int generation, size_t topN = 5) {
+        void SerializeAgents(int /*countMaxAgents*/, int generation, size_t topN = 5) {
 
           const char *tagName = ("generation_" + std::to_string(generation)).c_str();
           auto *generationTag = doc.NewElement(tagName);
@@ -354,7 +393,7 @@ namespace cowboys {
           root->InsertFirstChild(generationTag);
           rootTEMP->InsertFirstChild(lastGenerationsRoot);
 
-          for (int i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
+          for (size_t i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
             agents[arenaIDX][agentIDX]->Serialize(doc, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
 
@@ -431,8 +470,8 @@ namespace cowboys {
          */
         void GpLoopMutateHelper() {
 
-          constexpr double ELITE_POPULATION_PERCENT = 0.05;
-          constexpr double UNFIT_POPULATION_PERCENT = 0.1;
+          constexpr double ELITE_POPULATION_PERCENT = 0.1;
+          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
 
 
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
@@ -476,7 +515,7 @@ namespace cowboys {
           threads.clear();
 
           // Second loop - copy and mutate agents
-          int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
+          // int unfitAgents = int(sortedAgents.size() * UNFIT_POPULATION_PERCENT);
           agents_per_thread = (sortedAgents.size() - MIDDLE_MUTATE_ENDBOUND) / num_threads;
           for (int i = 0; i < num_threads; ++i) {
             int start = MIDDLE_MUTATE_ENDBOUND + i * agents_per_thread;
@@ -605,7 +644,15 @@ namespace cowboys {
          */
         void MemGOBYE() {
 
-          TEMPinitialAgentPositions.clear();
+//          TEMPinitialAgentPositions.clear();
+          for (auto &postions: TEMPinitialAgentPositions) {
+            postions.clear();
+          }
+          const int length = TEMPinitialAgentPositions.size();
+          for (int i = 0; i < length; ++i) {
+            TEMPinitialAgentPositions.pop_back();
+          }
+
           TEMPAgentFitness.clear();
           environments.clear();
           agents.clear();
