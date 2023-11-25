@@ -27,7 +27,7 @@ namespace cowboys
         std::vector<std::string> actionsList = {};
         std::vector<std::string> operationsList = {"lessthan", "greaterthan", "equals"};
         std::vector<std::string> sensorsNamesList = {"getLeft", "getRight", "getUp", "getDown"};
-        std::vector<int> resultsList = std::vector<int>(LISTSIZE);
+        std::vector<int> resultsList;
 
         std::vector<std::tuple<std::string, int, int>> instructionsList = {};
         size_t currentInstructionIndex = 0;
@@ -39,6 +39,11 @@ namespace cowboys
         LGPAgent(size_t id, const std::string &name) : GPAgentBase(id, name)
         {
             gen = std::mt19937(rd());
+
+            for (auto i = 0; i < LISTSIZE; i++)
+            {
+                resultsList.push_back(0);
+            }
         }
 
 
@@ -171,7 +176,18 @@ namespace cowboys
 
                     SensorDirection direction = Sensors::getSensorDirectionEnum(sensor);
                     int distance = Sensors::wallDistance(grid, *this, direction);
-                    resultsList[currentInstructionIndex - 1] = distance;
+
+//                    TODO: Check with jason about this
+                    if (currentInstructionIndex != 0){
+                      resultsList[currentInstructionIndex - 1] = distance;
+                    }
+                    else{
+                      resultsList[LISTSIZE - 1] = distance;
+                    }
+
+//                  resultsList[currentInstructionIndex - 1] = distance;
+
+
                 }
                 else
                 {

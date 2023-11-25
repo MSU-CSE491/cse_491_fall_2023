@@ -190,7 +190,7 @@ namespace cowboys {
          */
         void Run(size_t numGenerations,
                  size_t numberOfTurns = 100,
-                 size_t maxThreads = 0) {
+                 size_t maxThreads = 0, bool saveData=false) {
 
 
 
@@ -223,8 +223,9 @@ namespace cowboys {
 
             int countMaxAgents = AgentAnalysisComputations(generation);
             if (generation % 10 == 0) {
-
-              saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
+              if(saveData){
+                saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
+              }
               lastGenerationsDoc.Clear();
               ResetMainTagLastGenerations();
 
@@ -232,8 +233,10 @@ namespace cowboys {
 
             }
 
+            if (saveData){
+              SerializeAgents(countMaxAgents, generation);
+            }
 
-            SerializeAgents(countMaxAgents, generation);
 
             GpLoopMutateHelper();
 
@@ -252,9 +255,10 @@ namespace cowboys {
           auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
           std::cout << "Time taken by run: " << duration.count() / 1000000.0 << " seconds" << std::endl;
 
-
+          if(saveData){
           saveEverySoOften(fullPath.string(), lastGenerationsFullPath.string());
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+          }
 
           MemGOBYE();
         }
@@ -612,7 +616,15 @@ namespace cowboys {
          */
         void MemGOBYE() {
 
-          TEMPinitialAgentPositions.clear();
+//          TEMPinitialAgentPositions.clear();
+          for (auto &postions: TEMPinitialAgentPositions) {
+            postions.clear();
+          }
+          const int length = TEMPinitialAgentPositions.size();
+          for (int i = 0; i < length; ++i) {
+            TEMPinitialAgentPositions.pop_back();
+          }
+
           TEMPAgentFitness.clear();
           environments.clear();
           agents.clear();

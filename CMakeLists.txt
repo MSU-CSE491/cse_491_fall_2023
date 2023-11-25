@@ -34,6 +34,45 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/executable)
 # Move assets to build directory
 file(COPY ./assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+
+#option(BUILD_CLANG_LLVM "Build with clang for LLVM" OFF)
+option(SANITIZE_MEMORY "Build with sanitizers for GP" OFF)
+if (SANITIZE_MEMORY)
+
+    set(BUILD_MAIN 0)
+    set(BUILD_TESTS 0)
+
+    set(CMAKE_CXX_COMPILER "/opt/homebrew/opt/llvm/bin/clang++")
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=memory")
+
+    set(XML_SRC_DIR third_party/tinyxml2)
+    set(XML_BUILD_DIR xml_build)
+    add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
+    #added the executable
+    add_executable(gp_train_main source/gp_train_main.cpp)
+
+    #linking the targets
+    target_sources(gp_train_main PRIVATE source/core/Entity.cpp)
+    target_include_directories(gp_train_main
+            PRIVATE ${CMAKE_SOURCE_DIR}/source/core
+            ${CMAKE_SOURCE_DIR}/source/Agents
+            )
+    target_link_libraries(gp_train_main
+            PRIVATE tinyxml2
+            PRIVATE pthread
+            )
+
+
+endif ()
+
+
+
+
+
+# Build the gp_train_main executable, if requested without SFML and Catch2
 option(BUILD_GP_ONLY "Build only gp_main.cpp" OFF)
 if (BUILD_GP_ONLY)
     set(BUILD_MAIN 0)
@@ -64,6 +103,10 @@ endif ()
 # Build the main application executables, if requested
 if (${BUILD_MAIN})
 
+#    to sanitize for address
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+
+
     # Configure all of SFML
     set(SFML_SRC_DIR third_party/SFML)
     set(SFML_BUILD_DIR sfml_build)
@@ -80,6 +123,8 @@ if (${BUILD_MAIN})
     # Currently this means any *.cpp file in the root of source
     file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
     message(STATUS "List of main files to build: ${EXE_SOURCES}")
+
+
 
     # Loop through each executable and build it!
     foreach (EXE_SOURCE ${EXE_SOURCES})
