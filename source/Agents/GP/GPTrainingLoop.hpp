@@ -161,23 +161,42 @@ namespace cowboys {
         void ThreadTrainLoop(size_t maxThreads = 1, int numberOfTurns = 100) {
           std::vector<std::thread> threads;
 
+          size_t threadsComplete = 0;
+
+
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             if (maxThreads == 0 || threads.size() < maxThreads) {
               threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
+
             } else {
               // Wait for one of the existing threads to finish
               threads[0].join();
               threads.erase(threads.begin());
+              threadsComplete++;
               threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
             }
+
+
+
+            size_t barWidth = 64;
+            float progress = (float)(threadsComplete) / environments.size();
+            size_t pos = barWidth * progress;
+            std::cout << "[";
+            for (size_t i = 0; i < barWidth; ++i) {
+              if (i < pos) std::cout << "=";
+              else if (i == pos) std::cout << ">";
+              else std::cout << " ";
+            }
+            std::cout << "] " << int(progress * 100.0) << " % - " << threadsComplete << " threads done\r";
+            std::cout.flush();
           }
 
           // Wait for all threads to finish
           for (auto &thread: threads) {
-            thread.join();
-            //progress for the threads
-            std::cout << ".";
-
+//            thread.join();
+            if (thread.joinable()) {
+              thread.join();
+            }
           }
         }
 
@@ -215,8 +234,8 @@ namespace cowboys {
 
             ThreadTrainLoop(maxThreads, numberOfTurns);
 
-            std::cout.flush();
-
+//            std::cout.flush();
+            std::cout << std::endl;
 
             sortedAgents.clear();
             SortThemAgents();

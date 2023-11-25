@@ -177,15 +177,8 @@ namespace cowboys
                     SensorDirection direction = Sensors::getSensorDirectionEnum(sensor);
                     int distance = Sensors::wallDistance(grid, *this, direction);
 
-//                    TODO: Check with jason about this
-                    if (currentInstructionIndex != 0){
-                      resultsList[currentInstructionIndex - 1] = distance;
-                    }
-                    else{
-                      resultsList[LISTSIZE - 1] = distance;
-                    }
 
-//                  resultsList[currentInstructionIndex - 1] = distance;
+                  resultsList[currentInstructionIndex] = distance;
 
 
                 }
