@@ -27,3 +27,7 @@ cmake-build-*/
 
 savedata/GPAgent/*.xml
 #AgentData_*.xml
+
+site/
+
+
