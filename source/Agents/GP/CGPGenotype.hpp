@@ -526,7 +526,9 @@ namespace cowboys {
             num_input_connections += params.num_inputs;
           }
           // Create node gene using empty connections
-          nodes.emplace_back(std::vector<char>(num_input_connections, '0'));
+          std::vector<char> input_connections(num_input_connections, '0');
+          // Add the node configuration. With default values
+          nodes.push_back({input_connections});
         }
       }
     }
@@ -682,8 +684,8 @@ namespace cowboys {
 
           // For middle layers, add a new node
           if (i != params.num_layers + 1) {
-            // Add the new node to the new node vector
-            new_nodes.emplace_back(std::vector<char>(new_num_connections, '0'));
+            auto newNode = std::vector<char>(new_num_connections, '0');
+            new_nodes.push_back({newNode});
           }
 
           // Add the extra connections for each node in this layer
