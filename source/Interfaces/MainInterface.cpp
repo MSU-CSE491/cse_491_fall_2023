@@ -49,9 +49,10 @@ namespace i_2D {
 
         // Add in the agents / items
         for (const auto & [id, item_ptr] : item_map) {
-
-          GridPosition pos = item_ptr->GetPosition();
-          symbol_grid[pos.CellY()][pos.CellX()] = '+';
+            GridPosition pos = item_ptr->GetPosition();
+            if (pos.IsValid()) {
+                symbol_grid[pos.CellY()][pos.CellX()] = '+';
+            }
         }
 
         for (const auto & [id, agent_ptr] : agent_map) {
