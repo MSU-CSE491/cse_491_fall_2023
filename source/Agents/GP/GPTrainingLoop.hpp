@@ -21,7 +21,7 @@
 
 
 #include "tinyxml2.h"
-//#include <algorithm>
+
 
 
 namespace cowboys {
@@ -56,6 +56,8 @@ namespace cowboys {
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0)};
 
+
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,2), cse491::GridPosition(49,2) , cse491::GridPosition(49,19) , cse491::GridPosition(4,19), cse491::GridPosition(28,10)};
 
         /// ArenaIDX, AgentIDX, EndPosition
         std::vector<std::vector<std::vector<cse491::GridPosition>>> endPostions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
@@ -361,6 +363,15 @@ namespace cowboys {
           ResetMainTagLastGenerations();
         }
 
+
+        std::string FormatPosition(const cse491::GridPosition & pos, int precision = 0) {
+          std::stringstream ss;
+          ss << std::fixed << std::setprecision(precision) << "[" << pos.GetX() << "," << pos.GetY() << "]";
+          return ss.str();
+        }
+
+
+
         /**
          * Computes agents analysis metrics
          *
@@ -397,25 +408,39 @@ namespace cowboys {
           averageFitness /= (environments.size() * agents[0].size());
 
 
-
-
           std::cout << "Generation " << generation << " complete" << std::endl;
           std::cout << "Average fitness: " << averageFitness << " ";
           std::cout << "Max fitness: " << maxFitness << std::endl;
           std::cout << "Best agent: AGENT[" << bestAgent.first << "," << bestAgent.second << "] " << std::endl;
-          std::cout << "Start Positions";
-          for (auto pos : STARTPOSITIONS) {
-            std::cout << "[" << pos.GetX() << "," << pos.GetY() << "] ";
-          }
-          std::cout << std::endl;
 
-          std::cout << "Best Agent Final Positions: ";
+          std::cout << "Best Agent Final Positions" << std::endl;
 
-          for (size_t i = 0; i < endPostions[bestAgent.first][bestAgent.second].size(); ++i) {
-            std::cout << "[" <<endPostions[bestAgent.first][bestAgent.second][i].GetX() << ","
-            << endPostions[bestAgent.first][bestAgent.second][i].GetY() << "] ";
+
+
+
+          auto calculateDistance = [](const cse491::GridPosition& startPosition, const cse491::GridPosition & currentPosition) {
+              return std::sqrt(std::pow(currentPosition.GetX() - startPosition.GetX(), 2) +
+                               std::pow(currentPosition.GetY() - startPosition.GetY(), 2));
+          };
+
+          int columnWidth = 10; // Adjust as needed
+
+          std::cout << std::left << std::setw(columnWidth) << "Start"
+                    << std::setw(columnWidth) << "Final"
+                    << "Distance\n";
+          for (size_t i = 0; i < STARTPOSITIONS.size(); ++i) {
+            std::cout << std::setw(columnWidth) << FormatPosition(STARTPOSITIONS[i])
+                      << std::setw(columnWidth) << FormatPosition(endPostions[bestAgent.first][bestAgent.second][i]);
+
+
+              double distance = calculateDistance(STARTPOSITIONS[i], endPostions[bestAgent.first][bestAgent.second][i]);
+              std::cout << std::fixed << std::setprecision(2) << std::setw(6) << distance;
+
+
+            std::cout << std::endl;
           }
-          std::cout << "with a score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
+
+          std::cout << "with an average score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
           std::cout << std::endl;
 
           Printgrid(endPostions[bestAgent.first][bestAgent.second], 'A');
