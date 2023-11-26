@@ -28,6 +28,8 @@ namespace cse491_team8 {
     size_t water_id;  ///< Easy access to water CellType ID.
     size_t bridge_id; ///< Easy access to bridge CellType ID.
     size_t rock_id;   ///< Easy access to rock CellType ID.
+    size_t portal_id_a; ///< Easy access to first portal CellType ID.
+    size_t portal_id_b; ///< Easy access to second portal CellType ID.
 
     /// Provide the agent with movement actions.
     void ConfigAgent(cse491::AgentBase & agent) override {
