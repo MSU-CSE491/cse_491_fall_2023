@@ -90,7 +90,7 @@ namespace group6 {
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
 
             water_id = AddCellType("water", "Water that you may be able to swim on.", 'W');
-            sand_id = AddCellType("sand", "Sand you can walk on.", 'S');
+            sand_id = AddCellType("sand", "Sand you can walk on.", '-');
 
             BiomeGenerator biomeGenerator(biome, width, height, seed);
             biomeGenerator.setWorld(this);
