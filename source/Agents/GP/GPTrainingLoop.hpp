@@ -51,32 +51,45 @@ namespace cowboys {
 
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
-        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
+            /**
+             * Default Grid
+             */
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0)};
 
 
+/**
+ * Group 8 Grid
+ */
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,2), cse491::GridPosition(49,2) , cse491::GridPosition(49,19) , cse491::GridPosition(4,19), cse491::GridPosition(28,10)};
 
-        /// ArenaIDX, AgentIDX, EndPosition
-        std::vector<std::vector<std::vector<cse491::GridPosition>>> endPostions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
 
+/**
+ * Default Grid    2
+ */
+        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(50,0) , cse491::GridPosition(0,28) , cse491::GridPosition(50,28)};
+
+        /// ArenaIDX, AgentIDX, EndPosition
+        std::vector<std::vector<std::vector<cse491::GridPosition>>> endPositions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
+        std::vector<std::vector<std::vector<double>>> independentAgentFitness = std::vector<std::vector<std::vector<double>>>();
 
     public:
 
         GPTrainingLoop() {
 
           topAgentsDoc.InsertFirstChild(rootTopAllGenerations);
+
+          rootMetaData = metaData.NewElement("GPLoopMetaData");
+          metaData.InsertFirstChild(rootMetaData);
+
           ResetMainTagLastGenerations();
         }
 
         void ResetMainTagLastGenerations() {
           rootTopLastGenerations = lastGenerationsTopAgentsDoc.NewElement("GPLoop");
           lastGenerationsTopAgentsDoc.InsertFirstChild(rootTopLastGenerations);
-
-          rootMetaData = metaData.NewElement("GPLoopMetaData");
-          metaData.InsertFirstChild(rootMetaData);
 
           rootAllOfLastGeneration = allOfLastGeneration.NewElement("GPLoopAllOfLastGeneration");
           allOfLastGeneration.InsertFirstChild(rootAllOfLastGeneration);
@@ -103,14 +116,17 @@ namespace cowboys {
 
             agents.push_back(std::vector<cowboys::GPAgentBase *>());
 
-            endPostions.push_back(std::vector<std::vector<cse491::GridPosition>>());
+            endPositions.push_back(std::vector<std::vector<cse491::GridPosition>>());
+            independentAgentFitness.push_back(std::vector<std::vector<double>>());
 
             for (size_t j = 0; j < NumAgentsForArena; ++j) {
 
-              endPostions[i].push_back(std::vector<cse491::GridPosition>());
+              endPositions[i].push_back(std::vector<cse491::GridPosition>());
+              independentAgentFitness[i].push_back(std::vector<double>());
 
               for (size_t k = 0; k < STARTPOSITIONS.size(); ++k) {
-                endPostions[i][j].push_back(cse491::GridPosition(0, 0));
+                endPositions[i][j].push_back(cse491::GridPosition(0, 0));
+                independentAgentFitness[i][j].push_back(0);
               }
 
               cowboys::GPAgentBase &addedAgent = static_cast<cowboys::GPAgentBase &>(environments[i]->template AddAgent<AgentType>(
@@ -125,6 +141,15 @@ namespace cowboys {
           }
 
           Printgrid(STARTPOSITIONS);
+
+
+          const size_t numAgents = numArenas * NumAgentsForArena;
+
+          std::stringstream ss;
+          ss.imbue(std::locale(""));
+          ss << std::fixed << numAgents;
+
+          std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
 
         }
 
@@ -244,10 +269,11 @@ namespace cowboys {
 
           SaveDataParams saveDataParams(0);
           saveDataParams.save = saveData;
-          saveDataParams.saveAllAgentData = true;
-
-          saveDataParams.saveTopAgents = true;
-          saveDataParams.saveLastGenerations = true;
+          saveDataParams.saveMetaData = true;
+//          saveDataParams.saveAllAgentData = true;
+//
+//          saveDataParams.saveTopAgents = true;
+//          saveDataParams.saveLastGenerations = true;
 
           for (size_t generation = 0; generation < numGenerations; ++generation) {
 
@@ -321,17 +347,19 @@ namespace cowboys {
           allOfLastGeneration.InsertFirstChild(rootAllOfLastGeneration);
 
           size_t totalNumberOfAgents = agents.size() * agents[0].size();
+          
           SerializeAgents(params.generation, rootAllOfLastGeneration, allOfLastGeneration, totalNumberOfAgents);
-//          SerializeAgents(params.generation, rootTopAllGenerations, topAgentsDoc);
-//          SerializeAgents(params.generation, rootTopLastGenerations, lastGenerationsTopAgentsDoc, 5);
+
+          if (params.saveTopAgents) {
+            SerializeAgents(params.generation, rootTopAllGenerations, topAgentsDoc);
+          }
+
+          if (params.saveLastGenerations){
+            SerializeAgents(params.generation, rootTopLastGenerations, lastGenerationsTopAgentsDoc, 5);
+          }
 
           std::string dateTimeStr = params.dateTimeStr;
           std::filesystem::path normalizedAbsolutePath = params.normalizedAbsolutePath;
-          if (params.saveAllAgentData) {
-            const std::string allAgentDataFilename = "allAgentData_" + dateTimeStr + ".xml";
-            auto allAgentDataFullPath = normalizedAbsolutePath / allAgentDataFilename;
-            saveXMLDoc(allOfLastGeneration, allAgentDataFullPath.string());
-          }
 
 
           if (params.generation % params.checkPointEvery != 0) {
@@ -340,21 +368,31 @@ namespace cowboys {
 
 
           if (params.saveMetaData) {
-
+            const std::string metaDataFilename = "metaData_" + dateTimeStr + ".xml";
+            auto metaDataFullPath = normalizedAbsolutePath / metaDataFilename;
+            saveXMLDoc(metaData, metaDataFullPath.string());
           }
 
-//          if (params.saveTopAgents) {
-//            const std::string filename = "AgentData_" + dateTimeStr + ".xml";
-//            auto fullPath = normalizedAbsolutePath / filename;
-//
-//            saveXMLDoc(topAgentsDoc, fullPath.string());
-//          }
-//
-//          if (params.saveLastGenerations) {
-//            const std::string lastGenerationsFilename = "lastGenerations_" + dateTimeStr + ".xml";
-//            auto lastGenerationsFullPath = normalizedAbsolutePath / lastGenerationsFilename;
-//            saveXMLDoc(lastGenerationsTopAgentsDoc, lastGenerationsFullPath.string());
-//          }
+          if (params.saveAllAgentData) {
+            const std::string allAgentDataFilename = "allAgentData_" + dateTimeStr + ".xml";
+            auto allAgentDataFullPath = normalizedAbsolutePath / allAgentDataFilename;
+            saveXMLDoc(allOfLastGeneration, allAgentDataFullPath.string());
+          }
+
+
+
+          if (params.saveTopAgents) {
+            const std::string filename = "AgentData_" + dateTimeStr + ".xml";
+            auto fullPath = normalizedAbsolutePath / filename;
+
+            saveXMLDoc(topAgentsDoc, fullPath.string());
+          }
+
+          if (params.saveLastGenerations) {
+            const std::string lastGenerationsFilename = "lastGenerations_" + dateTimeStr + ".xml";
+            auto lastGenerationsFullPath = normalizedAbsolutePath / lastGenerationsFilename;
+            saveXMLDoc(lastGenerationsTopAgentsDoc, lastGenerationsFullPath.string());
+          }
 
 
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
@@ -381,7 +419,7 @@ namespace cowboys {
         int AgentsAnalysisComputationsAndPrint(int generation, double deltaForMaxFitness = 0.1) {
           // print average fitness
           double averageFitness = 0;
-          double maxFitness = 0;
+          double maxFitness = -10000;
 
 
           std::pair<int, int> bestAgent = std::make_pair(-1, -1);
@@ -411,10 +449,25 @@ namespace cowboys {
           std::cout << "Generation " << generation << " complete" << std::endl;
           std::cout << "Average fitness: " << averageFitness << " ";
           std::cout << "Max fitness: " << maxFitness << std::endl;
+
+          const char *tagName = ("generation_" + std::to_string(generation)).c_str();
+
+          auto *generationTag = metaData.NewElement(tagName);
+
+          generationTag->SetAttribute("averageFitness", averageFitness);
+          generationTag->SetAttribute("maxFitness", maxFitness);
+          generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
+
+          rootMetaData->InsertFirstChild(generationTag);
+
+
+
+
           std::cout << "Best agent: AGENT[" << bestAgent.first << "," << bestAgent.second << "] " << std::endl;
 
           std::cout << "Best Agent Final Positions" << std::endl;
 
+          Printgrid(endPositions[bestAgent.first][bestAgent.second], 'A');
 
 
 
@@ -430,10 +483,10 @@ namespace cowboys {
                     << "Distance\n";
           for (size_t i = 0; i < STARTPOSITIONS.size(); ++i) {
             std::cout << std::setw(columnWidth) << FormatPosition(STARTPOSITIONS[i])
-                      << std::setw(columnWidth) << FormatPosition(endPostions[bestAgent.first][bestAgent.second][i]);
+                      << std::setw(columnWidth) << FormatPosition(endPositions[bestAgent.first][bestAgent.second][i]);
 
 
-              double distance = calculateDistance(STARTPOSITIONS[i], endPostions[bestAgent.first][bestAgent.second][i]);
+              double distance = calculateDistance(STARTPOSITIONS[i], endPositions[bestAgent.first][bestAgent.second][i]);
               std::cout << std::fixed << std::setprecision(2) << std::setw(6) << distance;
 
 
@@ -443,7 +496,6 @@ namespace cowboys {
           std::cout << "with an average score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
           std::cout << std::endl;
 
-          Printgrid(endPostions[bestAgent.first][bestAgent.second], 'A');
 
           std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
           std::cout << "------------------------------------------------------------------" << std::endl;
@@ -493,7 +545,7 @@ namespace cowboys {
 
           auto *generationTag = paramDocument.NewElement(tagName);
 
-          rootElement->InsertEndChild(generationTag);
+          rootElement->InsertFirstChild(generationTag);
 
           for (size_t i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
@@ -754,7 +806,8 @@ namespace cowboys {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
               double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[startPos_idx]);
               auto tempEndPosition = agents[arena][a]->GetPosition();
-              endPostions[arena][a][startPos_idx] = tempEndPosition;
+              endPositions[arena][a][startPos_idx] = tempEndPosition;
+              independentAgentFitness[arena][a][startPos_idx] = tempscore;
               TEMPAgentFitness[arena][a] += tempscore;
 
             }
@@ -762,7 +815,22 @@ namespace cowboys {
           }
 
           for (size_t a = 0; a < agents[arena].size(); ++a) {
-            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
+            std::vector<double> scores = independentAgentFitness[arena][a];
+            auto computeMedian = [&scores]() -> double {
+                std::vector<double> temp(scores);  // Copy the data
+                std::sort(temp.begin(), temp.end());
+
+                size_t n = temp.size();
+                return n % 2 ? temp[n / 2] : (temp[n / 2 - 1] + temp[n / 2]) / 2.0;
+            };
+
+
+//            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
+//            TEMPAgentFitness[arena][a] += computeMedian();
+              double min = *std::min_element(scores.begin(), scores.end());
+              double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
+//              TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
+              TEMPAgentFitness[arena][a] = min;
           }
 
         }
