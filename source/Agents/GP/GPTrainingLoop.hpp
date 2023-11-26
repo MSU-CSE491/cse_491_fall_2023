@@ -563,18 +563,42 @@ namespace cowboys {
             symbol_grid[pos.CellY()][pos.CellX()] = c;
           }
 
+          std::cout << "    ";
+          for (size_t x = 0; x < grid.GetWidth(); ++x) {
+            if (x % 10 == 0 && x != 0) {
+              std::cout << x / 10; // Print the ten's place of the column number
+            } else {
+              std::cout << " "; // Space for non-marker columns
+            }
+          }
+          std::cout << "\n";
+
+          // Print column numbers
+          std::cout << "    "; // Space for row numbers
+          for (size_t x = 0; x < grid.GetWidth(); ++x) {
+            std::cout << x % 10; // Print only the last digit of the column number
+          }
+          std::cout << "\n";
+
           // Print out the symbol_grid with a box around it.
-          std::cout << '+' << std::string(grid.GetWidth(), '-') << "+\n";
-          for (const auto &row: symbol_grid) {
-            std::cout << "|";
-            for (char cell: row) {
-              // std::cout << ' ' << cell;
+          std::cout << "   +" << std::string(grid.GetWidth(), '-') << "+\n";
+          for (size_t y = 0; y < grid.GetHeight(); ++y) {
+
+            if (y % 10 == 0 && y != 0) {
+              std::cout << y / 10 << " "; // Print the ten's place of the row number
+            } else {
+              std::cout << "  "; // Space for non-marker rows
+            }
+
+            // Print row number
+            std::cout << y % 10 << "|"; // Print only the last digit of the row number
+            for (char cell: symbol_grid[y]) {
               std::cout << cell;
             }
             std::cout << "|\n";
           }
 
-          std::cout << '+' << std::string(grid.GetWidth(), '-') << "+\n";
+          std::cout << "   +" << std::string(grid.GetWidth(), '-') << "+\n";
           std::cout << std::endl;
         }
 

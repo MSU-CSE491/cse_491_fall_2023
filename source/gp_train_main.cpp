@@ -24,7 +24,7 @@ int main() {
 
 
     loop.Initialize(150, 200);
-    loop.Run(10, 100, num_threads);
+    loop.Run(0, 100, num_threads);
 //    }
 
     auto end_time = std::chrono::high_resolution_clock::now();
