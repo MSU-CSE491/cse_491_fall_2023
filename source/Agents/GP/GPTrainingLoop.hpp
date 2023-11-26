@@ -34,13 +34,8 @@ namespace cowboys {
 
         std::vector<std::unique_ptr<cse491::WorldBase>> environments;
         std::vector<std::vector<cowboys::GPAgentBase *>> agents;
-
-
-//        std::vector<std::vector<std::vector<cse491::GridPosition>>> TEMPinitialAgentPositions;
-
-
         std::vector<std::vector<double>> TEMPAgentFitness;
-        std::vector<std::vector<cse491::GridPosition>> TEMPinitialAgentPositions;
+
 
         tinyxml2::XMLDocument topAgentsDoc;
         tinyxml2::XMLDocument lastGenerationsTopAgentsDoc; // <- Saves the last 5 generations
@@ -56,8 +51,14 @@ namespace cowboys {
 
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
-//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(4,4), cse491::GridPosition(19,5), cse491::GridPosition(20,1) };
-        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0, 0)};
+        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) };
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0)};
+
+
+        /// ArenaIDX, AgentIDX, EndPosition
+        std::vector<std::vector<std::vector<cse491::GridPosition>>> endPostions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
 
 
     public:
@@ -99,16 +100,21 @@ namespace cowboys {
 
 
             agents.push_back(std::vector<cowboys::GPAgentBase *>());
-            TEMPinitialAgentPositions.push_back(std::vector<cse491::GridPosition>());
+
+            endPostions.push_back(std::vector<std::vector<cse491::GridPosition>>());
+
             for (size_t j = 0; j < NumAgentsForArena; ++j) {
+
+              endPostions[i].push_back(std::vector<cse491::GridPosition>());
+
+              for (size_t k = 0; k < STARTPOSITIONS.size(); ++k) {
+                endPostions[i][j].push_back(cse491::GridPosition(0, 0));
+              }
 
               cowboys::GPAgentBase &addedAgent = static_cast<cowboys::GPAgentBase &>(environments[i]->template AddAgent<AgentType>(
                       "Agent " + std::to_string(j)));
               addedAgent.SetPosition(0, 0);
               addedAgent.SetSeed(seed);
-              cse491::GridPosition position = addedAgent.GetPosition();
-
-              TEMPinitialAgentPositions[i].push_back(position);
 
               agents[i].emplace_back(&addedAgent);
 
@@ -116,8 +122,7 @@ namespace cowboys {
 
           }
 
-          Printgrid(0);
-
+          Printgrid(STARTPOSITIONS);
 
         }
 
@@ -196,7 +201,7 @@ namespace cowboys {
 
 
             size_t barWidth = 64;
-            float progress = (float) (arena) / environments.size();
+            float progress = (float) (arena+1) / environments.size();
             size_t pos = barWidth * progress;
             std::cout << "[";
             for (size_t i = 0; i < barWidth; ++i) {
@@ -212,8 +217,12 @@ namespace cowboys {
           for (auto &thread: threads) {
             if (thread.joinable()) {
               thread.join();
+              threadsComplete+=maxThreads;
             }
           }
+
+          std::cout << std::endl;
+          std::cout << "All threads done" << std::endl;
 
 
         }
@@ -358,7 +367,7 @@ namespace cowboys {
          * @param generation
          * @return
          */
-        int AgentsAnalysisComputationsAndPrint(int generation, double deltaForMaxFitness = 0.01) {
+        int AgentsAnalysisComputationsAndPrint(int generation, double deltaForMaxFitness = 0.1) {
           // print average fitness
           double averageFitness = 0;
           double maxFitness = 0;
@@ -395,8 +404,17 @@ namespace cowboys {
           std::cout << "Max fitness: " << maxFitness << std::endl;
           std::cout << "Best agent: AGENT[" << bestAgent.first << "," << bestAgent.second << "] " << std::endl;
           cse491::GridPosition bestAgentPosition = agents[bestAgent.first][bestAgent.second]->GetPosition();
-          std::cout << "Best Agent Final Position: " << bestAgentPosition.GetX() << "," << bestAgentPosition.GetY()
-                    << std::endl;
+          std::cout << "Best Agent Final Positions: ";
+
+          for (size_t i = 0; i < endPostions[bestAgent.first][bestAgent.second].size(); ++i) {
+            std::cout << "[" <<endPostions[bestAgent.first][bestAgent.second][i].GetX() << ","
+            << endPostions[bestAgent.first][bestAgent.second][i].GetY() << "] ";
+          }
+          std::cout << "with a score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
+          std::cout << std::endl;
+
+          Printgrid(endPostions[bestAgent.first][bestAgent.second], 'A');
+
           std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
           std::cout << "------------------------------------------------------------------" << std::endl;
           return countMaxAgents;
@@ -589,7 +607,14 @@ namespace cowboys {
          * @param arenaId
          * @author: @amantham20
          */
-        void Printgrid(int arena) {
+        void Printgrid(const std::vector<cse491::GridPosition> &positions, char symbol = 'S') {
+
+          if (environments.empty()) {
+            std::cout << "No environments to print" << std::endl;
+            return;
+          }
+
+          size_t arena = 0;
           auto &grid = environments[arena]->GetGrid();
           std::vector<std::string> symbol_grid(grid.GetHeight());
 
@@ -604,15 +629,21 @@ namespace cowboys {
           }
 
 
-          const auto &agent_set = agents[arena];
-          for (const auto &agent_ptr: agent_set) {
-            cse491::GridPosition pos = agent_ptr->GetPosition();
-            char c = '*';
-            if (agent_ptr->HasProperty("symbol")) {
-              c = agent_ptr->template GetProperty<char>("symbol");
-            }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+
+          for (size_t pos_idx = 0; pos_idx < positions.size(); ++pos_idx) {
+            symbol_grid[positions[pos_idx].CellY()][positions[pos_idx].CellX()] = symbol;
           }
+
+
+//          const auto &agent_set = agents[arena];
+//          for (const auto &agent_ptr: agent_set) {
+//            cse491::GridPosition pos = agent_ptr->GetPosition();
+//            char c = '*';
+//            if (agent_ptr->HasProperty("symbol")) {
+//              c = agent_ptr->template GetProperty<char>("symbol");
+//            }
+//            symbol_grid[pos.CellY()][pos.CellX()] = c;
+//          }
 
           std::cout << "    ";
           for (size_t x = 0; x < grid.GetWidth(); ++x) {
@@ -654,18 +685,6 @@ namespace cowboys {
         }
 
 
-        /**
-         * @brief Prints the grid for each arena.
-         *
-         * @author: @amantham20
-         */
-        void PrintAllGrids() {
-          for (size_t arena = 0; arena < environments.size(); ++arena) {
-            std::cout << "Arena " << arena << std::endl;
-            Printgrid(arena);
-          }
-        }
-
 
         /**
          * @brief Resets the environments to their initial state.
@@ -676,7 +695,6 @@ namespace cowboys {
 
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              agents[arena][a]->SetPosition(TEMPinitialAgentPositions[arena][a]);
               agents[arena][a]->Reset();
             }
           }
@@ -694,22 +712,31 @@ namespace cowboys {
          * @param numberOfTurns : The number of turns to run the arena for.
          */
         void RunArena(size_t arena, size_t numberOfTurns) {
-          for (size_t size = 0; size < STARTPOSITIONS.size(); ++size) {
-            agents[arena][size]->SetPosition(STARTPOSITIONS[size]);
+          for (size_t startPos_idx = 0; startPos_idx < STARTPOSITIONS.size(); ++startPos_idx) {
+            for(size_t a = 0; a < agents[arena].size(); ++a) {
+              agents[arena][a]->SetPosition(STARTPOSITIONS[startPos_idx]);
+            }
 
             for (size_t turn = 0; turn < numberOfTurns; turn++) {
               environments[arena]->RunAgents();
               environments[arena]->UpdateWorld();
             }
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[size]);
-
+              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[startPos_idx]);
+              auto tempEndPosition = agents[arena][a]->GetPosition();
+              endPostions[arena][a][startPos_idx] = tempEndPosition;
               TEMPAgentFitness[arena][a] += tempscore;
+              auto agentName = agents[arena][a];
+//              assert(TEMPAgentFitness[arena][a] < 10);
             }
+
+
           }
 
           for (size_t a = 0; a < agents[arena].size(); ++a) {
             TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
+            auto score = TEMPAgentFitness[arena][a];
+
           }
 
         }
@@ -719,7 +746,6 @@ namespace cowboys {
          */
         void MemGOBYE() {
 
-//          TEMPinitialAgentPositions.clear();
           TEMPAgentFitness.clear();
           environments.clear();
           agents.clear();
