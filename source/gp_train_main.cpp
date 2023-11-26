@@ -20,11 +20,11 @@ int main() {
 
     auto start_time = std::chrono::high_resolution_clock::now();
 //    for (size_t i = 0; i < 20; ++i){
-    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
+    cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop;
 
 
-    loop.Initialize(150, 200);
-    loop.Run(0, 100, num_threads);
+    loop.Initialize(10, 20);
+    loop.Run(11, 100, num_threads, true);
 //    }
 
     auto end_time = std::chrono::high_resolution_clock::now();
