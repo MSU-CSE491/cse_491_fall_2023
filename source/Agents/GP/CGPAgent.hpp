@@ -20,10 +20,10 @@ namespace cowboys {
   constexpr size_t INPUT_SIZE = 6;
 
   /// Number of computational layers for each agent
-  constexpr size_t NUM_LAYERS = 5;
+  constexpr size_t NUM_LAYERS = 3;
 
   /// The number of nodes in each layer
-  constexpr size_t NUM_NODES_PER_LAYER = 10;
+  constexpr size_t NUM_NODES_PER_LAYER = 5;
 
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;
@@ -52,9 +52,9 @@ namespace cowboys {
     void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
-      genotype.MutateDefault(mutation, GetWorld());
+      genotype.MutateDefault(mutation, *this);
 
-      decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET);
+      decision_graph = graph_builder.CartesianGraph(genotype, FUNCTION_SET, this);
     }
     /// @brief Setup graph.
     /// @return Success.
@@ -81,7 +81,7 @@ namespace cowboys {
     }
 
 
-    void Serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, int fitness = -1) override {
+    void Serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override {
       auto agentElem = doc.NewElement("CGPAgent");
       parentElem->InsertEndChild(agentElem);
 
@@ -89,6 +89,9 @@ namespace cowboys {
       genotypeElem->SetText(genotype.Export().c_str());
       if (fitness != -1)
         genotypeElem->SetAttribute("fitness", fitness);
+
+      genotypeElem->SetAttribute("seed" , seed);
+
       agentElem->InsertEndChild(genotypeElem);
 
     }
@@ -103,7 +106,7 @@ namespace cowboys {
     /// @param other The CGPAgent to copy.
     void Configure(const CGPAgent &other) {
       genotype = other.GetGenotype();
-      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET);
+      decision_graph = GraphBuilder().CartesianGraph(genotype, FUNCTION_SET, this);
     }
 
     /// @brief Copy the behavior of another agent into this agent.

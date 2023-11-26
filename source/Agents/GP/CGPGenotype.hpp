@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../../core/WorldBase.hpp"
+#include "GPAgentBase.hpp"
 #include "GraphNode.hpp"
 
 namespace cowboys {
@@ -514,8 +515,9 @@ namespace cowboys {
       // Input nodes won't have any inputs and no function, so they are skipped
 
       // Start at 1 to account for the input layer
-      for (size_t i = 1; i < params.num_layers + 1; i++) {
-        for (size_t j = 0; j < params.num_nodes_per_layer; j++) {
+      for (size_t i = 1; i <= params.num_layers + 1; ++i) {
+        size_t layer_size = i == params.num_layers + 1 ? params.num_outputs : params.num_nodes_per_layer;
+        for (size_t j = 0; j < layer_size; ++j) {
           // Count up possible input connections from each layer backwards
           size_t valid_layers_back = std::min(params.layers_back, i);
           size_t num_input_connections = valid_layers_back * params.num_nodes_per_layer;
@@ -523,24 +525,11 @@ namespace cowboys {
             num_input_connections -= params.num_nodes_per_layer;
             num_input_connections += params.num_inputs;
           }
-          // Create empty connections
+          // Create node gene using empty connections
           std::vector<char> input_connections(num_input_connections, '0');
           // Add the node configuration. With default values
           nodes.push_back({input_connections});
         }
-      }
-
-      // Output layer can have a different number of nodes, do the same as above
-      size_t output_layer_idx = params.num_layers + 1;
-      for (size_t i = 0; i < params.num_outputs; i++) {
-        size_t valid_layers_back = std::min(params.layers_back, output_layer_idx);
-        size_t num_input_connections = valid_layers_back * params.num_nodes_per_layer;
-        if (output_layer_idx <= params.layers_back) {
-          num_input_connections -= params.num_nodes_per_layer;
-          num_input_connections += params.num_inputs;
-        }
-        std::vector<char> input_connections(num_input_connections, '0');
-        nodes.push_back({input_connections});
       }
     }
 
@@ -561,7 +550,10 @@ namespace cowboys {
     }
 
     /// @brief Sets the seed of the random number generator.
-    void SetSeed(size_t seed) { rng.seed(seed); }
+    CGPGenotype &SetSeed(size_t seed) {
+      rng.seed(seed);
+      return *this;
+    }
 
     /// @brief Mutates the genotype.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating a value.
@@ -580,12 +572,13 @@ namespace cowboys {
     /// @brief Mutates the input connections of the genotype.
     /// @param mutation_rate The probability of mutating a connection. For a given connection, if it is chosen to be
     /// mutated, there is a 50% chance it will stay the same.
+    /// @param agent The agent to use for random number generation.
     /// @return This genotype.
-    CGPGenotype &MutateConnections(double mutation_rate, cse491::WorldBase &world) {
+    CGPGenotype &MutateConnections(double mutation_rate, GPAgentBase &agent) {
       std::uniform_int_distribution<size_t> dist(0, 1);
-      Mutate(mutation_rate, [&world](CGPNodeGene &node) {
+      Mutate(mutation_rate, [&agent](CGPNodeGene &node) {
         for (char &con : node.input_connections) {
-          con = world.GetRandomULL(2) == 0 ? '0' : '1';
+          con = agent.GetRandomULL(2) == 0 ? '0' : '1';
         }
       });
       return *this;
@@ -595,9 +588,9 @@ namespace cowboys {
     /// @param mutation_rate The probability of changing the function of a node.
     /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
-    CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions, cse491::WorldBase &world) {
+    CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions, GPAgentBase &agent) {
       Mutate(mutation_rate,
-             [num_functions, &world](CGPNodeGene &node) { node.function_idx = world.GetRandomULL(num_functions); });
+             [num_functions, &agent](CGPNodeGene &node) { node.function_idx = agent.GetRandomULL(num_functions); });
       return *this;
     }
 
@@ -606,14 +599,14 @@ namespace cowboys {
     /// @param min The minimum value to generate for mutation.
     /// @param max The maximum value to generate for mutation.
     /// @return This genotype.
-    CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, cse491::WorldBase &world,
+    CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, GPAgentBase &agent,
                                bool additive = true) {
-      Mutate(mutation_rate, [mean, std, &world, additive](CGPNodeGene &node) {
-        double mutation = std::stod(std::to_string(world.GetRandomNormal(mean, std)));
+      Mutate(mutation_rate, [mean, std, &agent, additive](CGPNodeGene &node) {
+        double mutation = agent.GetRandomNormal(mean, std);
         if (additive) {
           node.default_output += mutation;
           // Clamp to prevent overflow during genotype export
-          double min = std::numeric_limits<double>::min();
+          double min = std::numeric_limits<double>::lowest();
           double max = std::numeric_limits<double>::max();
           // Wrap random double in stod(to_string(.)) to reliably export and import genotype from string.
           node.default_output = std::stod(std::to_string(std::clamp(node.default_output, min, max)));
@@ -624,14 +617,130 @@ namespace cowboys {
       return *this;
     }
 
+    /// @brief Mutates the header of the genotype.
+    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
+    /// @param agent The agent to use for random number generation.
+    /// @return This genotype.
+    CGPGenotype &MutateHeader(double mutation_rate, GPAgentBase &agent) {
+
+      // Must expand the genotype in a way so that the behavior is preserved
+
+      // Can mutate number of inputs and outputs to adapt to changing state and action spaces, but not doing it for
+      // now
+
+      // Mutate layers back
+      if (agent.GetRandom() < mutation_rate) {
+        // Update params
+        params.layers_back += 1;
+        // Add empty connections to each node at the front
+        // Start at 1 to account for the input layer
+        for (size_t i = 1; i <= params.num_layers + 1; ++i) {
+          size_t layer_size = i == params.num_layers + 1 ? params.num_outputs : params.num_nodes_per_layer;
+          for (size_t j = 0; j < layer_size; ++j) {
+
+            // Get the old number of input connections
+            auto &curr_connections = nodes[(i - 1) * params.num_nodes_per_layer + j].input_connections;
+            size_t old_num_input_connections = curr_connections.size();
+
+            // Get the new number of input connections
+            size_t valid_layers_back = std::min(params.layers_back, i);
+            size_t num_input_connections = valid_layers_back * params.num_nodes_per_layer;
+            if (i <= params.layers_back) {
+              num_input_connections -= params.num_nodes_per_layer;
+              num_input_connections += params.num_inputs;
+            }
+
+            // Push empty connections to the front of the vector of input connections
+            size_t num_needed = num_input_connections - old_num_input_connections;
+            if (num_needed > 0) {
+              // Create empty connections
+              std::vector<char> input_connections(num_needed, '0');
+              // Insert the empty connections into the front of the vector
+              curr_connections.insert(curr_connections.cbegin(), input_connections.cbegin(), input_connections.cend());
+            }
+          }
+        }
+      }
+
+      // Mutate number of nodes in each layer
+      if (agent.GetRandom() < mutation_rate) {
+        // Add a node to each middle layer and update connections for middle and output layers
+        std::vector<CGPNodeGene> new_nodes;
+        for (size_t i = 1; i <= params.num_layers + 1; ++i) {
+          // Add the nodes in this layer to the new node vector
+          size_t layer_start = (i - 1) * params.num_nodes_per_layer;
+          size_t layer_size = i == params.num_layers + 1 ? params.num_outputs : params.num_nodes_per_layer;
+          size_t layer_end = layer_start + layer_size;
+          size_t valid_layers_back = std::min(params.layers_back, i);
+
+          // Get the number of connections for the new node
+          size_t new_num_connections = valid_layers_back * (params.num_nodes_per_layer + 1);
+          if (i <= params.layers_back) {
+            new_num_connections -= params.num_nodes_per_layer + 1;
+            new_num_connections += params.num_inputs;
+          }
+          size_t num_needed = new_num_connections - nodes[layer_start].input_connections.size();
+          new_nodes.insert(new_nodes.cend(), nodes.cbegin() + layer_start, nodes.cbegin() + layer_end);
+
+          // For middle layers, add a new node
+          if (i != params.num_layers + 1) {
+            auto newNode = std::vector<char>(new_num_connections, '0');
+            new_nodes.push_back({newNode});
+          }
+
+          // Add the extra connections for each node in this layer
+          if (i == 1)
+            // First layer doesn't have any connections to add because the input layer is unchanged
+            continue;
+
+          size_t new_layer_start = (i - 1) * (params.num_nodes_per_layer + 1);
+          for (size_t j = 0; j < layer_size; ++j) {
+            // Add an empty connection at the end of each layer of connections in the valid layers back
+            assert(new_layer_start + j < new_nodes.size());
+            auto &connections = new_nodes[new_layer_start + j].input_connections;
+            // Only iterate over the valid layers back that are middle layers, not including the input layer
+            for (size_t k = 0; k < num_needed; ++k) {
+              // Insert in reverse order to keep indices correct
+              size_t insert_pos = params.num_nodes_per_layer * (num_needed - k);
+              connections.insert(connections.cbegin() + insert_pos, '0');
+              assert(*(connections.cbegin() + insert_pos) == '0');
+            }
+          }
+        }
+        // Update params
+        params.num_nodes_per_layer += 1;
+        nodes = std::move(new_nodes);
+        // Check if everything is correct
+        assert(nodes.size() == params.GetFunctionalNodeCount());
+        for (size_t i = 1; i < params.num_layers + 1; ++i) {
+          size_t layer_start = (i - 1) * params.num_nodes_per_layer;
+          size_t layer_size = i == params.num_layers + 1 ? params.num_outputs : params.num_nodes_per_layer;
+          size_t valid_layers_back = std::min(params.layers_back, i);
+          for (size_t j = 0; j < layer_size; ++j) {
+            // Check that the number of connections is correct
+            size_t num_connections = valid_layers_back * params.num_nodes_per_layer;
+            if (i <= params.layers_back) {
+              num_connections -= params.num_nodes_per_layer;
+              num_connections += params.num_inputs;
+            }
+            assert(nodes[layer_start + j].input_connections.size() == num_connections);
+          }
+        }
+      }
+
+      return *this;
+    }
+
     /// @brief Performs a mutation on the genotype with default parameters.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
-    /// @param world The world to use for random number generation.
+    /// @param agent The agent to use for random number generation.
+    /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
-    CGPGenotype &MutateDefault(double mutation_rate, cse491::WorldBase &world) {
-      MutateConnections(mutation_rate, world);
-      MutateFunctions(mutation_rate, FUNCTION_SET.size(), world);
-      MutateOutputs(mutation_rate, 0, 1, world);
+    CGPGenotype &MutateDefault(double mutation_rate, GPAgentBase &agent, size_t num_functions = FUNCTION_SET.size()) {
+      MutateHeader(mutation_rate, agent);
+      MutateConnections(mutation_rate, agent);
+      MutateFunctions(mutation_rate, num_functions, agent);
+      MutateOutputs(mutation_rate, 0, 1, agent);
       return *this;
     }
 

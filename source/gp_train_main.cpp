@@ -19,21 +19,21 @@ int main() {
     
 
     auto start_time = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < 2; ++i){
 
-
+//    for (size_t i = 0; i < 20; ++i){
     cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 
-    loop.initialize(2, 20);
-    loop.run(15, 100, num_threads);
-    }
+    loop.Initialize(100, 1000);
+    loop.Run(100, 100, num_threads);
+//    }
+
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
     auto seconds = duration.count() / 1000000.0;
-    std::cout << "Time taken by function: " << seconds << " seconds" << std::endl;
+    std::cout << "Time taken by Training: " << seconds << " seconds" << std::endl;
 
 
 
