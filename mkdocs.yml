@@ -1,0 +1,31 @@
+site_name: "CSE 491 Documentation"
+site_description: "Documentation for CSE 491 Group 7 GP Agent"
+
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdoxy:
+      projects:
+        Core Project: # name of project must be alphanumeric + numbers (without spaces)
+          src-dirs: ./source/core # path to source code (support multiple paths separated by space) => INPUT
+          full-doc: True # if you want to generate full documentation
+
+          doxy-cfg: # standard doxygen configuration (key: value)
+            FILE_PATTERNS: "*.cpp *.h*" # specify file patterns to filter out
+            RECURSIVE: True # recursive search in source directories
+            HIDE_UNDOC_MEMBERS: YES
+            HIDE_SCOPE_NAMES: YES
+            EXTRACT_ALL: NO
+
+        GP Agents:
+          src-dirs: ./source/Agents/GP
+          full-doc: True
+
+          doxy-cfg:
+              FILE_PATTERNS: "*.cpp *.h*"
+              RECURSIVE: True
+              HIDE_UNDOC_MEMBERS: YES
+              HIDE_SCOPE_NAMES: YES
+              EXTRACT_ALL: NO
