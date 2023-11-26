@@ -3,6 +3,9 @@ site_description: "Documentation for CSE 491 Group 7 GP Agent"
 
 theme:
   name: material
+  palette:
+    primary: green
+    accent: green
 
 plugins:
   - search

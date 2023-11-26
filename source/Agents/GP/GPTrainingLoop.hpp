@@ -584,7 +584,7 @@ namespace cowboys {
          *
          * @author: @amantham20
          */
-        void PrintGrids() {
+        void PrintAllGrids() {
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             std::cout << "Arena " << arena << std::endl;
             Printgrid(arena);
