@@ -8,6 +8,10 @@
 
 namespace i_2D {
 
+    sf::Clock timer;
+    float elapsedTime = 0.0f;
+    bool showReminder = false;
+
     /**
      * @brief Constructs a `MainInterface` object.
      *
@@ -25,7 +29,7 @@ namespace i_2D {
         mTextBox = std::make_unique<TextBox>(mFont);
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
-        mMenu.initialize(mFont,sf::Vector2f {static_cast<float>(a),static_cast<float>(b)});
+        mMenu.initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
 //        mTestButton = std::make_unique<Button>("test",
 //                                               sf::Vector2f (200,50),sf::Color::Black,
 //                                               sf::Color::White,mFont);
@@ -49,7 +53,8 @@ namespace i_2D {
             const WorldGrid &grid, const type_options_t &type_options,
             const item_map_t &item_map, const agent_map_t &agent_map) {
         std::vector<std::string> symbol_grid(grid.GetHeight());
-
+        mGridHeight = grid.GetHeight();
+        mGridWidth = grid.GetWidth();
         // Load the world into the symbol_grid;
         for (size_t y = 0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
@@ -146,9 +151,8 @@ namespace i_2D {
                 SwitchCellSelect(renderTexture, cellRect, cell, symbol);
             }
         }
-
         renderTexture.display();
-
+        DrawTimer();
         // Draw the texture to the window
         sf::Sprite sprite(renderTexture.getTexture());
         sprite.setPosition({drawCenterX, drawCenterY});
@@ -159,6 +163,38 @@ namespace i_2D {
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
         mWindow.display();
+    }
+
+    /**
+     * @brief this function draws timer and checks the elapsed time and
+     * shows remainder if the timer exceed above 5 seconds. and sestart the timer every move
+     * the player makes.
+     */
+    void MainInterface::DrawTimer() {
+        // Get elapsed time in seconds
+        elapsedTime = timer.getElapsedTime().asSeconds();
+        if (mPlayerHasMoved) {
+            timer.restart();
+            showReminder = false; // Clear the reminder flag
+            mPlayerHasMoved = false;
+
+        }
+        // Display timer or reminder based on elapsed time
+        sf::Text timerText(mFont);
+        timerText.setCharacterSize(24);
+        timerText.setPosition({750.0f, 75.0f}); // Adjust position as needed
+
+
+        if (elapsedTime <= 5.0f) {
+            timerText.setString("Time: " + std::to_string(elapsedTime) + " S");
+            timerText.setFillColor(sf::Color::Blue);
+            mWindow.draw(timerText);
+        } else {
+            timerText.setCharacterSize(34);
+            timerText.setString("Make a Move!!!");
+            timerText.setFillColor(sf::Color::Red);
+            mWindow.draw(timerText);
+        }
     }
 
     /**
@@ -242,6 +278,7 @@ namespace i_2D {
 //            }else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
 //                mTextBox->SetSelected(false);
 //            }
+
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
@@ -253,6 +290,7 @@ namespace i_2D {
                     }
 
                 } else if (event.type == sf::Event::KeyPressed) {
+                    mPlayerHasMoved = true;
                     return HandleKeyEvent(event);
 
                 } else if (event.type == sf::Event::Resized) {
@@ -265,19 +303,12 @@ namespace i_2D {
                     MouseClickEvent(event);
 
 
-
                 } else if (event.type == sf::Event::MouseWheelScrolled) {
 //                    HandleScroll(event);
                 }
-            }
-            sf::Clock drawTimer;
-            drawTimer.restart(); // Restart the timer before calling DrawGrid
-            DrawGrid(grid, type_options, item_map, agent_map);
-//            float drawTime = drawTimer.getElapsedTime().asSeconds();
-            float drawTime = drawTimer.getElapsedTime().asMilliseconds();
 
-            // Print or use the drawTime as needed, for example:
-            std::cout << "Draw time: " << drawTime << " milliseconds" << std::endl;
+            }
+            DrawGrid(grid, type_options, item_map, agent_map);
 
         }
 
@@ -391,7 +422,7 @@ namespace i_2D {
         heightWindow = std::max(heightWindow, heightMin);
 
         mMenu.SetWorldSize(sf::Vector2f(widthWindow, heightWindow));
-        if(mMenu.IsInventoryOpen()){
+        if (mMenu.IsInventoryOpen()) {
             mMenu.DeconstructInventory();
             mMenu.ConstructInventory();
         }
@@ -449,16 +480,17 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
-                mGridSizeLarge = false;
-            } else if (mMenu.GetMenu()[4]->isMouseOver(mWindow)) {
+            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)){
                 mGridSizeLarge = true;
+            } else if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
+                mGridSizeLarge = false;
             } else {
                 // Handle mouse button press for the general menu
                 mMenu.HandleMouseButtonPressed(mWindow);
             }
         }
     }
+
     /**
     * This is a helper function for DrawGrid. jsut using the switch statement to draw the grids
     * @param cellRect - cell for texture
@@ -466,16 +498,18 @@ namespace i_2D {
     * @param symbol  - symbol of the cell
     * @param renderTexture  - Texture for teh whole grid
     */
-    void MainInterface::SwitchCellSelect(sf::RenderTexture& renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol) {
+    void MainInterface::SwitchCellSelect(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                                         sf::RectangleShape &cell, char symbol) {
         switch (symbol) {
             case '#':
-                DrawWall(renderTexture,cellRect, mTexturesCurrent[symbol]);
+                DrawWall(renderTexture, cellRect, mTexturesCurrent[symbol]);
                 break;
             default:
                 DrawAgentCell(renderTexture, cellRect, cell, mTexturesCurrent[symbol]);
                 break;
         }
     }
+
     /**
      * @brief Draw the cell with Agent texture and specified color.
      * @param cellRect The rectangle shape of the cell.
@@ -483,10 +517,11 @@ namespace i_2D {
      * @param agent The agent texture.
      * @param renderTexture The Texture for the whole grid.
      */
-    void MainInterface::DrawAgentCell(sf::RenderTexture& renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent) {
+    void MainInterface::DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                                      sf::RectangleShape &cell, sf::Texture &agent) {
         cellRect.setTexture(&agent);
         cell.setTexture(&mTexturesCurrent[' ']);
-        if(&agent == &mTexturesCurrent['+']) {
+        if (&agent == &mTexturesCurrent['+'] and GetName() == "Interface") {
             cellRect.setFillColor(sf::Color::Green);
         }
         renderTexture.draw(cell);
@@ -501,7 +536,8 @@ namespace i_2D {
      * @param renderTexture The Texture for the whole grid
     */
 
-    void MainInterface::DrawWall(sf::RenderTexture& renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
+    void
+    MainInterface::DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
         cellRect.setTexture(&wallTexture);
         renderTexture.draw(cellRect);
     }

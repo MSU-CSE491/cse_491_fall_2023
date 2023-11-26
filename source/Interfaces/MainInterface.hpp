@@ -64,6 +64,11 @@ namespace i_2D {
         int const ROW = 9;
         int const COL = 23;
 
+        int mGridWidth  = 0;
+        int mGridHeight = 0;
+
+        bool mPlayerHasMoved = false;
+
     public:
 
         MainInterface(size_t id, const std::string &name) ;
@@ -125,6 +130,8 @@ namespace i_2D {
                          char symbol);
 
         void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
+
+        void DrawTimer();
     };
 
 } // End of namespace 2D

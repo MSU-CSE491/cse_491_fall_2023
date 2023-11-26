@@ -42,7 +42,7 @@ int main() {
     daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
     daedricArmor->SetPosition(5, 0);
     world_1.AddItem(std::move(daedricArmor));
-//    world_1.Run();
+    world_1.Run();
 
     static const unsigned int SEED = 973;
     BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
