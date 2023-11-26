@@ -51,6 +51,8 @@ namespace cse491_team8 {
       water_id = AddCellType("water", "Water that cannot be crossed without a boat.", '~');
       bridge_id = AddCellType("bridge", "Bridge that allows the playerto cross water.", '#');
       rock_id = AddCellType("rock", "Rock that the player cannot cross", '$');
+      portal_id_a = AddCellType("portal_a", "Portal that teleports player to another a-portal spot.", '}');
+      portal_id_b = AddCellType("portal_b", "Portal that teleports player to another b-portal spot.", '{');
       main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
     }
     ~ManualWorld() = default;
@@ -699,6 +701,23 @@ namespace cse491_team8 {
       if (main_grid.At(new_position) == rock_id)
       {
         return false;
+      }
+
+      if (main_grid.At(new_position) == portal_id_a)
+      {
+          // which portal should we go to?
+          if (new_position.GetX() == 33)
+              new_position = cse491::GridPosition(3, 1);
+          else
+              new_position = cse491::GridPosition(33, 0);
+      }
+
+      if (main_grid.At(new_position) == portal_id_b)
+      {
+          if (new_position.GetX() == 44)
+              new_position = cse491::GridPosition(2, 10);
+          else
+              new_position = cse491::GridPosition(44, 17);
       }
 
       // Set the agent to its new postion.
