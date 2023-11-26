@@ -337,9 +337,9 @@ namespace cowboys {
           }
 
 
-//          if (params.saveMetaData) {
-//
-//          }
+          if (params.saveMetaData) {
+
+          }
 
 //          if (params.saveTopAgents) {
 //            const std::string filename = "AgentData_" + dateTimeStr + ".xml";
@@ -403,7 +403,12 @@ namespace cowboys {
           std::cout << "Average fitness: " << averageFitness << " ";
           std::cout << "Max fitness: " << maxFitness << std::endl;
           std::cout << "Best agent: AGENT[" << bestAgent.first << "," << bestAgent.second << "] " << std::endl;
-          cse491::GridPosition bestAgentPosition = agents[bestAgent.first][bestAgent.second]->GetPosition();
+          std::cout << "Start Positions";
+          for (auto pos : STARTPOSITIONS) {
+            std::cout << "[" << pos.GetX() << "," << pos.GetY() << "] ";
+          }
+          std::cout << std::endl;
+
           std::cout << "Best Agent Final Positions: ";
 
           for (size_t i = 0; i < endPostions[bestAgent.first][bestAgent.second].size(); ++i) {
@@ -726,17 +731,13 @@ namespace cowboys {
               auto tempEndPosition = agents[arena][a]->GetPosition();
               endPostions[arena][a][startPos_idx] = tempEndPosition;
               TEMPAgentFitness[arena][a] += tempscore;
-              auto agentName = agents[arena][a];
-//              assert(TEMPAgentFitness[arena][a] < 10);
-            }
 
+            }
 
           }
 
           for (size_t a = 0; a < agents[arena].size(); ++a) {
             TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
-            auto score = TEMPAgentFitness[arena][a];
-
           }
 
         }

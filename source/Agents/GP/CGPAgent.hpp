@@ -89,6 +89,9 @@ namespace cowboys {
       genotypeElem->SetText(genotype.Export().c_str());
       if (fitness != -1)
         genotypeElem->SetAttribute("fitness", fitness);
+
+      genotypeElem->SetAttribute("seed" , seed);
+
       agentElem->InsertEndChild(genotypeElem);
 
     }
