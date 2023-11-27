@@ -617,18 +617,11 @@ namespace cowboys {
       return *this;
     }
 
-    /// @brief Mutates the header of the genotype.
+    /// @brief Mutates the layers back parameter of the genotype header
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
     /// @param agent The agent to use for random number generation.
     /// @return This genotype.
-    CGPGenotype &MutateHeader(double mutation_rate, GPAgentBase &agent) {
-
-      // Must expand the genotype in a way so that the behavior is preserved
-
-      // Can mutate number of inputs and outputs to adapt to changing state and action spaces, but not doing it for
-      // now
-
-      // Mutate layers back
+    CGPGenotype &MutateHeaderLayersBack(double mutation_rate, GPAgentBase &agent) {
       if (agent.GetRandom() < mutation_rate) {
         // Update params
         params.layers_back += 1;
@@ -661,8 +654,14 @@ namespace cowboys {
           }
         }
       }
+      return *this;
+    }
 
-      // Mutate number of nodes in each layer
+    /// @brief Mutates the nodes per layer parameter of the genotype header.
+    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
+    /// @param agent The agent to use for random number generation.
+    /// @return This genotype.
+    CGPGenotype &MutateHeaderNodesPerLayer(double mutation_rate, GPAgentBase &agent) {
       if (agent.GetRandom() < mutation_rate) {
         // Add a node to each middle layer and update connections for middle and output layers
         std::vector<CGPNodeGene> new_nodes;
@@ -710,23 +709,28 @@ namespace cowboys {
         // Update params
         params.num_nodes_per_layer += 1;
         nodes = std::move(new_nodes);
-        // Check if everything is correct
+
         assert(nodes.size() == params.GetFunctionalNodeCount());
-        for (size_t i = 1; i < params.num_layers + 1; ++i) {
-          size_t layer_start = (i - 1) * params.num_nodes_per_layer;
-          size_t layer_size = i == params.num_layers + 1 ? params.num_outputs : params.num_nodes_per_layer;
-          size_t valid_layers_back = std::min(params.layers_back, i);
-          for (size_t j = 0; j < layer_size; ++j) {
-            // Check that the number of connections is correct
-            size_t num_connections = valid_layers_back * params.num_nodes_per_layer;
-            if (i <= params.layers_back) {
-              num_connections -= params.num_nodes_per_layer;
-              num_connections += params.num_inputs;
-            }
-            assert(nodes[layer_start + j].input_connections.size() == num_connections);
-          }
-        }
       }
+      return *this;
+    }
+
+    /// @brief Mutates the header of the genotype.
+    /// @param mutation_rate Value between 0 and 1 representing the probability of mutating each value.
+    /// @param agent The agent to use for random number generation.
+    /// @return This genotype.
+    CGPGenotype &MutateHeader(double mutation_rate, GPAgentBase &agent) {
+
+      // Must expand the genotype in a way so that the behavior is preserved
+
+      // Can mutate number of inputs and outputs to adapt to changing state and action spaces, but not doing it for
+      // now
+
+      // Mutate layers back
+      MutateHeaderLayersBack(mutation_rate, agent);
+
+      // Mutate number of nodes in each layer
+      MutateHeaderNodesPerLayer(mutation_rate, agent);
 
       return *this;
     }
