@@ -71,6 +71,9 @@ class Entity {
       assert(world_ptr);
       return *world_ptr;
   }
+    [[nodiscard]] bool HasWorld() const {
+        return world_ptr != nullptr;
+    }
 
   Entity &SetName(const std::string in_name) {
       name = in_name;
