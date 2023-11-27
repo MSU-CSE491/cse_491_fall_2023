@@ -411,11 +411,11 @@ namespace cowboys {
     /// @return This genotype.
     CGPGenotype &Configure(const std::string &encoded_genotype) {
       // Separate header and genotype
-      size_t newline_pos = encoded_genotype.find(HEADER_END);
-      if (newline_pos == std::string::npos)
-        throw std::runtime_error("Invalid genotype: No newline character found.");
-      std::string header = encoded_genotype.substr(0, newline_pos);
-      std::string genotype = encoded_genotype.substr(newline_pos + 1);
+      size_t separator_pos = encoded_genotype.find(HEADER_END);
+      if (separator_pos == std::string::npos)
+        throw std::runtime_error("Invalid genotype: No separator character found: " + encoded_genotype);
+      std::string header = encoded_genotype.substr(0, separator_pos);
+      std::string genotype = encoded_genotype.substr(separator_pos + 1);
 
       // Parse header and save to member variables
       DecodeHeader(header);

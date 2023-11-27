@@ -37,18 +37,16 @@ namespace cowboys {
     /// The decision graph for this agent.
     std::unique_ptr<Graph> decision_graph;
 
-
-
   public:
     CGPAgent(size_t id, const std::string &name) : GPAgentBase(id, name) {}
     CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype)
         : GPAgentBase(id, name), genotype(genotype) {}
 
+    /// @brief Print this agent.
+    void PrintAgent() override { std::cout << "Genotype: " << genotype.Export() << std::endl; }
 
-    void PrintAgent() override {
-      std::cout << "Genotype: " << genotype.Export() << std::endl;
-    }
-
+    /// @brief Mutate this agent.
+    /// @param mutation The mutation rate.
     void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
@@ -73,6 +71,12 @@ namespace cowboys {
       return true;
     }
 
+    /// @brief Get the action to take.
+    /// @param grid The world grid.
+    /// @param type_options The available types of cells in the grid.
+    /// @param item_set The set of items in the world.
+    /// @param agent_set The set of agents in the world.
+    /// @return
     size_t GetAction(const cse491::WorldGrid &grid, const cse491::type_options_t &type_options,
                      const cse491::item_map_t &item_set, const cse491::agent_map_t &agent_set) override {
       auto inputs = EncodeState(grid, type_options, item_set, agent_set, this, extra_state);
@@ -80,8 +84,11 @@ namespace cowboys {
       return action_to_take;
     }
 
-
-    void Serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override {
+    /// @brief Serialize this agent to XML.
+    /// @param doc The XML document to serialize to.
+    /// @param parentElem The parent element to serialize to.
+    /// @param fitness The fitness of this agent to write to the XML.
+    void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) override {
       auto agentElem = doc.NewElement("CGPAgent");
       parentElem->InsertEndChild(agentElem);
 
@@ -90,17 +97,25 @@ namespace cowboys {
       if (fitness != -1)
         genotypeElem->SetAttribute("fitness", fitness);
 
-      genotypeElem->SetAttribute("seed" , seed);
+      genotypeElem->SetAttribute("seed", seed);
 
       agentElem->InsertEndChild(genotypeElem);
-
     }
 
+    /// @brief Export the genotype for this agent.
+    /// @return The string representation of the genotype for this agent.
+    std::string Export() override { return genotype.Export(); }
+
+    /// @brief Load in the string representation of a genotype and configure this agent based on it.
+    /// @param genotype The string representation of a genotype.
+    void Import(std::string genotype) {
+      this->genotype.Configure(genotype);
+      decision_graph = GraphBuilder().CartesianGraph(this->genotype, FUNCTION_SET, this);
+    }
 
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
     const CGPGenotype &GetGenotype() const { return genotype; }
-
 
     /// @brief Copies the genotype and behavior of another CGPAgent into this agent.
     /// @param other The CGPAgent to copy.
