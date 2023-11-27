@@ -104,6 +104,7 @@ namespace cse491 {
         case 'v': case 'V': action_id = GetActionID("use_boat"); break;
         case 'f': case 'F': action_id = GetActionID("attack"); break;
         case 'g': case 'G': action_id = GetActionID("special"); break;
+        case 'y': case 'Y': action_id = GetActionID("help"); break;
         case 'q': case 'Q': exit(0); // Quit!
       }
 

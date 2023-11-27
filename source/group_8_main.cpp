@@ -34,6 +34,9 @@ int main()
   world.AddItem("Sword", "Strength", 15, "symbol", 't').SetPosition(pacer_1.GetPosition());
   world.DoActionAttemptItemPickup(pacer_1, pacer_1.GetPosition());
 
+  auto & interface = world.GetAgent(world.GetAgentID("Interface"));
+  world.MoveSetAction(interface);
+
   world.GenerateMoveSets();
   
   world.Run();

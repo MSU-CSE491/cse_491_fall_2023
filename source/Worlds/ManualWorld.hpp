@@ -20,7 +20,7 @@ namespace cse491_team8 {
 
   class ManualWorld : public cse491::WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, ATTACK, SPECIAL };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, ATTACK, HELP };
     enum FacingDirection { UP=0, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -42,7 +42,7 @@ namespace cse491_team8 {
       agent.AddAction("stats", STATS);
       agent.AddAction("heal", HEAL);
       agent.AddAction("attack", ATTACK);
-      agent.AddAction("special", SPECIAL);
+      agent.AddAction("help", HELP);
       agent.SetProperties("Strength", 15, "Health", 15, "Max_Health", 50, "Direction", 0);
     }
 
@@ -171,25 +171,23 @@ namespace cse491_team8 {
     void StatsAction(cse491::AgentBase & agent)
     {
         agent.Notify("Items owned by the player:");
-        for (auto & item : item_map)
+        for (const auto & [item_id, item] : item_map)
         {
-            if (item.second->IsOwnedBy(agent.GetID()))
+            if (item->IsOwnedBy(agent.GetID()))
             {
-                for (auto & prop : item.second.get()->GetProprtyMap())
+                for (const auto & [name, entity] : item->GetProprtyMap())
                 {
-                    std::string name = prop.first;
                     if (name == "Uses" || name == "Strength" || name == "Healing")
                     {
-                        size_t value = item.second.get()->GetProperty<int>(name);
-                        agent.Notify(item.second.get()->GetName() + ": " + name + ": " + std::to_string(value));
+                        size_t value = item->GetProperty<int>(name);
+                        agent.Notify(item->GetName() + ": " + name + ": " + std::to_string(value));
                     }
                 }
             }
         }
         agent.Notify("\nProperties of the player:");
-        for (auto & prop : agent.GetProprtyMap())
+        for (const auto & [name, entity] : agent.GetProprtyMap())
         {
-            std::string name = prop.first;
             if (name != "MoveSet" && name != "symbol" && name != "Direction")
             {
                 size_t value = agent.GetProperty<int>(name);
@@ -198,6 +196,27 @@ namespace cse491_team8 {
         }
     }
 
+    /// @brief displays the 
+    /// @param agent 
+    void MoveSetAction(cse491::AgentBase & agent)
+    {
+        agent.Notify("Your Moveset is:");
+        agent.Notify("Move Up: W");
+        agent.Notify("Move Down: S");
+        agent.Notify("Move Left: A");
+        agent.Notify("Move Right: D");
+        agent.Notify("Use Axe: C");
+        agent.Notify("Use Boat: V");
+        agent.Notify("Display Stats: T");
+        agent.Notify("Heal: H");
+        agent.Notify("Attack: F");
+        agent.Notify("Special: G");
+        agent.Notify("Display Moveset: Y");
+    }
+
+    /// @brief looks one tile ahead of the agent based on facing direction
+    /// @param agent 
+    /// @return the grid position
     cse491::GridPosition LookAhead(cse491::AgentBase & agent)
     {
         size_t direction = agent.GetProperty<int>("Direction");
@@ -382,49 +401,11 @@ namespace cse491_team8 {
           this->RemoveAgent(other_agent.GetName());
         }
     }
-   
-    /// @brief Checks for agents adjacent to the given agent
-    /// Checks the strengths if an agent is found
-    /// @param agent The agent to look around
-    /// @see StrengthCheck
-    /// @return true if an agent was found, else false
-    bool CheckAround(cse491::AgentBase & agent)
-    {
-      auto new_position = agent.GetPosition();
-      for (auto & [id, agent2_ptr] : agent_map)
-      {
-        if (agent.GetID() != agent2_ptr->GetID()) {
-          if (agent2_ptr->GetPosition() == new_position.Above() ||
-              agent2_ptr->GetPosition() == new_position.Below() ||
-              agent2_ptr->GetPosition() == new_position.ToLeft() ||
-              agent2_ptr->GetPosition() == new_position.ToRight() ||
-              agent2_ptr->GetPosition() == new_position)
-        {
-          StrengthCheck(*agent2_ptr, agent);
-          return true;
-        }
-        }
-      }
-      return false;
-    }
-
-
-    /// Finds an interface agent and calls CheckAround
-    void HandleNeighbors()
-    {
-      for (const auto& [id, agent_ptr] : agent_map)
-      {
-        if (agent_ptr->IsInterface())
-        {
-          CheckAround(*agent_ptr);
-          break;
-        }
-      }
-    }
 
     /// @brief Looks for adjacencies
-    void UpdateWorld() override {
-      HandleNeighbors();
+    void UpdateWorld() override
+    {
+      
     }
 
     /// Runs agents, updates the world.
@@ -561,20 +542,22 @@ namespace cse491_team8 {
         {
             new_position = agent.GetPosition();
             // Battle action here
-            auto agents = FindAgentsNear(agent.GetPosition(), 2);
+            auto agents = FindAgentsNear(agent.GetPosition(), 1);
             for (auto agent_id : agents)
             {
                 // (temporary) print out if othe agents are near the player
                 if (!agent_map[agent_id]->IsInterface())
                 {
                     agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
+                    StrengthCheck(*agent_map[agent_id], agent);
                 }
             }
             break;
         }
-        case SPECIAL:
+        case HELP:
         {
             new_position = agent.GetPosition();
+            MoveSetAction(agent);
             break;
         }
       }
