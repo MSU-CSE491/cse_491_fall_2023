@@ -64,7 +64,7 @@ namespace cse491 {
       owner_id = grid_id;
       return *this;
     }
-    ItemBase & SetUnowned() { owner_type = OwnerType::NONE; return *this; }
+    ItemBase & SetUnowned() { owner_type = OwnerType::NONE; owner_id = 0; return *this; }
   };
 
 } // End of namespace cse491

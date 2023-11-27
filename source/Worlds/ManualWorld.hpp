@@ -20,7 +20,7 @@ namespace cse491_team8 {
 
   class ManualWorld : public cse491::WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, ATTACK, SPECIAL, RUN };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, ATTACK, SPECIAL };
     enum FacingDirection { UP=0, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -43,7 +43,7 @@ namespace cse491_team8 {
       agent.AddAction("heal", HEAL);
       agent.AddAction("attack", ATTACK);
       agent.AddAction("special", SPECIAL);
-      agent.AddAction("run", RUN);
+      agent.SetProperties("Strength", 15, "Health", 15, "Max_Health", 50, "Direction", 0);
     }
 
   public:
@@ -227,6 +227,22 @@ namespace cse491_team8 {
         return look_position;
     }
 
+    /// @brief Removes all items from agent
+    /// @param agent 
+    /// @param other_agent 
+    void DropItems(cse491::AgentBase & agent, cse491::AgentBase & other_agent)
+    {
+        for (const auto& [id, item] : item_map)
+        {
+            if (item->IsOwnedBy(other_agent.GetID()))
+            {
+                item->SetUnowned();
+                item->SetPosition(other_agent.GetPosition());
+                agent.Notify(other_agent.GetName() + " dropped their " + item->GetName() + "!");
+            }
+        }
+    }
+
     /// @brief Determines the damage of the other agent
     /// @param other_agent The NPC agent
     /// @param agent The player agent
@@ -357,64 +373,13 @@ namespace cse491_team8 {
               }
             }
           }
-          // this->RemoveAgent(agent.GetName()); // If the agent is the interface, this does nothing
         }
         else
         {
           agent.Notify(agent.GetName() + " has beat " + other_agent.GetName());
-          // Gain the Agent's strength that you beat
-          agent.SetProperty<int>("Strength",
-                  agent.GetProperty<int>("Strength") + other_agent.GetProperty<int>("Strength"));
-          cse491::GridPosition other_position = other_agent.GetPosition();
+          
+          DropItems(agent, other_agent);
           this->RemoveAgent(other_agent.GetName());
-
-          // get the loot dropped from the agent
-          int random = (int) GetRandom(10);
-          char symbol = ' ';
-          std::string loot = "";
-          std::string action = "";
-          int num_actions = 0;
-          if (random <= 4) {
-            symbol = '/';
-            loot = "Stick";
-            action = "Strength";
-            num_actions = 2;
-          }
-          else if (random <= 7) {
-            symbol = 'U';
-            loot = "Boat";
-            action = "Uses";
-            num_actions = 10;
-          }
-          else if (random <= 9) {
-            symbol = 'P';
-            loot = "Axe";
-            action = "Uses";
-            num_actions = 5;
-          }
-          else {
-            symbol = '!';
-            loot = "Sword";
-            action = "Strength";
-            num_actions = 5;
-          }
-
-          // put the loot where the agent was
-          double x = other_position.GetX();
-          double y = other_position.GetY();
-          this->AddItem(loot, "symbol", symbol).SetPosition(x, y);
-
-          // set the entity's _action_ property to have _num_action_ uses
-          for (const auto& [id, entity] : item_map)
-          {
-            if (entity->GetPosition() == other_position)
-            {
-              entity->SetProperty<int>(action, num_actions);
-              break;
-            }
-          }
-
-          agent.Notify(other_agent_name + " dropped their " + loot + "!\n");
         }
     }
    
@@ -478,7 +443,7 @@ namespace cse491_team8 {
     /// @return Nothing
     void DoActionAttemptItemPickup(cse491::AgentBase & agent, const cse491::GridPosition & new_position) {
       for (const auto & [id, item_ptr] : item_map) {
-        if (item_ptr->GetPosition() == new_position)
+        if (item_ptr->GetPosition() == new_position && item_ptr->GetOwnerID() == 0)
         {
           std::string uses_property = "";
           if (item_ptr->GetName() == "Stick" || item_ptr->GetName() == "Sword") { uses_property = "Strength"; }
@@ -595,6 +560,21 @@ namespace cse491_team8 {
         case ATTACK:
         {
             new_position = agent.GetPosition();
+            // Battle action here
+            auto agents = FindAgentsNear(agent.GetPosition(), 2);
+            for (auto agent_id : agents)
+            {
+                // (temporary) print out if othe agents are near the player
+                if (!agent_map[agent_id]->IsInterface())
+                {
+                    agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
+                }
+            }
+            break;
+        }
+        case SPECIAL:
+        {
+            new_position = agent.GetPosition();
             break;
         }
       }
@@ -674,11 +654,7 @@ namespace cse491_team8 {
       // Don't let the agent move off the world or into a wall.
       if (!main_grid.IsValid(new_position)) { return false; }
 
-      // TK we might later want to let NPCs pick up items
-      if (agent.IsInterface())
-      {
-        DoActionAttemptItemPickup(agent, new_position);
-      }
+      DoActionAttemptItemPickup(agent, new_position);
 
       if (main_grid.At(new_position) == tree_id)
       {
