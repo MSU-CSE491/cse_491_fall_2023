@@ -61,8 +61,7 @@ namespace netWorth{
 
                 return true;
             }
-
-
+            
             /**
              * Choose action for player agent
              * @param grid the client-side grid
@@ -95,7 +94,6 @@ namespace netWorth{
                 // Do the action!
                 return action_id;
             }
-
 
             /**
              * Process packet from server (just print map for now)
