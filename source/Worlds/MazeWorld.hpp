@@ -38,6 +38,7 @@ public:
   ~MazeWorld() = default;
 
   /// Provide the agent with movement actions.
+  using WorldBase::ConfigAgent;
   void ConfigAgent(AgentBase &agent) const override {
     agent.AddAction("up", MOVE_UP);
     agent.AddAction("down", MOVE_DOWN);
