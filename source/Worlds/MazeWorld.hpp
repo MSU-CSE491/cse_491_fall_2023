@@ -38,7 +38,7 @@ public:
   ~MazeWorld() = default;
 
   /// Provide the agent with movement actions.
-  void ConfigAgent(AgentBase &agent) override {
+  void ConfigAgent(AgentBase &agent) const override {
     agent.AddAction("up", MOVE_UP);
     agent.AddAction("down", MOVE_DOWN);
     agent.AddAction("left", MOVE_LEFT);
