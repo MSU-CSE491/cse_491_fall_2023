@@ -11,6 +11,7 @@
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
+#include "../DataCollection/DataManager.hpp"
 
 namespace cse491 {
 
@@ -76,7 +77,13 @@ namespace cse491 {
       return true;
     }
 
-    size_t SelectAction(const WorldGrid & grid,
+      static void exitCleanup()
+      {
+          DataCollection::DataManager::GetInstance().WriteToJson();
+          exit(0);
+      }
+
+      size_t SelectAction(const WorldGrid & grid,
                         const type_options_t & type_options,
                         const item_map_t & item_map,
                         const agent_map_t & agent_map) override
@@ -97,7 +104,7 @@ namespace cse491 {
         case 'a': case 'A': action_id = GetActionID("left");  break;
         case 's': case 'S': action_id = GetActionID("down");  break;
         case 'd': case 'D': action_id = GetActionID("right"); break;
-        case 'q': case 'Q': exit(0); // Quit!
+        case 'q': case 'Q': exitCleanup(); // Quit!
       }
 
       // If we waited for input, but don't understand it, notify the user.
@@ -115,5 +122,6 @@ namespace cse491 {
       std::cout << message << std::endl;
     }
   };
+
 
 } // End of namespace cse491

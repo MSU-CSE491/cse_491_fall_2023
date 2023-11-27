@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <numeric>
+#include <fstream>
+#include "JsonBuilder.hpp"
 
 namespace DataCollection {
 
@@ -59,5 +61,15 @@ namespace DataCollection {
              return -1.0;
          }
 
+         void WriteToDamageFile(std::string path) {
+             std::ofstream jsonfilestream(path);
+             JsonBuilder json_builder;
+             for (auto& damage : damageData) {
+                 json_builder.AddName(damage.first);
+                 for (auto& damageAmt : damage.second) {
+                     json_builder.AddDamage(damageAmt);
+                 }
+             }
+         }
      };
 }

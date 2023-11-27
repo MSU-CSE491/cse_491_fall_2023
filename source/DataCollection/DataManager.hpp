@@ -19,18 +19,23 @@ namespace DataCollection {
         GameReceiver gameReceiver;          // Receiver for game based data
         DamageCollector damageCollector;    // Collector for item damage data
         ItemUseCollector itemUseCollector;  // Collector for item usage data
-    public:
-        /**
-         * Constructor
-         */
-         DataManager() = default;
+        DataManager() {}
 
+        DataManager(const DataManager&) = delete;
+        DataManager& operator=(const DataManager&) = delete;
+    public:
          /**
-          * Destructor
-          */
-          ~DataManager() {
-              std::cout << "test" << std::endl;
-          }
+           * Destructor
+           */
+         ~DataManager()
+         {
+             WriteToJson();
+         }
+
+         static DataManager& GetInstance() {
+             static DataManager instance;
+             return instance;
+         }
 
          /**
           * Get a handle to the agent receiver
@@ -62,6 +67,17 @@ namespace DataCollection {
           */
         const DamageCollector& GetDamageCollector() {
             return damageCollector;
+        }
+
+        void WriteToJson() {
+            std::filesystem::path currentPath = std::filesystem::current_path();
+            std::filesystem::create_directories(currentPath / "data");
+            // Construct the full path to the data directory and the damage_data.json file
+            std::filesystem::path DamagefilePath = currentPath / "data" / "damage_data.json";
+            std::filesystem::path ItemUsefilePath = currentPath / "data" / "item_use_data.json";
+            std::filesystem::path PositionfilePath = currentPath / "data" / "position_data.json";
+            agentReceiver.WriteToPositionFile(PositionfilePath.string());
+            damageCollector.WriteToDamageFile(DamagefilePath.string());
         }
     };
 }

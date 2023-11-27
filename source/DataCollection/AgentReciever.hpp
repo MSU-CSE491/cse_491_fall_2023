@@ -1,7 +1,9 @@
 #pragma once
 
+#include <filesystem>
 #include "DataReceiver.hpp"
 #include "AgentData.hpp"
+#include "JsonBuilder.hpp"
 
 namespace DataCollection {
 
@@ -29,9 +31,19 @@ namespace DataCollection {
             StoreIntoStorage(*agent);
         }
 
+//        void StoreIntoStorage(AgentData obj) override {
+//            storage.push_back(obj);
+//        }
+
+        /**
+         * @brief Stores agent data into the storage and writes to a json file
+         *
+         * @param name the name of the agent
+         */
         void AddAgent(const std::string& name) {
             AgentData agent(name);
             agent_map[name] = std::make_shared<AgentData>(agent);
+
         }
 
         std::shared_ptr<AgentData> GetAgent(const std::string& name)
@@ -47,6 +59,25 @@ namespace DataCollection {
 
         AgentData GetAgentData(const std::string& name) {
             return *agent_map[name];
+        }
+
+        /**
+         * @brief Writes the stored AgentData Positions to a JSON file.
+         *
+         * @param agent The AgentData Position to be stored.
+         */
+        void WriteToPositionFile(std::string path) {
+            std::ofstream jsonfilestream(path);
+            std::cout << jsonfilestream.fail() << "\n";
+            JsonBuilder json_builder;
+            for (auto& agent : agent_map) {
+                json_builder.Addagentname(agent.first);
+                for (auto& pos : agent.second->GetPositions()) {
+                    json_builder.AddPosition(pos);
+                }
+            }
+            json_builder.WriteToFile(jsonfilestream);
+            jsonfilestream.close();
         }
     };
 } // namespace DataCollection

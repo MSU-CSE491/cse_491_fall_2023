@@ -43,7 +43,6 @@ protected:
   bool run_over = false;        ///< Should the run end?
   
   std::string action;           ///< The action that the agent is currently performing
-  std::shared_ptr<DataCollection::DataManager> data_manager;
 
   unsigned int seed;            ///< Seed used for generator
   std::mt19937 random_gen;      ///< Random number generator
@@ -93,10 +92,6 @@ public:
     last_entity_id = 0;
     run_over = false;
   }
-
-    void SetDataManager(const DataCollection::DataManager& d) {
-        data_manager = std::make_shared<DataCollection::DataManager>(d);
-    }
 
   // -- Accessors --
 
@@ -281,14 +276,12 @@ public:
   }
 
   void CollectData() {
-    if (data_manager != nullptr) {
       for (const auto & [id, agent_ptr] : agent_map) {
-        data_manager->GetAgentReceiver().StoreData(
+          DataCollection::DataManager::GetInstance().GetAgentReceiver().StoreData(
           agent_ptr->GetName(), 
           agent_ptr->GetPosition(), agent_ptr->GetActionResult()
         );
       }
-    }
   }
 
   /// @brief UpdateWorld() is run after every agent has a turn.

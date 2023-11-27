@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <fstream>
 #include "../core/GridPosition.hpp"
 #include <nlohmann/json.hpp>
 
@@ -24,12 +25,20 @@ namespace DataCollection{
          */
         ~JsonBuilder() = default;
 
+        void Addagentname(std::string name) {
+            json["agentname"] = name;
+        }
+
         /**
          * @brief Adds a grid position to the JSON object.
          * @param pos The grid position to be added.
          */
         void AddPosition(cse491::GridPosition pos) {
             json["positions"].push_back({{"x", pos.GetX()}, {"y", pos.GetY()}});
+        }
+
+        void AddDamage(double damage) {
+            json["damage"].push_back(damage);
         }
 
         /**
@@ -62,6 +71,15 @@ namespace DataCollection{
          */
         nlohmann::json GetJSON() {
             return json;
+        }
+
+        /**
+         * @brief Writes the JSON object to a file.
+         */
+        void WriteToFile(std::ofstream &jsonfilestream)
+        {
+            jsonfilestream << json.dump(4);
+            jsonfilestream.close();
         }
     };
 } // namespace DataCollection

@@ -97,8 +97,7 @@ namespace cse491 {
     /// This function is useful to notify users of events in the world, such as them taking
     /// damage, finding an item, etc.  The message type can potentially also provide
     /// information to an autonomous agent assuming we come up with a standard list of types.
-    virtual void Notify(const std::string & /*message*/,
-                        const std::string & /*msg_type*/="none") { }
+    virtual void Notify(const std::string & /*message*/,const std::string & /*msg_type*/="none") { }
 
   };
 
