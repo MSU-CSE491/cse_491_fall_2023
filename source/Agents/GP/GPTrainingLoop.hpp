@@ -77,6 +77,9 @@ namespace cowboys {
 
     public:
 
+        /**
+         * @brief: constructor
+         */
         GPTrainingLoop() {
 
           topAgentsDoc.InsertFirstChild(rootTopAllGenerations);
@@ -87,6 +90,9 @@ namespace cowboys {
           ResetMainTagLastGenerations();
         }
 
+        /**
+         * Resets the xml for data that needs to be overwritten
+         */
         void ResetMainTagLastGenerations() {
           rootTopLastGenerations = lastGenerationsTopAgentsDoc.NewElement("GPLoop");
           lastGenerationsTopAgentsDoc.InsertFirstChild(rootTopLastGenerations);
@@ -154,6 +160,12 @@ namespace cowboys {
         }
 
 
+        /**
+         * Simple and temporary fitness function
+         * @param agent
+         * @param startPosition
+         * @return
+         */
         double SimpleFitnessFunction(cse491::AgentBase &agent, cse491::GridPosition startPosition) {
           double fitness = 0;
 
@@ -182,6 +194,10 @@ namespace cowboys {
           return fitness;
         }
 
+        /**
+         * Gets the path of the save location
+         * @return
+         */
         static std::filesystem::path getSystemPath() {
           /// XML save filename data
           std::string relativePath = "../../savedata/GPAgent/";
@@ -190,6 +206,10 @@ namespace cowboys {
           return normalizedAbsolutePath;
         }
 
+        /**
+         * Gets the date and time as a string
+         * @return
+         */
         static std::string getDateStr() {
           auto now = std::chrono::system_clock::now();
           std::time_t now_time = std::chrono::system_clock::to_time_t(now);
@@ -315,7 +335,9 @@ namespace cowboys {
           MemGOBYE();
         }
 
-
+        /**
+         * SaveDataParams for saving data in checkpoints
+         */
         struct SaveDataParams {
             size_t generation;
             bool save = false;
@@ -337,6 +359,10 @@ namespace cowboys {
         };
 
 
+        /**
+         * Saves checkpoint data to XML files everyso often
+         * @param params
+         */
         void SaveDataCheckPoint(const SaveDataParams &params) {
           if (!params.save) {
             return;
@@ -347,7 +373,7 @@ namespace cowboys {
           allOfLastGeneration.InsertFirstChild(rootAllOfLastGeneration);
 
           size_t totalNumberOfAgents = agents.size() * agents[0].size();
-          
+
           SerializeAgents(params.generation, rootAllOfLastGeneration, allOfLastGeneration, totalNumberOfAgents);
 
           if (params.saveTopAgents) {
@@ -402,6 +428,12 @@ namespace cowboys {
         }
 
 
+        /**
+         * Helper function to format the data analysis
+         * @param pos
+         * @param precision
+         * @return
+         */
         std::string FormatPosition(const cse491::GridPosition & pos, int precision = 0) {
           std::stringstream ss;
           ss << std::fixed << std::setprecision(precision) << "[" << pos.GetX() << "," << pos.GetY() << "]";
