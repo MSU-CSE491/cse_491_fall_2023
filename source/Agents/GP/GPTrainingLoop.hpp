@@ -54,7 +54,7 @@ namespace cowboys {
             /**
              * Default Grid
              */
-//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
+        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0)};
@@ -69,7 +69,7 @@ namespace cowboys {
 /**
  * Default Grid    2
  */
-        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(50,0) , cse491::GridPosition(0,28) , cse491::GridPosition(50,28)};
+//        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(50,0) , cse491::GridPosition(0,28) , cse491::GridPosition(50,28)};
 
         /// ArenaIDX, AgentIDX, EndPosition
         std::vector<std::vector<std::vector<cse491::GridPosition>>> endPositions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
@@ -745,6 +745,9 @@ namespace cowboys {
 
 
           for (size_t pos_idx = 0; pos_idx < positions.size(); ++pos_idx) {
+
+            assert(positions[pos_idx].CellY() < symbol_grid.size());
+            assert(positions[pos_idx].CellX() < symbol_grid[positions[pos_idx].CellY()].size());
             symbol_grid[positions[pos_idx].CellY()][positions[pos_idx].CellX()] = symbol;
           }
 
