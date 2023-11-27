@@ -88,8 +88,7 @@ int main() {
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
 
-    world.SetManager(&manager);
-    world.Run();
+    world.RunServer(&manager);
     return 0;
 
 }

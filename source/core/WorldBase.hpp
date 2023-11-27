@@ -29,7 +29,7 @@ class DataReceiver;
 class WorldBase {
 public:
   static constexpr size_t npos = static_cast<size_t>(-1);
-  netWorth::ServerManager *manager = nullptr;
+  netWorth::ServerManager *manager;
 
 protected:
   /// Derived worlds may choose to have more than one grid.
@@ -276,7 +276,18 @@ public:
   virtual void RunAgents() {
     for (auto & [id, agent_ptr] : agent_map) {
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
-      if (manager != nullptr) manager->TellAction(id, action_id);
+      agent_ptr->storeActionMap(agent_ptr->GetName());
+      int result = DoAction(*agent_ptr, action_id);
+      agent_ptr->SetActionResult(result);
+    }
+  }
+
+  /// @brief Step through each agent giving them a chance to take an action.
+  /// @note Override this function if you want to control which grid the agents receive.
+  virtual void RunServerAgents() {
+    for (auto & [id, agent_ptr] : agent_map) {
+      size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      manager->TellAction(id, action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
@@ -303,6 +314,17 @@ public:
     run_over = false;
     while (!run_over) {
       RunAgents();
+      CollectData();
+      UpdateWorld();
+    }
+  }
+
+  /// @brief Run world as server with manager
+  virtual void RunServer(netWorth::ServerManager *mgr) {
+    run_over = false;
+    manager = mgr;
+    while (!run_over) {
+      RunServerAgents();
       CollectData();
       UpdateWorld();
     }
@@ -460,10 +482,6 @@ public:
    */
   void Deserialize(std::istream &is) {
     main_grid.Deserialize(is);
-  }
-
-  void SetManager(netWorth::ServerManager *server_manager) {
-      manager = server_manager;
   }
 
 };
