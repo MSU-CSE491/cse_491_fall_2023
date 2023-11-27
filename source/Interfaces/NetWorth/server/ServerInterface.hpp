@@ -7,6 +7,8 @@
 #pragma once
 
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include <string>
+#include <sstream>
 
 namespace netWorth{
     using namespace sf;
@@ -148,7 +150,7 @@ namespace netWorth{
 
                 // receive player input
                 sf::Packet recv_pkt;
-                size_t action_id;
+              std::uint32_t action_id;
 
                 ReceivePacket(recv_pkt, m_ip, m_port);
                 ProcessPacket(recv_pkt);
@@ -165,7 +167,7 @@ namespace netWorth{
              * @param packet packet from client
              */
             void ProcessPacket(Packet packet) override {
-                size_t str;
+                std::uint32_t str;
                 packet >> str;
                 std::cout << str << std::endl;
             }
