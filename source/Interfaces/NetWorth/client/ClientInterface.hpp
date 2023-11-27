@@ -61,7 +61,7 @@ namespace netWorth{
 
                 return true;
             }
-            
+
             /**
              * Choose action for player agent
              * @param grid the client-side grid
