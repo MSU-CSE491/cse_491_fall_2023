@@ -62,17 +62,6 @@ public:
   int GetRecalculateValue() const {return recalculate_after_x_turns; }
 
   /**
-   * Returns if the agent has a world
-   * @return
-   */
-//  bool HasWorld() {
-//      if(world !=nullptr){
-//          return true;
-//      }
-//      return false;
-//  }
-
-  /**
    * Gets the size of the current path
    * @return
    */
