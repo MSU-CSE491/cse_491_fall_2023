@@ -109,8 +109,8 @@ namespace i_2D
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
         LoadTexture("boatTexture", "../assets/weapons/Boat_color1_2.png");
         LoadTexture("pathTexture", "../assets/Ground_tiles/Sand1.png");
-//        LoadTexture("portal1Texture", "../assets/walls/portal1.png");
-//        LoadTexture("portal2Texture", "../assets/walls/portal2.png");
+        LoadTexture("portal1Texture", "../assets/walls/portal1.png");
+        LoadTexture("portal2Texture", "../assets/walls/portal2.png");
         textures['P'] = GetTexture("axeTexture");
         textures['U'] = GetTexture("boatTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -119,8 +119,8 @@ namespace i_2D
         textures['^'] = GetTexture("treeTexture");
         textures['~'] = GetTexture("waterTexture");
         textures[' '] = GetTexture("pathTexture");
-//        textures['{'] = GetTexture("portal1Texture");
-//        textures['}'] = GetTexture("portal2Texture");
+        textures['{'] = GetTexture("portal1Texture");
+        textures['}'] = GetTexture("portal2Texture");
 
         return textures;
     }
@@ -142,11 +142,11 @@ namespace i_2D
         LoadTexture("spikeTexture", "../assets/weapons/Individual_Spike.png");
         LoadTexture("keyTexture", "../assets/weapons/key.png");
         LoadTexture("pathTexture", "../assets/Ground_tiles/Dirt1.png");
-//        LoadTexture("bootTexture", "../assets/weapons/2.png");
+        LoadTexture("bootTexture", "../assets/weapons/2.png");
         LoadTexture("shieldTexture", "../assets/weapons/shield.png");
-//        LoadTexture("teleportTexture", "../assets/walls/teleport.png");
+        LoadTexture("teleportTexture", "../assets/walls/teleport.png");
         LoadTexture("armoryTexture", "../assets/weapons/steel_armor.png");
-//        textures['B'] = GetTexture("bootTexture");
+        textures['B'] = GetTexture("bootTexture");
         textures['X'] = GetTexture("spikeTexture");
         textures['O'] = GetTexture("tarTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -156,7 +156,7 @@ namespace i_2D
         textures['K'] = GetTexture("keyTexture");
         textures[' '] = GetTexture("pathTexture");
         textures['S'] = GetTexture("shieldTexture");
-//        textures['T'] = GetTexture("teleportTexture");
+        textures['T'] = GetTexture("teleportTexture");
         textures['A'] = GetTexture("armoryTexture");
 
         return textures;

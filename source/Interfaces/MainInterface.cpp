@@ -63,7 +63,7 @@ namespace i_2D {
             }
         }
 
-        // Add in the agents / entities
+        // Add in the entities
         for (const auto &[id, item_ptr]: item_map) {
             GridPosition pos = item_ptr->GetPosition();
             char c = '+';
@@ -73,6 +73,7 @@ namespace i_2D {
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
 
+        // Add in the agents
         for (const auto &[id, agent_ptr]: agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
@@ -114,16 +115,21 @@ namespace i_2D {
     */
     void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_map_t &item_map,
                                  const agent_map_t &agent_map) {
-        mPlayerPosition = sf::Vector2i(this->position.GetX(), this->position.GetY());
-
+        // Clear old drawing
         mWindow.clear(sf::Color::White);
 
+        // Check player's position
+        mPlayerPosition = sf::Vector2i(this->position.GetX(), this->position.GetY());
+
+        // Create grid of symbols representing the world
         std::vector<std::string> symbol_grid;
         std::vector<std::string> default_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
 
+        // Determine cell size
         sf::Vector2f cellSize = CalculateCellSize(grid);
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
-        CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
+        CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth,
+                           drawSpaceHeight, drawCenterX, drawCenterY);
 
         if (mGridSizeLarge) {
             symbol_grid = LargeDisplayGrid(default_grid);
@@ -348,14 +354,6 @@ namespace i_2D {
                 if (mTextBox->IsSelected())break;
                 action_id = GetActionID("up");
                 break;
-            case sf::Keyboard::Y:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("Y");
-                break;
-            case sf::Keyboard::N:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("N");
-                break;
             case sf::Keyboard::A:
                 if (mTextBox->IsSelected())break;
                 action_id = GetActionID("left");
@@ -380,11 +378,6 @@ namespace i_2D {
             case sf::Keyboard::Right:
                 action_id = GetActionID("right");
                 break;
-
-//            case sf::Keyboard::Q:
-//                exit(0);
-//            case sf::Keyboard::Escape:
-//                exit(0);
             default:
                 break; // The user pressed an unknown key.
         }
