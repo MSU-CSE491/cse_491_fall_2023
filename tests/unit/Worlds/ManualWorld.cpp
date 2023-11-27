@@ -79,13 +79,13 @@ TEST_CASE("Finding item for agent"){
     item->SetProperty("Healing", 10);
     item->SetOwner(*agent);
     world.AddItem(std::move(item));
-    CHECK(world.FindItem(*agent, "Axe") == SIZE_T_MAX);
+    CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
   }
 
   SECTION("No items owned"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
     agent->SetProperties("Health", 13, "Max_Health", 20);
-    CHECK(world.FindItem(*agent, "Axe") == SIZE_T_MAX);
+    CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
   }
 }
