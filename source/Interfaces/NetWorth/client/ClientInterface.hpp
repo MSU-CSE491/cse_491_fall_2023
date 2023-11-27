@@ -6,136 +6,106 @@
 
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <vector>
-#include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/Packet.hpp>
-#include <memory>
-
-#include "../NetworkInterface.hpp"
-#include "../../TrashInterface.hpp"
+#include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "Interfaces/TrashInterface.hpp"
+#include "Interfaces/MainInterface.hpp"
 
 namespace netWorth{
-/**
- * The interface of our client that will be interacting and connection with our server
- */
+    /**
+     * The interface of our client that will be interacting and connection with our server
+     */
     using namespace sf;
 
-    class ClientInterface : public NetworkingInterface {
-    private:
-        std::optional<IpAddress> m_dest_ip; /// the destination address (server address)
-        unsigned short m_dest_port;         /// the destination port (server port)
+    class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
+        private:
 
-        /**
-         * Get user input to be sent to server
-         * @return string corresponding to action
-         */
-        static std::string GameLoop_GetInput() {
-            bool valid_input = false;
-            std::string action;
-            char input;
+        protected:
 
-            while (!valid_input) {
-                std::cin >> input;
-                switch (input) {
-                    case 'w': case 'W': action = "up";      valid_input = true; break;
-                    case 'a': case 'A': action = "left";    valid_input = true; break;
-                    case 's': case 'S': action = "down";    valid_input = true; break;
-                    case 'd': case 'D': action = "right";   valid_input = true; break;
-                    case 'q': case 'Q': action = "quit";    valid_input = true; break;
-                    default: valid_input = false;
-                }
-                if (!valid_input) {
-                    std::cout << "Your move?";
-                }
-            }
+        public:
+            /**
+             * Default constructor (AgentBase)
+             * @param id agent ID
+             * @param name agent name
+             */
+            ClientInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name),
+                                                                   NetworkingInterface(id, name),
+                                                                   i_2D::MainInterface(id, name) {}
 
-            return action;
-        }
+            /**
+             * Establish connection with server, initializing interface
+             * @return True if successful, false if error
+             */
+            bool Initialize() override {
+                // resolve port and IP from entity properties
+                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
+                m_port = NetworkingInterface::GetProperty<unsigned short>("port");
 
-    protected:
+                Packet send_pkt, recv_pkt;
+                std::string str;
 
-    public:
-        /**
-         * ClientInterface constructor (NetworkingInterface superclass)
-         * @param ip_string String for destination IP address, make into IpAddress object
-         * @param port Destination port number
-         */
-        ClientInterface(const std::string & ip_string,
-                        unsigned short port) {
-            m_dest_ip = IpAddress::resolve(ip_string);
-            m_dest_port = port;
-        }
+                // send request message
+                send_pkt << "New client requesting connection.";
+                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 
-        /**
-         * Default destructor
-         */
-        ~ClientInterface() = default;
+                // receive from server
+                if (!ReceivePacket(recv_pkt, m_ip, m_port)) return false;
 
-        /**
-         * Establish connection with server
-         * @return True if successful, false if error
-         */
-        bool EstablishConnection() {
-            Packet send_pkt, recv_pkt;
+                // print received string (Connection established.)
+                recv_pkt >> str;
+                std::cout << str << std::endl;
 
-            // send request message
-            send_pkt << "New client requesting connection.";
-            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return false;
-
-            // receive from server
-            if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return false;
-
-            // print received string (Connection established.)
-            std::string str;
-            recv_pkt >> str;
-            std::cout << str << std::endl;
-
-            return true;
-        }
-
-        /**
-         * Game loop
-         */
-        void GameLoop() {
-            Packet send_pkt, recv_pkt;
-            std::string recv_str;
-
-            cse491::WorldGrid grid;
-            cse491::type_options_t type_options;
-            cse491::item_map_t item_map;
-            cse491::agent_map_t agent_map;
-            std::string action;
-
-            send_pkt << "Game started.";
-
-            // ask for map
-            if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
-
-            while (action != "quit") {
-                // receive map
-                if (!ReceivePacket(recv_pkt, m_dest_ip, m_dest_port)) return;
-
-                // print map
-                recv_pkt >> recv_str;
-                std::cout << std::endl << recv_str;
-
-                // get user input
-                action = GameLoop_GetInput();
-
-                // TODO: Unpack recv_pkt into world grid, agent list, etc
-                // We need to Serialize these classes...
-                //recv_pkt >> grid >> type_options >> item_map >> agent_map;
-
-                //action = mTrash->SelectAction(grid, type_options, item_map, agent_map);
-
-                // send packet with action
+                // request map to start send/receive loop
                 send_pkt.clear();
-                send_pkt << action;
+                send_pkt << "Requesting map";
+                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 
-                if (!SendPacket(send_pkt, m_dest_ip.value(), m_dest_port)) return;
+                return true;
             }
-        }
-    }; //End of ClientInterface
-}// End of namespace NetWorth
+
+
+            /**
+             * Choose action for player agent
+             * @param grid the client-side grid
+             * @param type_options different cell types of the world
+             * @param item_map the items that may be apart of the grid
+             * @param agent_map the agents that may be apart of the grid
+             * @return action ID of the interface
+             */
+            size_t SelectAction(const cse491::WorldGrid & grid,
+                                const cse491::type_options_t & type_options,
+                                const cse491::item_map_t & item_set,
+                                const cse491::agent_map_t & agent_set) override
+            {
+                // Receive and draw map
+                sf::Packet send_pkt, recv_pkt;
+                std::string map;
+
+                ReceivePacket(recv_pkt, m_ip, m_port);
+                ProcessPacket(recv_pkt);
+
+                // grab action ID from MainInterface
+                size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
+                                                                     item_set, agent_set);
+                std::cout << action_id << std::endl;
+
+                // Send instruction to server
+                send_pkt << action_id;
+                SendPacket(send_pkt, m_ip.value(), m_port);
+
+                // Do the action!
+                return action_id;
+            }
+
+
+            /**
+             * Process packet from server (just print map for now)
+             * @param packet packet from server
+             */
+            void ProcessPacket(Packet packet) override {
+                std::string str;
+                packet >> str;
+                std::cout << str;
+            }
+
+    }; // End of ClientInterface
+} // End of namespace NetWorth

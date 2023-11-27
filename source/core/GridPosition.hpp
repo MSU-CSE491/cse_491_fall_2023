@@ -43,7 +43,7 @@ namespace cse491 {
     /// Enable all comparison operators (==, !=, <, <=, >, >=)
     auto operator<=>(const GridPosition &) const = default;
 
-    [[nodiscard]] bool IsValid() const { return std::isnan(x) || std::isnan(y); }
+    [[nodiscard]] bool IsValid() const { return !(std::isnan(x) || std::isnan(y)); }
 
     // -- Modifiers --
 
