@@ -584,10 +584,10 @@ namespace cse491_team8 {
     
     }
 
-      /// @brief Check if an agent owns an item
-      /// @param agent The agent to see if is an owner
-      /// @param item_name Name of the item
-      /// @return item_id
+    /// @brief Check if an agent owns an item
+    /// @param agent The agent to see if is an owner
+    /// @param item_name Name of the item
+    /// @return item_id
     size_t FindItem(cse491::AgentBase & agent, const std::string & item_name) {
       size_t item_id = SIZE_MAX;
       for (auto & item : item_map)

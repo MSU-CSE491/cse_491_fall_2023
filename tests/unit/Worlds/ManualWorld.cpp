@@ -58,3 +58,27 @@ TEST_CASE("Agent Healing"){
     CHECK(agent->GetProperty<int>("Health") == 13);
   }
 }
+
+TEST_CASE("Finding item for agent"){
+  SECTION("Successful Item Find"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    item->SetOwner(*agent);
+    world.AddItem(std::move(item));
+    CHECK(world.FindItem(*agent, "Health Potion") == 2);
+  }
+
+  SECTION("Unsuccessful Item Find"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    item->SetOwner(*agent);
+    world.AddItem(std::move(item));
+    CHECK(world.FindItem(*agent, "Axe") == SIZE_T_MAX);
+  }
+}
