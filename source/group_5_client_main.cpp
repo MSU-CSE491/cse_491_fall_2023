@@ -27,7 +27,7 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::C
     std::string read;
     std::getline(is, read, '\n');
     if (read != ":::START agent_set") {
-        std::cerr << "Could not find start of type_options serialization" << std::endl;
+        std::cerr << "Could not find start of agent_set serialization" << std::endl;
         return;
     }
 
@@ -38,7 +38,7 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::C
     std::getline(is, read, '\n');
     size = stoi(read);
 
-    // read each cell type
+    // read each agent (only deserialize name, x, and y for now)
     for (size_t i = 0; i < size; i++) {
         std::getline(is, name, '\n');
         std::getline(is, x, '\n');
@@ -49,7 +49,7 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::C
 
     std::getline(is, read, '\n');
     if (read != ":::END agent_set") {
-        std::cerr << "Could not find end of type_options serialization" << std::endl;
+        std::cerr << "Could not find end of agent_set serialization" << std::endl;
         return;
     }
 }
@@ -88,10 +88,10 @@ int main(int argc, char *argv[]) {
     // Will probably find a way to determine world type from server
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
-    std::string interface_name = "Interface1";
-    cse491::MazeWorld world;
-    world.Deserialize(is);
-    int start_x = 0, start_y = 0;
+//    std::string interface_name = "Interface1";
+//    cse491::MazeWorld world;
+//    world.Deserialize(is);
+//    int start_x = 0, start_y = 0;
 
 //    std::string interface_name = "Interface";
 //    group4::SecondWorld world;
@@ -103,14 +103,15 @@ int main(int argc, char *argv[]) {
 //    world.Deserialize(is);
 //    int start_x = 0, start_y = 0;
 
-//    std::string interface_name = "Interface3";
-//    cse491_team8::ManualWorld world;
-//    world.Deserialize(is);
-//    int start_x = 40, start_y = 3;
+    std::string interface_name = "Interface3";
+    cse491_team8::ManualWorld world;
+    world.Deserialize(is);
+    int start_x = 40, start_y = 3;
 
     port = 55002;
 
     DeserializeAgentSet(is, world, &manager);
+    world.DeserializeItemSet(is);
     world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string, "port", port, "manager", &manager).SetProperty("symbol", '@').SetPosition(start_x, start_y);
 
     world.Run();

@@ -29,8 +29,8 @@ int main() {
 
     // TODO: Find a better way to deal with worlds other than commenting/uncommenting
 
-    cse491::MazeWorld world;
-    int start_x = 0, start_y = 0;
+//    cse491::MazeWorld world;
+//    int start_x = 0, start_y = 0;
 
 //    group4::SecondWorld world;
 //    int start_x = 0, start_y = 0;
@@ -46,8 +46,8 @@ int main() {
 //    cse491::GenerativeWorld world(SEED);
 //    int start_x = 0, start_y = 0;
 
-//    cse491_team8::ManualWorld world;
-//    int start_x = 40, start_y = 3;
+    cse491_team8::ManualWorld world;
+    int start_x = 40, start_y = 3;
 
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
@@ -57,10 +57,14 @@ int main() {
     astar_agent.SetGoalPosition(21, 7);
     astar_agent.RecalculatePath();
 
+    world.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
+    world.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
+
     // Serialize world into string
     std::ostringstream os;
     world.Serialize(os);
     std::string serialized = os.str();
+    std::cout << serialized << std::endl;
 
     // Await client
     sf::Packet recv_pkt, send_pkt;

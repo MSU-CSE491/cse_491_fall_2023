@@ -399,13 +399,49 @@ public:
       os << ":::START agent_set\n";
       os << agent_map.size() << '\n';
 
-      // serialize each important variable/property
       for (const auto &agent: agent_map) {
-          os << agent.second->GetName() << '\n';
-          os << agent.second->GetPosition().GetX() << '\n';
-          os << agent.second->GetPosition().GetY() << '\n';
+        agent.second->Serialize(os);
       }
       os << ":::END agent_set\n";
+  }
+
+  void SerializeItemSet(std::ostream &os) {
+    os << ":::START item_set\n";
+    os << item_map.size() << '\n';
+
+    for (const auto &item: item_map) {
+        item.second->Serialize(os);
+    }
+    os << ":::END item_set\n";
+  }
+
+  void DeserializeItemSet(std::istream &is) {
+      // find beginning of item_set serialization
+      std::string read;
+      std::getline(is, read, '\n');
+      if (read != ":::START item_set") {
+          std::cerr << "Could not find start of item_set serialization" << std::endl;
+          return;
+      }
+
+      size_t size;
+
+      // how many items?
+      std::getline(is, read, '\n');
+      size = stoi(read);
+
+      // read each item
+      for (size_t i = 0; i < size; i++) {
+          auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
+          item->Deserialize(is);
+          AddItem(std::move(item));
+      }
+
+      std::getline(is, read, '\n');
+      if (read != ":::END item_set") {
+          std::cerr << "Could not find end of item_set serialization" << std::endl;
+          return;
+      }
   }
 
   /**
@@ -415,6 +451,7 @@ public:
   void Serialize(std::ostream &os) {
     main_grid.Serialize(os);
     SerializeAgentSet(os);
+    SerializeItemSet(os);
   }
 
   /**

@@ -8,11 +8,9 @@
 #include <map>
 #include <sstream>
 #include <vector>
-#include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "SFML/Network/Packet.hpp"
 
 namespace netWorth{
-    using namespace sf;
-
     /**
      * The server that will be running and that allows clients to connect to
      */
@@ -32,7 +30,7 @@ namespace netWorth{
          * @param id agent ID
          * @param name agent name
          */
-        ServerManager()= default;
+        ServerManager() = default;
 
         /**
          * Report action from agent to manager
@@ -41,9 +39,6 @@ namespace netWorth{
          */
         void TellAction(size_t entity_id, size_t action_id) {
             m_action_map[entity_id] = action_id;
-//            for (auto pair : m_action_map) {
-//                std::cout << pair.first << ' ' << pair.second << std::endl;
-//            }
         }
 
         /**

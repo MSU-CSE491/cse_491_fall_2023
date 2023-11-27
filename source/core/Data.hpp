@@ -53,4 +53,6 @@ namespace cse491 {
   /// @brief Maps of agent IDs to agent pointers
   using agent_map_t = std::map<size_t, std::unique_ptr<AgentBase>>;
 
+  enum class PropertyType {t_double, t_int, t_char, t_string, t_other};
+
 }

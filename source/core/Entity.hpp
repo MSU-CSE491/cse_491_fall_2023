@@ -13,6 +13,7 @@
 #include <memory>
 #include <algorithm>
 #include "GridPosition.hpp"
+#include "Data.hpp"
 
 namespace cse491 {
 
@@ -42,6 +43,7 @@ namespace cse491 {
 
     /// Every entity can have a simple set of properties (with values) associated with it.
     std::unordered_map<std::string, std::unique_ptr<PropertyBase>> property_map;
+    std::unordered_map<std::string, PropertyType> property_type_map;
 
     // -- Helper Functions --
 
@@ -93,6 +95,19 @@ namespace cse491 {
       return AsProperty<T>(name).value;
     }
 
+    [[nodiscard]] PropertyType GetPropertyType(const std::string &key) const {
+      return property_type_map.at(key);
+    }
+
+    template <typename T>
+    void SetPropertyType(const std::string & name) {
+        if (std::is_same<T, double>::value) property_type_map[name] = PropertyType::t_double;
+        else if (std::is_same<T, int>::value) property_type_map[name] = PropertyType::t_int;
+        else if (std::is_same<T, char>::value) property_type_map[name] = PropertyType::t_char;
+        else if (std::is_same<T, std::string>::value) property_type_map[name] = PropertyType::t_string;
+        else property_type_map[name] = PropertyType::t_other;
+    }
+
     /// Change the value of the specified property (will create if needed)
     template <typename T>
     Entity & SetProperty(const std::string & name, const T & value) {
@@ -100,6 +115,7 @@ namespace cse491 {
         AsProperty<T>(name).value = value;
       } else {
         property_map[name] = std::make_unique<Property<T>>(value);
+        SetPropertyType<T>(name);
       }
       return *this;
     }
@@ -116,9 +132,9 @@ namespace cse491 {
     /// Completely remove a property from an Entity.
     Entity & RemoveProperty(const std::string & name) {
       property_map.erase(name);
+      property_type_map.erase(name);
       return *this;
     }    
-
 
     /// Inventory Management
     bool HasItem(size_t id) const {
@@ -130,6 +146,12 @@ namespace cse491 {
 
     Entity & RemoveItem(size_t id);
     Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
+
+    /**
+     * Serialize entity (pure virtual)
+     * @param os ostream
+     */
+    virtual void Serialize(std::ostream &os) = 0;
   };
 
 } // End of namespace cse491
