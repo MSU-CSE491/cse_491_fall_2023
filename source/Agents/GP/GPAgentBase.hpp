@@ -63,7 +63,7 @@ namespace cowboys {
 
     };
 
-    virtual void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, int fitness = -1) = 0;
+    virtual void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) = 0;
 
     virtual std::string Export() { return ""; }
 

@@ -102,10 +102,9 @@ endif ()
 
 # Build the main application executables, if requested
 if (${BUILD_MAIN})
-
-#    to sanitize for address
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-
+#    line to set santizers
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=[sanitizer]")
+#     can be set to address, undefined, thread, memory, or leak
 
     # Configure all of SFML
     set(SFML_SRC_DIR third_party/SFML)

@@ -23,8 +23,8 @@ int main() {
     cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 
-    loop.Initialize(150, 200);
-    loop.Run(10, 100, num_threads);
+    loop.Initialize(100, 1000);
+    loop.Run(11, 100, num_threads, true);
 //    }
 
     auto end_time = std::chrono::high_resolution_clock::now();
