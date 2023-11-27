@@ -23,3 +23,38 @@ TEST_CASE("ManualWorld Construction", "[worlds][manual]"){
     CHECK(world.GetNumAgents() == 5);
   }
 }
+
+TEST_CASE("Agent Healing"){
+  SECTION("Attempt Heal Success Full Heal"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 5, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    item->SetOwner(*agent);
+    world.AddItem(std::move(item));
+    world.HealAction(*agent);
+    CHECK(agent->GetProperty<int>("Health") == 15);
+  }
+
+  SECTION("Attempt Heal Success Partial Heal"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    item->SetOwner(*agent);
+    world.AddItem(std::move(item));
+    world.HealAction(*agent);
+    CHECK(agent->GetProperty<int>("Health") == 20);
+    CHECK(world.GetItem(world.GetItemID("Health Potion")).GetProperty<int>("Healing") == 3);
+  }
+
+  SECTION("No Health Potions"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    world.HealAction(*agent);
+    CHECK(agent->GetProperty<int>("Health") == 13);
+  }
+}
