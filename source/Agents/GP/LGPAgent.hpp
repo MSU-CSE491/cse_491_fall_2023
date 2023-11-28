@@ -92,7 +92,10 @@ namespace cowboys
             return instructions;
         }
 
-
+        /**
+         * @brief Mutate this agent.
+         * @param mutation_rate
+         */
         void MutateAgent(double mutation_rate = 0.01) override
         {
             std::uniform_int_distribution<size_t> rnd_mutate(1, 100);
@@ -138,6 +141,14 @@ namespace cowboys
             Configure(dynamic_cast<const LGPAgent &>(other));
         }
 
+        /**
+         * @brief Get the action object
+         * @param grid
+         * @param type_options
+         * @param item_set
+         * @param agent_set
+         * @return
+         */
         size_t GetAction([[maybe_unused]] const cse491::WorldGrid &grid,
                             [[maybe_unused]] const cse491::type_options_t &type_options,
                             [[maybe_unused]] const cse491::item_map_t &item_set,
@@ -232,6 +243,10 @@ namespace cowboys
             return 0;
         }
 
+        /**
+         * @brief Export the agent to a string
+         * @return
+         */
         std::string Export() {
             std::string encodedLists = "";
 
@@ -266,6 +281,12 @@ namespace cowboys
             return encodedLists;
         }
 
+        /**
+         * @brief Serialize the agent to XML
+         * @param doc
+         * @param parentElem
+         * @param fitness
+         */
         void Serialize(tinyxml2::XMLDocument & doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override
         {
             auto agentElem = doc.NewElement("LGPAgent");
@@ -278,6 +299,9 @@ namespace cowboys
             agentElem->InsertEndChild(listElem);
         }
 
+        /**
+         * @brief Print the agent
+         */
         void PrintAgent() override {
           for (auto i = 0; i < LISTSIZE; i++)
           {
