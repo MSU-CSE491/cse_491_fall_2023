@@ -22,7 +22,7 @@ namespace cse491 {
 
   protected:
     const size_t id=0;      ///< Unique ID for this entity (zero is use for "no ID")
-    std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
+    std::string name = "";       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
     GridPosition position;  ///< Where on the grid is this entity?
 
     struct PropertyBase {
@@ -78,15 +78,15 @@ namespace cse491 {
     // -- Property Management --
 
     /// Does this agent have a property with the specified name?
-    [[nodiscard]] bool HasProperty(const std::string & name) const {
-      return property_map.count(name);
+    [[nodiscard]] bool HasProperty(const std::string & nam) const {
+      return property_map.count(nam);
     }
 
     /// Return the current value of the specified property.
     template <typename T=double>
-    [[nodiscard]] const T & GetProperty(const std::string & name) const {
-      assert(HasProperty(name));   // Break if property does not already exist.
-      return AsProperty<T>(name).value;
+    [[nodiscard]] const T & GetProperty(const std::string & nam) const {
+      assert(HasProperty(nam));   // Break if property does not already exist.
+      return AsProperty<T>(nam).value;
     }
 
     /// Change the value of the specified property (will create if needed)

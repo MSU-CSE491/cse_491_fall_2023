@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <string>
+#include <thread>
 #include <vector>
 #include <array>
 #include <SFML/Network/UdpSocket.hpp>
@@ -34,13 +35,15 @@ namespace netWorth{
              * @param id agent ID
              * @param name agent name
              */
-            NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {}
+            NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {
+
+            }
 
             /**
              * Receives a socket that has been connected between client and server
              * @return the udp socket
              */
-            UdpSocket * GetSocket(){
+            virtual UdpSocket * GetSocket(){
                 return &m_socket;
             }
 
@@ -81,7 +84,7 @@ namespace netWorth{
              * @return received packet
              */
             virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
-                if (m_socket.receive(pkt, sender, port) != Socket::Status::Done) {
+                if (m_socket.receive(pkt, sender,port) != Socket::Status::Done) {
                     std::cerr << "Failed to receive" << std::endl;
                     return false;
                 }
