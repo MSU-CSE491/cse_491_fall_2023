@@ -38,6 +38,7 @@ public:
   ~MazeWorld() = default;
 
   /// Provide the agent with movement actions.
+  using WorldBase::ConfigAgent;
   void ConfigAgent(AgentBase &agent) const override {
     agent.AddAction("up", MOVE_UP);
     agent.AddAction("down", MOVE_DOWN);
@@ -72,12 +73,8 @@ public:
     }
 
     // Don't let the agent move off the world or into a wall.
-    if (!main_grid.IsValid(new_position)) {
-      return false;
-    }
-    if (main_grid.At(new_position) == wall_id) {
-      return false;
-    }
+    if (!main_grid.IsValid(new_position)) { return false; }
+    if (!IsTraversable(agent, new_position)) { return false; }
 
     // Set the agent to its new postion.
     agent.SetPosition(new_position);
@@ -85,9 +82,8 @@ public:
   }
 
   /// Can walk on all tiles except for walls
-  bool IsTraversable(const AgentBase & /*agent*/,
-                     cse491::GridPosition pos) const override {
-    return main_grid.At(pos) != wall_id;
+  bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
+    return GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
   }
 };
 

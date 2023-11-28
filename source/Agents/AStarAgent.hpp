@@ -62,17 +62,6 @@ public:
   int GetRecalculateValue() const {return recalculate_after_x_turns; }
 
   /**
-   * Returns if the agent has a world
-   * @return
-   */
-//  bool HasWorld() {
-//      if(world !=nullptr){
-//          return true;
-//      }
-//      return false;
-//  }
-
-  /**
    * Gets the size of the current path
    * @return
    */
@@ -129,10 +118,6 @@ public:
         return action_map["right"];
     }
     return 0; // If no path then do not do anything
-  }
-  /// Getter for the goal position
-  [[nodiscard]] const cse491::GridPosition &GetGoalPosition() const {
-    return goal_position;
   }
 };
 }; // namespace walle
