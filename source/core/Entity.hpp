@@ -9,8 +9,11 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
-
+#include <vector>
+#include <memory>
+#include <algorithm>
 #include "GridPosition.hpp"
+#include "Data.hpp"
 
 namespace cse491 {
 
@@ -25,6 +28,8 @@ namespace cse491 {
     std::string name = "";       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
     GridPosition position;  ///< Where on the grid is this entity?
 
+    std::vector<size_t> inventory;
+
     struct PropertyBase {
       virtual ~PropertyBase() { }
     };
@@ -38,6 +43,7 @@ namespace cse491 {
 
     /// Every entity can have a simple set of properties (with values) associated with it.
     std::unordered_map<std::string, std::unique_ptr<PropertyBase>> property_map;
+    std::unordered_map<std::string, PropertyType> property_type_map;
 
     // -- Helper Functions --
 
@@ -66,7 +72,7 @@ namespace cse491 {
     [[nodiscard]] WorldBase & GetWorld() const { assert(world_ptr); return *world_ptr; }
 
     Entity & SetName(const std::string in_name) { name = in_name; return *this; }
-    Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
+    Entity & SetPosition(GridPosition in_pos, size_t grid_id=0);
     Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
     Entity & SetWorld(WorldBase & in_world) { world_ptr = &in_world; return *this; }
 
@@ -89,6 +95,19 @@ namespace cse491 {
       return AsProperty<T>(nam).value;
     }
 
+    [[nodiscard]] PropertyType GetPropertyType(const std::string &key) const {
+      return property_type_map.at(key);
+    }
+
+    template <typename T>
+    void SetPropertyType(const std::string & name) {
+        if (std::is_same<T, double>::value) property_type_map[name] = PropertyType::t_double;
+        else if (std::is_same<T, int>::value) property_type_map[name] = PropertyType::t_int;
+        else if (std::is_same<T, char>::value) property_type_map[name] = PropertyType::t_char;
+        else if (std::is_same<T, std::string>::value) property_type_map[name] = PropertyType::t_string;
+        else property_type_map[name] = PropertyType::t_other;
+    }
+
     /// Change the value of the specified property (will create if needed)
     template <typename T>
     Entity & SetProperty(const std::string & name, const T & value) {
@@ -96,6 +115,7 @@ namespace cse491 {
         AsProperty<T>(name).value = value;
       } else {
         property_map[name] = std::make_unique<Property<T>>(value);
+        SetPropertyType<T>(name);
       }
       return *this;
     }
@@ -112,8 +132,26 @@ namespace cse491 {
     /// Completely remove a property from an Entity.
     Entity & RemoveProperty(const std::string & name) {
       property_map.erase(name);
+      property_type_map.erase(name);
       return *this;
     }    
+
+    /// Inventory Management
+    bool HasItem(size_t id) const {
+      return std::find(inventory.begin(), inventory.end(), id) != inventory.end();
+    }
+
+    Entity & AddItem(size_t id);
+    Entity & AddItem(Entity & item) { return AddItem(item.GetID()); }
+
+    Entity & RemoveItem(size_t id);
+    Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
+
+    /**
+     * Serialize entity (pure virtual)
+     * @param os ostream
+     */
+    virtual void Serialize(std::ostream &os) = 0;
   };
 
 } // End of namespace cse491

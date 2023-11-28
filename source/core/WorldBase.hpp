@@ -13,12 +13,14 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "AgentBase.hpp"
 #include "Data.hpp"
 #include "ItemBase.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
+#include "Interfaces/NetWorth/server/ServerManager.hpp"
 
 namespace cse491 {
 
@@ -27,6 +29,7 @@ class DataReceiver;
 class WorldBase {
 public:
   static constexpr size_t npos = static_cast<size_t>(-1);
+  netWorth::ServerManager *manager;
 
 protected:
   /// Derived worlds may choose to have more than one grid.
@@ -85,6 +88,13 @@ public:
   }
 
   virtual ~WorldBase() = default;
+
+  virtual void Reset() {
+    item_map.clear();
+    agent_map.clear();
+    last_entity_id = 0;
+    run_over = false;
+  }
 
   // -- Accessors --
 
@@ -247,6 +257,10 @@ public:
     return RemoveItem( GetItemID(item_name) );
   }
   
+  WorldBase & AddItemToGrid(size_t item_id, GridPosition pos, size_t grid_id=0) {
+    item_map[item_id]->SetPosition(pos, grid_id);
+    return *this;
+  }
 
   // -- Action Management --
 
@@ -262,6 +276,18 @@ public:
   virtual void RunAgents() {
     for (auto & [id, agent_ptr] : agent_map) {
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      agent_ptr->storeActionMap(agent_ptr->GetName());
+      int result = DoAction(*agent_ptr, action_id);
+      agent_ptr->SetActionResult(result);
+    }
+  }
+
+  /// @brief Step through each agent giving them a chance to take an action.
+  /// @note Override this function if you want to control which grid the agents receive.
+  virtual void RunServerAgents() {
+    for (auto & [id, agent_ptr] : agent_map) {
+      size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      manager->TellAction(id, action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
@@ -288,6 +314,17 @@ public:
     run_over = false;
     while (!run_over) {
       RunAgents();
+      CollectData();
+      UpdateWorld();
+    }
+  }
+
+  /// @brief Run world as server with manager
+  virtual void RunServer(netWorth::ServerManager *mgr) {
+    run_over = false;
+    manager = mgr;
+    while (!run_over) {
+      RunServerAgents();
       CollectData();
       UpdateWorld();
     }
@@ -378,6 +415,73 @@ public:
   /// @return If an agent should be allowed on this square
   [[nodiscard]] virtual bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition /*pos*/) const {
     return true;
+  }
+
+  void SerializeAgentSet(std::ostream &os) {
+      os << ":::START agent_set\n";
+      os << agent_map.size() << '\n';
+
+      for (const auto &agent: agent_map) {
+        agent.second->Serialize(os);
+      }
+      os << ":::END agent_set\n";
+  }
+
+  void SerializeItemSet(std::ostream &os) {
+    os << ":::START item_set\n";
+    os << item_map.size() << '\n';
+
+    for (const auto &item: item_map) {
+        item.second->Serialize(os);
+    }
+    os << ":::END item_set\n";
+  }
+
+  void DeserializeItemSet(std::istream &is) {
+      // find beginning of item_set serialization
+      std::string read;
+      std::getline(is, read, '\n');
+      if (read != ":::START item_set") {
+          std::cerr << "Could not find start of item_set serialization" << std::endl;
+          return;
+      }
+
+      size_t size;
+
+      // how many items?
+      std::getline(is, read, '\n');
+      size = stoi(read);
+
+      // read each item
+      for (size_t i = 0; i < size; i++) {
+          auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
+          item->Deserialize(is);
+          AddItem(std::move(item));
+      }
+
+      std::getline(is, read, '\n');
+      if (read != ":::END item_set") {
+          std::cerr << "Could not find end of item_set serialization" << std::endl;
+          return;
+      }
+  }
+
+  /**
+   * Serialize world grid and agents into ostream
+   * @param os ostream
+   */
+  void Serialize(std::ostream &os) {
+    main_grid.Serialize(os);
+    SerializeAgentSet(os);
+    SerializeItemSet(os);
+  }
+
+  /**
+   * Deserialize world grid from istream
+   * @param is
+   */
+  void Deserialize(std::istream &is) {
+    main_grid.Deserialize(is);
   }
 
 };

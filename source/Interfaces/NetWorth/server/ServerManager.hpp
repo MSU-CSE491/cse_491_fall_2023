@@ -26,6 +26,7 @@ namespace netWorth{
         std::mutex m_actionMapMutex; ///Mutex regarding the action map
 
         std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
+
     protected:
 
     public:
@@ -38,7 +39,31 @@ namespace netWorth{
          * @param id agent ID
          * @param name agent name
          */
-        ServerManager()= default;
+        ServerManager() = default;
+
+        /**
+         * Report action from agent to manager
+         * @param entity_id ID of reorting entity
+         * @param action_id action ID
+         */
+        void TellAction(size_t entity_id, size_t action_id) {
+            m_action_map[entity_id] = action_id;
+        }
+
+        /**
+         * Convert action map to packet to send to client
+         * @return packet containing action map as series of integers
+         */
+        sf::Packet ActionMapToPacket()
+        {
+            sf::Packet pkt;
+            pkt << m_action_map.size();
+            for (auto pair: m_action_map) {
+                pkt << pair.first << pair.second;
+            }
+            //std::cout << m_action_map.size();
+            return pkt;
+        }
 
         std::mutex & GetThreadMutex(){return m_connectionThreadMutex;}
 
