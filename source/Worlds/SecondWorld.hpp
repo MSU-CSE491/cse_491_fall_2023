@@ -83,9 +83,6 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to warp CellType ID.
   size_t hidden_warp_id;
 
-  /// Vector of the items in this world
-  std::map<size_t, std::unique_ptr<cse491::ItemBase>> inventory;
-
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
     agent.AddAction("up", MOVE_UP);
@@ -238,25 +235,19 @@ class SecondWorld : public cse491::WorldBase {
         // TODO: Remove the item that the agent has selected in his hot bar, instead
         //  of the first item in the agent's inventory
         // Get the item from the SecondWorld inventory
-        auto item_id = agent.GetInventory().at(0);
-        auto item = std::move(inventory[item_id]);
+        auto& item = GetItem(agent.GetInventory().at(0));
 
-        agent.Notify("Dropping " + item->GetName(), "item_alert");
+        agent.Notify("Dropping " + item.GetName(), "item_alert");
 
-        // TODO: Fix issue regarding Grid not being set to anything???
-        item->SetGrid(0);
-        item->SetPosition(pos);
+        // Set the position and remove item from agent's inventory
+        item.SetPosition(pos);
+        agent.RemoveItem(item.GetID());
 
-        // Transfer ownership back to item_map
-        main_grid.At(pos) = GetCellTypeSymbol(item_id);
-        AddItem(std::move(item));
+        // Must set the grid back because RemoveItem() doesn't account for that
+        item.SetGrid();
 
-        // TODO: Will need to change so it removes nullptrs and not everything
-        // Remove the nullptr from second world inventory
-        inventory.clear();
+        main_grid.At(pos) = GetCellTypeSymbol(item.GetID());
 
-        // Remove item from agent's inventory
-        agent.RemoveItem(item_id);
     }
   }
 
@@ -356,28 +347,17 @@ class SecondWorld : public cse491::WorldBase {
                          "item_alert");
 
             // Add item to the agent's inventory
-            agent.AddItem(item_found);
+            agent.AddItem(item_found.GetID());
 
-            // Change ownership from item_map to this world's inventory
-            // This will prevent the item from showing on the grid
-            auto item_object = GetItemObject(item_found.GetID());
-            inventory[item_found.GetID()] = std::move(item_object);
+            // Changing the position to (NULL, NULL) gives warnings, but works...
+            item_found.SetPosition(NULL, NULL);
 
-            // We also need to remove the item from the item_map, so it doesn't cause BAD_ACCESS_ERROR
-            RemoveItem(item_found.GetID());
-
-            // Change the grid position to floor_id
             main_grid.At(pos) = floor_id;
+
           }
         }
       }
     }
-  }
-
-  // Added this to get actual object, but this may change if we alter the inventory API
-  [[nodiscard]] std::unique_ptr<cse491::ItemBase> GetItemObject(size_t id) {
-    return std::move(item_map[id]);
-
   }
 
   /**

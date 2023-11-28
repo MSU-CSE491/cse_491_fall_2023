@@ -62,14 +62,17 @@ int main()
   chest->SetGrid(level_zero);
   auto& temp_chest = world.AddItem(std::move(chest));
 
-  // Adding an item that will be owned by the chest w/ id = 6; name = Diamond
-  auto temp_item1 = std::make_unique<cse491::ItemBase>(6, "Diamond");
-  // TODO: Should we allow the symbol to be empty? Not setting the position will always default to (0, 0).
-  //  This may be a problem if we later want to drop the item. It will not show unless we change the property value
-  temp_item1->SetProperties("symbol", ' ', "Currency", 100);
+  // Adding an item that will be owned by the chest w/ id = 6; name = Fire Dagger
+  auto dagger2 = std::make_unique<cse491::ItemBase>(6, "Fire Dagger");
+  dagger2->SetProperties("symbol", 'D', "Damage", 15);
+  dagger2->SetPosition(0, 4);
+  dagger2->SetGrid(level_zero);
+  auto& temp_dagger = world.AddItem(std::move(dagger2));
 
-  auto& temp = world.AddItem(std::move(temp_item1));
-  temp_chest.AddItem(temp);
+  // TODO: How do we add the items located in the chest without it displaying at (0, 0) from the start?
+  //  Possibly don't set the property symbol and add it later by checking if there is a symbol value already.
+  temp_chest.AddItem(temp_dagger.GetID());
+  temp_dagger.SetPosition(NULL, NULL);
 
   world.Run();
 }
