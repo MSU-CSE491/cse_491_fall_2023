@@ -6,7 +6,7 @@
 //#include "GPAgent.hpp"
 #include "GPAgent_.hpp"
 
-
+#include "LGPAgent.hpp"
 #include "CGPAgent.hpp"
 
 #include <thread>

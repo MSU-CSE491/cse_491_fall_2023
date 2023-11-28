@@ -26,7 +26,7 @@ int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
-    cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop;
+    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 //    loop.initialize(20, 200);
 //
