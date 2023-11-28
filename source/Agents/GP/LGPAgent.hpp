@@ -240,7 +240,7 @@ namespace cowboys
             return 0;
         }
 
-        void Serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *, double fitness = -1) override {}
+        void Serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *,  [[maybe_unused]] double fitness = -1) override {}
 
         void PrintAgent() override {
           for (auto i = 0; i < LISTSIZE; i++)

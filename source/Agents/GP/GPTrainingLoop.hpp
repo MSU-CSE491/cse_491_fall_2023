@@ -482,7 +482,8 @@ namespace cowboys {
           std::cout << "Average fitness: " << averageFitness << " ";
           std::cout << "Max fitness: " << maxFitness << std::endl;
 
-          const char *tagName = ("generation_" + std::to_string(generation)).c_str();
+          std::string tempName = "generation_" + std::to_string(generation);
+          const char *tagName = tempName.c_str();
 
           auto *generationTag = metaData.NewElement(tagName);
 
@@ -573,7 +574,8 @@ namespace cowboys {
         void SerializeAgents(int generation, tinyxml2::XMLElement *rootElement, tinyxml2::XMLDocument &paramDocument,
                              size_t topN = 5) {
 
-          const char *tagName = ("generation_" + std::to_string(generation)).c_str();
+          std::string tempName = "generation_" + std::to_string(generation);
+          const char *tagName = tempName.c_str();
 
           auto *generationTag = paramDocument.NewElement(tagName);
 
@@ -851,7 +853,7 @@ namespace cowboys {
 
           for (size_t a = 0; a < agents[arena].size(); ++a) {
             std::vector<double> scores = independentAgentFitness[arena][a];
-            auto computeMedian = [&scores]() -> double {
+            [[maybe_unused]] auto computeMedian = [&scores]() -> double {
                 std::vector<double> temp(scores);  // Copy the data
                 std::sort(temp.begin(), temp.end());
 
@@ -863,7 +865,7 @@ namespace cowboys {
 //            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
 //            TEMPAgentFitness[arena][a] += computeMedian();
               double min = *std::min_element(scores.begin(), scores.end());
-              double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
+            [[maybe_unused]] double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
 //              TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
               TEMPAgentFitness[arena][a] = min;
           }

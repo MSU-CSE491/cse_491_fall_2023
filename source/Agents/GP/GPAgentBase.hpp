@@ -65,6 +65,7 @@ namespace cowboys {
 
     virtual void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) = 0;
 
+    /// TODO: Might have to remove it
     virtual std::string Export() { return ""; }
 
     virtual void Reset(bool /*hard*/ = false) { extra_state["previous_action"] = 0; };
