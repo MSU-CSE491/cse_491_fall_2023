@@ -10,7 +10,6 @@
 #include <mutex>
 #include <SFML/Network.hpp>
 #include "Agents/PacingAgent.hpp"
-#include "Interfaces/NetWorth/server/networkingworld.hpp"
 #include "Interfaces/NetWorth/server/ServerInterface.hpp"
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
 #include "Worlds/MazeWorld.hpp"
@@ -21,10 +20,11 @@
 #include "Worlds/SecondWorld.hpp"
 #include "Agents/AStarAgent.hpp"
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
+#include "core/Entity.hpp"
 
 
-void ClientThread(ServerInterface & interface, netWorth::NetworkMazeWorld &world,
-                  ServerManager & serverManager){
+void ClientThread(netWorth::ServerInterface & interface, cse491::MazeWorld &world,
+                  netWorth::ServerManager & serverManager){
     // Send to acknowledge client
 
     std::cout << "In client thread" << std::endl;
@@ -43,9 +43,9 @@ void ClientThread(ServerInterface & interface, netWorth::NetworkMazeWorld &world
  * @param port port of the connection
  * @return true if successful
  */
-void HandleConnection(ServerManager &serverManager, netWorth::NetworkMazeWorld &world) {
+void HandleConnection(netWorth::ServerManager &serverManager, cse491::MazeWorld &world) {
     sf::UdpSocket socket;
-    if (socket.bind(ServerManager::m_initConnectionPort) != sf::Socket::Status::Done){
+    if (socket.bind(netWorth::ServerManager::m_initConnectionPort) != sf::Socket::Status::Done){
         std::cerr << "Failed to bind" << std::endl;
         exit(0);
     }
@@ -122,7 +122,8 @@ int main() {
 //    cse491::GenerativeWorld world(SEED);
 //    int start_x = 0, start_y = 0;
 
-    cse491_team8::ManualWorld world;
+//    cse491_team8::ManualWorld world;
+    cse491::MazeWorld world;
     int start_x = 40, start_y = 3;
 
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
@@ -156,7 +157,7 @@ int main() {
     std::cout << str << std::endl;
 
     std::cout << "Server started on IP address: " << sf::IpAddress::getLocalAddress()->toString() << std::endl;
-    netWorth::NetworkMazeWorld world;
+
 
     netWorth::ServerManager serverManager;
 
@@ -185,4 +186,3 @@ int main() {
 
 }
 
-}

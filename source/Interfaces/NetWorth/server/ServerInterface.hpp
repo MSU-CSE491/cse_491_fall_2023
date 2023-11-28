@@ -88,7 +88,7 @@ namespace netWorth {
 
             recv_pkt >> str;
             std::cout << str << std::endl;
-
+        }
             /**
              * Sends a packet across the socket
              * @param packet the packet we want to send
@@ -238,4 +238,5 @@ namespace netWorth {
             }
 
         }; // End of class ServerInterface
-    } // End of namespace netWorth
+ // End of namespace netWorth
+}
