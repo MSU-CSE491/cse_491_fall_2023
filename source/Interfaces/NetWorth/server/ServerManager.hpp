@@ -19,15 +19,16 @@ namespace netWorth{
      */
     class ServerManager {
     private:
-
-
-    protected:
-
-    public:
         std::vector<std::thread> m_clientThreads; ///Vector of all client threads
 
         std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
+        std::mutex m_actionMapMutex; ///Mutex regarding the action map
+
+        std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
+    protected:
+
+    public:
         const static constexpr unsigned short m_initConnectionPort = 55000; ///Port for initial client connection
 
         unsigned short m_maxClientPort = 55000; ///Port that is incremented for client thread handoff
@@ -39,19 +40,14 @@ namespace netWorth{
          */
         ServerManager()= default;
 
+        std::mutex & GetThreadMutex(){return m_connectionThreadMutex;}
+
+        std::mutex & GetActionMutex(){return m_actionMapMutex;}
+
         /**
          * Increases the max client port
          */
         void IncreasePort(){++m_maxClientPort;}
-
-        /**
-         * Adds a thread to the container of threads for cleanup and reference purposes
-         * @param thread thread to add into the vector
-         */
-        void AddClient(std::thread &thread, unsigned short clientPort){
-            m_clientThreads.push_back(std::move(thread));
-            m_action_map.insert_or_assign(clientPort, 0);
-        }
 
         /**
          * Joins all client threads at the end of the server's lifespan
@@ -60,6 +56,29 @@ namespace netWorth{
             for (auto &thread: m_clientThreads){
                 thread.join();
             }
+        }
+
+        bool ActionMapContains(size_t key){return m_action_map.contains(key);}
+
+        size_t ReadFromActionMap(size_t key){
+            std::lock_guard<std::mutex> actionLock(m_actionMapMutex);
+            try{
+                return m_action_map.at(key);
+            }
+
+            catch (std::out_of_range & e){
+                return 0;
+            }
+        }
+
+        void WriteToActionMap(size_t key, size_t val){
+            std::lock_guard<std::mutex> actionLock(m_actionMapMutex);
+            m_action_map.insert_or_assign(key, val);
+        }
+
+        size_t AddToThreadVector(std::thread& thread){
+            std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
+            m_clientThreads.push_back(std::move(thread));
         }
 
     }; // End of class ServerManager

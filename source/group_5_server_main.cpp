@@ -7,6 +7,7 @@
 // Include the modules that we will be using.
 
 #include <thread>
+#include <mutex>
 #include <SFML/Network.hpp>
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/NetWorth/server/networkingworld.hpp"
@@ -23,16 +24,9 @@ void ClientThread(netWorth::ServerInterface & interface, netWorth::NetworkMazeWo
     std::cout << interface.GetName() << std::endl;
 
     //While this client is still connected (need to fix)
-//    while (serverManager.m_action_map.contains(interface.GetSocket()->getLocalPort())){
-//        sf::Packet clientPacket;
-//        std::optional<sf::IpAddress> clientIP;
-//        unsigned short clientPort;
-
-//        size_t clientAction = interface.SelectAction(world.GetGrid(), world.GetCellTypes(), world.Get);
-
-        //Might need to do this inside of do action or before DoAction.
-//        serverManager.m_action_map.insert_or_assign(interface.GetSocket()->getLocalPort(), clientAction);
-//    }
+    while (serverManager.ActionMapContains(interface.GetID())){
+        std::cout << interface.GetName() << " is connected" << std::endl;
+    }
 }
 
 /**
@@ -65,7 +59,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, netWorth::NetworkM
 
 
     serverManager.IncreasePort();
-    //networth::ServerInterface & interface
+
     pkt.clear();
     pkt << serverManager.m_maxClientPort;
     if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
@@ -81,12 +75,14 @@ void HandleConnection(netWorth::ServerManager &serverManager, netWorth::NetworkM
 
     auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
 
+    //Do an atomic check to see if you can add it
+    serverManager.WriteToActionMap(serverInterface.GetID(), 0);
 
     std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
                              std::ref(serverManager));
-    serverManager.AddClient(clientThread, serverManager.m_maxClientPort);
-    std::cout << "Added thread" << std::endl;
 
+    serverManager.AddToThreadVector(clientThread);
+    std::cout << "Added thread" << std::endl;
 }
 
 int main() {
@@ -95,6 +91,7 @@ int main() {
     netWorth::NetworkMazeWorld world;
 
     netWorth::ServerManager serverManager;
+
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
 
