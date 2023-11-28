@@ -82,8 +82,8 @@ public:
   }
 
   /// Can walk on all tiles except for walls
-  bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
-    return GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
+  [[nodiscard]] bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
+    return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
   }
 };
 

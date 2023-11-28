@@ -83,7 +83,7 @@ public:
    */
   void RecalculatePath() {
     path = GetShortestPath(GetPosition(), goal_position, GetWorld(), *this);
-    path.pop_back();
+    if (!path.empty()){path.pop_back();} // Remove the val that we are currently at
     current_move_num = 0;
   }
 

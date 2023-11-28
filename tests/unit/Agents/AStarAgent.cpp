@@ -104,7 +104,7 @@ TEST_CASE("AStarAgent RecalculatePath", "[Agents]") {
 	SECTION("Invalid Goal Position"){
 
 		// check that the agent can't find a path to an invalid location
-		agent.SetGoalPosition(0.0, 5.0);
+		agent.SetGoalPosition(0.0, -5.0);
 		agent.RecalculatePath();
 
 		REQUIRE(agent.GetPathLength() == 0);
@@ -115,7 +115,7 @@ TEST_CASE("AStarAgent RecalculatePath", "[Agents]") {
 	{
 
 		// check that the agents calculated path is > 0 when the goal position is correct
-		agent.SetGoalPosition(0.0, 6.0);
+		agent.SetGoalPosition(0.0, 7.0);
 		agent.RecalculatePath();
 
 		REQUIRE(agent.GetPathLength() > 0);
