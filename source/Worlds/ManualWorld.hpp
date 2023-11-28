@@ -369,7 +369,7 @@ namespace cse491_team8 {
             }
           }
 
-          data_manager->GetItemUseCollector().IncrementItemUsage(item_ptr->GetName());
+          DataCollection::DataManager::GetInstance().GetItemUseCollector().IncrementItemUsage(item_ptr->GetName());
           std::cout << "Picked up the " << item_ptr->GetName() << "!\n"
                     << "You now have " << agent.GetProperty<int>(uses_property) << " uses left of this item." << std::endl;
 
