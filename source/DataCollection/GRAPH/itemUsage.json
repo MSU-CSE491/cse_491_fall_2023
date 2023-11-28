@@ -1,0 +1,20 @@
+{
+    "items": [
+        {
+            "name": "Sword",
+            "amountOfUses": 9
+        },
+        {
+            "name": "Stick",
+            "amountOfUses": 19
+        },
+        {
+            "name": "Axe",
+            "amountOfUses": 7
+        },
+        {
+            "name": "Staff",
+            "amountOfUses": 4
+        }
+    ]
+}
