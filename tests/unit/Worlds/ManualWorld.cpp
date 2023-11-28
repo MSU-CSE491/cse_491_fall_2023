@@ -105,3 +105,45 @@ TEST_CASE("Agent dropping items after being defeated"){
     CHECK(world.GetItem(2).GetOwnerID() == 0);
   }
 }
+
+TEST_CASE("Agent looking ahead"){
+  SECTION("Looking above"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 0);
+    agent->SetPosition(5, 5);
+    auto look_position = world.LookAhead(*agent);
+    CHECK(look_position.GetX() == 5);
+    CHECK(look_position.GetY() == 4);
+  }
+
+  SECTION("Looking below"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 2);
+    agent->SetPosition(5, 5);
+    auto look_position = world.LookAhead(*agent);
+    CHECK(look_position.GetX() == 5);
+    CHECK(look_position.GetY() == 6);
+  }
+
+  SECTION("Looking left"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 3);
+    agent->SetPosition(5, 5);
+    auto look_position = world.LookAhead(*agent);
+    CHECK(look_position.GetX() == 4);
+    CHECK(look_position.GetY() == 5);
+  }
+
+  SECTION("Looking right"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 1);
+    agent->SetPosition(5, 5);
+    auto look_position = world.LookAhead(*agent);
+    CHECK(look_position.GetX() == 6);
+    CHECK(look_position.GetY() == 5);
+  }
+}
