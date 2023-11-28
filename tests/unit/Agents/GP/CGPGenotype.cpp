@@ -11,6 +11,12 @@
 #include <ranges>
 
 using namespace cowboys;
+
+struct MockWorld : cse491::WorldBase {
+  int DoAction(cse491::AgentBase &, size_t) override { return 0; }
+};
+MockWorld world;
+
 TEST_CASE("Genotype construction", "[group7][genotype]") {
   SECTION("Parameters constructor") {
     auto genotype = CGPGenotype({8, 4, 2, 10, 2});
@@ -76,7 +82,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
   CGPGenotype genotype({10, 10, 200, 10, 10});
   SECTION("Mutate connections") {
     // Each connection will have a 0% chance of being mutated
-    genotype.MutateConnections(0.);
+    genotype.MutateConnections(0., world);
     bool all_0s = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it)
       all_0s = all_0s && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
@@ -84,7 +90,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 0);
 
     // Each connection will have a 100% chance of being mutated
-    genotype.MutateConnections(1.);
+    genotype.MutateConnections(1., world);
     all_0s = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it)
       all_0s = all_0s && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
@@ -100,7 +106,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 0);
 
     // Nothing should change
-    genotype.MutateFunctions(0., 100);
+    genotype.MutateFunctions(0., 100, world);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->function_idx == 0;
@@ -109,7 +115,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 0);
 
     // Most should change
-    genotype.MutateFunctions(1., 100);
+    genotype.MutateFunctions(1., 100, world);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->function_idx == 0;
@@ -126,7 +132,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 0);
 
     // Nothing should change
-    genotype.MutateOutputs(0., -100, 100);
+    genotype.MutateOutputs(0., 0, 100, world);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
@@ -135,7 +141,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 0);
 
     // Should change
-    genotype.MutateOutputs(1., -100, 100);
+    genotype.MutateOutputs(1., 0, 100, world);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
@@ -154,7 +160,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     CHECK(genotype.GetNumConnections() == 0);
 
     // Mutate with 0 probability, nothing should change
-    genotype.MutateDefault(0.);
+    genotype.MutateDefault(0., world);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
@@ -166,7 +172,7 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
 
     // Mutate with 100% probability, everything should have a high chance of changing (input connections will have a 1/2
     // chance of changing (connected vs not connected) while functions will have a 1-1/n chance of changing with n functions)
-    genotype.MutateDefault(1.);
+    genotype.MutateDefault(1., world);
     all_default = true;
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
@@ -217,7 +223,7 @@ TEST_CASE("base64", "[group7][base64]") {
   }
 }
 TEST_CASE("Genotype overloads", "[group7][genotype]") {
-  SECTION("operator==") {
+  SECTION("operator== and operator!=") {
     auto genotype = CGPGenotype({7, 2, 0, 10, 3});
     auto genotype2 = CGPGenotype({7, 2, 0, 10, 3});
     CHECK(genotype == genotype2);
@@ -226,20 +232,20 @@ TEST_CASE("Genotype overloads", "[group7][genotype]") {
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
-    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateConnections(1);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateConnections(1, world);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
-    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateFunctions(1, 100);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateFunctions(1, 100, world);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
 
-    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateOutputs(1, -10000, 10000);
+    genotype2 = CGPGenotype({7, 2, 0, 10, 3}).MutateOutputs(1, 0, 10000, world);
     CHECK_FALSE(genotype == genotype2);
     CHECK(genotype != genotype2);
   }
   SECTION("Copy constructor") {
-    auto genotype = CGPGenotype({7, 2, 0, 10, 3}).MutateDefault(1);
+    auto genotype = CGPGenotype({7, 2, 0, 10, 3}).MutateDefault(1, world);
     auto genotype2 = CGPGenotype(genotype);
     CHECK(genotype == genotype2);
   }
@@ -273,17 +279,17 @@ TEST_CASE("Genotype configuration", "[group7][genotype]") {
     //
     // These tests could fail, should be unlikely
     //
-    genotype.MutateConnections(1);
+    genotype.MutateConnections(1, world);
     CHECK_FALSE(genotype == genotype2);
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
 
-    genotype.MutateFunctions(1, 100);
+    genotype.MutateFunctions(1, 100, world);
     CHECK_FALSE(genotype == genotype2);
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);
 
-    genotype.MutateOutputs(1, -10000, 10000);
+    genotype.MutateOutputs(1, 0, 10000, world);
     CHECK_FALSE(genotype == genotype2);
     genotype2 = CGPGenotype().Configure(genotype.Export());
     CHECK(genotype == genotype2);

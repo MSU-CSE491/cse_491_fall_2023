@@ -9,7 +9,7 @@
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
-#include "Agents/GP/GPAgent_.hpp"
+#include "Agents/GP/GPAgentBase.hpp"
 #include "Agents/GP/LGPAgent.hpp"
 #include "Agents/GP/GPAgentTest.hpp"
 

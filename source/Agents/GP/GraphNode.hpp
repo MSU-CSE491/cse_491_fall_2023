@@ -1,7 +1,14 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <execution>
+#include <functional>
+#include <limits>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <string>
@@ -9,8 +16,7 @@
 
 namespace cowboys {
   class GraphNode;
-  using NodeInputs = std::vector<std::shared_ptr<GraphNode>>;
-  using NodeFunction = double (*)(const NodeInputs &);
+  using NodeFunction = double (*)(const GraphNode &);
 
   /// @brief A node in a decision graph.
   /// @note This should always be a shared pointer. Caching will not work otherwise.
@@ -23,10 +29,10 @@ namespace cowboys {
     NodeFunction function_pointer{nullptr};
 
     /// The default output of this node.
-    double output{0};
+    double default_output{0};
 
     /// The nodes connected to this node's output.
-    std::vector<std::weak_ptr<GraphNode>> outputs;
+    std::vector<GraphNode *> outputs;
 
     /// The cached output of this node.
     mutable double cached_output{0};
@@ -36,15 +42,13 @@ namespace cowboys {
 
     /// @brief Add an output node to this node. Used for cache invalidation.
     /// @param node The node to add as an output.
-    void AddOutput(std::weak_ptr<GraphNode> node) { outputs.push_back(node); }
+    void AddOutput(GraphNode *node) { outputs.push_back(node); }
 
     /// @brief Invalidates this node's cache and the caches of all nodes that depend on this node.
     void RecursiveInvalidateCache() const {
       cached_output_valid = false;
       for (auto &output : outputs) {
-        if (auto output_node = output.lock()) {
-          output_node->RecursiveInvalidateCache();
-        }
+        output->RecursiveInvalidateCache();
       }
     }
 
@@ -53,7 +57,7 @@ namespace cowboys {
     ~GraphNode() = default;
 
     /// TODO: Check guidelines for this
-    GraphNode(double default_value) : output{default_value} {}
+    GraphNode(double default_value) : default_output{default_value} {}
     GraphNode(NodeFunction function) : function_pointer{function} {}
 
     /// @brief Get the output of this node. Performs caching.
@@ -62,14 +66,10 @@ namespace cowboys {
       if (cached_output_valid)
         return cached_output;
 
-      double result = output;
+      double result = default_output;
       // Invoke function pointer if it exists
       if (function_pointer != nullptr) {
-        try {
-          result = function_pointer(inputs);
-        } catch (const std::out_of_range &e) {
-          // Don't do anything, just use the default output
-        }
+        result = function_pointer(*this);
       }
 
       // Cache the output
@@ -77,6 +77,31 @@ namespace cowboys {
       cached_output_valid = true;
 
       return result;
+    }
+
+    /// @brief Get the output values of the inputs of this node.
+    /// @return A vector of doubles representing the input values.
+    std::vector<double> GetInputValues() const {
+      std::vector<double> values;
+      values.reserve(inputs.size());
+      std::transform(inputs.cbegin(), inputs.cend(), std::back_inserter(values),
+                     [](const auto &node) { return node->GetOutput(); });
+      return values;
+    }
+
+    /// @brief Get the output values of the inputs of this node given an array of indices.
+    /// @tparam N The size of the indices array.
+    /// @param indices The indices of the inputs to get the output values of.
+    /// @return A vector of doubles representing the input values in the same order of the indices.
+    template <size_t N> std::optional<std::vector<double>> GetInputValues(const std::array<size_t, N> &indices) const {
+      size_t max_index = *std::max_element(indices.cbegin(), indices.cend());
+      if (max_index >= inputs.size())
+        return std::nullopt;
+      std::vector<double> values;
+      values.reserve(N);
+      std::transform(indices.cbegin(), indices.cend(), std::back_inserter(values),
+                     [this](const auto &index) { return inputs.at(index)->GetOutput(); });
+      return values;
     }
 
     /// @brief Set the function pointer of this node.
@@ -91,7 +116,7 @@ namespace cowboys {
     void AddInput(std::shared_ptr<GraphNode> node) {
       inputs.push_back(node);
       // Add a weak pointer to this node to the input node's outputs
-      node->AddOutput(weak_from_this());
+      node->AddOutput(this);
       RecursiveInvalidateCache();
     }
 
@@ -111,12 +136,16 @@ namespace cowboys {
 
     /// @brief Set the default output of this node.
     /// @param value The new default output.
-    void SetOutput(double value) {
-      if (output != value) {
-        output = value;
+    void SetDefaultOutput(double value) {
+      if (default_output != value) {
+        default_output = value;
         RecursiveInvalidateCache();
       }
     }
+
+    /// @brief Get the default output of this node.
+    /// @return The default output.
+    double GetDefaultOutput() const { return default_output; }
 
     /// @brief Check if the cached output is valid.
     /// @return True if the cached output is valid, false otherwise.
@@ -124,150 +153,199 @@ namespace cowboys {
   };
 
   /// @brief Returns the sum all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Sum(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return node->GetOutput(); });
+  double Sum(const GraphNode &node) {
+    auto vals = node.GetInputValues();
+//    return std::reduce(std::execution::par, vals.cbegin(), vals.cend(), 0.);
+    return std::reduce(vals.cbegin(), vals.cend(), 0.);
   }
 
   /// @brief Returns 1 if all inputs are not equal to 0, 0 otherwise.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double And(const NodeInputs &inputs) {
-    for (const auto &input : inputs) {
-      if (input->GetOutput() == 0.)
-        return 0.;
-    }
-    return 1.;
+  double And(const GraphNode &node) {
+    auto vals = node.GetInputValues();
+    return std::any_of(vals.cbegin(), vals.cend(), [](const double val) { return val == 0.; }) ? 0. : 1.;
   }
 
   /// @brief Returns 1 if any of the inputs besides the first are equal to the first
   /// input, 0 otherwise.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double AnyEq(const NodeInputs &inputs) {
-    for (size_t i = 1; i < inputs.size(); ++i) {
-      if (inputs.at(0)->GetOutput() == inputs.at(i)->GetOutput())
+  double AnyEq(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+    if (vals.size() == 0)
+      return node.GetDefaultOutput();
+    for (size_t i = 1; i < vals.size(); ++i) {
+      if (vals.at(0) == vals.at(i))
         return 1.;
     }
     return 0.;
   }
 
   /// @brief Returns 1 if the first input is equal to 0 or there are no inputs, 0 otherwise.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Not(const NodeInputs &inputs) { return (inputs.size() == 0) || (inputs.at(0)->GetOutput() == 0.) ? 1. : 0.; }
+  double Not(const GraphNode &node) {
+    auto vals = node.GetInputValues<1>(std::array<size_t, 1>{0});
+    if (!vals.has_value())
+      return node.GetDefaultOutput();
+    return (*vals)[0] == 0. ? 1. : 0.;
+  }
 
   /// @brief Returns the input with index 0 if the condition (input with index
   /// 1) is not 0.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Gate(const NodeInputs &inputs) { return inputs.at(1)->GetOutput() != 0. ? inputs.at(0)->GetOutput() : 0.; }
+  double Gate(const GraphNode &node) {
+    auto vals = node.GetInputValues<2>(std::array<size_t, 2>{0, 1});
+    if (!vals.has_value())
+      return node.GetDefaultOutput();
+    return (*vals)[1] != 0. ? (*vals)[0] : 0.;
+  }
 
   /// @brief Sums the sin(x) of all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Sin(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return std::sin(node->GetOutput()); });
+  double Sin(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return std::sin(val); });
+
+    std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return std::sin(val); });
   }
 
   /// @brief Sums the cos(x) of all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Cos(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return std::cos(node->GetOutput()); });
+  double Cos(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return std::cos(val); });
+
+
+    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return std::cos(val); });
+
+
   }
 
   /// @brief Returns the product of all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Product(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 1., std::multiplies{},
-                                 [](const auto &node) { return node->GetOutput(); });
+  double Product(const GraphNode &node) {
+    auto vals = node.GetInputValues();
+//    return std::reduce(std::execution::par, vals.cbegin(), vals.cend(), 1., std::multiplies{});
+    return std::reduce(vals.cbegin(), vals.cend(), 1., std::multiplies{});
   }
 
   /// @brief Returns the sum of the exp(x) of all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Exp(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return std::exp(node->GetOutput()); });
+  double Exp(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return std::exp(val); });
+
+    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return std::exp(val); });
   }
 
   /// @brief Returns 1 if all inputs are in ascending, 0 otherwise. If only one input, then defaults to 1.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double LessThan(const NodeInputs &inputs) {
-    return std::ranges::is_sorted(inputs, std::less{}, [](const auto &node) { return node->GetOutput(); });
+  double LessThan(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+    return std::ranges::is_sorted(vals, std::less{});
   }
 
   /// @brief Returns 1 if all inputs are in ascending, 0 otherwise. If only one input, then defaults to 1.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double GreaterThan(const NodeInputs &inputs) {
-    return std::ranges::is_sorted(inputs, std::greater{}, [](const auto &node) { return node->GetOutput(); });
+  double GreaterThan(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+    return std::ranges::is_sorted(vals, std::greater{});
   }
 
   /// @brief Returns the maximum value of all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Max(const NodeInputs &inputs) {
-    return std::transform_reduce(
-        inputs.cbegin(), inputs.cend(), std::numeric_limits<double>::lowest(),
-        [](auto a, auto b) { return std::max(a, b); }, [](const auto &node) { return node->GetOutput(); });
+  double Max(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+    if (vals.empty())
+      return node.GetDefaultOutput();
+    return *std::max_element(vals.cbegin(), vals.cend());
   }
 
   /// @brief Returns the minimum value of all inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Min(const NodeInputs &inputs) {
-    return std::transform_reduce(
-        inputs.cbegin(), inputs.cend(), std::numeric_limits<double>::max(),
-        [](auto a, auto b) { return std::min(a, b); }, [](const auto &node) { return node->GetOutput(); });
+  double Min(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+    if (vals.empty())
+      return node.GetDefaultOutput();
+    return *std::min_element(vals.cbegin(), vals.cend());
   }
 
   /// @brief Returns the sum of negated inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double NegSum(const NodeInputs &inputs) { return -Sum(inputs); }
+  double NegSum(const GraphNode &node) { return -Sum(node); }
 
   /// @brief Returns the sum of squared inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Square(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return node->GetOutput() * node->GetOutput(); });
+  double Square(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return val * val; });
+
+    return std::transform_reduce( vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return val * val; });
   }
 
   /// @brief Returns the sum of positively clamped inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double PosClamp(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return std::max(0., node->GetOutput()); });
+  double PosClamp(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return std::max(0., val); });
+//
+    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return std::max(0., val); });
   }
 
   /// @brief Returns the sum of negatively clamped inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double NegClamp(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return std::min(0., node->GetOutput()); });
+  double NegClamp(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return std::min(0., val); });
+//
+    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return std::min(0., val); });
   }
 
   /// @brief Returns the sum of square root of positively clamped inputs.
-  /// @param inputs Vector of doubles representing the inputs.
+  /// @param node The node to get the inputs from.
   /// @return The function result as a double.
-  double Sqrt(const NodeInputs &inputs) {
-    return std::transform_reduce(inputs.cbegin(), inputs.cend(), 0., std::plus{},
-                                 [](const auto &node) { return std::sqrt(std::max(0., node->GetOutput())); });
+  double Sqrt(const GraphNode &node) {
+    std::vector<double> vals = node.GetInputValues();
+//    return std::transform_reduce(std::execution::par, vals.cbegin(), vals.cend(), 0., std::plus{},
+//                                 [](const double val) { return std::sqrt(std::max(0., val)); });
+
+    return std::transform_reduce(vals.cbegin(), vals.cend(), 0., std::plus{},
+                                 [](const double val) { return std::sqrt(std::max(0., val)); });
+
+
   }
 
   /// @brief A vector of all the node functions.
   const std::vector<NodeFunction> FUNCTION_SET{nullptr, Sum,     And,      AnyEq,    Not,         Gate, Sin,
                                                Cos,     Product, Exp,      LessThan, GreaterThan, Max,  Min,
-                                               NegSum,     Square,  PosClamp, NegClamp, Sqrt};
+                                               NegSum,  Square,  PosClamp, NegClamp, Sqrt};
 } // namespace cowboys

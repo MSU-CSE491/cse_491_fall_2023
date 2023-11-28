@@ -28,7 +28,7 @@ class MazeWorld : public WorldBase {
   }
 
  public:
-  MazeWorld() {
+  MazeWorld(unsigned int seed = 0) : WorldBase(seed) {
     floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
     wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
     main_grid.Read("../assets/grids/default_maze.grid", type_options);

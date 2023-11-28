@@ -9,13 +9,13 @@
 #include "../../core/AgentBase.hpp"
 #include "GPAgentSensors.hpp"
 
-#include "./GPAgent_.hpp"
+#include "./GPAgentBase.hpp"
 
 namespace cowboys
 {
     const int LISTSIZE = 100;
 
-    class LGPAgent : public GPAgent_
+    class LGPAgent : public GPAgentBase
     {
     protected:
         // A dictionary of actions and a dictionary of sensors
@@ -36,12 +36,12 @@ namespace cowboys
         std::mt19937 gen;
 
     public:
-        LGPAgent(size_t id, const std::string &name) : GPAgent_(id, name)
+        LGPAgent(size_t id, const std::string &name) : GPAgentBase(id, name)
         {
             gen = std::mt19937(rd());
         }
 
-        ~LGPAgent() override = default;
+
 
         /// @brief This agent needs a specific set of actions to function.
         /// @return Success.
@@ -61,11 +61,6 @@ namespace cowboys
             {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
-            //for (auto i = 0; i < LISTSIZE; i++)
-            //{
-            //    std::cout << std::get<0>(instructionsList[i]) << " ";
-            //}
-            //std::cout << std::endl;
         }
 
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
@@ -107,7 +102,10 @@ namespace cowboys
                 }
             }
 
-            resultsList = std::vector<int>(LISTSIZE);
+
+//            resultsList = std::vector<int>(LISTSIZE);
+            resultsList.clear();
+            resultsList.resize(LISTSIZE);
             currentInstructionIndex = 0;
         }
 
@@ -129,7 +127,7 @@ namespace cowboys
 
         /// @brief Copy the behavior of another agent into this agent.
         /// @param other The agent to copy.
-        void Copy(const GPAgent_ &other) override
+        void Copy(const GPAgentBase &other) override
         {
             assert(dynamic_cast<const LGPAgent *>(&other) != nullptr);
             Configure(dynamic_cast<const LGPAgent &>(other));
@@ -262,7 +260,7 @@ namespace cowboys
             return encodedLists;
         }
 
-        void serialize(tinyxml2::XMLDocument & doc, tinyxml2::XMLElement* parentElem, int fitness = -1) override
+        void Serialize(tinyxml2::XMLDocument & doc, tinyxml2::XMLElement* parentElem, int fitness = -1) override
         {
             auto agentElem = doc.NewElement("LGPAgent");
             parentElem->InsertEndChild(agentElem);
@@ -272,6 +270,14 @@ namespace cowboys
             if (fitness != -1)
                 listElem->SetAttribute("fitness", fitness);
             agentElem->InsertEndChild(listElem);
+        }
+
+        void PrintAgent() override {
+          for (auto i = 0; i < LISTSIZE; i++)
+          {
+            std::cout << std::get<0>(instructionsList[i]) << " ";
+          }
+          std::cout << std::endl;
         }
     };
 }
