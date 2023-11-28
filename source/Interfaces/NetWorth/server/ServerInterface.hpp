@@ -44,7 +44,7 @@ namespace netWorth {
             m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
 
             //Binds server interface to the new port
-            if (m_serverToClientSocket.bind
+            if (m_socket.bind
                     (NetworkingInterface::GetProperty<unsigned short>("server_port"))
                     !=sf::Socket::Status::Done) {
                 std::cerr << "Failed to bind" << std::endl;
@@ -89,45 +89,6 @@ namespace netWorth {
             recv_pkt >> str;
             std::cout << str << std::endl;
         }
-            /**
-             * Sends a packet across the socket
-             * @param packet the packet we want to send
-             * @param destAddr the destination address we want to send to
-             * @param port the port of the connection
-             * @return true if successfully sent
-             */
-            bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port)
-            override{
-                    if (m_serverToClientSocket.send(packet, destAddr, port) != Socket::Status::Done) {
-                        std::cerr << "Could not connect to" << destAddr << " at port " << port << std::endl;
-                        return false;
-                    }
-                    return true;
-            }
-
-            /**
-                 * Starts the connection by receiving the first packet
-                 * @param sender IP of sending machine
-                 * @param port port number of sending machine
-                 * @return received packet
-                 */
-            bool ReceivePacket(Packet& pkt, std::optional<IpAddress>& sender, unsigned short& port)
-            override{
-                    if (m_serverToClientSocket.receive(pkt, sender, port) != Socket::Status::Done) {
-                        std::cerr << "Failed to receive" << std::endl;
-                        return false;
-                    }
-                    return true;
-            }
-
-            /**
-             * Receives a socket that has been connected between client and server
-             * @return the udp socket
-             */
-            UdpSocket* GetSocket()
-            override{
-                    return &m_serverToClientSocket;
-            }
 
             /**
              * The grid that will be sent to the client from the server after the connection

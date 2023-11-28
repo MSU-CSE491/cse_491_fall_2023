@@ -23,7 +23,7 @@
 #include "core/Entity.hpp"
 
 
-void ClientThread(netWorth::ServerInterface & interface, cse491::MazeWorld &world,
+void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &world,
                   netWorth::ServerManager & serverManager){
     // Send to acknowledge client
 
@@ -43,7 +43,7 @@ void ClientThread(netWorth::ServerInterface & interface, cse491::MazeWorld &worl
  * @param port port of the connection
  * @return true if successful
  */
-void HandleConnection(netWorth::ServerManager &serverManager, cse491::MazeWorld &world) {
+void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase &world) {
     sf::UdpSocket socket;
     if (socket.bind(netWorth::ServerManager::m_initConnectionPort) != sf::Socket::Status::Done){
         std::cerr << "Failed to bind" << std::endl;
@@ -52,6 +52,8 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::MazeWorld 
 
     sf::Packet pkt;
     std::string str;
+    int start_x = 0;
+    int start_y = 0;
 
     std::optional<sf::IpAddress> sender;
     unsigned short port;
@@ -65,11 +67,18 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::MazeWorld 
     pkt >> str;
     std::cout << str << std::endl;
 
+    // Serialize world into string
+    std::ostringstream os;
+    os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
+    world.Serialize(os);
+    std::string serialized = os.str();
+    std::cout << serialized << std::endl;
+
 
     serverManager.IncreasePort();
 
     pkt.clear();
-    pkt << serverManager.m_maxClientPort;
+    pkt << serverManager.m_maxClientPort << serialized;
     if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
         exit(0);
@@ -84,7 +93,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::MazeWorld 
     auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
 
     //Do an atomic check to see if you can add it
-    serverManager.WriteToActionMap(serverInterface.GetID(), 0);
+    //serverManager.WriteToActionMap(serverInterface.GetID(), 0);
 
     std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
                              std::ref(serverManager));
@@ -129,8 +138,6 @@ bool AwaitClient(const std::string & serialized) {
     //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
 
-    std::thread connectionThread(HandleConnection, std::ref(serverManager), std::ref(world));
-    std::cout << "Handling connection." << std::endl;
 
     // will probably need to override world Run function for multiple clients
     // assuming we use NetworkMazeWorld rather than MazeWorld
@@ -156,7 +163,7 @@ int RunMazeWorldDemo() {
 
     // Load world
     cse491::MazeWorld world;
-    int start_x = 0, start_y = 0;
+    //int start_x = 0, start_y = 0;
 
     // Add agents
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
@@ -167,17 +174,11 @@ int RunMazeWorldDemo() {
     astar_agent.SetGoalPosition(21, 7);
     astar_agent.RecalculatePath();
 
-    // Serialize world into string
-    std::ostringstream os;
-    os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
-    world.Serialize(os);
-    std::string serialized = os.str();
-    std::cout << serialized << std::endl;
 
     // Ensure client successfully connects
-    if (!AwaitClient(serialized)) return 1;
+    std::thread connectionThread(HandleConnection, std::ref(manager), std::ref(world));
+    std::cout << "Handling connection." << std::endl;
 
-    world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
     world.RunServer(&manager);
     return 0;
 }

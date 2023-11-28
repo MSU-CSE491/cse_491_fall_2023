@@ -287,7 +287,7 @@ public:
   virtual void RunServerAgents() {
     for (auto & [id, agent_ptr] : agent_map) {
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
-      manager->TellAction(id, action_id);
+      manager->WriteToActionMap(id,action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);

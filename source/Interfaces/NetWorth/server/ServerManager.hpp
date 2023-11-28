@@ -41,14 +41,6 @@ namespace netWorth{
          */
         ServerManager() = default;
 
-        /**
-         * Report action from agent to manager
-         * @param entity_id ID of reorting entity
-         * @param action_id action ID
-         */
-        void TellAction(size_t entity_id, size_t action_id) {
-            m_action_map[entity_id] = action_id;
-        }
 
         /**
          * Convert action map to packet to send to client

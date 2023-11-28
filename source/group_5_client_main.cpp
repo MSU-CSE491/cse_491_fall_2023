@@ -61,14 +61,14 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::C
  * @param start_y y start position
  * @return true if successful
  */
-bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, int start_x, int start_y) {
+bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port,int start_x, int start_y) {
     netWorth::ClientManager manager;
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
     world.Deserialize(is);
 
     // hardcoded for now, will change as we implement multiplayer
-    unsigned short port = 55002;
+
 
     DeserializeAgentSet(is, world, &manager);
     world.DeserializeItemSet(is);
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Failed to receive" << std::endl;
         return 1;
     }
-    recv_pkt >> serialized;
+    recv_pkt >> port >> serialized ;
     std::istringstream is(serialized);
     int world_type_int, start_x, start_y;
     is >> world_type_int >> start_x >> start_y;
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
     if (world_type == cse491::WorldType::w_maze) {
-        return RunMazeWorldDemo(is, ip_string, start_x, start_y);
+        return RunMazeWorldDemo(is, ip_string, port, start_x, start_y);
     } else if (world_type == cse491::WorldType::w_second) {
         return RunSecondWorldDemo(is, ip_string, start_x, start_y);
     } else if (world_type == cse491::WorldType::w_generative) {
