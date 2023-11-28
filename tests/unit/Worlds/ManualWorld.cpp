@@ -89,3 +89,19 @@ TEST_CASE("Finding item for agent"){
     CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
   }
 }
+
+TEST_CASE("Agent dropping items after being defeated"){
+  SECTION("Drop items"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    auto agent2 = std::make_unique<cse491::PacingAgent>(5, "Pacer 2");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    item->SetOwner(*agent);
+    CHECK(item->GetOwnerID() == 1);
+    world.AddItem(std::move(item));
+    world.DropItems(*agent2, *agent);
+    CHECK(world.GetItem(2).GetOwnerID() == 0);
+  }
+}
