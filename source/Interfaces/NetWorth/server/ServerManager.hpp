@@ -5,27 +5,19 @@
  **/
 
 #pragma once
-#include <thread>
 #include <map>
 #include <sstream>
 #include <vector>
-#include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "SFML/Network/Packet.hpp"
 
 namespace netWorth{
-    using namespace sf;
-
     /**
      * The server that will be running and that allows clients to connect to
      */
     class ServerManager {
     private:
-        std::vector<std::thread> m_clientThreads; ///Vector of all client threads
+        std::unordered_map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
-        std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
-
-        std::mutex m_actionMapMutex; ///Mutex regarding the action map
-
-        std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
     protected:
 
     public:
@@ -38,47 +30,29 @@ namespace netWorth{
          * @param id agent ID
          * @param name agent name
          */
-        ServerManager()= default;
-
-        std::mutex & GetThreadMutex(){return m_connectionThreadMutex;}
-
-        std::mutex & GetActionMutex(){return m_actionMapMutex;}
+        ServerManager() = default;
 
         /**
-         * Increases the max client port
+         * Report action from agent to manager
+         * @param entity_id ID of reorting entity
+         * @param action_id action ID
          */
-        void IncreasePort(){++m_maxClientPort;}
+        void TellAction(size_t entity_id, size_t action_id) {
+            m_action_map[entity_id] = action_id;
+        }
 
         /**
-         * Joins all client threads at the end of the server's lifespan
+         * Convert action map to packet to send to client
+         * @return packet containing action map as series of integers
          */
-        void JoinClients(){
-            for (auto &thread: m_clientThreads){
-                thread.join();
+        sf::Packet ActionMapToPacket() {
+            sf::Packet pkt;
+            pkt << m_action_map.size();
+            for (auto pair : m_action_map) {
+                pkt << pair.first << pair.second;
             }
-        }
-
-        bool ActionMapContains(size_t key){return m_action_map.contains(key);}
-
-        size_t ReadFromActionMap(size_t key){
-            std::lock_guard<std::mutex> actionLock(m_actionMapMutex);
-            try{
-                return m_action_map.at(key);
-            }
-
-            catch (std::out_of_range & e){
-                return 0;
-            }
-        }
-
-        void WriteToActionMap(size_t key, size_t val){
-            std::lock_guard<std::mutex> actionLock(m_actionMapMutex);
-            m_action_map.insert_or_assign(key, val);
-        }
-
-        size_t AddToThreadVector(std::thread& thread){
-            std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
-            m_clientThreads.push_back(std::move(thread));
+            //std::cout << m_action_map.size();
+            return pkt;
         }
 
     }; // End of class ServerManager

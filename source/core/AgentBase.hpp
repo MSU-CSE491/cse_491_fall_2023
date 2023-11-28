@@ -100,6 +100,16 @@ namespace cse491 {
     virtual void Notify(const std::string & /*message*/,
                         const std::string & /*msg_type*/="none") { }
 
+    /**
+     * Serialize agent (assume no properties)
+     * @param os ostream
+     */
+    void Serialize(std::ostream &os) override {
+        os << name << '\n';
+        os << position.GetX() << '\n';
+        os << position.GetY() << '\n';
+    }
+
   };
 
 } // End of namespace cse491

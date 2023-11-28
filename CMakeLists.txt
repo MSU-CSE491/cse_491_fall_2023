@@ -42,6 +42,7 @@ if(${BUILD_MAIN})
   set(SFML_BUILD_DIR sfml_build)
   add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
 
+
   # Find all the main files for the various applications
   # Currently this means any *.cpp file in the root of source
   file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
@@ -53,7 +54,7 @@ if(${BUILD_MAIN})
     string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
     # Create list of source files (currently just the one .cpp file)
     # Create executable and link to includes / libraries
-    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE})
+    add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
     target_include_directories(${EXE_NAME}
       PRIVATE ${CMAKE_SOURCE_DIR}/source
       )
