@@ -394,7 +394,7 @@ namespace cowboys {
 
 
           if (params.saveMetaData) {
-            const std::string metaDataFilename = "metaData_" + dateTimeStr + ".xml";
+            const std::string metaDataFilename = "metaData.xml";
             auto metaDataFullPath = normalizedAbsolutePath / metaDataFilename;
             saveXMLDoc(metaData, metaDataFullPath.string());
           }
