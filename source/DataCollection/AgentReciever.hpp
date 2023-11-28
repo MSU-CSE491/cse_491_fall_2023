@@ -70,13 +70,16 @@ namespace DataCollection {
             std::ofstream jsonfilestream(path);
             std::cout << jsonfilestream.fail() << "\n";
             JsonBuilder json_builder;
+            json_builder.StartArray("AgentPositions");
             for (auto& agent : agent_map) {
                 json_builder.Addagentname(agent.first);
-                for (auto& pos : agent.second->GetPositions()) {
+                for (auto& pos: agent.second->GetPositions()) {
                     json_builder.AddPosition(pos);
                 }
+                json_builder.InputToArray("AgentPositions", json_builder.GetJSON());
+                json_builder.ClearJSON();
             }
-            json_builder.WriteToFile(jsonfilestream);
+            json_builder.WriteToFile(jsonfilestream, json_builder.GetJSONArray());
             jsonfilestream.close();
         }
     };

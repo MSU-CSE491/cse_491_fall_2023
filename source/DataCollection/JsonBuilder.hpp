@@ -13,7 +13,7 @@ namespace DataCollection{
     class JsonBuilder {
     private:
         nlohmann::json json;  ///< The JSON object to be built.
-
+        nlohmann::json json_array;
     public:
         /**
          * @brief Default constructor for JSONBuilder class.
@@ -24,6 +24,18 @@ namespace DataCollection{
          * @brief Destructor for JSONBuilder class.
          */
         ~JsonBuilder() = default;
+
+        void StartArray(std::string title) {
+            json_array[title] = nlohmann::json::array();
+        }
+
+        void InputToArray(std::string title, nlohmann::json input) {
+            json_array[title].push_back(input);
+        }
+
+        void CreateObject(std::string title) {
+            json["title"] = title;
+        }
 
         void Addagentname(std::string name) {
             json["agentname"] = name;
@@ -73,13 +85,20 @@ namespace DataCollection{
             return json;
         }
 
+        void ClearJSON() {
+            json.clear();
+        }
+
+        nlohmann::json GetJSONArray() {
+            return json_array;
+        }
+
         /**
          * @brief Writes the JSON object to a file.
          */
-        void WriteToFile(std::ofstream &jsonfilestream)
+        void WriteToFile(std::ofstream &jsonfilestream, nlohmann::json json)
         {
             jsonfilestream << json.dump(4);
-            jsonfilestream.close();
         }
     };
 } // namespace DataCollection
