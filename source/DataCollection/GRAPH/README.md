@@ -49,7 +49,23 @@ To install NumPy, run the following command:
 pip install numpy
 
 
-## Usage
+## How to Use
+
+1. Clone the repository to your local machine:
+
+```bash
+git clone https://github.com/dradcl/cse_491_fall_2023_group2
+cd source/DataCollection/GRAPH
+```
+
+2. Run the Python script `ItemGraphPlotter.py` using the following command:
+
+```bash
+python ItemGraphPlotter.py gridPositions.json
+```
+
+Replace `gridPositions.json` with the path to your JSON file containing grid positions data.
+
 
 
 ## Contributing
