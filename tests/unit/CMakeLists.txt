@@ -7,13 +7,19 @@ function(create_tests NAME_PREFIX)
 
   # Loop through each .cpp file and create a test target with dependencies
   foreach(TARGET_SOURCE IN LISTS TARGET_SOURCES)
+
     string(REPLACE ".cpp" "" TARGET_NAME ${TARGET_SOURCE})
     set(EXE_NAME "${NAME_PREFIX}-${TARGET_NAME}")
     message(STATUS "Building tests for: ${EXE_NAME}")
     
     # Create target
-    add_executable(${EXE_NAME} ${TARGET_SOURCE})
+
+    #add_executable(${EXE_NAME} ${TARGET_SOURCE})
+
+
+    add_executable(${EXE_NAME} ${TARGET_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
     
+
     # Load in .cmake file for target, if it exists
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.cmake)
       message(STATUS "Loading ${TARGET_NAME}.cmake")
@@ -21,7 +27,7 @@ function(create_tests NAME_PREFIX)
     else()
       message(WARNING "Cannot find ${TARGET_NAME}.cmake")
     endif()
-    
+
     # Add includes and libraries
     target_include_directories(${EXE_NAME}
       PRIVATE ${CMAKE_SOURCE_DIR}/source
@@ -29,6 +35,10 @@ function(create_tests NAME_PREFIX)
     target_link_libraries(${EXE_NAME}
       PRIVATE Catch2::Catch2WithMain
       )
+
+    target_link_libraries(${EXE_NAME}
+            PRIVATE tinyxml2
+            )
     
     # Add to ctest
     add_test(NAME ${EXE_NAME} COMMAND ${EXE_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -37,7 +47,9 @@ endfunction()
 
 # Process all subdirectories
 add_subdirectory(core)
+
 add_subdirectory(Agents)
 add_subdirectory(Worlds)
 add_subdirectory(Interfaces)
 add_subdirectory(DataCollection)
+add_subdirectory(XML_formater)
