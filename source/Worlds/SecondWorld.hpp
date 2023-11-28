@@ -349,8 +349,7 @@ class SecondWorld : public cse491::WorldBase {
             // Add item to the agent's inventory
             agent.AddItem(item_found.GetID());
 
-            // Changing the position to (NULL, NULL) gives warnings, but works...
-            item_found.SetPosition(NULL, NULL);
+            item_found.SetPosition(-1, -1);
 
             main_grid.At(pos) = floor_id;
 

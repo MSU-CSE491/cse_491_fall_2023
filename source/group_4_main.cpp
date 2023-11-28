@@ -65,14 +65,12 @@ int main()
   // Adding an item that will be owned by the chest w/ id = 6; name = Fire Dagger
   auto dagger2 = std::make_unique<cse491::ItemBase>(6, "Fire Dagger");
   dagger2->SetProperties("symbol", 'D', "Damage", 15);
-  dagger2->SetPosition(0, 4);
+//  dagger2->SetPosition(0, 4);
   dagger2->SetGrid(level_zero);
   auto& temp_dagger = world.AddItem(std::move(dagger2));
 
-  // TODO: How do we add the items located in the chest without it displaying at (0, 0) from the start?
-  //  Possibly don't set the property symbol and add it later by checking if there is a symbol value already.
   temp_chest.AddItem(temp_dagger.GetID());
-  temp_dagger.SetPosition(NULL, NULL);
+  temp_dagger.SetPosition(-1, -1);
 
   world.Run();
 }
