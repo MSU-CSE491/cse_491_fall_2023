@@ -61,7 +61,7 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::C
  * @param start_y y start position
  * @return true if successful
  */
-bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port,int start_x, int start_y) {
+bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y) {
     netWorth::ClientManager manager;
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Failed to receive" << std::endl;
         return 1;
     }
-    recv_pkt >> port >> serialized ;
+    recv_pkt >> port >> serialized;
     std::istringstream is(serialized);
     int world_type_int, start_x, start_y;
     is >> world_type_int >> start_x >> start_y;

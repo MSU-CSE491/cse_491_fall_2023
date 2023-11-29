@@ -124,6 +124,7 @@ int RunMazeWorldDemo() {
 
     // Ensure client successfully connects
     std::thread connectionThread(HandleConnection, std::ref(manager), std::ref(world));
+    //HandleConnection(manager, world);
     std::cout << "Handling connection." << std::endl;
 
     world.RunServer(&manager);
