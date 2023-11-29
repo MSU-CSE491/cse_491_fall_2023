@@ -15,7 +15,7 @@ using namespace walle;
 
 /// Mock world to create factory
 class MockWorld : public cse491::WorldBase {
-    int DoAction(cse491::AgentBase &agent, size_t action_id) override {}
+    int DoAction(cse491::AgentBase &agent, size_t action_id) override { return 0; }
 };
 
 TEST_CASE("Adding a AStarAgent"){
