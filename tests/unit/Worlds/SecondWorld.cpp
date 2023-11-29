@@ -97,3 +97,28 @@ TEST_CASE("Third floor agents") {
   std::vector<size_t> agents = world.FindAgentsAt(cse491::GridPosition(7.0, 8.0), 0);
   CHECK(agents.size() == 1);
 }
+
+
+TEST_CASE("SecondWorld LoadFromFile", "[World][SecondWorld]") {
+  // Test loading agents from a JSON file
+  SECTION("Load Agents from Valid File") {
+    group4::SecondWorld world;
+    REQUIRE_NOTHROW(world.LoadFromFile("../assets/input.json"));
+  
+    REQUIRE(world.GetNumAgents() == 3);
+  }
+  SECTION("Load Agents from Valid File2") {
+    group4::SecondWorld world;
+    REQUIRE_NOTHROW(world.LoadFromFile("../assets/second_floor_input.json"));
+  
+    REQUIRE(world.GetNumAgents() == 2);
+  }
+  SECTION("Load Agents from Valid File3") {
+    group4::SecondWorld world;
+    REQUIRE_NOTHROW(world.LoadFromFile("../assets/third_floor_input.json"));
+  
+    REQUIRE(world.GetNumAgents() == 1);
+  }
+
+
+}

@@ -71,7 +71,5 @@ int main()
   auto& temp = world.AddItem(std::move(temp_item1));
   temp_chest.AddItem(temp);
 
-//  world.AddItem(std::move(chest));
-
   world.Run();
 }

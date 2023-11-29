@@ -132,7 +132,7 @@ namespace cse491 {
     Entity & RemoveItem(size_t id);
     Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
 
-    std::vector<size_t> GetInventory() const { return inventory; }
+    [[nodiscard]] std::vector<size_t> GetInventory() const { return inventory; }
 
   };
 
