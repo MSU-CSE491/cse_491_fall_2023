@@ -19,7 +19,6 @@ namespace netWorth {
      */
     class ServerInterface : public NetworkingInterface {
     private:
-        UdpSocket m_serverToClientSocket; ///Socket that communicates from this server interface to a client interface
         ServerManager* m_manager = nullptr;
 
     protected:
@@ -34,7 +33,7 @@ namespace netWorth {
                 :cse491::InterfaceBase(id, name),
                  NetworkingInterface(id, name)
         {
-            InitialConnection(m_ip, m_port);
+
         }
 
         bool Initialize() override
@@ -42,19 +41,7 @@ namespace netWorth {
             // resolve port and IP from entity properties
             m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
             m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
-
-            //Binds server interface to the new port
-            if (m_socket.bind
-                    (NetworkingInterface::GetProperty<unsigned short>("server_port"))
-                    !=sf::Socket::Status::Done) {
-                std::cerr << "Failed to bind" << std::endl;
-                return false;
-            }
-
-//                sf::Packet send_pkt;
-//                send_pkt << 55001;
-//                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
-
+            InitialConnection(m_ip, m_port);
             return true;
         }
 
@@ -70,7 +57,7 @@ namespace netWorth {
             std::string str;
 
             std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
-            BindSocket(m_socket, 55002);
+            BindSocket(m_socket, GetProperty<unsigned short>("server_port"));
 
             // Await client
             if (!ReceivePacket(recv_pkt, sender, port)) return false;
