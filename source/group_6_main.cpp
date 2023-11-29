@@ -29,5 +29,6 @@ int main() {
     world.AddTeleporters();
     world.AddTeleporters();
 
+    world.AddArmory();
     world.Run();
 }

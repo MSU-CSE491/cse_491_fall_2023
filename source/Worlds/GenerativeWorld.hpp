@@ -29,10 +29,14 @@ namespace group6 {
         size_t key_id;        ///< Easy access to key CellTypeID
         size_t door_id;       ///< Easy access to door CellTypeID
         size_t teleporter_id; ///< Easy access to teleporter CellTypeId
+        size_t armory_id; ///< Easy access to armory CellTypeID
 
         size_t tree_id;
         size_t grass_id;
         size_t dirt_id;
+
+        size_t water_id;
+        size_t sand_id;
 
         /// Provide the agent with movement actions.
         void ConfigAgent(AgentBase &agent) override {
@@ -80,9 +84,13 @@ namespace group6 {
             door_id = AddCellType("door", "Door that can be walked through only with possession of key to leave maze",'D');
             teleporter_id = AddCellType("teleporter", "Teleports agent to other teleporter", 'T');
 
+            armory_id = AddCellType("armory", "Armory tile that repairs damaged inventory items", 'A');
             tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
+
+            water_id = AddCellType("water", "Water that you may be able to swim on.", 'W');
+            sand_id = AddCellType("sand", "Sand you can walk on.", '-');
 
             BiomeGenerator biomeGenerator(biome, width, height, seed);
             biomeGenerator.setWorld(this);
@@ -99,6 +107,11 @@ namespace group6 {
             // TODO: remove hard-coded positions
             main_grid.At(2, 5) = teleporter_id;
             main_grid.At(95, 15) = teleporter_id;
+        }
+
+        void AddArmory()
+        {
+            main_grid.At(5, 5) = armory_id;
         }
 
         [[nodiscard]] static vector<GridPosition> FindTiles(WorldGrid grid, size_t tile_id) {
@@ -148,6 +161,18 @@ namespace group6 {
             if (!main_grid.IsValid(new_position)) { return false; }
             if (main_grid.At(new_position) == wall_id) { return false; }
 
+            //check to see if player is going onto armory tile
+            if( main_grid.At(new_position) == armory_id )
+            {
+                for( const auto &pair : item_map )
+                {
+                    //if agent has the item in its inventory, heal it back to full health
+                    if( agent.HasItem(pair.first) )
+                    {
+                        pair.second->SetProperty("Health", 4.0);
+                    }
+                }
+            }
             if (main_grid.At(new_position) == spike_id) { ///< Spike tile check
                 bool spike_immune = false;
 
