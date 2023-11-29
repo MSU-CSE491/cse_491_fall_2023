@@ -14,7 +14,7 @@
 namespace cse491 {
 
 class MazeWorld : public WorldBase {
-protected:
+ protected:
   enum ActionType {
     REMAIN_STILL = 0,
     MOVE_UP,
@@ -27,17 +27,16 @@ protected:
   size_t floor_id; ///< Easy access to floor CellType ID.
   size_t wall_id;  ///< Easy access to wall CellType ID.
 
-public:
+ public:
   MazeWorld() {
-    floor_id =
-        AddCellType("floor", "Floor that you can easily walk over.", ' ');
-    wall_id = AddCellType(
-        "wall", "Impenetrable wall that you must find a way around.", '#');
-    main_grid.Read("../assets/grids/default_maze.grid", type_options);
+      floor_id =
+          AddCellType("floor", "Floor that you can easily walk over.", ' ');
+      wall_id = AddCellType(
+          "wall", "Impenetrable wall that you must find a way around.", '#');
+      main_grid.Read("../assets/grids/default_maze.grid", type_options);
   }
   ~MazeWorld() = default;
-
-  /// Provide the agent with movement actions.
+  
   using WorldBase::ConfigAgent;
   void ConfigAgent(AgentBase &agent) const override {
     agent.AddAction("up", MOVE_UP);
@@ -49,39 +48,33 @@ public:
 
   /// Allow the agents to move around the maze.
   int DoAction(AgentBase &agent, size_t action_id) override {
-    // Determine where the agent is trying to move.
-    GridPosition new_position;
-    switch (action_id) {
-    case REMAIN_STILL:
-      new_position = agent.GetPosition();
-      break;
-    case MOVE_UP:
-      new_position = agent.GetPosition().Above();
-      break;
-    case MOVE_DOWN:
-      new_position = agent.GetPosition().Below();
-      break;
-    case MOVE_LEFT:
-      new_position = agent.GetPosition().ToLeft();
-      break;
-    case MOVE_RIGHT:
-      new_position = agent.GetPosition().ToRight();
-      break;
-    case MOVE_ARBITRARY:
-      new_position = agent.GetNextPosition();
-      break;
-    }
+      // Determine where the agent is trying to move.
+      GridPosition new_position;
+      switch (action_id) {
+          case REMAIN_STILL:new_position = agent.GetPosition();
+              break;
+          case MOVE_UP:new_position = agent.GetPosition().Above();
+              break;
+          case MOVE_DOWN:new_position = agent.GetPosition().Below();
+              break;
+          case MOVE_LEFT:new_position = agent.GetPosition().ToLeft();
+              break;
+          case MOVE_RIGHT:new_position = agent.GetPosition().ToRight();
+              break;
+          case MOVE_ARBITRARY:new_position = agent.GetNextPosition();
+              break;
+      }
 
     // Don't let the agent move off the world or into a wall.
     if (!main_grid.IsValid(new_position)) { return false; }
     if (!IsTraversable(agent, new_position)) { return false; }
 
-    // Set the agent to its new postion.
-    agent.SetPosition(new_position);
-    return true;
+      // Set the agent to its new postion.
+      agent.SetPosition(new_position);
+      return true;
   }
 
-  /// Can walk on all tiles except for walls
+
   [[nodiscard]] bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
     return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
   }
