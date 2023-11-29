@@ -86,7 +86,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
     std::string serverInterfaceName = "ServerInterface" + std::to_string(serverManager.m_maxClientPort);
 
     cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>(serverInterfaceName, "client_ip", sender->toString(),
-                                              "client_port", port, "server_port", serverManager.m_maxClientPort)
+                                              "client_port", port, "server_port", serverManager.m_maxClientPort, "server_manager", &serverManager)
                                               .SetProperty("symbol", '@');
 
     auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);

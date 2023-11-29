@@ -41,8 +41,8 @@ namespace netWorth {
             // resolve port and IP from entity properties
             m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
             m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
-            InitialConnection(m_ip, m_port);
-            return true;
+            m_manager = GetProperty<netWorth::ServerManager *>("server_manager");
+            return InitialConnection(m_ip, m_port);
         }
 
         /**
@@ -70,11 +70,15 @@ namespace netWorth {
             send_pkt << "Connection established.";
             if (!SendPacket(send_pkt, sender.value(), port)) return false;
 
+            recv_pkt.clear();
+            std::string str2;
             // await request for map
             if (!ReceivePacket(recv_pkt, sender, port)) return false;
 
-            recv_pkt >> str;
-            std::cout << str << std::endl;
+            recv_pkt >> str2;
+            std::cout << str2 << std::endl;
+
+            return true;
         }
 
             /**
