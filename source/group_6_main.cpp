@@ -15,10 +15,10 @@ using namespace group6;
 
 int main() {
 //    static const unsigned int SEED = time(nullptr);
-    static const unsigned int SEED = 5;
+    static const unsigned int SEED = 16;
     auto biome = BiomeType::Maze; // specify biome type here
 
-    GenerativeWorld world(biome, 100, 20, SEED);
+    GenerativeWorld world(biome, 100, 25, SEED);
     world.AddItem("Boots", "symbol", 'B').SetPosition(1, 3).SetName("Boots").SetProperty("Health", 4.0);
     world.AddItem("Shield", "symbol", 'S').SetPosition(1, 4).SetName("Shield").SetProperty("Health", 4.0);
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
@@ -26,6 +26,7 @@ int main() {
 //    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
     world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
 
+    world.AddTeleporters();
     world.AddTeleporters();
 
     world.Run();

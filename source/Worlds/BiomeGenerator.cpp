@@ -4,9 +4,12 @@
  */
 
 #include "BiomeGenerator.hpp"
+#include "Agents/AgentLibary.hpp"
+#include "../core/AgentBase.hpp"
 
 #include <cmath>
 #include <tuple>
+#include <queue>
 
 using namespace group6;
 using namespace cse491;
@@ -67,6 +70,13 @@ void BiomeGenerator::generate() {
     if (biome == BiomeType::Grasslands) {
         placeTrees(); // Placing tree tiles
     }
+
+//    bool reachable = isKeyReachable();
+//    if (reachable)
+//    {
+//        std::cout << "Key is reachable" << std::endl;
+//    }
+
 }
 
 /**
@@ -81,6 +91,7 @@ void BiomeGenerator::placeKeyTile(const size_t &keyTile) {
 
         if (grid.At(random_x, random_y) == floor_id) {
             grid.At(random_x, random_y) = keyTile;
+            keyLocation = GridPosition(random_x, random_y);
             counter = true;
         }
     }
@@ -227,6 +238,18 @@ void BiomeGenerator::placeTrees() {
     }
 }
 
+// not working
+//bool BiomeGenerator::isKeyReachable() {
+//
+//    auto agent = AgentBase(234183294, "agent_test");
+//    auto startingPoint = GridPosition(0, 0);
+//    worldPtr->SetGrid(grid);  // deleted this function
+//    auto path = walle::GetShortestPath(startingPoint, keyLocation, *worldPtr, agent);
+//
+//    return true;
+//}
+//
+//
 
 
 

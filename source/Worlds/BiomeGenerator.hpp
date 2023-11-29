@@ -45,6 +45,8 @@ namespace group6 {
 
         unsigned int seed;                    ///< Seed used for RNG
 
+        GridPosition keyLocation;
+
         // TODO: Refactor so tiles are passed by reference from actual world class
         std::vector<size_t> tiles;            ///< Vector to store tiles
 
@@ -83,5 +85,7 @@ namespace group6 {
         void applyPathToGrid(const std::vector<GridPosition>& path);
 
         void placeTrees();
+//
+//        bool isKeyReachable();
     };
 } // End of namespace group6
