@@ -93,7 +93,7 @@ namespace netWorth{
             m_action_map.insert_or_assign(key, val);
         }
 
-        size_t AddToThreadVector(std::thread& thread){
+        void AddToThreadVector(std::thread& thread){
             std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
             m_clientThreads.push_back(std::move(thread));
         }

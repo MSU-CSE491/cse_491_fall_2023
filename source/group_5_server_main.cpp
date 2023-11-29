@@ -19,7 +19,6 @@
 #include "Worlds/ManualWorld.hpp"
 #include "Worlds/SecondWorld.hpp"
 #include "Agents/AStarAgent.hpp"
-#include "Interfaces/NetWorth/server/ServerManager.hpp"
 #include "core/Entity.hpp"
 
 
@@ -33,8 +32,9 @@ void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &worl
 
     //While this client is still connected (need to fix)
     while (serverManager.ActionMapContains(interface.GetID())){
-        std::cout << interface.GetName() << " is connected" << std::endl;
+//        std::cout << interface.GetName() << " is connected" << std::endl;
     }
+
 }
 
 /**
@@ -92,7 +92,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
     auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
 
     //Do an atomic check to see if you can add it
-    //serverManager.WriteToActionMap(serverInterface.GetID(), 0);
+    serverManager.WriteToActionMap(serverInterface.GetID(), 0);
 
     std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
                              std::ref(serverManager));
