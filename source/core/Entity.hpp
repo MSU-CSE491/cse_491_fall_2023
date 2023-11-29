@@ -18,7 +18,7 @@ class WorldBase;
 
 class Entity {
  private:
-  WorldBase *world_ptr; ///< Track the world this entity is in (private to
+  WorldBase *world_ptr = nullptr; ///< Track the world this entity is in (private to
   ///< protect pointer)
  protected:
   const size_t id = 0;      ///< Unique ID for this entity (zero is use for "no ID")
@@ -71,6 +71,9 @@ class Entity {
       assert(world_ptr);
       return *world_ptr;
   }
+    [[nodiscard]] bool HasWorld() const {
+        return world_ptr != nullptr;
+    }
 
   Entity &SetName(const std::string in_name) {
       name = in_name;

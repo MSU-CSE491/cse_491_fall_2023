@@ -6,8 +6,12 @@
 
 // Include the modules that we will be using.
 #include "Agents/AStarAgent.hpp"
+#include "Agents/RandomAgent.hpp"
 #include "Agents/TrackingAgent.hpp"
+
 #include "Agents/AgentFactory.hpp"
+#include "Agents/PacingAgent.hpp"
+
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 

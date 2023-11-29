@@ -36,14 +36,14 @@ class MazeWorld : public WorldBase {
       main_grid.Read("../assets/grids/default_maze.grid", type_options);
   }
   ~MazeWorld() = default;
-
-  /// Provide the agent with movement actions.
-  void ConfigAgent(AgentBase &agent) override {
-      agent.AddAction("up", MOVE_UP);
-      agent.AddAction("down", MOVE_DOWN);
-      agent.AddAction("left", MOVE_LEFT);
-      agent.AddAction("right", MOVE_RIGHT);
-      agent.AddAction("move_arbitrary", MOVE_ARBITRARY);
+  
+  using WorldBase::ConfigAgent;
+  void ConfigAgent(AgentBase &agent) const override {
+    agent.AddAction("up", MOVE_UP);
+    agent.AddAction("down", MOVE_DOWN);
+    agent.AddAction("left", MOVE_LEFT);
+    agent.AddAction("right", MOVE_RIGHT);
+    agent.AddAction("move_arbitrary", MOVE_ARBITRARY);
   }
 
   /// Allow the agents to move around the maze.
@@ -65,23 +65,18 @@ class MazeWorld : public WorldBase {
               break;
       }
 
-      // Don't let the agent move off the world or into a wall.
-      if (!main_grid.IsValid(new_position)) {
-          return false;
-      }
-      if (main_grid.At(new_position) == wall_id) {
-          return false;
-      }
+    // Don't let the agent move off the world or into a wall.
+    if (!main_grid.IsValid(new_position)) { return false; }
+    if (!IsTraversable(agent, new_position)) { return false; }
 
       // Set the agent to its new postion.
       agent.SetPosition(new_position);
       return true;
   }
 
-  /// Can walk on all tiles except for walls
-  bool IsTraversable(const AgentBase & /*agent*/,
-                     cse491::GridPosition pos) const override {
-      return main_grid.At(pos) != wall_id;
+
+  [[nodiscard]] bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
+    return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
   }
 };
 

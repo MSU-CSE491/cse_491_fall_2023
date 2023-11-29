@@ -44,7 +44,30 @@ public:
    * @brief Set where the agent should head towards
    * @param gp position agent should go towards
    */
-  void SetGoalPosition(const cse491::GridPosition gp) { goal_position = gp; }
+
+  void SetGoalPosition(const cse491::GridPosition gp) {
+    goal_position = gp;
+  }
+
+  /**
+   * @brief gets the goal position and returns it
+   * @return goal_position member variable
+   */
+  cse491::GridPosition GetGoalPosition() const {return goal_position; }
+
+  /**
+   * Returns the recalculate value
+   * @return
+   */
+  int GetRecalculateValue() const {return recalculate_after_x_turns; }
+
+  /**
+   * Gets the size of the current path
+   * @return
+   */
+  int GetPathLength() const {return path.size(); }
+
+
   /**
    * @brief Set how many moves should occur before recalculating path
    *  A lower number will react faster to updates in the world but will call A*
@@ -60,7 +83,7 @@ public:
    */
   void RecalculatePath() {
     path = GetShortestPath(GetPosition(), goal_position, GetWorld(), *this);
-    path.pop_back();
+    if (!path.empty()){path.pop_back();} // Remove the val that we are currently at
     current_move_num = 0;
   }
 
@@ -95,10 +118,6 @@ public:
         return action_map["right"];
     }
     return 0; // If no path then do not do anything
-  }
-  /// Getter for the goal position
-  [[nodiscard]] const cse491::GridPosition &GetGoalPosition() const {
-    return goal_position;
   }
 };
 }; // namespace walle
