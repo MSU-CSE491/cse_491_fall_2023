@@ -195,7 +195,7 @@ int RunManualWorldDemo() {
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
     world.RunServer(&manager);
-
+    return 0;
 }
 
 int main(int argc, char *argv[]) {

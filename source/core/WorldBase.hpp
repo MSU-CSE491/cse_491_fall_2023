@@ -29,7 +29,7 @@ class DataReceiver;
 class WorldBase {
 public:
   static constexpr size_t npos = static_cast<size_t>(-1);
-  netWorth::ServerManager *manager;
+  netWorth::ServerManager *manager = nullptr;
 
 protected:
   /// Derived worlds may choose to have more than one grid.

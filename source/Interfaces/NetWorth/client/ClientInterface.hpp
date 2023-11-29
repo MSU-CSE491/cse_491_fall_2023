@@ -19,7 +19,7 @@ namespace netWorth{
 
     class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
         private:
-            netWorth::ClientManager *m_manager;
+            netWorth::ClientManager *m_manager = nullptr;
 
         protected:
 

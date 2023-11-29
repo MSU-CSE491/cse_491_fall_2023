@@ -15,7 +15,7 @@ namespace netWorth {
 
 class ControlledAgent : public cse491::AgentBase {
     private:
-        ClientManager *m_manager;       /// Client manager to access agent action map
+        ClientManager *m_manager = nullptr;       /// Client manager to access agent action map
 
     protected:
 
