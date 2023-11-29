@@ -26,7 +26,7 @@
 
 namespace cowboys {
 
-    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
+    constexpr unsigned int TRAINING_SEED = 10; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -51,9 +51,9 @@ namespace cowboys {
 
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
-            /**
-             * Default Grid
-             */
+        /**
+         * Default Grid
+         */
         const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };

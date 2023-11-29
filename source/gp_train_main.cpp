@@ -23,7 +23,7 @@ int main() {
     cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 
-    loop.Initialize(20, 100);
+    loop.Initialize(200, 100);
     loop.Run(11, 100, num_threads, true);
 //    }
 
