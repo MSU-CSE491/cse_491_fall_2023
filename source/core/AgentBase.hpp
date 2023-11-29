@@ -19,16 +19,16 @@
 
 namespace cse491 {
 
-  enum State /// States that an agent can be in.
-  {
-    Healthy,
-    Taking_Damage,
-    Dying,
-    Deceased
-  };
-
   class AgentBase : public Entity {
   protected:
+      enum State /// States that an agent can be in.
+      {
+          Healthy,
+          Taking_Damage,
+          Dying,
+          Deceased
+      };
+
     size_t grid_id=0;       ///< Which grid is this agent on?
 
     /// A map of names to IDs for each available action
