@@ -40,7 +40,7 @@ namespace worldlang {
 		struct Identifier : std::string {};
 		
 		/// Variant type containing all possible values types for variables.
-		using Value = std::variant < double, std::string, Callable, Identifier >;
+		using Value = std::variant < size_t, double, std::string, Callable, Identifier >;
 		
 	// Execution state
 	private:
@@ -113,6 +113,8 @@ namespace worldlang {
 				for (auto a : args){
 					if (pe.has<double>(a)){
 						std::cout << pe.as<double>(a);
+					} else if (pe.has<size_t>(a)){
+						std::cout << pe.as<size_t>(a);
 					} else if (pe.has<std::string>(a)){
 						std::cout << pe.as<std::string>(a);
 					} else if (pe.has<Callable>(a)){
@@ -143,7 +145,7 @@ namespace worldlang {
 			registerFunction("addAgent", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() < 5) { error("Wrong number of arguments!"); return; }
-				// type, name, symbol, x, y (ignored: TODO later)
+				// type, name, symbol, x, y
 				auto type = pe.as<std::string>(args[0]);
 				auto name = pe.as<std::string>(args[1]);
 				auto symbol = pe.as<std::string>(args[2]);
@@ -153,6 +155,7 @@ namespace worldlang {
 				if (!pe.getErrorMessage().empty()){ return; }
 				if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
 				
+				//TODO:Use the agent Factory class here, see if that works better.
 				AgentBase* agent;
 				if (type == "Player"){
 					agent = &world.AddAgent<cse491::TrashInterface>(name, "symbol", symbol[0]);
@@ -161,13 +164,13 @@ namespace worldlang {
 					error("Unknown agent type!"); return;
 				}
 				
-				pe.pushStack(static_cast<double>(agent->GetID()));
+				pe.pushStack(agent->GetID());
 			});
 			// Set agent property
 			registerFunction("setAgentProperty", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto agent_id = pe.as<size_t>(args[0]);
 				auto prop = pe.as<std::string>(args[1]);
 				auto value = args[2];
 				
@@ -193,7 +196,7 @@ namespace worldlang {
 			registerFunction("getAgentProperty", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto agent_id = pe.as<size_t>(args[0]);
 				auto prop = pe.as<std::string>(args[1]);
 				
 				// check for argument errors
@@ -202,16 +205,18 @@ namespace worldlang {
 				AgentBase& agent = world.GetAgent(agent_id);
 				if(agent.HasProperty(prop)){
 					// property exists but type is unknown
+					// assume double, as there is no way to determine the type currently
+					// TODO: Fix this if types are ever stored
 					pushStack(agent.GetProperty<double>(prop));
 				} else {
-					error("Unsupported property type!");
+					error("Undefined property!");
 				}
 			});
 			// Get agent position
 			registerFunction("getAgentPosition", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto agent_id = pe.as<size_t>(args[0]);
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
@@ -226,7 +231,7 @@ namespace worldlang {
 			registerFunction("setAgentPosition", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto agent_id = pe.as<size_t>(args[0]);
 				auto x = pe.as<double>(args[1]);
 				auto y = pe.as<double>(args[2]);
 				// check for argument errors
@@ -246,9 +251,9 @@ namespace worldlang {
 				
 				auto res = world.FindAgentsAt({x, y});
 				if (res.size()){
-					pe.pushStack(static_cast<double>(res[0]));
+					pe.pushStack(res[0]);
 				} else {
-					pe.pushStack(-1.0);
+					pe.pushStack(0u);
 				}
 			});
 			// Get item at this position
@@ -262,9 +267,9 @@ namespace worldlang {
 				
 				auto res = world.FindItemsAt({x, y});
 				if (res.size()){
-					pe.pushStack(static_cast<double>(res[0]));
+					pe.pushStack(res[0]);
 				} else {
-					pe.pushStack(-1.0);
+					pe.pushStack(0u);
 				}
 			});
 			// Get a random number

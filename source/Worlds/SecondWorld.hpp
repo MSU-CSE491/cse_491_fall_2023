@@ -11,6 +11,7 @@
 
 #include "../Agents/PacingAgent.hpp"
 #include "../core/WorldBase.hpp"
+#include "ProgramExecutor.hpp" //< for attack, item scripts
 
 #include <algorithm>
 
@@ -23,6 +24,16 @@ const std::string SECOND_FLOOR_FILENAME = "../assets/grids/second_floor.grid";
 
 /// @brief Filename for the last floor grid file
 const std::string FINAL_FLOOR_FILENAME = "../assets/grids/third_floor.grid";
+
+/// @brief Filename for item pickup script
+///
+/// This script modifies properties of the agent collecting the item.
+const std::string ITEM_PICKUP_SCRIPT = "../assets/scripts/g4_item_pickup.ws";
+
+/// @brief Filename for agent combat script
+/// 
+/// When an agent attempts to move into another agent, this attack script runs.
+const std::string COMBAT_SCRIPT = "../assets/scripts/g4_agent_attack.ws";
 
 /**
  * Creates a world with agents and a win flag
@@ -85,6 +96,9 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to warp CellType ID.
   size_t hidden_warp_id;
 
+  /// Script executor object.
+  worldlang::ProgramExecutor pe;
+
   /// Vector of the items in this world
   std::map<size_t, std::unique_ptr<cse491::ItemBase>> inventory;
 
@@ -103,7 +117,7 @@ class SecondWorld : public cse491::WorldBase {
   /**
    * Constructor with no arguments
    */
-  SecondWorld() : world_filename(FIRST_FLOOR_FILENAME) {
+  SecondWorld() : world_filename(FIRST_FLOOR_FILENAME), pe{*this}{
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
@@ -121,7 +135,8 @@ class SecondWorld : public cse491::WorldBase {
    * @param agent_filename Relative path to agent input.json file
    */
   SecondWorld(std::string grid_filename, std::string agent_filename)
-      : world_filename(grid_filename), agents_filename(agent_filename) {
+      : world_filename(grid_filename), agents_filename(agent_filename), 
+      pe{*this}{
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
@@ -421,9 +436,26 @@ class SecondWorld : public cse491::WorldBase {
       return false;
     }
 
+    // At this point, new_position is valid and not going into a wall.
+    // Check if there are any agents on this tile:
+    auto res = this->FindAgentsAt(new_position);
+    if (res.size()){
+        // At least one agent was found. Take the first agent and attack it.
+        pe.setVariable("agent", agent.GetID());
+        pe.setVariable("opponent", res[0]);
+        pe.runFile(COMBAT_SCRIPT);
+        
+        // The movement was not legal, so we return false.
+        // TODO: Should this return a status indicating that an attack occured,
+        // to distinguish moves that do nothing from attacks?
+        return false; 
+    }
+    
+
     if (!IsDropped) {
         CheckPosition(agent, new_position);
     }
+    
 
     IsDropped = false;
     agent.SetPosition(new_position);

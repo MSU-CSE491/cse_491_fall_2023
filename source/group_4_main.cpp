@@ -16,9 +16,9 @@ size_t level_two = 2;
 int main()
 {
   group4::SecondWorld world;
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1).SetProperty("Health",30.0);
+  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1).SetProperty("Health",30.0);
+  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@').SetProperty("Health",100.0);
 
   // Adding power sword with id = 1; name = sword of power
   auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");
