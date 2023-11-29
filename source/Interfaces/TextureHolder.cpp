@@ -146,6 +146,14 @@ namespace i_2D
         LoadTexture("shieldTexture", "../assets/weapons/shield.png");
         LoadTexture("teleportTexture", "../assets/walls/teleport.png");
         LoadTexture("armoryTexture", "../assets/weapons/steel_armor.png");
+        LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
+        LoadTexture("sandTexture", "../assets/Ground_tiles/Sand1.png");
+        LoadTexture("grassTexture", "../assets/Ground_tiles/Grass2.png");
+        LoadTexture("dirtTexture", "../assets/Ground_tiles/Dirt1.png");
+        textures['~'] = GetTexture("dirtTexture");
+        textures['M'] = GetTexture("grassTexture");
+        textures['-'] = GetTexture("sandTexture");
+        textures['W'] = GetTexture("waterTexture");
         textures['B'] = GetTexture("bootTexture");
         textures['X'] = GetTexture("spikeTexture");
         textures['O'] = GetTexture("tarTexture");
