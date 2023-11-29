@@ -8,29 +8,49 @@
 #include "Agents/AStarAgent.hpp"
 #include "Agents/RandomAgent.hpp"
 #include "Agents/TrackingAgent.hpp"
+
+#include "Agents/AgentFactory.hpp"
+#include "Agents/PacingAgent.hpp"
+
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
 
 int main() {
-  cse491::MazeWorld world;
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
-  auto & astar_agent = 
-      static_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar 1"));
-  astar_agent.SetPosition(7, 3);
-  astar_agent.SetGoalPosition(7, 8);
-  astar_agent.RecalculatePath();
+    cse491::MazeWorld world;
+    auto &player = world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+    walle::AgentFactory factory(world);
+    /*
+    walle::TrackingAgentData agent_data;
+    agent_data.name = "looper";
+    agent_data.position = cse491::GridPosition(9, 2);
+    agent_data.target = &player;
+    agent_data.tracking_distance = 4;
+    agent_data.start_pos = cse491::GridPosition(9, 2);
+    agent_data.path = "e s w n";
+    factory.AddTrackingAgent(agent_data);
+    */
+    /*
+    walle::AStarAgentData agent_data;
+    agent_data.name = "AStar";
+    agent_data.symbol = 'X';
+    agent_data.position = cse491::GridPosition(9, 2);
+    agent_data.target = cse491::GridPosition(0, 1);
+    factory.AddAStarAgent(agent_data);
+     */
+    /*
+    walle::PacingAgentData agent_data;
+    agent_data.name = "Pacing";
+    agent_data.position = cse491::GridPosition(9, 2);
+    agent_data.vertical = false;
+    factory.AddPacingAgent(agent_data);
+     */
+    /*
+    walle::PathAgentData agent_data;
+    agent_data.name = "path";
+    agent_data.position = cse491::GridPosition(9, 2);
+    agent_data.path = "e s w n";
+    factory.AddPathAgent(agent_data);
+     */
 
-  auto & random_agent =
-		static_cast<walle::RandomAgent&>(world.AddAgent<walle::RandomAgent>("Random 1"));
-  random_agent.SetPosition(3, 6);
-
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
-  auto &entity = world.AddAgent<walle::TrackingAgent>("Looper").SetPosition(9, 2).SetProperty("symbol", '$');
-  assert(dynamic_cast<walle::TrackingAgent *>(&entity));
-  auto& looper = static_cast<walle::TrackingAgent &>(entity);
-  looper.SetProperty<std::basic_string_view<char>>("path", "e s w n");
-  looper.Initialize();
-  auto &player = world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
-  looper.SetTarget(&player);
-  world.Run();
+    world.Run();
 }
