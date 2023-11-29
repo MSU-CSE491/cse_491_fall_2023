@@ -143,6 +143,46 @@ TEST_CASE("AStarAgent SelectAction", "[Agents]") {
     REQUIRE(action == agent.HasAction("up"));
 }
 
+TEST_CASE("Agent State"){
+    // initialize agent and world
+    AStarAgent agent(1, "TestAgent");
+    cse491::MazeWorld world;
+    agent.SetWorld(world);
+    agent.SetPosition(cse491::GridPosition(0, 0));
+
+    // give agent properties
+    agent.SetProperty("Health", 10);
+    agent.SetProperty("Taking_Damage", false);
+    agent.SetProperty("Max_Health", 15);
+
+    // agent is healthy
+    agent.UpdateAgentState(agent);
+    SECTION("Healthy State"){
+        REQUIRE(agent.GetAgentState() == cse491::Healthy);
+    }
+
+    // agent is taking damage
+    agent.SetProperty("Taking_Damage", true);
+    agent.UpdateAgentState(agent);
+    SECTION("Taking Damage State"){
+        REQUIRE(agent.GetAgentState() == cse491::Taking_Damage);
+    }
+
+    // agent is dying
+    agent.SetProperty("Taking_Damage", false);
+    agent.SetProperty("Health", 3);
+    agent.UpdateAgentState(agent);
+    SECTION("Dying State"){
+        REQUIRE(agent.GetAgentState() == cse491::Dying);
+    }
+
+    // agent is dead
+    agent.SetProperty("Health", 0);
+    agent.UpdateAgentState(agent);
+    SECTION("Deceased State"){
+        REQUIRE(agent.GetAgentState() == cse491::Deceased);
+    }
+}
 
 
 
