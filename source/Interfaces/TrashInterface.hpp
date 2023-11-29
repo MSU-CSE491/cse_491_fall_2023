@@ -39,7 +39,9 @@ namespace cse491 {
         if (item_ptr->HasProperty("symbol")) {
             c = item_ptr->GetProperty<char>("symbol");
         }
-        symbol_grid[pos.CellY()][pos.CellX()] = c;
+        if (grid.IsValid(pos)){
+            symbol_grid[pos.CellY()][pos.CellX()] = c;
+        }
       }
 
       for (const auto & [id, agent_ptr] : agent_map) {
