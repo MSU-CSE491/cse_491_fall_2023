@@ -72,8 +72,8 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
 
     DeserializeAgentSet(is, world, &manager);
     world.DeserializeItemSet(is);
-    world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string,
-                                              "port", port, "manager", &manager)
+    world.AddAgent<netWorth::ClientInterface>(interface_name, "client_ip", ip_string,
+                                              "client_port", port, "manager", &manager)
                                               .SetProperty("symbol", '@')
                                               .SetPosition(start_x, start_y);
     world.Run();

@@ -20,7 +20,7 @@ namespace netWorth{
     class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
         private:
             unsigned short m_serverPort;
-            netWorth::ClientManager *m_manager;
+            netWorth::ClientManager *m_manager = nullptr;
 
         protected:
 

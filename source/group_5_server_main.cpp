@@ -299,7 +299,7 @@ int main(int argc, char *argv[]) {
     }
 
     auto world_type = static_cast<cse491::WorldType>(atoi(argv[1]));
-
+    std::cout<< sf::IpAddress::getLocalAddress()->toString() << std::endl;
     // Run demo based on program args
     if (world_type == cse491::WorldType::w_maze) {
         return RunMazeWorldDemo();
