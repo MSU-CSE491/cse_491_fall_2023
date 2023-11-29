@@ -165,9 +165,9 @@ namespace i_2D {
         mWindow.draw(sprite);
 
         // Display everything
-        mMenu.drawto(mWindow);
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
+        mMenu.drawto(mWindow);
         mWindow.display();
     }
 
@@ -430,7 +430,16 @@ namespace i_2D {
 
         // Update TextBox position for resizing
         if (mTextBox) {
-            mTextBox->SetPosition({10, 800});
+            // Define the percentage values for the position
+            float xPosPercentage = 0.01f; // 5% of the window width
+            float yPosPercentage = 0.9f;  // 80% of the window height
+
+            // Calculate the actual position based on percentages
+            float xPos = (widthWindow * xPosPercentage);
+            float yPos = (heightWindow* yPosPercentage);
+
+            // Set the position of your textbox
+            mTextBox->SetPosition({ xPos, yPos});
         }
     }
 
