@@ -74,7 +74,6 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
     std::string serialized = os.str();
     std::cout << serialized << std::endl;
 
-
     serverManager.IncreasePort();
 
     pkt.clear();
@@ -100,58 +99,6 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
     serverManager.AddToThreadVector(clientThread);
     std::cout << "Added thread" << std::endl;
-}
-
-/**
- * Get client connection and send serialized world
- * @param serialized world serialized into a string
- * @return true if successful, else false
- */
-bool AwaitClient(const std::string & serialized) {
-    // Setup socket
-    sf::UdpSocket socket;
-    if (socket.bind(55000) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to bind socket" << std::endl;
-        return false;
-    }
-
-    std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
-
-    // Await client
-    sf::Packet recv_pkt, send_pkt;
-    std::optional<sf::IpAddress> ip;
-    unsigned short port;
-    if (socket.receive(recv_pkt, ip, port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to receive" << std::endl;
-        return false;
-    }
-    std::cout << ip.value() << std::endl;
-    std::string str;
-    recv_pkt >> str;
-    std::cout << str << std::endl;
-
-    std::cout << "Server started on IP address: " << sf::IpAddress::getLocalAddress()->toString() << std::endl;
-
-
-    netWorth::ServerManager serverManager;
-
-    //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-    //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-
-
-    // will probably need to override world Run function for multiple clients
-    // assuming we use NetworkMazeWorld rather than MazeWorld
-    // that could be difficult for multiple world classes though...
-    //serverManager.JoinClients();
-    //connectionThread.join();
-    // Send serialized world
-    send_pkt << serialized;
-    if (socket.send(send_pkt, ip.value(), port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to send" << std::endl;
-        return false;
-    }
-
-    return true;
 }
 
 /**
@@ -211,8 +158,8 @@ int RunSecondWorldDemo() {
     std::string serialized = os.str();
     std::cout << serialized << std::endl;
 
-    // Ensure client successfully connects
-    if (!AwaitClient(serialized)) return 1;
+    //Change to HandleConnection
+//    if (!AwaitClient(serialized)) return 1;
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
     world.RunServer(&manager);
@@ -249,8 +196,8 @@ int RunGenerativeWorldDemo() {
     std::string serialized = os.str();
     std::cout << serialized << std::endl;
 
-    // Ensure client successfully connects
-    if (!AwaitClient(serialized)) return 1;
+    //Change to HandleConnection
+//    if (!AwaitClient(serialized)) return 1;
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
     world.RunServer(&manager);
@@ -283,8 +230,8 @@ int RunManualWorldDemo() {
     std::string serialized = os.str();
     std::cout << serialized << std::endl;
 
-    // Ensure client successfully connects
-    if (!AwaitClient(serialized)) return 1;
+    //Change to HandleConnection
+//    if (!AwaitClient(serialized)) return 1;
 
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
     world.RunServer(&manager);
