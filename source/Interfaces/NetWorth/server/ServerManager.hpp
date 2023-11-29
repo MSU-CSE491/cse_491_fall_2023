@@ -96,6 +96,11 @@ namespace netWorth{
         void AddToThreadVector(std::thread& thread){
             std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
             m_clientThreads.push_back(std::move(thread));
+//            std::cout << "------------------------------------------------" << std::endl;
+//            for (std::thread & vectorThread : m_clientThreads){
+//                std::cout << vectorThread.get_id() << std::endl;
+//            }
+//            std::cout << "------------------------------------------------" << std::endl;
         }
 
     }; // End of class ServerManager

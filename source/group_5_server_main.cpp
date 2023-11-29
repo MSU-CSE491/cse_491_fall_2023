@@ -45,60 +45,64 @@ void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &worl
  */
 void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase &world) {
     sf::UdpSocket socket;
-    if (socket.bind(netWorth::ServerManager::m_initConnectionPort) != sf::Socket::Status::Done){
-        std::cerr << "Failed to bind" << std::endl;
-        exit(0);
-    }
+
+    std::optional<sf::IpAddress> sender;
+    unsigned short port;
 
     sf::Packet pkt;
     std::string str;
     int start_x = 0;
     int start_y = 0;
 
-    std::optional<sf::IpAddress> sender;
-    unsigned short port;
-
-    if (socket.receive(pkt, sender, port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to receive" << std::endl;
+    if (socket.bind(netWorth::ServerManager::m_initConnectionPort) != sf::Socket::Status::Done){
+        std::cerr << "Failed to bind" << std::endl;
         exit(0);
     }
 
-    std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
-    pkt >> str;
-    std::cout << str << std::endl;
+    while (true){
+        if (socket.receive(pkt, sender, port) != sf::Socket::Status::Done) {
+            std::cerr << "Failed to receive" << std::endl;
+            exit(0);
+        }
 
-    // Serialize world into string
-    std::ostringstream os;
-    os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
-    world.Serialize(os);
-    std::string serialized = os.str();
-    std::cout << serialized << std::endl;
+        std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
+        pkt >> str;
+        std::cout << str << std::endl;
 
-    serverManager.IncreasePort();
+        // Serialize world into string
+        std::ostringstream os;
+        os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
+        world.Serialize(os);
+        std::string serialized = os.str();
+        std::cout << serialized << std::endl;
 
-    pkt.clear();
-    pkt << serverManager.m_maxClientPort << serialized;
-    if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to send" << std::endl;
-        exit(0);
+        serverManager.IncreasePort();
+
+        pkt.clear();
+        pkt << serverManager.m_maxClientPort << serialized;
+        if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
+            std::cerr << "Failed to send" << std::endl;
+            exit(0);
+        }
+
+        std::string serverInterfaceName = "ServerInterface" + std::to_string(serverManager.m_maxClientPort);
+
+        cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>
+                (serverInterfaceName, "client_ip", sender->toString(), "client_port", port, "server_port",
+                 serverManager.m_maxClientPort, "server_manager", &serverManager)
+                 .SetProperty("symbol", '@');
+
+        auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
+
+        //Do an atomic check to see if you can add it
+        serverManager.WriteToActionMap(serverInterface.GetID(), 0);
+
+        std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
+                                 std::ref(serverManager));
+
+        serverManager.AddToThreadVector(clientThread);
+        std::cout << "Added thread" << std::endl;
     }
-
-    std::string serverInterfaceName = "ServerInterface" + std::to_string(serverManager.m_maxClientPort);
-
-    cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>(serverInterfaceName, "client_ip", sender->toString(),
-                                              "client_port", port, "server_port", serverManager.m_maxClientPort, "server_manager", &serverManager)
-                                              .SetProperty("symbol", '@');
-
-    auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
-
-    //Do an atomic check to see if you can add it
-    serverManager.WriteToActionMap(serverInterface.GetID(), 0);
-
-    std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
-                             std::ref(serverManager));
-
-    serverManager.AddToThreadVector(clientThread);
-    std::cout << "Added thread" << std::endl;
 }
 
 /**
