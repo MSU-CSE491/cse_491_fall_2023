@@ -19,7 +19,8 @@ namespace netWorth{
 
     class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
         private:
-            netWorth::ClientManager *m_manager;
+            unsigned short m_serverPort;
+            netWorth::ClientManager *m_manager = nullptr;
 
         protected:
 
@@ -39,30 +40,33 @@ namespace netWorth{
              */
             bool Initialize() override {
                 // resolve port and IP from entity properties
-                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
-                m_port = NetworkingInterface::GetProperty<unsigned short>("port");
+                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
+                m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
                 m_manager->SetupSocket(&m_socket, m_ip, m_port);
 
-                Packet send_pkt, recv_pkt;
-                std::string str;
+                Packet send_pkt, recv_pkt,two_pkt;
 
                 // send request message
                 send_pkt << "New client requesting connection.";
-                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
+                std::cout << "Requesting connection" << std::endl;
+                auto ip = m_ip.value();
+                if (!SendPacket(send_pkt, ip, m_port)) return false;
 
                 // receive from server
                 if (!ReceivePacket(recv_pkt, m_ip, m_port)) return false;
-
+                std::cout<<"lol" << std::endl;
                 // print received string (Connection established.)
-                recv_pkt >> str;
-                std::cout << str << std::endl;
+                std::string msg;
+                recv_pkt >> msg;
+                std::cout << msg << std::endl;
 
                 // request map to start send/receive loop
                 send_pkt.clear();
-                send_pkt << "Requesting map";
+                send_pkt << "Requesting start";
                 if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 
+                std::cout<<"I love bread" << std::endl;
                 return true;
             }
 
@@ -79,12 +83,20 @@ namespace netWorth{
                                 const cse491::item_map_t & item_set,
                                 const cse491::agent_map_t & agent_set) override
             {
-                sf::Packet send_pkt;
+                // Receive and draw map
+                sf::Packet send_pkt, rec_pkt;
+                std::string map;
+                //std::cout<<"going to receive packet" << std::endl;
+                //ReceivePacket(rec_pkt, m_ip, m_serverPort);
+                //rec_pkt >> map;
+                //std::cout<<"hiiiiii" << std::endl;
+                //ProcessPacket(rec_pkt);
 
                 // grab action ID from MainInterface
                 size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
-                                                                     item_set, agent_set);
-                //std::cout << action_id << std::endl;
+                            item_set, agent_set);
+                std::cout << action_id << std::endl;
+
 
                 // Send instruction to server
                 send_pkt << action_id;
@@ -92,6 +104,7 @@ namespace netWorth{
 
                 m_manager->ClearActionMap();
 
+                std::cout<<"end";
                 // Do the action!
                 return action_id;
             }

@@ -64,7 +64,7 @@ namespace netWorth{
         void RequestActionMap() {
             sf::Packet recv_pkt;
             if (m_socket->receive(recv_pkt, m_ip, m_port) != sf::Socket::Status::Done) {
-                std::cerr << "Failed to receive" << std::endl;
+                std::cerr << "Failed to receive map" << std::endl;
                 return;
             }
             PacketToActionMap(recv_pkt);

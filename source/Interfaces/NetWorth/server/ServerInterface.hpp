@@ -6,70 +6,80 @@
 
 #pragma once
 
-#include "../NetworkInterface.hpp"
 #include "ServerManager.hpp"
+#include <thread>
+#include <sstream>
+#include "Interfaces/NetWorth/NetworkInterface.hpp"
 
-namespace netWorth{
+namespace netWorth {
     using namespace sf;
 
     /**
-     * The server that will be running and that allows clients to connect to
+     * The server that will be running and that allows clients to connect to, acts as a sort of clone
      */
     class ServerInterface : public NetworkingInterface {
-        private:
-            ServerManager *m_manager = nullptr;
+    private:
+        ServerManager* m_manager = nullptr;
 
-        protected:
+    protected:
 
-        public:
-            /**
-             * Default constructor (AgentBase)
-             * @param id agent ID
-             * @param name agent name
-             */
-            ServerInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name),
-                                                                   NetworkingInterface(id, name)
-            {
-                InitialConnection(m_ip, m_port);
-            }
+    public:
+        /**
+         * Default constructor (AgentBase)
+         * @param id agent ID
+         * @param name agent name
+         */
+        ServerInterface(size_t id, const std::string& name)
+                :cse491::InterfaceBase(id, name),
+                 NetworkingInterface(id, name)
+        {
 
-            bool Initialize() override {
-                m_manager = GetProperty<ServerManager *>("server_manager");
-                return true;
-            }
+        }
 
-            /**
-             * The initial connection for the server to a client
-             * @param sender address of the sender
-             * @param port port of the connection
-             * @return true if successful
-             */
-            bool InitialConnection(std::optional<IpAddress> &sender, unsigned short &port) {
-                Packet send_pkt, recv_pkt;
-                std::string str;
+        bool Initialize() override
+        {
+            // resolve port and IP from entity properties
+            m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
+            m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
+            m_manager = GetProperty<netWorth::ServerManager *>("server_manager");
+            return InitialConnection(m_ip, m_port);
+        }
 
-                std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
-                BindSocket(m_socket, 55002);
+        /**
+         * The initial connection for the server to a client
+         * @param sender address of the sender
+         * @param port port of the connection
+         * @return true if successful
+         */
+        bool InitialConnection(std::optional<IpAddress>& sender, unsigned short& port)
+        {
+            Packet send_pkt, recv_pkt;
+            std::string str;
 
-                // Await client
-                if (!ReceivePacket(recv_pkt, sender, port)) return false;
+            std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
+            BindSocket(m_socket, GetProperty<unsigned short>("server_port"));
 
-                recv_pkt >> str;
-                std::cout << str << std::endl;
-                std::cout << sender.value() << " has connected successfully." << std::endl;
+            // Await client
+            if (!ReceivePacket(recv_pkt, sender, port)) return false;
 
-                // Acknowledge client
-                send_pkt << "Connection established.";
-                if (!SendPacket(send_pkt, sender.value(), port)) return false;
+            recv_pkt >> str;
+            std::cout << str << std::endl;
+            std::cout << sender.value() << " has connected successfully." << std::endl;
 
-                // await request for map
-                if (!ReceivePacket(recv_pkt, sender, port)) return false;
+            // Acknowledge client
+            send_pkt << "Connection established.";
+            if (!SendPacket(send_pkt, sender.value(), port)) return false;
 
-                recv_pkt >> str;
-                std::cout << str << std::endl;
+            recv_pkt.clear();
+            std::string str2;
+            // await request for map
+            if (!ReceivePacket(recv_pkt, sender, port)) return false;
 
-                return true;
-            }
+            recv_pkt >> str2;
+            std::cout << str2 << std::endl;
+
+            return true;
+        }
 
             /**
              * The grid that will be sent to the client from the server after the connection
@@ -80,31 +90,31 @@ namespace netWorth{
              * @param agent_map the agents that may be apart of the grid
              * @return the grid that will be sent to the client
              */
-            static Packet GridToPacket(const cse491::WorldGrid & grid,
-                                       const cse491::type_options_t & type_options,
-                                       const cse491::item_map_t & item_map,
-                                       const cse491::agent_map_t & agent_map)
+            static Packet GridToPacket(const cse491::WorldGrid& grid,
+                    const cse491::type_options_t& type_options,
+                    const cse491::item_map_t& item_map,
+                    const cse491::agent_map_t& agent_map)
             {
                 std::vector<std::string> packet_grid(grid.GetHeight());
 
                 // Load the world into the symbol_grid;
-                for (size_t y=0; y < grid.GetHeight(); ++y) {
+                for (size_t y = 0; y<grid.GetHeight(); ++y) {
                     packet_grid[y].resize(grid.GetWidth());
-                    for (size_t x=0; x < grid.GetWidth(); ++x) {
-                        packet_grid[y][x] = type_options[ grid.At(x,y) ].symbol;
+                    for (size_t x = 0; x<grid.GetWidth(); ++x) {
+                        packet_grid[y][x] = type_options[grid.At(x, y)].symbol;
                     }
                 }
 
                 // Add in the agents / entities
-                for (const auto & [id, entity_ptr] : item_map) {
+                for (const auto& [id, entity_ptr]: item_map) {
                     cse491::GridPosition pos = entity_ptr->GetPosition();
                     packet_grid[pos.CellY()][pos.CellX()] = '+';
                 }
 
-                for (const auto & [id, agent_ptr] : agent_map) {
+                for (const auto& [id, agent_ptr]: agent_map) {
                     cse491::GridPosition pos = agent_ptr->GetPosition();
                     char c = '*';
-                    if(agent_ptr->HasProperty("symbol")){
+                    if (agent_ptr->HasProperty("symbol")) {
                         c = agent_ptr->GetProperty<char>("symbol");
                     }
                     packet_grid[pos.CellY()][pos.CellX()] = c;
@@ -112,15 +122,15 @@ namespace netWorth{
 
                 // Print out the symbol_grid with a box around it.
                 std::ostringstream oss;
-                oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
-                for (const auto & row : packet_grid) {
+                oss << '+' << std::string(grid.GetWidth(), '-') << "+\n";
+                for (const auto& row: packet_grid) {
                     oss << "|";
-                    for (char cell : row) {
+                    for (char cell: row) {
                         oss << cell;
                     }
                     oss << "|\n";
                 }
-                oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
+                oss << '+' << std::string(grid.GetWidth(), '-') << "+\n";
                 oss << "\nYour move? ";
                 std::string gridString = oss.str();
 
@@ -130,6 +140,7 @@ namespace netWorth{
                 return gridPacket;
             }
 
+
             /**
              * Choose action for player agent (mirror client agent)
              * @param grid the server-side grid
@@ -138,10 +149,10 @@ namespace netWorth{
              * @param agent_map the agents that may be apart of the grid
              * @return action ID of the interface
              */
-            size_t SelectAction(const cse491::WorldGrid & grid,
-                                const cse491::type_options_t & type_options,
-                                const cse491::item_map_t & item_set,
-                                const cse491::agent_map_t & agent_set) override
+            size_t SelectAction(const cse491::WorldGrid& grid,
+                    const cse491::type_options_t& type_options,
+                    const cse491::item_map_t& item_set,
+            const cse491::agent_map_t& agent_set) override
             {
                 // send action map to client
                 sf::Packet send_pkt = m_manager->ActionMapToPacket();
@@ -162,7 +173,7 @@ namespace netWorth{
                 recv_pkt >> action_id;
 
                 // TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
-    //            if (input == "quit") exit(0);
+                //            if (input == "quit") exit(0);
 
                 return action_id;
             }
@@ -171,11 +182,13 @@ namespace netWorth{
              * Process client input packet (just print action for now)
              * @param packet packet from client
              */
-            void ProcessPacket(Packet packet) override {
-                size_t str;
-                packet >> str;
-                std::cout << str << std::endl;
+            void ProcessPacket(Packet packet)
+            override{
+                    size_t str;
+                    packet >> str;
+                    std::cout << str << std::endl;
             }
 
-    }; // End of class ServerInterface
-} // End of namespace netWorth
+        }; // End of class ServerInterface
+ // End of namespace netWorth
+}
