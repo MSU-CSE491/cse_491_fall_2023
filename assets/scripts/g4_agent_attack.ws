@@ -9,15 +9,36 @@
 
 print(agent,"attacks",opponent)
 
-# str=getAgentProperty(agent,"Strength")
-# def=getAgentProperty(opponent,"Defense")
-str=10
-def=1
+str=getProperty(agent,"Strength")
+def=getProperty(opponent,"Defense")
+print("Base=",str,",",def)
+
+# Check agent equipped item
+if (getInventorySize(agent)){
+	# Treat this as the equipped item
+	item=getInventoryItem(agent,0)
+	if (hasProperty(item,"Damage")){
+		str=str+getProperty(item,"Damage")
+	}
+}
+print("Str=",str)
+
+# Check opponent equipped item
+if (getInventorySize(opponent)){
+	# Treat this as the equipped item
+	item=getInventoryItem(opponent,0)
+	if (hasProperty(item,"Armor")){
+		def=def+getProperty(item,"Armor")
+	}
+}
+print("Def=",def)
+
+# Calculate damage
 damage=rand(1,str-def)
 print(damage," damage")
 
-hp=getAgentProperty(opponent,"Health")-damage
+hp=getProperty(opponent,"Health")-damage
 if (hp<0){
 	hp=0
 }
-setAgentProperty(opponent,"Health",hp)
+setProperty(opponent,"Health",hp)

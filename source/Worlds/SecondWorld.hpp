@@ -421,8 +421,9 @@ class SecondWorld : public cse491::WorldBase {
     // At this point, new_position is valid and not going into a wall.
     // Check if there are any agents on this tile:
     auto res = this->FindAgentsAt(new_position);
-    if (res.size()){
-        // At least one agent was found. Take the first agent and attack it.
+    if (res.size() && res[0] != agent.GetID()){
+        // At least one agent was found (and isn't the player)
+        // Take the first agent and attack it.
         pe.setVariable("agent", agent.GetID());
         pe.setVariable("opponent", res[0]);
         pe.runFile(COMBAT_SCRIPT);

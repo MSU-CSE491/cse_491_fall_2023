@@ -16,10 +16,19 @@ size_t level_two = 2;
 int main()
 {
   group4::SecondWorld world;
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1).SetProperty("Health",30.0);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1).SetProperty("Health",30.0);
-  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@').SetProperty("Health",100.0);
-
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1)
+  .SetProperty("Health",30.0)
+  .SetProperty("Strength",10.0)
+  .SetProperty("Defense",5.0);
+  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1)
+  .SetProperty("Health",30.0)
+  .SetProperty("Strength",8.0)
+  .SetProperty("Defense",4.0);
+  world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@')
+  .SetProperty("Health",100.0)
+  .SetProperty("Strength",7.0)
+  .SetProperty("Defense",7.0);
+  
   // Adding power sword with id = 1; name = sword of power
   auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");
   powerSword->SetProperties("symbol", 'S', "Damage", 20.0);
@@ -50,7 +59,7 @@ int main()
 
   // Adding a dagger with id = 4; name = Electric Dagger
   auto dagger = std::make_unique<cse491::ItemBase>(4, "Electric Dagger");
-  dagger->SetProperties("symbol", 'D', "Damage", 25);
+  dagger->SetProperties("symbol", 'D', "Damage", 25.0);
   dagger->SetPosition(6, 2);
   dagger->SetGrid(level_zero);
   world.AddItem(std::move(dagger));
@@ -64,7 +73,7 @@ int main()
 
   // Adding an item that will be owned by the chest w/ id = 6; name = Fire Dagger
   auto dagger2 = std::make_unique<cse491::ItemBase>(6, "Fire Dagger");
-  dagger2->SetProperties("symbol", 'D', "Damage", 15);
+  dagger2->SetProperties("symbol", 'D', "Damage", 15.0);
 //  dagger2->SetPosition(0, 4);
   dagger2->SetGrid(level_zero);
   auto& temp_dagger = world.AddItem(std::move(dagger2));

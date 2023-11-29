@@ -101,7 +101,7 @@ public:
 	int DoAction(AgentBase &agent, size_t action_id) override {
 		// Determine where the agent is trying to move.
 		if (agent.HasProperty("DoAction")){
-			pe.setVariable("agent", (double)agent.GetID());
+			pe.setVariable("agent", agent.GetID());
 			pe.setVariable("action_id", (double)action_id);
 			pe.runFile(agent.GetProperty<std::string>("DoAction"));
 			return 1;
@@ -154,7 +154,7 @@ DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
 			world.SetCellProperty(id, pe.as<std::string>(args[i]));
 		}
 		
-		pe.pushStack(static_cast<double>(id));
+		pe.pushStack(id);
 	});
 	// Check if location is valid (on current grid of this world)
 	registerFunction("isValid", [this, &world](ProgramExecutor& pe){
@@ -171,7 +171,7 @@ DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
 		auto args = pe.popArgs();
 		if (args.size() != 3) { error("Wrong number of arguments!"); return; }
 		
-		auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+		auto agent_id = pe.as<size_t>(args[0]);
 		auto x = pe.as<double>(args[1]);
 		auto y = pe.as<double>(args[2]);
 		

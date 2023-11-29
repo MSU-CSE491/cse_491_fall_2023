@@ -15,6 +15,7 @@
 #include "Interfaces/TrashInterface.hpp"
 
 using cse491::AgentBase;
+using cse491::Entity;
 using clogged::Logger;
 using clogged::Team;
 using clogged::LogLevel;
@@ -120,7 +121,6 @@ namespace worldlang {
 					} else if (pe.has<Callable>(a)){
 						std::cout << "<Callable>";
 					}
-					std::cout << ", ";
 				}
 				std::cout << std::endl;
 			});
@@ -167,17 +167,17 @@ namespace worldlang {
 				pe.pushStack(agent->GetID());
 			});
 			// Set agent property
-			registerFunction("setAgentProperty", [this, &world](ProgramExecutor& pe){
+			registerFunction("setProperty", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
-				auto agent_id = pe.as<size_t>(args[0]);
+				auto id = pe.as<size_t>(args[0]);
 				auto prop = pe.as<std::string>(args[1]);
 				auto value = args[2];
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				
-				AgentBase& agent = world.GetAgent(agent_id);
+				Entity& agent = world.HasAgent(id) ? static_cast<Entity&>(world.GetAgent(id)) : world.GetItem(id);
 				if (pe.has<double>(value)){
 					agent.SetProperty(prop, as<double>(value));
 				} else if (pe.has<std::string>(value)){
@@ -193,35 +193,52 @@ namespace worldlang {
 				}
 			});
 			// Get agent property
-			registerFunction("getAgentProperty", [this, &world](ProgramExecutor& pe){
+			registerFunction("getProperty", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
-				auto agent_id = pe.as<size_t>(args[0]);
+				auto id = pe.as<size_t>(args[0]);
 				auto prop = pe.as<std::string>(args[1]);
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				
-				AgentBase& agent = world.GetAgent(agent_id);
+				Entity& agent = world.HasAgent(id) ? static_cast<Entity&>(world.GetAgent(id)) : world.GetItem(id);
 				if(agent.HasProperty(prop)){
 					// property exists but type is unknown
 					// assume double, as there is no way to determine the type currently
 					// TODO: Fix this if types are ever stored
 					pushStack(agent.GetProperty<double>(prop));
 				} else {
-					error("Undefined property!");
+					error("Undefined property:" + prop);
+				}
+			});
+			// Check if property exists
+			registerFunction("hasProperty", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto id = pe.as<size_t>(args[0]);
+				auto prop = pe.as<std::string>(args[1]);
+				
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				Entity& agent = world.HasAgent(id) ? static_cast<Entity&>(world.GetAgent(id)) : world.GetItem(id);
+				if(agent.HasProperty(prop)){
+					pushStack(1.0);
+				} else {
+					pushStack(0.0);
 				}
 			});
 			// Get agent position
 			registerFunction("getAgentPosition", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
-				auto agent_id = pe.as<size_t>(args[0]);
+				auto id = pe.as<size_t>(args[0]);
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				
-				AgentBase& agent = world.GetAgent(agent_id);
+				AgentBase& agent = world.GetAgent(id);
 				auto x = agent.GetPosition().GetX();
 				auto y = agent.GetPosition().GetY();
 				pushStack(x);
@@ -272,6 +289,33 @@ namespace worldlang {
 					pe.pushStack(0u);
 				}
 			});
+			// Get size of the agent's inventory
+			registerFunction("getInventorySize", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
+				auto agent_id = pe.as<size_t>(args[0]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				pe.pushStack(static_cast<double>(agent.GetInventory().size()));
+			});
+			// Gets an item from the inventory
+			registerFunction("getInventoryItem", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto agent_id = pe.as<size_t>(args[0]);
+				auto item_index = pe.as<double>(args[1]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				if (item_index >= agent.GetInventory().size()) {
+					error("Item index out of range!"); return;
+				}
+				
+				pe.pushStack(agent.GetInventory()[item_index]);
+			});
 			// Get a random number
 			registerFunction("rand", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
@@ -292,6 +336,8 @@ namespace worldlang {
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 			});
+			// Set a constant for "missing/no valid id"
+			setVariable("ID_NONE",0u);
 		}
 		
 		virtual ~ProgramExecutor() = default;
@@ -609,6 +655,8 @@ namespace worldlang {
 							} else if (unit.value == "=="){
 								if (has<double>(a) && has<double>(b)){
 									pushStack(static_cast<double>(as<double>(a) == as<double>(b)));
+								} else if (has<size_t>(a) && has<size_t>(b)){
+									pushStack(static_cast<double>(as<size_t>(a) == as<size_t>(b)));
 								} else if (has<std::string>(a) && has<std::string>(b)){
 									pushStack(static_cast<double>(as<std::string>(a) == as<std::string>(b)));
 								} else {
@@ -617,6 +665,8 @@ namespace worldlang {
 							} else if (unit.value == "!="){
 								if (has<double>(a) && has<double>(b)){
 									pushStack(static_cast<double>(as<double>(a) != as<double>(b)));
+								} else if (has<size_t>(a) && has<size_t>(b)){
+									pushStack(static_cast<double>(as<size_t>(a) != as<size_t>(b)));
 								} else if (has<std::string>(a) && has<std::string>(b)){
 									pushStack(static_cast<double>(as<std::string>(a) != as<std::string>(b)));
 								} else {
