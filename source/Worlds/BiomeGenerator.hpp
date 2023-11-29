@@ -91,15 +91,9 @@ namespace group6 {
 
         void placeTrees();
 
-        void oceanHandler();
-
-<<<<<<< HEAD
-//
 //        bool isKeyReachable();
-=======
 
         void oceanHandler();
 
->>>>>>> 7ce07c76e38443e7327122bf22af079cab463294
     };
-} // End of namespace group6
+}
