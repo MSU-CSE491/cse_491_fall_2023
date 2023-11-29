@@ -20,7 +20,8 @@ namespace cse491_team8 {
 
   class ManualWorld : public cse491::WorldBase {
   protected:
-    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, ATTACK, HELP };
+    enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, RUN,
+            ATTACK, SPECIAL, BUFF, DEBUFF, HELP };
     enum FacingDirection { UP=0, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -41,7 +42,11 @@ namespace cse491_team8 {
       agent.AddAction("use_boat", USE_BOAT);
       agent.AddAction("stats", STATS);
       agent.AddAction("heal", HEAL);
+      agent.AddAction("run", RUN);
       agent.AddAction("attack", ATTACK);
+      agent.AddAction("special", SPECIAL);
+      agent.AddAction("buff", BUFF);
+      agent.AddAction("debuff", DEBUFF);
       agent.AddAction("help", HELP);
       agent.SetProperties("Strength", 15, "Health", 15, "Max_Health", 50, "Direction", 0);
     }
@@ -211,6 +216,9 @@ namespace cse491_team8 {
         agent.Notify("Heal: H");
         agent.Notify("Attack: F");
         agent.Notify("Special: G");
+        agent.Notify("Run: R");
+        agent.Notify("Buff: B");
+        agent.Notify("Debuff: X");
         agent.Notify("Display Moveset: Y");
     }
 
@@ -300,61 +308,68 @@ namespace cse491_team8 {
         return other_damage;
     }
 
+    /// @brief Generates the battling boolean
+    /// Sets the battling boolean as a property for each agent
+    /// @return None
+    void SetBattling()
+    {
+        for (auto & [id, agent_ptr] : agent_map)
+        {
+            agent_ptr->SetProperty<bool>("Battling", false);
+        }
+    }
+
     /// @brief Checks the strength between two agents
     /// @param other_agent The autonomous agent to compare
     /// @param agent The interface (player) agent to compare
+    /// @param attack_type The attack that is being used by the player
     /// Prints the stronger agent and removes the weaker
     /// @see RemoveAgent
     /// @return None
-    void StrengthCheck(cse491::AgentBase & other_agent, cse491::AgentBase & agent) {
+    void StrengthCheck(cse491::AgentBase & other_agent, cse491::AgentBase & agent, char attack_type) {
         // User Input for Player Decision
         bool won = false;
         bool run = false;
-        char input;
-        while (other_agent.GetProperty<int>("Health") > 0 && agent.GetProperty<int>("Health") > 0)
-        {
-          bool valid_input = true;
-          agent.Notify("Player Health: " + std::to_string(agent.GetProperty<int>("Health"))+"\n"+
-                       "Player Strength: " + std::to_string(agent.GetProperty<int>("Strength"))+"\n"+
-                       "Enemy Health: " + std::to_string(other_agent.GetProperty<int>("Health"))+"\n"+
-                       "Enemy Strength: " + std::to_string(other_agent.GetProperty<int>("Strength"))+"\n"+
-                       "\na for attack, s for special, r for run, h for heal\nPlayer Attack: ");
-          std::cin >> input;
-          int damage = 0;
-          switch (input) {
-          case 'a': case 'A': damage = agent.GetProperty<int>("Strength");    break;
-          case 's': case 'S': damage = static_cast<int>(agent.GetProperty<int>("Strength") * 1.5);  break;
-          case 'r': case 'R': won = false; run = true; break;
-          case 'h': case 'H': HealAction(agent); break;
-          default: valid_input = false; break;
-          }
-          if (!valid_input)
-          {
-            agent.Notify("\nInvalid Input\n");
-            continue;
-          }
-
-          // Other Agent Move Choice, will modify strength of player agent or NPC agent based on the move selected
-          int other_damage = OtherAction(other_agent, agent);
-
-          // Process the Player's Move and the Agent's Move
-          if (run)
-          {
-            agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - other_damage);
-            break;
-          }
-          other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Health") - damage);
-          if (other_agent.GetProperty<int>("Health") <= 0)
-          {
-            won = true;
-            break;
-          }
-          agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - other_damage);
-          if (agent.GetProperty<int>("Health") <= 0)
-          {
-            break;
-          }
+        int damage = 0;
+        switch (attack_type) {
+        case 'a': case 'A': damage = agent.GetProperty<int>("Strength");    break;
+        case 's': case 'S': damage = static_cast<int>(agent.GetProperty<int>("Strength") * 1.5);  break;
+        case 'r': case 'R': won = false; run = true; break;
+        case 'b': case 'B': agent.SetProperty<int>("Strength",
+                static_cast<int>(agent.GetProperty<int>("Strength") + 0.5 * agent.GetProperty<int>("Strength"))); break;
+        case 'd': case 'D': other_agent.SetProperty<int>("Strength",
+                    static_cast<int>(other_agent.GetProperty<int>("Strength") - 0.5 * other_agent.GetProperty<int>("Strength"))); break;
+        case 'h': case 'H': HealAction(agent); break;
+        default: break;
         }
+
+        // Other Agent Move Choice, will modify strength of player agent or NPC agent based on the move selected
+        int other_damage = OtherAction(other_agent, agent);
+
+        // Process the Player's Move and the Agent's Move
+        if (run)
+        {
+            agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - other_damage);
+        }
+        else
+        {
+            other_agent.SetProperty<int>("Health", other_agent.GetProperty<int>("Health") - damage);
+            if (other_agent.GetProperty<int>("Health") <= 0)
+            {
+                won = true;
+                other_damage = 0;
+            }
+            agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - other_damage);
+            if (agent.GetProperty<int>("Health") <= 0)
+            {
+                won = false;
+            }
+        }
+
+        agent.Notify("Player Health: " + std::to_string(agent.GetProperty<int>("Health"))+"\n"+
+                "Player Strength: " + std::to_string(agent.GetProperty<int>("Strength"))+"\n"+
+                "Enemy Health: " + std::to_string(other_agent.GetProperty<int>("Health"))+"\n"+
+                "Enemy Strength: " + std::to_string(other_agent.GetProperty<int>("Strength")));
 
         std::string other_agent_name = other_agent.GetName();
 
@@ -382,6 +397,8 @@ namespace cse491_team8 {
                 agent.SetProperty<int>("Strength", 15);
                 agent.SetProperty<int>("Health", 15);
                 agent.SetProperty<int>("Direction", 0);
+                agent.SetProperty<bool>("Battling", false);
+                other_agent.SetProperty<bool>("Battling", false);
                 agent.SetPosition(40, 3);
                 break;
               }
@@ -396,7 +413,8 @@ namespace cse491_team8 {
         else
         {
           agent.Notify(agent.GetName() + " has beat " + other_agent.GetName());
-          
+          agent.SetProperty<bool>("Battling", false);
+          other_agent.SetProperty<bool>("Battling", false);
           DropItems(agent, other_agent);
           this->RemoveAgent(other_agent.GetName());
         }
@@ -462,7 +480,11 @@ namespace cse491_team8 {
     cse491::GridPosition DoActionFindNewPosition(cse491::AgentBase& agent, size_t action_id) {
         // Determine where the agent is trying to move.
         cse491::GridPosition new_position, look_position;
-
+        bool battling = agent.GetProperty<bool>("Battling");
+        if (battling)
+        {
+            agent.Notify("You are in a battle! Use Y and choose battling moves!");
+        }
         // Update Direction property and get new position.
         switch (action_id) {
         case REMAIN_STILL:
@@ -472,26 +494,54 @@ namespace cse491_team8 {
         }
         case MOVE_UP:
         {
-            agent.SetProperty<int>("Direction", UP);
-            new_position = agent.GetPosition().Above();
+            if (battling)
+            {
+                new_position = agent.GetPosition();
+            }
+            else
+            {
+                agent.SetProperty<int>("Direction", UP);
+                new_position = agent.GetPosition().Above();
+            }
             break;
         }
         case MOVE_DOWN:
         {
-            agent.SetProperty<int>("Direction", DOWN);
-            new_position = agent.GetPosition().Below();
+            if (battling)
+            {
+                new_position = agent.GetPosition();
+            }
+            else
+            {
+                agent.SetProperty<int>("Direction", DOWN);
+                new_position = agent.GetPosition().Below();
+            }
             break;
         }
         case MOVE_LEFT:
         {
-            agent.SetProperty<int>("Direction", LEFT);
-            new_position = agent.GetPosition().ToLeft();
+            if (battling)
+            {
+                new_position = agent.GetPosition();
+            }
+            else
+            {
+                agent.SetProperty<int>("Direction", LEFT);
+                new_position = agent.GetPosition().ToLeft();
+            }
             break;
         }
         case MOVE_RIGHT:
         {
-            agent.SetProperty<int>("Direction", RIGHT);
-            new_position = agent.GetPosition().ToRight();
+            if (battling)
+            {
+                new_position = agent.GetPosition();
+            }
+            else
+            {
+                agent.SetProperty<int>("Direction", RIGHT);
+                new_position = agent.GetPosition().ToRight();
+            }
             break;
         }
         case USE_AXE:
@@ -536,11 +586,37 @@ namespace cse491_team8 {
         {
             new_position = agent.GetPosition();
             HealAction(agent);
+            agent.Notify("You have healed!");
+            agent.Notify("Your health is now: " + std::to_string(agent.GetProperty<int>("Health")));
+            break;
+        }
+        case RUN:
+        {
+            if (!battling)
+            {
+                new_position = agent.GetPosition();
+                break;
+            }
+            new_position = agent.GetPosition();
+            agent.SetProperty<bool>("Battling", false);
+            // Battle action here
+            auto agents = FindAgentsNear(agent.GetPosition(), 1);
+            for (auto agent_id : agents)
+            {
+                // (temporary) print out if othe agents are near the player
+                if (!agent_map[agent_id]->IsInterface())
+                {
+                    agent.Notify("You are running away");
+                    agent_map[agent_id]->SetProperty<bool>("Battling", false);
+                    StrengthCheck(*agent_map[agent_id], agent, 'r');
+                }
+            }
             break;
         }
         case ATTACK:
         {
             new_position = agent.GetPosition();
+            agent.SetProperty<bool>("Battling", true);
             // Battle action here
             auto agents = FindAgentsNear(agent.GetPosition(), 1);
             for (auto agent_id : agents)
@@ -549,7 +625,62 @@ namespace cse491_team8 {
                 if (!agent_map[agent_id]->IsInterface())
                 {
                     agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
-                    StrengthCheck(*agent_map[agent_id], agent);
+                    agent_map[agent_id]->SetProperty<bool>("Battling", true);
+                    StrengthCheck(*agent_map[agent_id], agent, 'a');
+                }
+            }
+            break;
+        }
+        case SPECIAL:
+        {
+            new_position = agent.GetPosition();
+            agent.SetProperty<bool>("Battling", true);
+            // Battle action here
+            auto agents = FindAgentsNear(agent.GetPosition(), 1);
+            for (auto agent_id : agents)
+            {
+                // (temporary) print out if othe agents are near the player
+                if (!agent_map[agent_id]->IsInterface())
+                {
+                    agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
+                    agent_map[agent_id]->SetProperty<bool>("Battling", true);
+                    StrengthCheck(*agent_map[agent_id], agent, 's');
+                }
+            }
+            break;
+        }
+        case BUFF:
+        {
+            new_position = agent.GetPosition();
+            agent.SetProperty<bool>("Battling", true);
+            // Battle action here
+            auto agents = FindAgentsNear(agent.GetPosition(), 1);
+            for (auto agent_id : agents)
+            {
+                // (temporary) print out if othe agents are near the player
+                if (!agent_map[agent_id]->IsInterface())
+                {
+                    agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
+                    agent_map[agent_id]->SetProperty<bool>("Battling", true);
+                    StrengthCheck(*agent_map[agent_id], agent, 'b');
+                }
+            }
+            break;
+        }
+        case DEBUFF:
+        {
+            new_position = agent.GetPosition();
+            agent.SetProperty<bool>("Battling", true);
+            // Battle action here
+            auto agents = FindAgentsNear(agent.GetPosition(), 1);
+            for (auto agent_id : agents)
+            {
+                // (temporary) print out if othe agents are near the player
+                if (!agent_map[agent_id]->IsInterface())
+                {
+                    agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
+                    agent_map[agent_id]->SetProperty<bool>("Battling", true);
+                    StrengthCheck(*agent_map[agent_id], agent, 'd');
                 }
             }
             break;

@@ -23,7 +23,7 @@ int main()
 
   world.AddAgent<cse491::TrashInterface>("Interface", "symbol", '@').SetPosition(40,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(45, 3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,14);
+  world.AddAgent<cse491::PacingAgent>("Pacer 5").SetPosition(3,14);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 3").SetPosition(18,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 4").SetPosition(45,17);
@@ -38,7 +38,8 @@ int main()
   world.MoveSetAction(interface);
 
   world.GenerateMoveSets();
-  
+  world.SetBattling();
+
   world.Run();
   
 }
