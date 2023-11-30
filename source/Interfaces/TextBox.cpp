@@ -111,6 +111,7 @@ void i_2D::TextBox::DrawTo(sf::RenderWindow &window){
     mBorderRect.setSize(sf::Vector2f(800, 50));
     //Subtracts the vector (5, 5) from the position of mTextBox. This creates a new position
     // slightly to the left and up from the original position, effectively creating a margin.
+
     mBorderRect.setPosition(mTextBox->getPosition() - sf::Vector2f(5, 5));
     mBorderRect.setFillColor(sf::Color(200, 200, 200));
     mBorderRect.setOutlineThickness(2.0f);  //  thickness of the border

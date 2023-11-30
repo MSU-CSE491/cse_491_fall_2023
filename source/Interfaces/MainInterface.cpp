@@ -8,6 +8,10 @@
 
 namespace i_2D {
 
+    sf::Clock timer;
+    float elapsedTime = 0.0f;
+    bool showReminder = false;
+
     /**
      * @brief Constructs a `MainInterface` object.
      *
@@ -25,7 +29,7 @@ namespace i_2D {
         mTextBox = std::make_unique<TextBox>(mFont);
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
-        mMenu.initialize(mFont,sf::Vector2f {static_cast<float>(a),static_cast<float>(b)});
+        mMenu.initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
 //        mTestButton = std::make_unique<Button>("test",
 //                                               sf::Vector2f (200,50),sf::Color::Black,
 //                                               sf::Color::White,mFont);
@@ -49,7 +53,8 @@ namespace i_2D {
             const WorldGrid &grid, const type_options_t &type_options,
             const item_map_t &item_map, const agent_map_t &agent_map) {
         std::vector<std::string> symbol_grid(grid.GetHeight());
-
+        mGridHeight = grid.GetHeight();
+        mGridWidth = grid.GetWidth();
         // Load the world into the symbol_grid;
         for (size_t y = 0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
@@ -58,7 +63,7 @@ namespace i_2D {
             }
         }
 
-        // Add in the agents / entities
+        // Add in the entities
         for (const auto &[id, item_ptr]: item_map) {
             GridPosition pos = item_ptr->GetPosition();
             char c = '+';
@@ -68,6 +73,7 @@ namespace i_2D {
             symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
 
+        // Add in the agents
         for (const auto &[id, agent_ptr]: agent_map) {
             GridPosition pos = agent_ptr->GetPosition();
             char c = '*';
@@ -109,17 +115,21 @@ namespace i_2D {
     */
     void MainInterface::DrawGrid(const WorldGrid &grid, const type_options_t &type_options, const item_map_t &item_map,
                                  const agent_map_t &agent_map) {
+        // Clear old drawing
+        mWindow.clear(sf::Color::White);
+
         // Check player's position
         mPlayerPosition = sf::Vector2i(this->position.GetX(), this->position.GetY());
 
-        mWindow.clear(sf::Color::White);
-
+        // Create grid of symbols representing the world
         std::vector<std::string> symbol_grid;
         std::vector<std::string> default_grid = CreateVectorMaze(grid, type_options, item_map, agent_map);
 
+        // Determine cell size
         sf::Vector2f cellSize = CalculateCellSize(grid);
         float drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY;
-        CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth, drawSpaceHeight, drawCenterX, drawCenterY);
+        CalculateDrawSpace(grid, cellSize.x, drawSpaceWidth,
+                           drawSpaceHeight, drawCenterX, drawCenterY);
 
         if (mGridSizeLarge) {
             symbol_grid = LargeDisplayGrid(default_grid);
@@ -127,34 +137,70 @@ namespace i_2D {
             symbol_grid = default_grid;
         }
 
+        // Create a render texture to draw the grid
+        sf::RenderTexture renderTexture;
+        renderTexture.create({static_cast<unsigned int>(drawSpaceWidth), static_cast<unsigned int>(drawSpaceHeight)});
+        renderTexture.clear(sf::Color::White);
+
         for (size_t iterY = 0; iterY < symbol_grid.size(); ++iterY) {
             for (size_t iterX = 0; iterX < symbol_grid[0].size(); ++iterX) {
-
-                float cellPosX = drawCenterX + static_cast<float>(iterX) * cellSize.x;
-                float cellPosY = drawCenterY + static_cast<float>(iterY) * cellSize.y;
+                float cellPosX = static_cast<float>(iterX) * cellSize.x;
+                float cellPosY = static_cast<float>(iterY) * cellSize.y;
                 char symbol = symbol_grid[iterY][iterX];
 
-
                 sf::RectangleShape cellRect(sf::Vector2f(cellSize.x, cellSize.y));
-                sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
                 cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
-                cellRect.setPosition(sf::Vector2f(cellPosX, cellPosY));
+                sf::RectangleShape cell(sf::Vector2f(cellSize.x, cellSize.y));
                 cell.setPosition(sf::Vector2f(cellPosX, cellPosY));
 
-
-                SwitchCellSelect(cellRect, cell, symbol);
-
-
+                SwitchCellSelect(renderTexture, cellRect, cell, symbol);
             }
-
         }
+        renderTexture.display();
+        DrawTimer();
+        // Draw the texture to the window
+        sf::Sprite sprite(renderTexture.getTexture());
+        sprite.setPosition({drawCenterX, drawCenterY});
+        mWindow.draw(sprite);
 
         // Display everything
-        mMenu.drawto(mWindow);
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
+        mMenu.drawto(mWindow);
         mWindow.display();
+    }
+
+    /**
+     * @brief this function draws timer and checks the elapsed time and
+     * shows remainder if the timer exceed above 5 seconds. and sestart the timer every move
+     * the player makes.
+     */
+    void MainInterface::DrawTimer() {
+        // Get elapsed time in seconds
+        elapsedTime = timer.getElapsedTime().asSeconds();
+        if (mPlayerHasMoved) {
+            timer.restart();
+            showReminder = false; // Clear the reminder flag
+            mPlayerHasMoved = false;
+
+        }
+        // Display timer or reminder based on elapsed time
+        sf::Text timerText(mFont);
+        timerText.setCharacterSize(24);
+        timerText.setPosition({750.0f, 75.0f}); // Adjust position as needed
+
+
+        if (elapsedTime <= 5.0f) {
+            timerText.setString("Time: " + std::to_string(elapsedTime) + " S");
+            timerText.setFillColor(sf::Color::Blue);
+            mWindow.draw(timerText);
+        } else {
+            timerText.setCharacterSize(34);
+            timerText.setString("Make a Move!!!");
+            timerText.setFillColor(sf::Color::Red);
+            mWindow.draw(timerText);
+        }
     }
 
     /**
@@ -223,9 +269,7 @@ namespace i_2D {
                                        const type_options_t &type_options,
                                        const item_map_t &item_map,
                                        const agent_map_t &agent_map) {
-//        if(grid.GetWidth() > COL or grid.GetHeight() > ROW){
-//            mGridSizeLarge = true;
-//        }
+
         while (mWindow.isOpen()) {
             sf::Event event;
 
@@ -240,6 +284,7 @@ namespace i_2D {
 //            }else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
 //                mTextBox->SetSelected(false);
 //            }
+
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
@@ -251,6 +296,7 @@ namespace i_2D {
                     }
 
                 } else if (event.type == sf::Event::KeyPressed) {
+                    mPlayerHasMoved = true;
                     return HandleKeyEvent(event);
 
                 } else if (event.type == sf::Event::Resized) {
@@ -263,12 +309,11 @@ namespace i_2D {
                     MouseClickEvent(event);
 
 
-
                 } else if (event.type == sf::Event::MouseWheelScrolled) {
 //                    HandleScroll(event);
                 }
-            }
 
+            }
             DrawGrid(grid, type_options, item_map, agent_map);
 
         }
@@ -309,14 +354,6 @@ namespace i_2D {
                 if (mTextBox->IsSelected())break;
                 action_id = GetActionID("up");
                 break;
-//            case sf::Keyboard::Y:
-//                if (mTextBox->IsSelected())break;
-//                action_id = GetActionID("Y");
-//                break;
-//            case sf::Keyboard::N:
-//                if (mTextBox->IsSelected())break;
-//                action_id = GetActionID("N");
-//                break;
             case sf::Keyboard::A:
                 if (mTextBox->IsSelected())break;
                 action_id = GetActionID("left");
@@ -341,11 +378,6 @@ namespace i_2D {
             case sf::Keyboard::Right:
                 action_id = GetActionID("right");
                 break;
-
-//            case sf::Keyboard::Q:
-//                exit(0);
-//            case sf::Keyboard::Escape:
-//                exit(0);
             default:
                 break; // The user pressed an unknown key.
         }
@@ -383,7 +415,7 @@ namespace i_2D {
         heightWindow = std::max(heightWindow, heightMin);
 
         mMenu.SetWorldSize(sf::Vector2f(widthWindow, heightWindow));
-        if(mMenu.IsInventoryOpen()){
+        if (mMenu.IsInventoryOpen()) {
             mMenu.DeconstructInventory();
             mMenu.ConstructInventory();
         }
@@ -398,41 +430,17 @@ namespace i_2D {
 
         // Update TextBox position for resizing
         if (mTextBox) {
-            mTextBox->SetPosition({10, 800});
-//            mTextBox->DrawTo(mWindow);
+            // Define the percentage values for the position
+            float xPosPercentage = 0.01f; // 5% of the window width
+            float yPosPercentage = 0.9f;  // 80% of the window height
+
+            // Calculate the actual position based on percentages
+            float xPos = (widthWindow * xPosPercentage);
+            float yPos = (heightWindow* yPosPercentage);
+
+            // Set the position of your textbox
+            mTextBox->SetPosition({ xPos, yPos});
         }
-    }
-
-    /**
-     * @brief Draw the wall texture based on the provided parameters.
-     *
-     * @param cellRect The rectangle shape of the cell.
-     * @param wallTexture The texture for the wall.
-     * @param isVerticalWall for vertical wall
-    */
-    void MainInterface::DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
-
-        cellRect.setTexture(&mTextureHolder.GetTexture("wallTexture"));
-        mWindow.draw(cellRect);
-    }
-
-    /**
-     * @brief Draw the cell with Agent texture and specified color.
-     * @param cellRect The rectangle shape of the cell.
-     * @param cell The rectangle shape for the cell.
-     * @param agent The agent texture.
-     * @param color The color to be set for the cell.
-     */
-
-    void MainInterface::DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent) {
-        cellRect.setTexture(&agent);
-        cell.setTexture(&mTexturesCurrent[' ']);
-        if(&agent == &mTexturesCurrent['+'])
-        {
-            cellRect.setFillColor(sf::Color::Green);
-        }
-        mWindow.draw(cell);
-        mWindow.draw(cellRect);
     }
 
     /*
@@ -457,23 +465,6 @@ namespace i_2D {
     }
 
     /**
-     * This is a helper function for DrawGrid. jsut using the switch statement to draw the grids
-     * @param cellRect - cell for texture
-     * @param cell  - cell for the solid
-     * @param symbol  - symbol of the cell
-     * @param isVerticalWall  - to the wall
-     */
-    void MainInterface::SwitchCellSelect(sf::RectangleShape &cellRect, sf::RectangleShape &cell, char symbol) {
-        switch (symbol) {
-            case '#':
-                DrawWall(cellRect, mTexturesCurrent[symbol]);
-                break;
-            default:
-                DrawAgentCell(cellRect, cell, mTexturesCurrent[symbol]);
-                break;
-        }
-    }
-    /**
      * this function handles mouseclick event
      * @param event for mouse click
      */
@@ -491,10 +482,10 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
-                mGridSizeLarge = false;
-            } else if (mMenu.GetMenu()[4]->isMouseOver(mWindow)) {
+            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)){
                 mGridSizeLarge = true;
+            } else if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
+                mGridSizeLarge = false;
             } else {
                 // Handle mouse button press for the general menu
                 mMenu.HandleMouseButtonPressed(mWindow);
@@ -502,7 +493,56 @@ namespace i_2D {
         }
     }
 
+    /**
+    * This is a helper function for DrawGrid. jsut using the switch statement to draw the grids
+    * @param cellRect - cell for texture
+    * @param cell  - cell for the solid
+    * @param symbol  - symbol of the cell
+    * @param renderTexture  - Texture for teh whole grid
+    */
+    void MainInterface::SwitchCellSelect(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                                         sf::RectangleShape &cell, char symbol) {
+        switch (symbol) {
+            case '#':
+                DrawWall(renderTexture, cellRect, mTexturesCurrent[symbol]);
+                break;
+            default:
+                DrawAgentCell(renderTexture, cellRect, cell, mTexturesCurrent[symbol]);
+                break;
+        }
+    }
+
+    /**
+     * @brief Draw the cell with Agent texture and specified color.
+     * @param cellRect The rectangle shape of the cell.
+     * @param cell The rectangle shape for the cell.
+     * @param agent The agent texture.
+     * @param renderTexture The Texture for the whole grid.
+     */
+    void MainInterface::DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                                      sf::RectangleShape &cell, sf::Texture &agent) {
+        cellRect.setTexture(&agent);
+        cell.setTexture(&mTexturesCurrent[' ']);
+        if (&agent == &mTexturesCurrent['+'] and GetName() == "Interface") {
+            cellRect.setFillColor(sf::Color::Green);
+        }
+        renderTexture.draw(cell);
+        renderTexture.draw(cellRect);
+    }
+
+    /**
+     * @brief Draw the wall texture based on the provided parameters.
+     *
+     * @param cellRect The rectangle shape of the cell.
+     * @param wallTexture The texture for the wall.
+     * @param renderTexture The Texture for the whole grid
+    */
+
+    void
+    MainInterface::DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
+        cellRect.setTexture(&wallTexture);
+        renderTexture.draw(cellRect);
+    }
+
 
 }
-
-
