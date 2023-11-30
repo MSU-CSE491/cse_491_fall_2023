@@ -70,12 +70,13 @@ namespace DataCollection {
         }
 
         void WriteToJson() {
-            std::filesystem::path currentPath = std::filesystem::current_path();
-            std::filesystem::create_directories(currentPath / "data");
+            std::filesystem::path currentPath = std::filesystem::current_path().parent_path().parent_path();
+            currentPath = currentPath / "Source" / "DataCollection" / "GRAPH";
             // Construct the full path to the data directory and the damage_data.json file
-            std::filesystem::path DamagefilePath = currentPath / "data" / "damage_data.json";
-            std::filesystem::path ItemUsefilePath = currentPath / "data" / "item_use_data.json";
-            std::filesystem::path PositionfilePath = currentPath / "data" / "position_data.json";
+            std::filesystem::path DamagefilePath = currentPath  / "damage_data.json";
+            std::filesystem::path ItemUsefilePath = currentPath  / "itemUsage.json";
+            std::filesystem::path ItemdamagefilePath = currentPath  / "itemDamage.json";
+            std::filesystem::path PositionfilePath = currentPath  / "gridPositions.json";
             agentReceiver.WriteToPositionFile(PositionfilePath.string());
             damageCollector.WriteToDamageFile(DamagefilePath.string());
         }
