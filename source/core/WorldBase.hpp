@@ -187,7 +187,9 @@ public:
   /// @return A reference to the newly created agent
   template<typename AGENT_T, typename... PROPERTY_Ts>
   AgentBase & AddAgent(std::string agent_name = "None", PROPERTY_Ts... properties) {
-    const size_t agent_id = NextEntityID();
+      std::mutex agent_map_lock;
+      agent_map_lock.lock();
+      const size_t agent_id = NextEntityID();
     auto agent_ptr = std::make_unique<AGENT_T>(agent_id, agent_name);
     agent_ptr->SetWorld(*this);
     agent_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
@@ -196,7 +198,9 @@ public:
       std::cerr << "Failed to initialize agent '" << agent_name << "'." << std::endl;
     }
     agent_map[agent_id] = std::move(agent_ptr);
-    return *agent_map[agent_id];
+      AgentBase & agentReturn = *agent_map[agent_id];
+      agent_map_lock.unlock();
+    return agentReturn;
   }
 
   void SetAgentReceiver(DataCollection::AgentReceiver r) {
@@ -285,6 +289,8 @@ public:
   /// @brief Step through each agent giving them a chance to take an action.
   /// @note Override this function if you want to control which grid the agents receive.
   virtual void RunServerAgents() {
+      std::mutex agent_map_lock;
+      agent_map_lock.lock();
     for (auto & [id, agent_ptr] : agent_map) {
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
       manager->WriteToActionMap(id,action_id);
@@ -292,6 +298,7 @@ public:
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
     }
+    agent_map_lock.unlock();
   }
 
   void CollectData() {

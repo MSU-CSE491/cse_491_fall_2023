@@ -156,6 +156,7 @@ namespace netWorth {
             {
                 // send action map to client
                 sf::Packet send_pkt = m_manager->ActionMapToPacket();
+                std::cout << "Sending action map to " << m_ip.value().toString() << " on port " << m_port << std::endl;
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
                 // print server-side map (for test purposes)
@@ -169,7 +170,6 @@ namespace netWorth {
                 size_t action_id;
 
                 ReceivePacket(recv_pkt, m_ip, m_port);
-                //ProcessPacket(recv_pkt);
                 recv_pkt >> action_id;
 
                 // TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
