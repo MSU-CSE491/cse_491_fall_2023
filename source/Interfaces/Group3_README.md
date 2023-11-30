@@ -55,3 +55,43 @@ The function ensures that the user's interactions with the maze application are 
 
 ### <span style="color: orange;"> Button Constructor
 </details>
+
+
+
+
+
+
+
+
+
+
+# <span style="color: green;">TextureHolder Class</span>
+
+
+## <span style="color: aqua;">Description
+
+The `TextureHolder` class is responsible for creating and storing references to sf::Texture objects. It is given a file, generates an sf::Texture, and readily gives a reference to the generated texture when asked.
+<details> <summary> Functionalities </summary>
+
+###  <span style="color: orange;">LoadTexture Function
+
+The `LoadTexture` function is a part of the `TextureHolder` class and is responsible for generating sf::Textures from a given file path. 
+
+The `LoadTexture` function consists of the following main functionalities:
+- Attempt to generate sf::Texture using given file path
+- Store the generated sf::Texture in a map using the id as a key
+
+The function allows new sf::Textures to be instantiated and stored to the class for future reference calling by id.
+
+
+###  <span style="color: orange;">GetTexture Function
+
+The `GetTexture` function is a part of the `TextureHolder` class and is responsible for getting a reference to the initialized sf::Texture with the matching id. 
+
+The `GetTexture` function performs the following key tasks:
+- Determine if there is a loaded texture with the given id
+- Return the dereferenced sf::Texture that matches the id
+
+The function allows for easy reference to any of the loaded sf::Textures without having to instantiate new ones for each use. 
+
+</details>
