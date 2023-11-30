@@ -1,7 +1,8 @@
 /**
- * @file Menu.cpp
- * @author
- */
+* @author : Team - 3
+* @date: 10/3/2023
+* Menu class creates a menu and displays it in the render window
+*/
 
 #include "Menu.hpp"
 #include <SFML/Window.hpp>
@@ -13,22 +14,27 @@ namespace i_2D {
     /**
      * @brief initialize the buttons at the top of the window
      */
-    void Menu::initialize() {
+    void Menu::initialize(sf::Font &font, sf::Vector2f size) {
         sf::Color backgroundcolor = sf::Color::Black;
         sf::Color textcolor = sf::Color::White;
-        auto menu = std::make_shared<Button>(
-                "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
-        menu->setPosition({0,0});
-        auto inventory = std::make_shared<Button>(
-                "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
-        inventory->setPosition({200,0});
-        auto exit = std::make_shared<Button>(
-                "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor);
-        exit->setPosition({400,0});
+        mFont = &font;
+        mWorldSize = size;
 
-        menuBar.push_back(menu);
-        menuBar.push_back(inventory);
-        menuBar.push_back(exit);
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[0]->setPosition({0,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[1]->setPosition({200,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[2]->setPosition({400,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Normal", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[3]->setPosition({600,0});
+        mMenuBar.emplace_back(std::make_unique<Button>(
+                "Enlarge", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
+        mMenuBar[4]->setPosition({800,0});
 
     }
 
@@ -38,8 +44,11 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::drawto(sf::RenderWindow &window) {
-        for( const auto &button : menuBar){
+        for( const auto &button : mMenuBar){
             button->drawTo(window);
+        }
+        if(mInventory) {
+            mInventory->DrawTo(window);
         }
     }
 
@@ -50,25 +59,17 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::HandleMouseMove(sf::RenderWindow &window) {
-        if (menuBar[0]->isMouseOver(window)){
-            menuBar[0]->setBackColor(sf::Color::Magenta);
-            menuBar[1]->setBackColor(sf::Color::Black);
-            menuBar[2]->setBackColor(sf::Color::Black);
-        }else if (menuBar[1]->isMouseOver(window)){
-            menuBar[0]->setBackColor(sf::Color::Black);
-            menuBar[1]->setBackColor(sf::Color::Magenta);
-            menuBar[2]->setBackColor(sf::Color::Black);
-        }else if (menuBar[2]->isMouseOver(window)){
-            menuBar[0]->setBackColor(sf::Color::Black);
-            menuBar[1]->setBackColor(sf::Color::Black);
-            menuBar[2]->setBackColor(sf::Color::Magenta);
-        }else{
-            menuBar[0]->setBackColor(sf::Color::Black);
-            menuBar[1]->setBackColor(sf::Color::Black);
-            menuBar[2]->setBackColor(sf::Color::Black);
+        for (int i = 0; i < mMenuBar.size(); ++i) {
+            if (mMenuBar[i]->isMouseOver(window)) {
+                mMenuBar[i]->setBackColor(sf::Color::Magenta);
+            } else {
+                mMenuBar[i]->setBackColor(sf::Color::Black);
+            }
+        }
+        if(mInventory){
+            mInventory->HandleMouseMove(window);
         }
     }
-
     /**
      * @brief check if the mouse click the exit button
      * closes window accordingly
@@ -76,10 +77,18 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::HandleMouseButtonPressed(sf::RenderWindow &window) {
-        if(menuBar[2]->isMouseOver(window)){
+        if(mMenuBar[2]->isMouseOver(window)){
             exit(0);
+        }else if(mMenuBar[1]->isMouseOver(window)){
+            if(mInventory){
+                DeconstructInventory();
+            }else {
+                ConstructInventory();
+            }
         }
+
     }
+
 }
 
 
