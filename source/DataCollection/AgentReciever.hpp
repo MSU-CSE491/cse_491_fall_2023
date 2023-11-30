@@ -68,7 +68,6 @@ namespace DataCollection {
          */
         void WriteToPositionFile(std::string path) {
             std::ofstream jsonfilestream(path);
-            std::cout << jsonfilestream.fail() << "\n";
             JsonBuilder json_builder;
             json_builder.StartArray("AgentPositions");
             for (auto& agent : agent_map) {
