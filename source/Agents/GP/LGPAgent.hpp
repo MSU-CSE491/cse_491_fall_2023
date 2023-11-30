@@ -139,7 +139,7 @@ namespace cowboys
             Configure(dynamic_cast<const LGPAgent &>(other));
         }
 
-        std::string Export() {
+        std::string Export() override {
           return "";
         }
 
