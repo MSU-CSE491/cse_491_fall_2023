@@ -67,7 +67,7 @@ namespace i_2D
         std::map<char, sf::Texture> textures;
 
         // Load textures
-        LoadTexture("wallTexture", "../assets/walls/brick_wall-red.png");
+        LoadTexture("wallTexture", "../assets/walls/wall.png");
         LoadTexture("trollTexture", "../assets/agents/troll.png");
         LoadTexture("agentTexture", "../assets/agents/witch-girl.png");
         LoadTexture("armourTexture", "../assets/weapons/leather_armor.png");
@@ -75,7 +75,9 @@ namespace i_2D
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war.png");
         LoadTexture("daggerTexture", "../assets/weapons/dagger.png");
         LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
-        LoadTexture("flagTexture", "../assets/weapons/4_Conjoined_Spikes.png");
+        LoadTexture("flagTexture", "../assets/weapons/flag.png");
+        LoadTexture("pathTexture", "../assets/Ground_tiles/Grass2.png");
+
         textures['#'] = GetTexture("wallTexture");
         textures['*'] = GetTexture("trollTexture");
         textures['@'] = GetTexture("agentTexture");
@@ -85,6 +87,8 @@ namespace i_2D
         textures['D'] = GetTexture("daggerTexture");
         textures['C'] = GetTexture("chestTexture");
         textures['g'] = GetTexture("flagTexture");
+        textures[' '] = GetTexture("pathTexture");
+
         return textures;
     }
     /*
@@ -103,7 +107,10 @@ namespace i_2D
         LoadTexture("treeTexture", "../assets/trees/tree1.png");
         LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
-        LoadTexture("boatTexture", "../assets/weapons/leather_armor.png");
+        LoadTexture("boatTexture", "../assets/weapons/Boat_color1_2.png");
+        LoadTexture("pathTexture", "../assets/Ground_tiles/Sand1.png");
+        LoadTexture("portal1Texture", "../assets/walls/portal1.png");
+        LoadTexture("portal2Texture", "../assets/walls/portal2.png");
         textures['P'] = GetTexture("axeTexture");
         textures['U'] = GetTexture("boatTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -111,7 +118,9 @@ namespace i_2D
         textures['@'] = GetTexture("agentTexture");
         textures['^'] = GetTexture("treeTexture");
         textures['~'] = GetTexture("waterTexture");
-
+        textures[' '] = GetTexture("pathTexture");
+        textures['{'] = GetTexture("portal1Texture");
+        textures['}'] = GetTexture("portal2Texture");
 
         return textures;
     }
@@ -132,6 +141,20 @@ namespace i_2D
         LoadTexture("doorTexture", "../assets/walls/castledoors.png");
         LoadTexture("spikeTexture", "../assets/weapons/Individual_Spike.png");
         LoadTexture("keyTexture", "../assets/weapons/key.png");
+        LoadTexture("pathTexture", "../assets/Ground_tiles/Dirt1.png");
+        LoadTexture("bootTexture", "../assets/weapons/2.png");
+        LoadTexture("shieldTexture", "../assets/weapons/shield.png");
+        LoadTexture("teleportTexture", "../assets/walls/teleport.png");
+        LoadTexture("armoryTexture", "../assets/weapons/steel_armor.png");
+        LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
+        LoadTexture("sandTexture", "../assets/Ground_tiles/Sand1.png");
+        LoadTexture("grassTexture", "../assets/Ground_tiles/Grass2.png");
+        LoadTexture("dirtTexture", "../assets/Ground_tiles/Dirt1.png");
+        textures['~'] = GetTexture("dirtTexture");
+        textures['M'] = GetTexture("grassTexture");
+        textures['-'] = GetTexture("sandTexture");
+        textures['W'] = GetTexture("waterTexture");
+        textures['B'] = GetTexture("bootTexture");
         textures['X'] = GetTexture("spikeTexture");
         textures['O'] = GetTexture("tarTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -139,6 +162,10 @@ namespace i_2D
         textures['@'] = GetTexture("agentTexture");
         textures['D'] = GetTexture("doorTexture");
         textures['K'] = GetTexture("keyTexture");
+        textures[' '] = GetTexture("pathTexture");
+        textures['S'] = GetTexture("shieldTexture");
+        textures['T'] = GetTexture("teleportTexture");
+        textures['A'] = GetTexture("armoryTexture");
 
         return textures;
     }
