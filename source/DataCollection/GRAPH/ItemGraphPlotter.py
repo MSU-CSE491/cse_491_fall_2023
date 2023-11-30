@@ -52,14 +52,44 @@ class ItemGraphPlotter:
         plt.legend()
         plt.show()
 
+    def plot_agent_line_path(self, agent_names):
+        agents = self.json_data.get("AgentPositions", [])
+        if not agents:
+            print("No 'agents' key found in the JSON data.")
+            return
+
+        for agent_name in agent_names:
+            for agent in agents:
+                if agent.get("agentname") == agent_name:
+                    agent_positions = agent.get("positions", [])
+                    if not agent_positions:
+                        print(f"No 'positions' data found for agent '{agent_name}'.")
+                        continue
+
+                    df = pd.DataFrame(agent_positions)
+
+                    plt.plot(df["x"], df["y"], label=agent_name)
+
+        plt.title(f"Agent Path")
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.legend()
+        plt.grid(True)
+        plt.gca().invert_yaxis()  # This line flips the y-axis
+        plt.show()
+
+        return
+
+        print(f"Agent with name '{agent_name}' not found in the JSON data.")
+
     def plot_agent_path(self, agent_name):
-        agents = self.json_data.get("agents", [])
+        agents = self.json_data.get("AgentPositions", [])
         if not agents:
             print("No 'agents' key found in the JSON data.")
             return
 
         for agent in agents:
-            if agent.get("agentName") == agent_name:
+            if agent.get("agentname") == agent_name:
                 agent_positions = agent.get("positions", [])
                 if not agent_positions:
                     print(f"No 'positions' data found for agent '{agent_name}'.")
@@ -90,8 +120,8 @@ if __name__ == "__main__":
     try:
         item_graph_plotter = ItemGraphPlotter(json_file)
 
-        agent_name = "Interface"
-        item_graph_plotter.plot_agent_path(agent_name)
+        agent_names = ["Interface", "Pacer 1", "Pacer 2"]
+        item_graph_plotter.plot_agent_line_path(agent_names)
 
         # Determine which graph to plot based on the file content
         if "amountOfUses" in item_graph_plotter.json_data.get("items", [])[0]:
