@@ -62,7 +62,7 @@ namespace group6 {
          * Ends the game
          * @param win True if the game is ending in a win. False if it is a loss
          */
-        void EndGame(bool win) {
+        [[noreturn]] void EndGame(bool win) {
             run_over = true;
 
             if (win) {
@@ -70,6 +70,7 @@ namespace group6 {
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
+            std::exit(0);
         }
 
     public:
@@ -162,81 +163,135 @@ namespace group6 {
             if (main_grid.At(new_position) == wall_id) { return false; }
 
             //check to see if player is going onto armory tile
-            if( main_grid.At(new_position) == armory_id )
+            if( main_grid.At(new_position) == armory_id ) {
+                ArmoryTileHelper(agent);
+            }
+
+            // check to see if player is moving onto spike tile
+            if (main_grid.At(new_position) == spike_id)
             {
-                for( const auto &pair : item_map )
+                SpikeTileHelper(agent);
+            }
+
+            // check to see if player is moving onto a tar tile
+            else if (main_grid.At(new_position) == tar_id) {
+                TarTileHelper(agent);
+            }
+
+            // check to see if player is moving onto teleporter
+            else if (main_grid.At(new_position) == teleporter_id) {
+                TeleporterHelper(agent, new_position);
+            }
+
+            // check to see if player is moving onto key tile
+            else if (main_grid.At(new_position) == key_id) {
+                KeyTileHelper(agent, new_position);
+            }
+
+            // check to see if the player is moving onto door tile
+            else if (main_grid.At(new_position) == door_id) {
+                DoorTileHelper(agent);
+            }
+
+            //check to see if agent is walking on an item
+            ItemHelper(agent, new_position);
+
+            // Set the agent to its new position.
+            agent.SetPosition(new_position);
+
+            return true;
+        }
+
+        void ArmoryTileHelper( AgentBase &agent )
+        {
+            for( const auto &pair : item_map )
+            {
+                //if agent has the item in its inventory, heal it back to full health
+                if( agent.HasItem(pair.first) )
                 {
-                    //if agent has the item in its inventory, heal it back to full health
-                    if( agent.HasItem(pair.first) )
-                    {
-                        pair.second->SetProperty("Health", 4.0);
-                    }
+                    pair.second->SetProperty("Health", 4.0);
                 }
             }
-            if (main_grid.At(new_position) == spike_id) { ///< Spike tile check
-                bool spike_immune = false;
+        }
 
-                //check to see if player has shield on
-                for (const auto &pair: item_map) {
-                    if (agent.HasItem(pair.first) && pair.second->GetName() == "Shield") {
-                        //agent's shield has enough health and will protect player from spike tile
-                        if (pair.second->GetProperty("Health") > 0) {
-                            pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
-                            spike_immune = true;
+        void SpikeTileHelper( AgentBase &agent )
+        {
+            bool spike_immune = false;
 
-                            break;
-                        }
-                    }
-                }
-
-                // Damage agent if not immune to spike
-                if (!spike_immune) {
-                    DamageAgent(agent);
-                }
-            } else if (main_grid.At(new_position) == tar_id) { ///< Tar tile check
-                bool tar_immune = false;
-
-                //check to see if player has boots on
-                for (const auto &pair: item_map) {
-                    if (agent.HasItem(pair.first) && pair.second->GetName() == "Boots") {
-                        //agent's boots have enough health and will protect player from tar
-                        if (pair.second->GetProperty("Health") > 0) {
-                            pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
-                            tar_immune = true;
-
-                            break;
-                        }
-                    }
-                }
-
-                // Slow agent if not immune to tar
-                if (!tar_immune) {
-                    agent.SetProperty("tar_property", 6.0);
-                }
-            } else if (main_grid.At(new_position) == teleporter_id) { ///< Teleporter tile check
-                vector<GridPosition> teleporters = FindTiles(main_grid, teleporter_id);
-
-                for (GridPosition teleporter: teleporters) {
-                    if (new_position != teleporter) {
-                        new_position = teleporter;
+            //check to see if player has shield on
+            for (const auto &pair: item_map) {
+                if (agent.HasItem(pair.first) && pair.second->GetName() == "Shield") {
+                    //agent's shield has enough health and will protect player from spike tile
+                    if (pair.second->GetProperty("Health") > 0) {
+                        pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
+                        spike_immune = true;
 
                         break;
                     }
                 }
-            } else if (main_grid.At(new_position) == key_id) { ///< Key tile check
-                // Only player can pick up keys
-                if (agent.IsInterface()) {
-                    agent.SetProperty("key_property", 1.0);
-                    main_grid.At(new_position) = floor_id;
-                }
-            } else if (main_grid.At(new_position) == door_id) { ///< Door tile check
-                // Only player with key can win game
-                if (agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
-                    EndGame(true);
+            }
+
+            // Damage agent if not immune to spike
+            if (!spike_immune) {
+                DamageAgent(agent);
+            }
+        }
+
+        void TarTileHelper( AgentBase &agent )
+        {
+            bool tar_immune = false;
+
+            //check to see if player has boots on
+            for (const auto &pair: item_map) {
+                if (agent.HasItem(pair.first) && pair.second->GetName() == "Boots") {
+                    //agent's boots have enough health and will protect player from tar
+                    if (pair.second->GetProperty("Health") > 0) {
+                        pair.second->SetProperty("Health", pair.second->GetProperty("Health") - 1);
+                        tar_immune = true;
+
+                        break;
+                    }
                 }
             }
 
-            //check to see if agent is walking on an item
+            // Slow agent if not immune to tar
+            if (!tar_immune) {
+                agent.SetProperty("tar_property", 6.0);
+            }
+        }
+
+        void TeleporterHelper( AgentBase &agent, GridPosition &new_position )
+        {
+            vector<GridPosition> teleporters = FindTiles(main_grid, teleporter_id);
+
+            for (GridPosition teleporter: teleporters) {
+                if (new_position != teleporter) {
+                    new_position = teleporter;
+
+                    break;
+                }
+            }
+        }
+
+        void KeyTileHelper( AgentBase &agent, GridPosition &new_position)
+        {
+            // Only player can pick up keys
+            if (agent.IsInterface()) {
+                agent.SetProperty("key_property", 1.0);
+                main_grid.At(new_position) = floor_id;
+            }
+        }
+
+        void DoorTileHelper( AgentBase &agent )
+        {
+            // Only player with key can win game
+            if (agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
+                EndGame(true);
+            }
+        }
+
+        void ItemHelper( AgentBase &agent, GridPosition &new_position )
+        {
             for (const auto &pair: item_map) {
                 if (pair.second->GetPosition() == new_position) {
                     //Add item to inventory
@@ -245,11 +300,6 @@ namespace group6 {
                     break;
                 }
             }
-
-            // Set the agent to its new position.
-            agent.SetPosition(new_position);
-
-            return true;
         }
     };
 
