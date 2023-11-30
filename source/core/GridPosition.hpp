@@ -29,6 +29,8 @@ namespace cse491 {
     GridPosition(double x, double y) : x(x), y(y) { }
     GridPosition(const GridPosition &) = default;
 
+    ~GridPosition() = default;
+
     GridPosition & operator=(const GridPosition &) = default;
 
     // -- Accessors --
@@ -41,7 +43,7 @@ namespace cse491 {
     /// Enable all comparison operators (==, !=, <, <=, >, >=)
     auto operator<=>(const GridPosition &) const = default;
 
-    [[nodiscard]] bool IsValid() const { return std::isnan(x) || std::isnan(y); }
+    [[nodiscard]] bool IsValid() const { return !(std::isnan(x) || std::isnan(y)); }
 
     // -- Modifiers --
 

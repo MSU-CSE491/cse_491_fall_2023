@@ -99,6 +99,15 @@ namespace cse491 {
     /// information to an autonomous agent assuming we come up with a standard list of types.
     virtual void Notify(const std::string & /*message*/,const std::string & /*msg_type*/="none") { }
 
+
+//    virtual void Serialize(std::ostream & os) {};
+//
+//    virtual void deserialize(std::istream & is) {};
+//
+//    void storeAgentData(std::string name) {
+//
+//    }
+
   };
 
 } // End of namespace cse491

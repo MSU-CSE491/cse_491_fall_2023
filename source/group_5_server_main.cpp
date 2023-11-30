@@ -5,68 +5,23 @@
  **/
 
 // Include the modules that we will be using.
-#include <sstream>
-#include <string>
-#include <vector>
-#include "core/Data.hpp"
-#include "Interfaces/TrashInterface.hpp"
+
 #include "Agents/PacingAgent.hpp"
+#include "Interfaces/NetWorth/server/ServerInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
-//#include "../NetworkInterface.hpp"
-#include "Interfaces/NetWorth/server/networkingworld.hpp"
-#include "Interfaces/NetWorth/server/ServerPlayerInterface.hpp"
 
-int main()
-{
-    //Create the world on the server side upon initialization
-    //Add the pacing agents to just simply walk around
-    //Once everything is added we simply wait for a response from a client that is connecting.
-    std::shared_ptr<netWorth::NetworkMazeWorld> world = std::make_shared<netWorth::NetworkMazeWorld>();
-    world->AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
-    world->AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    world->AddAgent<NetWorth::ServerPlayerInterface>("Interface").SetProperty("symbol", '@');
 
-    std::shared_ptr<netWorth::ServerInterface> serverInterface = std::make_shared<netWorth::ServerInterface>();
+int main() {
+    cse491::MazeWorld world;
+    //world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
+    //world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
+    world.AddAgent<netWorth::ServerInterface>("Interface").SetProperty("symbol", '@');
 
-    world->SetServer(serverInterface);
-
-    sf::UdpSocket * serverSocket = serverInterface->GetSocket();
-
-    std::cout << "Server IP Address: " << sf::IpAddress::getLocalAddress().value() << std::endl;
-
-    //Establish an initial connection
-    // Receive a message from anyone
-    sf::Packet send_pkt, recv_pkt;
-    std::optional<sf::IpAddress> sender;
-    unsigned short port;
-
-    if (!serverInterface->InitialConnection(sender, port)) return 1;
-
-    cse491::item_map_t item_map;
-    cse491::agent_map_t agent_map;
-    std::string input;
-
-    //Main game loop
-    while (true) {
-        sf::Packet gridPacket = world->GetGridPacket();
-        if (serverSocket->send(gridPacket, sender.value(), port) != sf::Socket::Status::Done) {
-            std::cout << "Could not send packet" << std::endl;
-            return 1;
-        }
-
-        if (serverSocket->receive(recv_pkt, sender, port) != sf::Socket::Status::Done) {
-            std::cout << "Failure to receive" << std::endl;
-            return 1;
-        }
-        recv_pkt >> input;
-        std::cout << input << std::endl;
-
-        if (input == "quit") break;
-
-        world->SetPlayerAction(input);
-        world->RunAgents();
-    }
-
+    // will probably need to override world Run function for multiple clients
+    // assuming we use NetworkMazeWorld rather than MazeWorld
+    // that could be difficult for multiple world classes though...
+    world.Run();
     return 0;
 
 }
+
