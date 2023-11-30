@@ -9,7 +9,9 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
-
+#include <vector>
+#include <memory>
+#include <algorithm>
 #include "GridPosition.hpp"
 
 namespace cse491 {
@@ -24,6 +26,8 @@ namespace cse491 {
     const size_t id=0;      ///< Unique ID for this entity (zero is use for "no ID")
     std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
     GridPosition position;  ///< Where on the grid is this entity?
+
+    std::vector<size_t> inventory;
 
     struct PropertyBase {
       virtual ~PropertyBase() { }
@@ -66,7 +70,7 @@ namespace cse491 {
     [[nodiscard]] WorldBase & GetWorld() const { assert(world_ptr); return *world_ptr; }
 
     Entity & SetName(const std::string in_name) { name = in_name; return *this; }
-    Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
+    Entity & SetPosition(GridPosition in_pos, size_t grid_id=0);
     Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
     Entity & SetWorld(WorldBase & in_world) { world_ptr = &in_world; return *this; }
 
@@ -115,8 +119,22 @@ namespace cse491 {
       return *this;
     }    
 
+
     /// return the property map for the entity
     std::unordered_map<std::string, std::unique_ptr<cse491::Entity::PropertyBase>> & GetProprtyMap() { return property_map; }
+
+
+    /// Inventory Management
+    bool HasItem(size_t id) const {
+      return std::find(inventory.begin(), inventory.end(), id) != inventory.end();
+    }
+
+    Entity & AddItem(size_t id);
+    Entity & AddItem(Entity & item) { return AddItem(item.GetID()); }
+
+    Entity & RemoveItem(size_t id);
+    Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
+
   };
 
 } // End of namespace cse491

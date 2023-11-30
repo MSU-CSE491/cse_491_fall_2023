@@ -17,82 +17,86 @@
 namespace netWorth{
 
     using namespace sf;
-/**
- * TODO: Delete or incorporate
- */
-    class NetworkingInterface {
-    private:
 
-    protected:
-        UdpSocket m_socket; ///The socket we are going to make our connection
-        std::optional<IpAddress> m_ip; /// the local address of the machine
-        unsigned short m_port;          /// local port number of the machine
-        //Thought about making m_clients a shared pointer to a vector, but it'll be a vector for now
-        std::vector<std::string> m_clients; ///list of all the clients that will connect with the server
+    class NetworkingInterface : public virtual cse491::InterfaceBase {
+        private:
 
-    public:
-        NetworkingInterface() = default;
-        virtual ~NetworkingInterface() = default;
+        protected:
+            UdpSocket m_socket;             ///The socket we are going to make our connection
+            std::optional<IpAddress> m_ip;  /// the destination IP of the machine this communicates with
+            unsigned short m_port;          /// the destination port of the machine this communicates with
+            //Thought about making m_clients a shared pointer to a vector, but it'll be a vector for now
+            std::vector<std::string> m_clients; ///list of all the clients that will connect with the server
 
-        /**
-         * Receives a socket that has been connected between client and server
-         * @return the udp socket
-         */
-        UdpSocket * GetSocket(){
-            return &m_socket;
-        }
+        public:
+            /**
+             * Default constructor (AgentBase)
+             * @param id agent ID
+             * @param name agent name
+             */
+            NetworkingInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name) {}
 
-        /**
-         * Bind socket to port number
-         * @param socket Socket to be bound
-         * @param port Port number
-         * @return true if successful
-         */
-        virtual bool BindSocket(UdpSocket &socket, unsigned short port) {
-            std::cout << "Binding socket on port: " << port << std::endl;
-            if (socket.bind(port) != Socket::Status::Done) {
-                std::cerr << "Failed to bind socket" << std::endl;
-                return false;
+            /**
+             * Receives a socket that has been connected between client and server
+             * @return the udp socket
+             */
+            UdpSocket * GetSocket(){
+                return &m_socket;
             }
-            return true;
-        }
 
-        /**
-         * Sends a packet across the socket
-         * @param packet the packet we want to send
-         * @param destAddr the destination address we want to send to
-         * @param port the port of the connection
-         * @return true if successfully sent
-         */
-        virtual bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
-            if (m_socket.send(packet, destAddr, port) != Socket::Status::Done) {
-                std::cerr << "Could not connect to" << destAddr << " at port " << port << std::endl;
-                return false;
+            /**
+             * Bind socket to port number
+             * @param socket Socket to be bound
+             * @param port Port number
+             * @return true if successful
+             */
+            virtual bool BindSocket(UdpSocket &socket, unsigned short port) {
+                std::cout << "Binding socket on port: " << port << std::endl;
+                if (socket.bind(port) != Socket::Status::Done) {
+                    std::cerr << "Failed to bind socket" << std::endl;
+                    return false;
+                }
+                return true;
             }
-            return true;
-        }
-        /**
-         * Starts the connection by receiving the first packet
-         * @param sender IP of sending machine
-         * @param port port number of sending machine
-         * @return received packet
-         */
-        virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
-            if (m_socket.receive(pkt, sender, port) != Socket::Status::Done) {
-                std::cerr << "Failed to receive" << std::endl;
-                return false;
-            }
-            return true;
-        }
 
-        /**
-         * Processes the packet and outputs it
-         * @param packet the packet we want to output
-         */
-        virtual void ProcessPacket(Packet packet){
-            std::string actionInd;
-            packet >> actionInd;
-            std::cout << actionInd;
-        }
-    };
-}//End of namespace networth
+            /**
+             * Sends a packet across the socket
+             * @param packet the packet we want to send
+             * @param destAddr the destination address we want to send to
+             * @param port the port of the connection
+             * @return true if successfully sent
+             */
+            virtual bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
+                if (m_socket.send(packet, destAddr, port) != Socket::Status::Done) {
+                    std::cerr << "Could not connect to" << destAddr << " at port " << port << std::endl;
+                    return false;
+                }
+                return true;
+            }
+
+            /**
+             * Starts the connection by receiving the first packet
+             * @param sender IP of sending machine
+             * @param port port number of sending machine
+             * @return received packet
+             */
+            virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
+                if (m_socket.receive(pkt, sender, port) != Socket::Status::Done) {
+                    std::cerr << "Failed to receive" << std::endl;
+                    return false;
+                }
+                return true;
+            }
+
+            /**
+             * Processes the packet and outputs it
+             * @param packet the packet we want to output
+             */
+            virtual void ProcessPacket(Packet packet){
+                std::string actionInd;
+                packet >> actionInd;
+                std::cout << actionInd;
+            }
+
+        }; // End of NetworkingInterface
+} // End of namespace networth
