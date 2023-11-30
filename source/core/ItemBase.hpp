@@ -56,7 +56,6 @@ namespace cse491 {
       else if (owner.IsAgent()) owner_type = OwnerType::AGENT;
       else owner_type = OwnerType::NONE; // Error?
       owner_id = owner.GetID();
-      position.MakeInvalid();
       return *this;
     }
 

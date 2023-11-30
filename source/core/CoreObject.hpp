@@ -75,13 +75,13 @@ namespace cse491 {
     // The functions below can be used in derived classes to implement above functionality.
 
     /// @brief Set up beginning of the serialization for this class (allows checking later)
-    /// @param os Output stream to Serialize into.
+    /// @param os Output stream to serialize into.
     void StartSerialize(std::ostream & os) const {
       os << ":::START " << GetTypeName() << "\n";
     }
 
     /// @brief Set up end of the serialization for this class (allows checking later)
-    /// @param os Output stream to Serialize into.
+    /// @param os Output stream to serialize into.
     void EndSerialize(std::ostream & os) const {
       os << ":::END " << GetTypeName() << "\n";
     }

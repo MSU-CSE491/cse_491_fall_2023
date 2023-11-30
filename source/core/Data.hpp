@@ -37,9 +37,9 @@ namespace cse491 {
     bool HasProperty(const std::string& property) const {
       return properties.count(property);
     }
-
-    constexpr static const char* CELL_WALL = "wall";
-    constexpr static const char* CELL_WATER = "water";
+    
+    constexpr static std::string CELL_WALL = "wall";
+    constexpr static std::string CELL_WATER = "water";
   };
 
   /// @brief Available CellTypes will be passed around as a vector of options.

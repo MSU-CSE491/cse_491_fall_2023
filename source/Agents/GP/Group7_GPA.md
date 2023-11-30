@@ -1,43 +1,5 @@
 # Group 7 GP Agent
 
-# Release Freeze Update:
-
-Here is our plan @mercere99
-
-Things to get done ( Group 7)
-
-- Implement better fitness functions ** Undecided**
-  - implementing A* as another sensor
-
-- Saving the state of the best agents overall: **Rajmeet**
-
-- CGPA: **Simon**
-  - Crossover: Graph (goes in the base GP class)
-
-- HPCC: **Aman**
-  - Serialization? just of the genotype
-  - adding in multithreading for mutation
-  - multiple start positions
-
-- Integration testing?
-
-- Crossover for LGPA
-  - Generate a new list using two parents.
-
-- Export (waiting on the worlds)
-
-- LGPA agent: **Jason**
-  - get the current pure virtual functions working
-  - tests
-
-
-Things to ask
--  Ask world groups: what agents do they want (attack, chase, etc) with a decent description of the world.
-- Data collection team (we're getting data from them)
-
-Goals to achieve by the end:
-- End up with agents that exhibit semi intelligent behavior (they can chase the player around, attack, do whatever the world wants them to do)
-
 
 # Demo October 18th
 ## Current progress:
