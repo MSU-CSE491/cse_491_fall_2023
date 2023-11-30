@@ -10,6 +10,15 @@
 // Class project
 #include "Worlds/SecondWorld.hpp"
 #include "core/WorldGrid.hpp"
+#include "core/AgentBase.hpp"
+
+
+#define REMAIN_STILL 0
+#define MOVE_UP 1
+#define MOVE_DOWN 2
+#define MOVE_LEFT 3
+#define MOVE_RIGHT 4
+#define DROP_ITEM 5
 
 TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
   SECTION("Default construction"){
@@ -121,4 +130,34 @@ TEST_CASE("SecondWorld LoadFromFile", "[World][SecondWorld]") {
   }
 
 
+}
+
+
+TEST_CASE("Print Entities", "[World][SecondWorld]") {
+  group4::SecondWorld world;
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+
+  auto testItem = std::make_unique<cse491::ItemBase>(1, "Test Item");
+  world.AddItem(std::move(testItem));
+
+  // Redirect cout for testing output
+  std::stringstream output;
+  std::streambuf* coutBuffer = std::cout.rdbuf();
+  std::cout.rdbuf(output.rdbuf());
+
+  world.PrintEntities();
+
+  // Reset cout buffer
+  std::cout.rdbuf(coutBuffer);
+
+  // Check the printed output after removing leading/trailing whitespaces
+  std::string expectedOutput = "TestItem";
+  std::string actualOutput = output.str();
+
+  // Remove leading/trailing whitespaces
+  actualOutput.erase(std::remove_if(actualOutput.begin(), actualOutput.end(), ::isspace), actualOutput.end());
+
+  CHECK(actualOutput == expectedOutput);
+
+  // https://chat.openai.com/share/1adb0025-b787-44f2-bd75-243533d5ae70
 }
