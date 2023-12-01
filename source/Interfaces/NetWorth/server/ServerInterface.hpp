@@ -62,18 +62,20 @@ namespace netWorth {
             // Await client
             if (!ReceivePacket(recv_pkt, sender, port)) return false;
 
+            m_port = port;
+
             recv_pkt >> str;
             std::cout << str << std::endl;
             std::cout << sender.value() << " has connected successfully." << std::endl;
 
             // Acknowledge client
             send_pkt << "Connection established.";
-            if (!SendPacket(send_pkt, sender.value(), port)) return false;
+            if (!SendPacket(send_pkt, sender.value(), m_port)) return false;
 
             recv_pkt.clear();
             std::string str2;
             // await request for map
-            if (!ReceivePacket(recv_pkt, sender, port)) return false;
+            if (!ReceivePacket(recv_pkt, sender, m_port)) return false;
 
             recv_pkt >> str2;
             std::cout << str2 << std::endl;
