@@ -21,6 +21,7 @@
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
+#include "Interfaces/NetWorth/client/ControlledAgent.hpp"
 
 namespace cse491 {
 
@@ -427,6 +428,44 @@ public:
       os << ":::END agent_set\n";
   }
 
+  /**
+   * Deserialize agents and add to world
+   * @param is istream
+   * @param world world that is being added to
+   * @param manager pointer to ClientManager for agents
+   */
+  void DeserializeAgentSet(std::istream &is, netWorth::ClientManager *manager) {\
+    // find beginning of agent_set serialization
+    std::string read;
+    std::getline(is, read, '\n');
+    if (read != ":::START agent_set") {
+      std::cerr << "Could not find start of agent_set serialization" << std::endl;
+      return;
+    }
+
+    std::string name, x, y;
+    size_t size;
+
+    // how many agents?
+    std::getline(is, read, '\n');
+      size = stoi(read);
+
+      // read each agent (only deserialize name, x, and y for now)
+      for (size_t i = 0; i < size; i++) {
+        std::getline(is, name, '\n');
+        std::getline(is, x, '\n');
+        std::getline(is, y, '\n');
+
+        AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+      }
+
+    std::getline(is, read, '\n');
+    if (read != ":::END agent_set") {
+        std::cerr << "Could not find end of agent_set serialization" << std::endl;
+        return;
+    }
+    }
+
   void SerializeItemSet(std::ostream &os) {
     os << ":::START item_set\n";
     os << item_map.size() << '\n';
@@ -438,32 +477,32 @@ public:
   }
 
   void DeserializeItemSet(std::istream &is) {
-      // find beginning of item_set serialization
-      std::string read;
-      std::getline(is, read, '\n');
-      if (read != ":::START item_set") {
-          std::cerr << "Could not find start of item_set serialization" << std::endl;
-          return;
-      }
+  // find beginning of item_set serialization
+  std::string read;
+  std::getline(is, read, '\n');
+  if (read != ":::START item_set") {
+      std::cerr << "Could not find start of item_set serialization" << std::endl;
+      return;
+  }
 
-      size_t size;
+  size_t size;
 
-      // how many items?
-      std::getline(is, read, '\n');
-      size = stoi(read);
+  // how many items?
+  std::getline(is, read, '\n');
+  size = stoi(read);
 
-      // read each item
-      for (size_t i = 0; i < size; i++) {
-          auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
-          item->Deserialize(is);
-          AddItem(std::move(item));
-      }
+  // read each item
+  for (size_t i = 0; i < size; i++) {
+      auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
+      item->Deserialize(is);
+      AddItem(std::move(item));
+  }
 
-      std::getline(is, read, '\n');
-      if (read != ":::END item_set") {
-          std::cerr << "Could not find end of item_set serialization" << std::endl;
-          return;
-      }
+  std::getline(is, read, '\n');
+  if (read != ":::END item_set") {
+      std::cerr << "Could not find end of item_set serialization" << std::endl;
+      return;
+  }
   }
 
   /**
@@ -480,8 +519,10 @@ public:
    * Deserialize world grid from istream
    * @param is
    */
-  void Deserialize(std::istream &is) {
+  void Deserialize(std::istream &is, netWorth::ClientManager *manager) {
     main_grid.Deserialize(is);
+    DeserializeAgentSet(is, manager);
+    DeserializeItemSet(is);
   }
 
 };
