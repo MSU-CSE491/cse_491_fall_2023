@@ -19,7 +19,7 @@ namespace netWorth{
      */
     class ServerManager {
     private:
-        std::vector<std::thread> m_clientThreads; ///Vector of all client threads
+        std::map<size_t ,std::thread> m_clientThreads; ///Map of all agent ids and their client threads
 
         std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
@@ -69,9 +69,9 @@ namespace netWorth{
         /**
          * Joins all client threads at the end of the server's lifespan
          */
-        void JoinClients(){
-            for (auto &thread: m_clientThreads){
-                thread.join();
+        void JoinAllClients(){
+            for (auto &thread_pair: m_clientThreads){
+                thread_pair.second.join();
             }
         }
 
@@ -93,14 +93,10 @@ namespace netWorth{
             m_action_map.insert_or_assign(key, val);
         }
 
-        void AddToThreadVector(std::thread& thread){
+        void AddToThreadMap(size_t agent_id, std::thread& thread){
             std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
-            m_clientThreads.push_back(std::move(thread));
-//            std::cout << "------------------------------------------------" << std::endl;
-//            for (std::thread & vectorThread : m_clientThreads){
-//                std::cout << vectorThread.get_id() << std::endl;
-//            }
-//            std::cout << "------------------------------------------------" << std::endl;
+            m_clientThreads.insert_or_assign(agent_id, std::move(thread));
+
         }
 
     }; // End of class ServerManager

@@ -100,7 +100,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
                                  std::ref(serverManager));
 
-        serverManager.AddToThreadVector(clientThread);
+        serverManager.AddToThreadMap(serverInterface.GetID(), clientThread);
         std::cout << "Added thread" << std::endl;
     }
 }
