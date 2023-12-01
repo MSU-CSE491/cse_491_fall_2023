@@ -10,6 +10,7 @@
 #include <thread>
 #include <sstream>
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
+#include "Worlds/MazeWorld.hpp"
 
 namespace netWorth {
     using namespace sf;
@@ -21,6 +22,7 @@ namespace netWorth {
     private:
         ServerManager* m_manager = nullptr;
 
+        unsigned short m_world_update_port;
     protected:
 
     public:
@@ -41,6 +43,7 @@ namespace netWorth {
             // resolve port and IP from entity properties
             m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
             m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
+            m_world_update_port = m_port;
             m_manager = GetProperty<netWorth::ServerManager *>("server_manager");
             return InitialConnection(m_ip, m_port);
         }
@@ -156,6 +159,13 @@ namespace netWorth {
                     const cse491::item_map_t& item_set,
             const cse491::agent_map_t& agent_set) override
             {
+                if (m_manager->hasNewAgent){
+                    sf::Packet serializedAgentPkt;
+                    serializedAgentPkt << m_manager->GetSerializedAgents();
+                    SendPacket(serializedAgentPkt, m_ip.value(), m_world_update_port);
+                    m_manager->hasNewAgent = false;
+                }
+
                 // send action map to client
                 sf::Packet send_pkt = m_manager->ActionMapToPacket();
                 std::cout << "Sending action map to " << m_ip.value().toString() << " on port " << m_port << std::endl;

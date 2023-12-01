@@ -74,6 +74,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
         world.Serialize(os);
         std::string serialized = os.str();
+        serverManager.SetSerializedAgents(serialized);
         std::cout << serialized << std::endl;
 
         serverManager.IncreasePort();
@@ -93,6 +94,8 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
                  .SetProperty("symbol", '@');
 
         auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
+
+        serverManager.hasNewAgent = true;
 
         //Do an atomic check to see if you can add it
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);
@@ -241,6 +244,7 @@ int RunManualWorldDemo() {
     world.AddAgent<netWorth::ServerInterface>("Interface", "server_manager", &manager).SetProperty("symbol", '@').SetPosition(start_x,start_y);
     world.RunServer(&manager);
 
+    return 0;
 }
 
 int main(int argc, char *argv[]) {

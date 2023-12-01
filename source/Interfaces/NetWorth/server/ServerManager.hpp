@@ -27,7 +27,7 @@ namespace netWorth{
 
         std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
 
-        size_t m_newAgent = 0; /// ID of newest agent that joined (for serialization purposes)
+        std::string m_currentSerializedAgents; ///String with all current serialized agents
 
     protected:
 
@@ -36,12 +36,18 @@ namespace netWorth{
 
         unsigned short m_maxClientPort = 55000; ///Port that is incremented for client thread handoff
 
+        bool hasNewAgent;
+
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
          * @param name agent name
          */
         ServerManager() = default;
+
+        std::string GetSerializedAgents(){return m_currentSerializedAgents;}
+
+        void SetSerializedAgents(std::string & serializedAgents) {m_currentSerializedAgents = serializedAgents;}
 
 
         /**
@@ -52,19 +58,10 @@ namespace netWorth{
         {
             sf::Packet pkt;
 
-            // flag indicating if agent set changed
-            bool serialize_agents = m_newAgent != 0;
-            pkt << serialize_agents;
-
             // serialize action map
             pkt << m_action_map.size();
             for (auto pair: m_action_map) {
                 pkt << pair.first << pair.second;
-            }
-            //std::cout << m_action_map.size();
-
-            if (serialize_agents) {
-                // somehow serialize the agents lol
             }
 
             return pkt;
