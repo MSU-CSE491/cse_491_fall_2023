@@ -159,6 +159,7 @@ namespace i_2D {
         }
         renderTexture.display();
         DrawTimer();
+        DrawHealthInfo();
         // Draw the texture to the window
         sf::Sprite sprite(renderTexture.getTexture());
         sprite.setPosition({drawCenterX, drawCenterY});
@@ -201,6 +202,20 @@ namespace i_2D {
             timerText.setFillColor(sf::Color::Red);
             mWindow.draw(timerText);
         }
+    }
+
+    void MainInterface::DrawHealthInfo()
+    {
+        // Reference health property
+        int health = GetProperty<int>("Health");
+
+        // Set text properties and draw
+        sf::Text healthText(mFont);
+        healthText.setCharacterSize(24);
+        healthText.setPosition({20.0f, 75.0f});
+        healthText.setFillColor(sf::Color::Green);
+        healthText.setString("Hp: " + std::to_string(health));
+        mWindow.draw(healthText);
     }
 
     /**

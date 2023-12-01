@@ -132,6 +132,8 @@ namespace i_2D {
         void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
 
         void DrawTimer();
+
+        void DrawHealthInfo();
     };
 
 } // End of namespace 2D
