@@ -61,7 +61,7 @@ void DeserializeAgentSet(std::istream &is, cse491::WorldBase &world, netWorth::C
  * @param start_y y start position
  * @return true if successful
  */
-bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y) {
+bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y, sf::UdpSocket *socket) {
     netWorth::ClientManager manager;
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
@@ -73,7 +73,8 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
     DeserializeAgentSet(is, world, &manager);
     world.DeserializeItemSet(is);
     world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
-                                              "server_port", port, "manager", &manager)
+                                              "server_port", port, "manager", &manager,
+                                              "socket", socket)
                                               .SetProperty("symbol", '@')
                                               .SetPosition(start_x, start_y);
     world.Run();
@@ -161,6 +162,11 @@ bool RunManualWorldDemo(std::istream &is, const std::string &ip_string, int star
     return true;
 }
 
+void bingbong() {
+    // Test std::atexit()
+    std::cout << "Bing bong!" << std::endl;
+}
+
 /**
  * Main function
  */
@@ -169,6 +175,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "Must have an argument for server IP\nUsage: ./client [IP]" << std::endl;
         return 1;
     }
+
+    std::atexit(bingbong);
 
     std::string ip_string(argv[1]);
     // port is hardcoded, 55000 will be the initial connection port
@@ -202,7 +210,7 @@ int main(int argc, char *argv[]) {
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
     if (world_type == cse491::WorldType::w_maze) {
-        return RunMazeWorldDemo(is, ip_string, port, start_x, start_y);
+        return RunMazeWorldDemo(is, ip_string, port, start_x, start_y, &socket);
     } else if (world_type == cse491::WorldType::w_second) {
         return RunSecondWorldDemo(is, ip_string, start_x, start_y);
     } else if (world_type == cse491::WorldType::w_generative) {

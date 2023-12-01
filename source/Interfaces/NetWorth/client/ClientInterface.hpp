@@ -21,6 +21,7 @@ namespace netWorth{
         private:
             unsigned short m_serverPort;
             netWorth::ClientManager *m_manager = nullptr;
+            sf::UdpSocket *m_game_update_socket = nullptr;
 
         protected:
 
@@ -43,6 +44,8 @@ namespace netWorth{
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
+                m_game_update_socket = GetProperty<sf::UdpSocket *>("socket");
+                m_game_update_socket->setBlocking(false);
                 m_manager->SetupSocket(&m_socket, m_ip, m_port);
 
                 Packet send_pkt, recv_pkt,two_pkt;
@@ -84,7 +87,7 @@ namespace netWorth{
                                 const cse491::agent_map_t & agent_set) override
             {
                 // Receive and draw map
-                sf::Packet send_pkt, rec_pkt;
+                sf::Packet send_pkt, recv_pkt;
                 std::string map;
                 //std::cout<<"going to receive packet" << std::endl;
                 //ReceivePacket(rec_pkt, m_ip, m_serverPort);
@@ -97,14 +100,16 @@ namespace netWorth{
                             item_set, agent_set);
                 std::cout << action_id << std::endl;
 
-
                 // Send instruction to server
                 send_pkt << action_id;
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
                 m_manager->ClearActionMap();
 
-                std::cout<<"end";
+                if (m_game_update_socket->receive(recv_pkt, m_ip, m_port) == sf::Socket::Status::Done) {
+                    // Deserialize agents
+                }
+
                 // Do the action!
                 return action_id;
             }

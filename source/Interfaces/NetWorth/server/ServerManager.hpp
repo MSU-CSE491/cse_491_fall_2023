@@ -27,6 +27,8 @@ namespace netWorth{
 
         std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
 
+        size_t m_newAgent = 0; /// ID of newest agent that joined (for serialization purposes)
+
     protected:
 
     public:
@@ -49,11 +51,22 @@ namespace netWorth{
         sf::Packet ActionMapToPacket()
         {
             sf::Packet pkt;
+
+            // flag indicating if agent set changed
+            bool serialize_agents = m_newAgent != 0;
+            pkt << serialize_agents;
+
+            // serialize action map
             pkt << m_action_map.size();
             for (auto pair: m_action_map) {
                 pkt << pair.first << pair.second;
             }
             //std::cout << m_action_map.size();
+
+            if (serialize_agents) {
+                // somehow serialize the agents lol
+            }
+
             return pkt;
         }
 
