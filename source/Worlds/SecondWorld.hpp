@@ -22,6 +22,12 @@ const std::string SECOND_FLOOR_FILENAME = "../assets/grids/second_floor.grid";
 /// @brief Filename for the last floor grid file
 const std::string FINAL_FLOOR_FILENAME = "../assets/grids/third_floor.grid";
 
+/// @brief Maximum inventory size for an agent
+const size_t MAX_INVENTORY_SIZE = 30;
+
+/// @brief Off the grid position
+const cse491::GridPosition OffGrid = {-1, -1};
+
 /**
  * Creates a world with agents and a win flag
  */
@@ -226,29 +232,46 @@ class SecondWorld : public cse491::WorldBase {
    * @param agent This agent's item we're dropping
    * @param pos The position where the item will be dropped
    */
-  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos, size_t item_id=0) {
+    // Cannot drop
+    if (agent.GetInventory().empty()) {
+      agent.Notify("Cannot drop any items, inventory is empty.", "item_alert");
+      return;
+    }
 
-      if (agent.GetInventory().empty()) {
-        agent.Notify("Cannot drop any items, inventory is empty.", "item_alert");
+    auto items_found = FindItemsAt(pos, 0);
+    auto &item_drop = GetItem(agent.GetInventory().at(0));
 
-    } else {
-        // TODO: Remove the item that the agent has selected in his hot bar, instead
-        //  of the first item in the agent's inventory
-        // Get the item from the SecondWorld inventory
-        auto& item = GetItem(agent.GetInventory().at(0));
+    // Transfer ownership to chest
+    if (!items_found.empty()) {
+      auto &target_item = GetItem(items_found.at(item_id));
+      if (target_item.HasProperty("Chest")) {
 
-        agent.Notify("Dropping " + item.GetName(), "item_alert");
+        item_drop.SetPosition(OffGrid);
+        target_item.AddItem(item_drop);
 
         // Set the position and remove item from agent's inventory
-        item.SetPosition(pos);
-        agent.RemoveItem(item.GetID());
+        agent.RemoveItem(item_drop.GetID());
 
         // Must set the grid back because RemoveItem() doesn't account for that
-        item.SetGrid();
+        item_drop.SetGrid();
+        agent.Notify("Dropping " + item_drop.GetName() + " into the chest!", "item_alert");
+        return;
 
-        main_grid.At(pos) = GetCellTypeSymbol(item.GetID());
-
+      // Item already on player's position
+      } else {
+        agent.Notify("Cannot drop the item, there is already an item on this cell.", "item_alert");
+        return;
+      }
     }
+
+    // Transfer ownership to grid
+    agent.RemoveItem(item_drop.GetID());
+    item_drop.SetGrid();
+    item_drop.SetPosition(pos);
+    main_grid.At(pos) = GetCellTypeSymbol(item_drop.GetID());
+
+    agent.Notify("Dropping " + item_drop.GetName() + " onto the ground!", "item_alert");
   }
 
   /**
@@ -307,52 +330,42 @@ class SecondWorld : public cse491::WorldBase {
 
         // Item is a chest
         if (item_found.HasProperty("Chest")) {
-
           // Check to see if the chest owns any items
           if (!item_found.GetInventory().empty()) {
             auto temp_inventory = item_found.GetInventory();
             agent.Notify("This is inside the chest: ", "item_alert");
+
+            // Display the items found
             for (auto x : temp_inventory) {
-
-              // TODO: Minor, but do we want to check if word starts with a vowel to change the wording before the constant?
               agent.Notify("You found the " + GetItem(x).GetName() + " in the " + item_found.GetName());
-
               agent.AddItem(GetItem(x));
               item_found.RemoveItem(GetItem(x));
-
             }
 
-            // TODO: Need to determine max size of inventory
-            if (agent.GetInventory().size() == 10) {
+            // Check agent's inventory size
+            if (agent.GetInventory().size() == MAX_INVENTORY_SIZE) {
               agent.Notify(
-                  "It looks like your inventory is full, please drop items or "
-                  "place them in chests!",
-                  "item_alert");
+                  "It looks like your inventory is full, please drop items or place them in chests!", "item_alert");
             }
-
           } else {
-            agent.Notify(
-                "The chest is empty! Do you want to store any items in here?",
-                "item_alert");
+            agent.Notify("The chest is empty! You can store items with 't'!", "item_alert");
           }
 
+        // Item is not a chest
         } else {
-          if (agent.GetInventory().size() == 10) {
-            agent.Notify(
-                "It looks like your inventory is full, please drop items or "
-                "place them in chests!",
+          if (agent.GetInventory().size() == MAX_INVENTORY_SIZE) {
+            agent.Notify("It looks like your inventory is full, please drop items or place them in chests!",
                 "item_alert");
+
           } else {
-            agent.Notify("You found " + item_found.GetName() + "!",
-                         "item_alert");
+            agent.Notify("You found " + item_found.GetName() + "!", "item_alert");
 
             // Add item to the agent's inventory
             agent.AddItem(item_found.GetID());
 
-            item_found.SetPosition(-1, -1);
-
+            // Set the position off the grid, so it doesn't render
+            item_found.SetPosition(OffGrid);
             main_grid.At(pos) = floor_id;
-
           }
         }
       }
