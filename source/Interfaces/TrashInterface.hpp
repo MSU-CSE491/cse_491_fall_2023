@@ -49,7 +49,8 @@ namespace cse491 {
         if(agent_ptr->HasProperty("symbol")){
           c = agent_ptr->GetProperty<char>("symbol");
         }
-        symbol_grid[pos.CellY()][pos.CellX()] = c;
+        if (!agent_ptr->HasProperty("Deleted"))
+          symbol_grid[pos.CellY()][pos.CellX()] = c;
       }
 
       // Print out the symbol_grid with a box around it.
@@ -105,7 +106,6 @@ namespace cse491 {
         case 'f': case 'F': action_id = GetActionID("attack"); break;
         case 'g': case 'G': action_id = GetActionID("special"); break;
         case 'b': case 'B': action_id = GetActionID("buff"); break;
-        case 'x': case 'X': action_id = GetActionID("debuff"); break;
         case 'r': case 'R': action_id = GetActionID("run"); break;
         case 'y': case 'Y': action_id = GetActionID("help"); break;
         case 'q': case 'Q': exit(0); // Quit!

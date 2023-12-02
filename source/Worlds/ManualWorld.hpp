@@ -21,7 +21,7 @@ namespace cse491_team8 {
   class ManualWorld : public cse491::WorldBase {
   protected:
     enum ActionType { REMAIN_STILL=0, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, USE_AXE, USE_BOAT, STATS, HEAL, RUN,
-            ATTACK, SPECIAL, BUFF, DEBUFF, HELP };
+            ATTACK, SPECIAL, BUFF, HELP };
     enum FacingDirection { UP=0, RIGHT, DOWN, LEFT};
 
     size_t grass_id;  ///< Easy access to floor CellType ID.
@@ -46,9 +46,8 @@ namespace cse491_team8 {
       agent.AddAction("attack", ATTACK);
       agent.AddAction("special", SPECIAL);
       agent.AddAction("buff", BUFF);
-      agent.AddAction("debuff", DEBUFF);
       agent.AddAction("help", HELP);
-      agent.SetProperties("Strength", 10, "Health", 100, "Max_Health", 150, "Direction", 0);
+      agent.SetProperties("Strength", 10, "Health", 100, "Max_Health", 150, "Direction", 0, "Battling", false);
     }
 
   public:
@@ -246,7 +245,7 @@ namespace cse491_team8 {
         return look_position;
     }
 
-    /// @brief Removes all items from agent
+    /// @brief Removes all items from other agent
     /// @param agent 
     /// @param other_agent 
     void DropItems(cse491::AgentBase & agent, cse491::AgentBase & other_agent)
@@ -255,11 +254,11 @@ namespace cse491_team8 {
         {
             if (item->IsOwnedBy(other_agent.GetID()))
             {
-                if (item->HasProperty("Strength") && agent.HasProperty("Strength"))
+                if (item->HasProperty("Strength") && other_agent.HasProperty("Strength"))
                 {
-                    auto agent_health = agent.GetProperty<int>("Strength");
+                    auto agent_health = other_agent.GetProperty<int>("Strength");
                     auto item_strength = item->GetProperty<int>("Strength");
-                    agent.SetProperty<int>("Strength", (int)(agent_health - item_strength));
+                    other_agent.SetProperty<int>("Strength", (int)(agent_health - item_strength));
                 }
                 item->SetUnowned();
                 item->SetPosition(other_agent.GetPosition());
@@ -417,7 +416,7 @@ namespace cse491_team8 {
           agent.SetProperty<bool>("Battling", false);
           other_agent.SetProperty<bool>("Battling", false);
           DropItems(agent, other_agent);
-          this->RemoveAgent(other_agent.GetName());
+          other_agent.SetProperty<bool>("Deleted", true);
         }
     }
 
@@ -436,6 +435,18 @@ namespace cse491_team8 {
         UpdateWorld();
       }
     }
+
+      void RunAgents() override {
+        for (auto & [id, agent_ptr] : agent_map) {
+          if (agent_ptr->HasProperty("Deleted")) {
+            continue;
+          }
+          size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+          agent_ptr->storeActionMap(agent_ptr->GetName());
+          int result = DoAction(*agent_ptr, action_id);
+          agent_ptr->SetActionResult(result);
+        }
+      }
 
     /// @brief Attempt to pick up an item for the agent.
     /// @param agent The agent that is picking up the item.
@@ -644,13 +655,6 @@ namespace cse491_team8 {
             move = 'b';
             break;
         }
-        case DEBUFF:
-        {
-            new_position = agent.GetPosition();
-            agent.SetProperty<bool>("Battling", true);
-            move = 'd';
-            break;
-        }
         case HELP:
         {
             new_position = agent.GetPosition();
@@ -665,9 +669,8 @@ namespace cse491_team8 {
           for (auto agent_id : agents)
           {
               // Battle other agent near the player
-              if (!agent_map[agent_id]->IsInterface())
+              if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
               {
-                  // agent.Notify(agent_map[agent_id]->GetName() + " is near the player");
                   agent_map[agent_id]->SetProperty<bool>("Battling", true);
                   StrengthCheck(*agent_map[agent_id], agent, move);
                   new_position = agent.GetPosition();

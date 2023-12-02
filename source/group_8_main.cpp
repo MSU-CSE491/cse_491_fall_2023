@@ -38,7 +38,7 @@ int main()
   world.MoveSetAction(interface);
 
   world.GenerateMoveSets();
-  world.SetBattling();
+  // world.SetBattling();
 
   world.Run();
   
