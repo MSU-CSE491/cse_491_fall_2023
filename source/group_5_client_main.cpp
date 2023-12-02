@@ -19,7 +19,7 @@ unsigned short clientKillPort;
 
 std::string clientKillIP;
 
-int TerminateClient() {
+void TerminateClient() {
     // Request connection to server
     sf::UdpSocket socket;
     sf::Packet send_pkt;
@@ -27,9 +27,7 @@ int TerminateClient() {
     send_pkt << 9999;
     if (socket.send(send_pkt, ip_addr.value(), clientKillPort) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
-        return 1;
     }
-    return 0;
 }
 
 /**
@@ -45,7 +43,8 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
     world.Deserialize(is, &manager);
-
+    clientKillPort = port;
+    clientKillIP = ip_string;
     world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
                                               "server_port", port, "manager", &manager,
                                               "socket", socket)

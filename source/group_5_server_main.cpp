@@ -37,6 +37,10 @@ void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &worl
     }
     serverManager.JoinClient(interface.GetID());
 
+    std::cout << "Joined the thread back" << std::endl;
+
+    std::cout << serverManager.interfacesPresent;
+
 }
 
 /**

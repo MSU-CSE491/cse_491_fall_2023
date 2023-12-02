@@ -90,6 +90,9 @@ namespace netWorth{
         void JoinClient(size_t id){
             m_clientThreads.at(id).join();
             m_clientThreads.erase(id);
+            if (m_clientThreads.empty()){
+                interfacesPresent = false;
+            }
         }
 
         bool ActionMapContains(size_t key){return m_action_map.contains(key);}
