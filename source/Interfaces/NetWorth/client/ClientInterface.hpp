@@ -106,12 +106,6 @@ namespace netWorth{
 
                 m_manager->ClearActionMap();
 
-                std::optional<sf::IpAddress> temp_ip;
-                unsigned short temp_port;
-                if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
-                    // Deserialize agents
-                }
-
                 // Do the action!
                 return action_id;
             }

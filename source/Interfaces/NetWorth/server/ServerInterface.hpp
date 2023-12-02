@@ -83,6 +83,8 @@ namespace netWorth {
             recv_pkt >> str2;
             std::cout << str2 << std::endl;
 
+            // set non-blocking for gameplay
+            //m_socket.setBlocking(false);
             return true;
         }
 
@@ -181,8 +183,19 @@ namespace netWorth {
                 sf::Packet recv_pkt;
                 size_t action_id;
 
+                // comment this out for speed
                 ReceivePacket(recv_pkt, m_ip, m_port);
                 recv_pkt >> action_id;
+
+                // uncomment this out for speed
+//                std::optional<sf::IpAddress> temp_ip;
+//                unsigned short temp_port;
+//                if (m_socket.receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
+//                    // received from client
+//                    recv_pkt >> action_id;
+//                } else {
+//                    action_id = 0;
+//                }
 
                 // TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
                 //            if (input == "quit") exit(0);

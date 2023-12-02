@@ -155,6 +155,7 @@ namespace i_2D {
                                        const agent_map_t &agent_map) {
         while (mWindow.isOpen()) {
             sf::Event event;
+            size_t action_id = 0;
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
@@ -162,6 +163,7 @@ namespace i_2D {
 
                 } else if (event.type == sf::Event::KeyPressed) {
                     return HandleKeyEvent(event);
+                    //action_id = HandleKeyEvent(event);
 
                 } else if(event.type == sf::Event::Resized) {
                     HandleResize(event, grid);
@@ -181,6 +183,7 @@ namespace i_2D {
 
             DrawGrid(grid, type_options, item_map, agent_map);
 
+            //return action_id;
         }
 
         return 0;
