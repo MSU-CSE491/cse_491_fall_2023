@@ -19,13 +19,14 @@ unsigned short clientKillPort;
 
 std::string clientKillIP;
 
+sf::UdpSocket * clientKillSocket = nullptr;
+
 void TerminateClient() {
     // Request connection to server
-    sf::UdpSocket socket;
     sf::Packet send_pkt;
     std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(clientKillIP);
     send_pkt << 9999;
-    if (socket.send(send_pkt, ip_addr.value(), clientKillPort) != sf::Socket::Status::Done) {
+    if (clientKillSocket->send(send_pkt, ip_addr.value(), clientKillPort) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
     }
 }
@@ -45,11 +46,15 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
     world.Deserialize(is, &manager);
     clientKillPort = port;
     clientKillIP = ip_string;
-    world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
+    cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
                                               "server_port", port, "manager", &manager,
                                               "socket", socket)
                                               .SetProperty("symbol", '@')
                                               .SetPosition(start_x, start_y);
+
+    auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
+
+    clientKillSocket = clientInterface.GetSocket();
     world.Run();
     return true;
 }
@@ -112,10 +117,13 @@ bool RunManualWorldDemo(std::istream &is, const std::string &ip_string, unsigned
     cse491_team8::ManualWorld world;
     world.Deserialize(is, &manager);
 
-    world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string,
+    cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "ip", ip_string,
                                               "port", port, "manager", &manager)
                                               .SetProperty("symbol", '@')
                                               .SetPosition(start_x, start_y);
+
+    auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
+
     world.Run();
     return true;
 }
