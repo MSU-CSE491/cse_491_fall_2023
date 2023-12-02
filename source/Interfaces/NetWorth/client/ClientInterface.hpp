@@ -6,9 +6,6 @@
 
 #pragma once
 
-
-#include <chrono>
-#include <thread>
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Interfaces/MainInterface.hpp"
@@ -37,6 +34,7 @@ namespace netWorth{
             ClientInterface(size_t id, const std::string & name) : cse491::InterfaceBase(id, name),
                                                                    NetworkingInterface(id, name),
                                                                    i_2D::MainInterface(id, name) {}
+
             /**
              * Establish connection with server, initializing interface
              * @return True if successful, false if error
@@ -75,12 +73,8 @@ namespace netWorth{
                 return true;
             }
 
-
-
-
-        /**
+            /**
              * Choose action for player agent
-             * https://chat.openai.com/share/df584b9b-a1cc-4c79-beb6-b8c66ac47ba4 used for part of this function
              * @param grid the client-side grid
              * @param type_options different cell types of the world
              * @param item_map the items that may be apart of the grid
@@ -101,38 +95,9 @@ namespace netWorth{
                 //std::cout<<"hiiiiii" << std::endl;
                 //ProcessPacket(rec_pkt);
 
-                std::string userInput;
-                std::chrono::milliseconds timeout(1000);
-                std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-
-                std::cout << "Enter action within " << 1000 << " milliseconds: ";
-
-                size_t action_id = 0;
-                // Asynchronously check for user input
-                std::thread inputThread([&]() {
-                    action_id = i_2D::MainInterface::SelectAction(grid, type_options,
-                                                      item_set, agent_set);
-                });
-
-                // Wait for either user input or timeout
-                while (inputThread.joinable() &&
-                       std::chrono::steady_clock::now() - start < timeout) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-
-                // If the input thread is still joinable, it means it hasn't finished
-                if (inputThread.joinable()) {
-                    std::cout << "\nTimeout reached. No input detected.\n";
-                    DrawGrid(grid, type_options, item_set, agent_set);
-                    inputThread.join(); // Make sure to join the thread before returning
-                } else {
-                    inputThread.join(); // Join the thread before returning
-                    std::cout << "Input received: " << userInput << "\n";
-
-                }
-
                 // grab action ID from MainInterface
-
+                size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
+                            item_set, agent_set);
                 std::cout << action_id << std::endl;
 
                 // Send instruction to server
@@ -140,6 +105,12 @@ namespace netWorth{
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
                 m_manager->ClearActionMap();
+
+                std::optional<sf::IpAddress> temp_ip;
+                unsigned short temp_port;
+                if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
+                    // Deserialize agents
+                }
 
                 // Do the action!
                 return action_id;
