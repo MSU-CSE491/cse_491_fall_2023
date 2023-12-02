@@ -86,6 +86,9 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to wall CellType ID.
   size_t wall_id;
 
+  /// Easy access to water CellType ID.
+  size_t water_id;
+
   /// Easy access to warp CellType ID.
   size_t hidden_warp_id;
 
@@ -96,7 +99,6 @@ class SecondWorld : public cse491::WorldBase {
     agent.AddAction("left", MOVE_LEFT);
     agent.AddAction("right", MOVE_RIGHT);
     agent.AddAction("drop", DROP_ITEM);
-    // Add the new action for the hidden warp tile
     agent.AddAction("warp", WARP_TO_FLOOR_3);
   }
 
@@ -112,6 +114,7 @@ class SecondWorld : public cse491::WorldBase {
         "wall", "Impenetrable wall that you must find a way around.", '#');
     hidden_warp_id = AddCellType(
         "hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
+    water_id = AddCellType("water", "Water that distinguishes fire.", 'w');
 
     main_grid.Read(FIRST_FLOOR_FILENAME, type_options);
   }
@@ -130,6 +133,7 @@ class SecondWorld : public cse491::WorldBase {
         "wall", "Impenetrable wall that you must find a way around.", '#');
     hidden_warp_id = AddCellType(
         "hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
+    water_id = AddCellType("water", "Water that distinguishes fire.", 'w');
 
     main_grid.Read(grid_filename, type_options);
     LoadFromFile(agent_filename);
