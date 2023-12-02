@@ -268,7 +268,6 @@ class SecondWorld : public cse491::WorldBase {
         return;
       }
     }
-
     // Transfer ownership to grid
     agent.RemoveItem(item_drop.GetID());
     item_drop.SetGrid();
