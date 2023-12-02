@@ -18,7 +18,7 @@ class MockWorld : public cse491::WorldBase {
     int DoAction(cse491::AgentBase &agent, size_t action_id) override { return 0; }
 };
 
-TEST_CASE("Adding a AStarAgent"){
+TEST_CASE("Adding a AStarAgent", "[Agents]"){
 
     // create a fake world and factory
     MockWorld world;
@@ -50,7 +50,7 @@ TEST_CASE("Adding a AStarAgent"){
     }
 }
 
-TEST_CASE("Adding a PacingAgent"){
+TEST_CASE("Adding a PacingAgent", "[Agents]"){
 
     // create a fake world and factory
     MockWorld world;
@@ -79,7 +79,7 @@ TEST_CASE("Adding a PacingAgent"){
     }
 }
 
-TEST_CASE("Adding a TrackingAgent"){
+TEST_CASE("Adding a TrackingAgent", "[Agents]"){
 
     // create a fake world and factory
     MockWorld world;
@@ -112,7 +112,7 @@ TEST_CASE("Adding a TrackingAgent"){
     }
 }
 
-TEST_CASE("Adding a PathAgent"){
+TEST_CASE("Adding a PathAgent", "[Agents]"){
 
     // create a fake world and factory
     MockWorld world;
