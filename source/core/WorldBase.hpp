@@ -294,6 +294,10 @@ public:
       std::mutex agent_map_lock;
       agent_map_lock.lock();
     for (auto & [id, agent_ptr] : agent_map) {
+      // wait until clients have connected to run
+      while (!manager->interfacesPresent) {}
+
+      // select action and send to client
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
       manager->WriteToActionMap(id,action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());

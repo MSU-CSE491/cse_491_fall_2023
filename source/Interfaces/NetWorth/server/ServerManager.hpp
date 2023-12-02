@@ -38,6 +38,8 @@ namespace netWorth{
 
         bool hasNewAgent;
 
+        bool interfacesPresent = false;
+
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
@@ -106,7 +108,7 @@ namespace netWorth{
         void AddToThreadMap(size_t agent_id, std::thread& thread){
             std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
             m_clientThreads.insert_or_assign(agent_id, std::move(thread));
-
+            interfacesPresent = true;
         }
 
     }; // End of class ServerManager
