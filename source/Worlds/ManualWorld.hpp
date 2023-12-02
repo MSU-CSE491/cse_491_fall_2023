@@ -164,9 +164,12 @@ namespace cse491_team8 {
 
     }
 
+    /// @brief Displays the items aand properties that the player has
+    /// @param agent 
     void StatsAction(cse491::AgentBase & agent)
     {
-        agent.Notify("Items owned by the player:");
+        std::string output = "";
+        output += "Items owned by the player:\n";
         for (const auto & [item_id, item] : item_map)
         {
             if (item->IsOwnedBy(agent.GetID()))
@@ -176,20 +179,21 @@ namespace cse491_team8 {
                     if (name == "Uses" || name == "Strength" || name == "Healing")
                     {
                         size_t value = item->GetProperty<int>(name);
-                        agent.Notify(item->GetName() + ": " + name + ": " + std::to_string(value));
+                        output += item->GetName() + ": " + name + ": " + std::to_string(value) + "\n";
                     }
                 }
             }
         }
-        agent.Notify("\nProperties of the player:");
+        output += "\nProperties of the player:\n";
         for (const auto & [name, entity] : agent.GetProprtyMap())
         {
             if (name == "Strength" || name == "Health" || name == "Max_Health")
             {
                 size_t value = agent.GetProperty<int>(name);
-                agent.Notify(name + ": " + std::to_string(value));
+                output += name + ": " + std::to_string(value) + "\n";
             }
         }
+        agent.Notify(output);
     }
 
     /// @brief displays the 
@@ -323,7 +327,7 @@ namespace cse491_team8 {
     /// Prints the stronger agent and removes the weaker
     /// @see RemoveAgent
     /// @return None
-    void StrengthCheck(cse491::AgentBase & other_agent, cse491::AgentBase & agent, char attack_type) {
+    void DoBattle(cse491::AgentBase & other_agent, cse491::AgentBase & agent, char attack_type) {
         // User Input for Player Decision
         bool won = false;
         bool run = false;
@@ -332,10 +336,7 @@ namespace cse491_team8 {
         case 'a': case 'A': damage = agent.GetProperty<int>("Strength");    break;
         case 's': case 'S': damage = static_cast<int>(agent.GetProperty<int>("Strength") * 1.5);  break;
         case 'r': case 'R': won = false; run = true; break;
-        case 'b': case 'B': agent.SetProperty<int>("Strength",
-                static_cast<int>(agent.GetProperty<int>("Strength") + 0.5 * agent.GetProperty<int>("Strength"))); break;
-        case 'd': case 'D': other_agent.SetProperty<int>("Strength",
-                    static_cast<int>(other_agent.GetProperty<int>("Strength") - 0.5 * other_agent.GetProperty<int>("Strength"))); break;
+        case 'b': case 'B': agent.SetProperty<int>("Strength", static_cast<int>(1.5 * agent.GetProperty<int>("Strength"))); break;
         case 'h': case 'H': HealAction(agent); break;
         default: break;
         }
@@ -377,8 +378,7 @@ namespace cse491_team8 {
           }
           if (agent.GetName() == "Interface" && agent.GetProperty<int>("Health") <= 0)
           {
-            agent.Notify(other_agent_name + " has beat " + agent.GetName());
-            agent.Notify("You Lost...\n");
+            agent.Notify(other_agent_name + " has beat " + agent.GetName() + "\nYou Lost...\n");
             while (true)
             {
               agent.Notify("Would You Like To Continue? Y or N? ");
@@ -583,7 +583,7 @@ namespace cse491_team8 {
             {
                 if (DoActionTestNewPositionWater(agent))
                 {
-                    new_position.Set(look_position.GetX(), look_position.GetY());
+                    new_position = look_position;
                 }
             } else {
                 agent.Notify("You can not use a Boat here!");
@@ -606,8 +606,7 @@ namespace cse491_team8 {
             else
             {
                 HealAction(agent);
-                agent.Notify("You have healed!");
-                agent.Notify("Your health is now: " + std::to_string(agent.GetProperty<int>("Health")));
+                agent.Notify("You have healed!\nYour health is now: " + std::to_string(agent.GetProperty<int>("Health")));
             }
             break;
         }
@@ -620,38 +619,31 @@ namespace cse491_team8 {
             }
             new_position = agent.GetPosition();
             agent.SetProperty<bool>("Battling", false);
-            // Battle action here
+            
             auto agents = FindAgentsNear(agent.GetPosition(), 1);
             for (auto agent_id : agents)
             {
-                // (temporary) print out if othe agents are near the player
-                if (!agent_map[agent_id]->IsInterface())
+                if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
                 {
                     agent.Notify("You are running away");
                     agent_map[agent_id]->SetProperty<bool>("Battling", false);
-                    StrengthCheck(*agent_map[agent_id], agent, 'r');
+                    DoBattle(*agent_map[agent_id], agent, 'r');
                 }
             }
             break;
         }
         case ATTACK:
         {
-            new_position = agent.GetPosition();
-            agent.SetProperty<bool>("Battling", true);
             move = 'a';
             break;
         }
         case SPECIAL:
         {
-            new_position = agent.GetPosition();
-            agent.SetProperty<bool>("Battling", true);
             move = 's';
             break;
         }
         case BUFF:
         {
-            new_position = agent.GetPosition();
-            agent.SetProperty<bool>("Battling", true);
             move = 'b';
             break;
         }
@@ -663,7 +655,7 @@ namespace cse491_team8 {
         }
       }
 
-      if (battling && move != ' ')
+      if (move != ' ')
       {
           auto agents = FindAgentsNear(agent.GetPosition(), 1);
           for (auto agent_id : agents)
@@ -671,11 +663,13 @@ namespace cse491_team8 {
               // Battle other agent near the player
               if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
               {
+                  agent.SetProperty<bool>("Battling", true);
                   agent_map[agent_id]->SetProperty<bool>("Battling", true);
-                  StrengthCheck(*agent_map[agent_id], agent, move);
-                  new_position = agent.GetPosition();
+                  DoBattle(*agent_map[agent_id], agent, move);
+                  break;
               }
           }
+          new_position = agent.GetPosition();
       }
 
       // assume new position is valid
@@ -731,7 +725,7 @@ namespace cse491_team8 {
         size_t item_id = FindItem(agent, "Boat");
         if (item_id != SIZE_MAX)
         {
-            agent.Notify("You have used your Boat to float over this tile. You have " + 
+            agent.Notify("You have used your Boat to float on the water. You have " + 
                           std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
             
             // decrement uses by 1
