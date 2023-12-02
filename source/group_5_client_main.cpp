@@ -15,6 +15,23 @@
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/ManualWorld.hpp"
 
+unsigned short clientKillPort;
+
+std::string clientKillIP;
+
+int TerminateClient() {
+    // Request connection to server
+    sf::UdpSocket socket;
+    sf::Packet send_pkt;
+    std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(clientKillIP);
+    send_pkt << 9999;
+    if (socket.send(send_pkt, ip_addr.value(), clientKillPort) != sf::Socket::Status::Done) {
+        std::cerr << "Failed to send" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
 /**
  * Run Maze World client instance
  * @param is istream to deserialize
@@ -104,11 +121,6 @@ bool RunManualWorldDemo(std::istream &is, const std::string &ip_string, unsigned
     return true;
 }
 
-void bingbong() {
-    // Test std::atexit()
-    std::cout << "Bing bong!" << std::endl;
-}
-
 /**
  * Main function
  */
@@ -118,7 +130,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::atexit(bingbong);
+    std::atexit(TerminateClient);
 
     std::string ip_string(argv[1]);
     // port is hardcoded, 55000 will be the initial connection port

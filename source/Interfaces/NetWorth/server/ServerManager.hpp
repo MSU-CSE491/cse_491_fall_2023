@@ -87,6 +87,11 @@ namespace netWorth{
             }
         }
 
+        void JoinClient(size_t id){
+            m_clientThreads.at(id).join();
+            m_clientThreads.erase(id);
+        }
+
         bool ActionMapContains(size_t key){return m_action_map.contains(key);}
 
         size_t ReadFromActionMap(size_t key){
@@ -98,6 +103,10 @@ namespace netWorth{
             catch (std::out_of_range & e){
                 return 0;
             }
+        }
+
+        void RemoveFromActionMap(size_t key){
+            m_action_map.erase(key);
         }
 
         void WriteToActionMap(size_t key, size_t val){
