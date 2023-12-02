@@ -22,6 +22,7 @@
 #include "core/Entity.hpp"
 
 
+
 void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &world,
                   netWorth::ServerManager & serverManager){
     // Send to acknowledge client
@@ -34,6 +35,7 @@ void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &worl
     while (serverManager.ActionMapContains(interface.GetID())){
 //        std::cout << interface.GetName() << " is connected" << std::endl;
     }
+    serverManager.JoinClient(interface.GetID());
 
 }
 

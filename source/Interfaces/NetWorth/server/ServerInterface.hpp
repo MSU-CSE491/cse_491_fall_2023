@@ -199,6 +199,9 @@ namespace netWorth {
 
                 // TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
                 //            if (input == "quit") exit(0);
+                if (action_id == 9999){
+                    m_manager->RemoveFromActionMap(GetID());
+                }
 
                 return action_id;
             }
