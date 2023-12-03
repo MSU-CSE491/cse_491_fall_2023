@@ -233,27 +233,15 @@ class TrackingAgent : public cse491::AgentBase {
               CallAlerter(id);
             }
           }
-
-              // Returning can transition to either Patrolling or Tracking
-          case TrackingState::RETURNING_TO_START: {
-              // Within tracking range, start tracking again
-              if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
-                  state_ = TrackingState::TRACKING;
-                  std::get<AStarAgent>(inner_).SetGoalPosition(target_->GetPosition());
-                  std::get<AStarAgent>(inner_).RecalculatePath();
-                  std::get<AStarAgent>(inner_).SetActionResult(1);
-              }
-
-                  // Returned to the beginning, start patrolling again
-              else if (GetPosition() == start_pos_) {
-                  state_ = TrackingState::PATROLLING;
-                  inner_.emplace<PathAgent>(id, name);
-                  std::get<PathAgent>(inner_).SetPosition(GetPosition());
-                  std::get<PathAgent>(inner_).SetPath(std::vector(offsets_));
-                  changed_internal_agent = true;
-              }
-              break;
+          else {
+            state_ = TrackingState::RETURNING_TO_START;
+            std::get<AStarAgent>(inner_).SetGoalPosition(start_pos_);
           }
+          std::get<AStarAgent>(inner_).RecalculatePath();
+          std::get<AStarAgent>(inner_).SetActionResult(1);
+        }
+        break;
+      }
 
       // Returning can transition to either Patrolling or Tracking
       case TrackingState::RETURNING_TO_START: {
@@ -392,7 +380,7 @@ class TrackingAgent : public cse491::AgentBase {
   /**
    * Set how close target has to be to start tracking
    * @param dist to start tracking at
-   * @return self
+   * @return calling object
    */
   TrackingAgent &SetTrackingDistance(double dist) {
       tracking_distance_ = dist;
@@ -401,8 +389,8 @@ class TrackingAgent : public cse491::AgentBase {
 
   /**
    * Set both the world for the current agent and the agents it is a part of
-   * @param in_world
-   * @return
+   * @param in_world new world to associate the agent with
+   * @return calling agent
    */
   TrackingAgent &SetWorld(cse491::WorldBase &in_world) override {
     Entity::SetWorld(in_world);
@@ -415,10 +403,34 @@ class TrackingAgent : public cse491::AgentBase {
 
   /**
    * Retrieves the current internal state of the Tracking Agent
-   * @return
+   * @return current state
    */
   TrackingState GetState() {
     return state_;
+  }
+
+  /**
+   * Sets the patrolling path of the TrackingAgent
+   * @param offsets grid position offsets creating the path
+   * @return
+   */
+  TrackingAgent &SetPath(std::vector<cse491::GridPosition> offsets) {
+    offsets_ = std::move(offsets);
+    if (offsets_.size() == 0) {
+      std::ostringstream what;
+      what << "TrackingAgent cannot have empty path. If you meant to make the agent stay still, use \"x\"";
+      throw std::invalid_argument(what.str());
+    }
+    return *this;
+  }
+
+  /**
+   * Sets the patrolling path of the TrackingAgent
+   * @param offsets grid position offsets creating the path
+   * @return
+   */
+  TrackingAgent &SetPath(std::string_view offsets) {
+    return SetPath(StrToOffsets(offsets));
   }
 
 }; // TrackingAgent
