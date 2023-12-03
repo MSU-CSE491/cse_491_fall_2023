@@ -124,11 +124,11 @@ TEST_CASE("Adding a PathAgent", "[Agents]"){
 
     // add properties/data to the factory
     PathAgentData agentData;
-    agentData.name = "PacingAgent";
+    agentData.name = "PathAgent";
     agentData.position = {0, 0};
     agentData.symbol = '*';
     // Path must not be empty
-    agentData.path = "";
+    agentData.path = "x";
     // Convert to vector
     agentData.vector_path = StrToOffsets(agentData.path);
 

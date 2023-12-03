@@ -64,8 +64,6 @@ class PathAgent : public cse491::AgentBase {
         index_ = 0;
         return *this;
     }
-
-	std::vector<cse491::GridPosition> const& GetPath();
 };
 
 } // namespace walle
