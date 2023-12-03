@@ -205,35 +205,38 @@ class TrackingAgent : public cse491::AgentBase {
       return pos;
   }
 
-  template<TrackingAgentInner Agent>
-  size_t SelectInnerAction(Agent &agent, cse491::WorldGrid const &grid,
-                           cse491::type_options_t const &type,
-                           cse491::item_map_t const &item_set,
-                           cse491::agent_map_t const &agent_set) {
-      return agent.SelectAction(grid, type, item_set, agent_set);
-  }
+	/// Select action for PathAgent inner type
+	size_t SelectInnerAction(PathAgent &agent,
+							 cse491::WorldGrid const &grid,
+							 cse491::type_options_t const &type,
+							 cse491::item_map_t const &item_set,
+							 cse491::agent_map_t const &agent_set) {
+		return agent.SelectAction(grid, type, item_set, agent_set);
+	}
 
-  template<>
-  size_t SelectInnerAction<AStarAgent>(AStarAgent &agent, cse491::WorldGrid const &grid,
-                                       cse491::type_options_t const &type,
-                                       cse491::item_map_t const &item_set,
-                                       cse491::agent_map_t const &agent_set) {
-      auto next_pos = agent.GetNextPosition();
-      auto res = agent.SelectAction(grid, type, item_set, agent_set);
-      agent.SetPosition(next_pos);
-      return res;
-  }
+	/// Select action for AStarAgent inner type
+	size_t SelectInnerAction(AStarAgent &agent,
+							 cse491::WorldGrid const &grid,
+							 cse491::type_options_t const &type,
+							 cse491::item_map_t const &item_set,
+							 cse491::agent_map_t const &agent_set) {
+		auto next_pos = agent.GetNextPosition();
+		auto res = agent.SelectAction(grid, type, item_set, agent_set);
+		agent.SetPosition(next_pos);
+		return res;
+	}
 
-  size_t SelectAction(cse491::WorldGrid const &grid,
-                      cse491::type_options_t const &type,
-                      cse491::item_map_t const &item_set,
-                      cse491::agent_map_t const &agent_set) override {
-      UpdateState();
-      return std::visit([&]<TrackingAgentInner Agent>(Agent &agent) {
-                          return SelectInnerAction(agent, grid, type, item_set, agent_set);
-                        },
-                        inner_);
-  }
+	/// Updates the internal state of the TrackingAgent and calls the internal agent's select action method
+	size_t SelectAction(cse491::WorldGrid const &grid,
+						cse491::type_options_t const &type,
+						cse491::item_map_t const &item_set,
+						cse491::agent_map_t const &agent_set) override {
+		UpdateState();
+		return std::visit([&]<TrackingAgentInner AgentInner>(AgentInner &agent) {
+							  return SelectInnerAction(agent, grid, type, item_set, agent_set);
+						  },
+						  inner_);
+	}
 
   /**
    * Set where this agent "patrol area" starts
