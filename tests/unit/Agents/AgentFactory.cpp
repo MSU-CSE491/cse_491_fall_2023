@@ -15,7 +15,7 @@ using namespace walle;
 
 /// Mock world to create factory
 class MockWorld : public cse491::WorldBase {
-    int DoAction(cse491::AgentBase &agent, size_t action_id) override { return 0; }
+    int DoAction(cse491::AgentBase &, size_t) override { return 0; }
 };
 
 TEST_CASE("Adding a AStarAgent", "[Agents]"){
@@ -83,7 +83,7 @@ TEST_CASE("Adding a TrackingAgent", "[Agents]"){
 
     // create a fake world and factory
     MockWorld world;
-    cse491::Entity* targ;
+    cse491::Entity* targ = nullptr;
     AgentFactory factory(world);
 
     // add properties/data to the factory
@@ -123,8 +123,10 @@ TEST_CASE("Adding a PathAgent", "[Agents]"){
     agentData.name = "PacingAgent";
     agentData.position = {0, 0};
     agentData.symbol = '*';
+    // Path must not be empty
     agentData.path = "";
-    agentData.vector_path = std::vector<cse491::GridPosition>();
+    // Convert to vector
+    agentData.vector_path = StrToOffsets(agentData.path);
 
     auto& agent = factory.AddPathAgent(agentData);
 
