@@ -57,6 +57,9 @@ class PacingAgent : public AgentBase {
         return *this;
     }
 
+    /// Returns the vertical member variable
+    bool GetVertical() const { return vertical; }
+
 };
 
 } // End of namespace cse491

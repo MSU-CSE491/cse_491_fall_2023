@@ -21,7 +21,7 @@ class RandomAgent : public cse491::AgentBase {
 
 	private:
 
-        double mRandom = 0.0;
+        double mRandom = 4.0;
 
         bool mMoving = true;
 
@@ -44,7 +44,7 @@ class RandomAgent : public cse491::AgentBase {
                             const cse491::agent_map_t & /* agent_map*/) override {
             // We are taking an action so another turn has passed
 
-            CalculateRandom(4);
+            CalculateRandom(mRandom);
 
             if(mMoving){
                 if(mRandom < 1.0){
@@ -64,16 +64,22 @@ class RandomAgent : public cse491::AgentBase {
             return 0; // should not reach this point
         }
 
-        /// Function to calculate the random direction
+        /// function to calculate the random direction
         void CalculateRandom(double multiplier){
             mRandom = GetWorld().GetRandom(multiplier);
         }
 
-        /// Function to set the double for the random variable
+        /// function to set the double for the random variable
         void SetDirection(double direction) { mRandom = direction; }
 
+        /// function to set if the agent is currently moving
         void SetMoving(bool move) { mMoving = move; }
 
+        /// function to get the random member variable
+        double GetRandom() const { return mRandom; }
+
+        /// function to get the moving member variable
+        bool GetMoving() const { return mMoving; }
 };
 
 }

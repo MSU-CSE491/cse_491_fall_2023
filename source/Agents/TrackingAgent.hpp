@@ -313,7 +313,7 @@ class TrackingAgent : public cse491::AgentBase {
                            cse491::type_options_t const &type,
                            cse491::item_map_t const &item_set,
                            cse491::agent_map_t const &agent_set) {
-      return agent.SelectAction(grid, type, item_set, agent_set);
+    return agent.SelectAction(grid, type, item_set, agent_set);
   }
 
   /// Select action for AStarAgent inner type
@@ -335,9 +335,9 @@ class TrackingAgent : public cse491::AgentBase {
                       cse491::agent_map_t const &agent_set) override {
     UpdateState();
     return std::visit([&]<TrackingAgentInner AgentInner>(AgentInner &agent) {
-                        return SelectInnerAction(agent, grid, type, item_set, agent_set);
-                      },
-                      inner_);
+      return SelectInnerAction(agent, grid, type, item_set, agent_set);
+      },
+      inner_);
   }
 
   /**
