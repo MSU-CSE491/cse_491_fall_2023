@@ -76,6 +76,7 @@ namespace cowboys {
         std::vector<std::vector<std::vector<double>>> independentAgentFitness = std::vector<std::vector<std::vector<double>>>();
 
         int global_max_threads = std::thread::hardware_concurrency();
+        int rollingRandomSeed = 0;
 
         double ELITE_POPULATION_PERCENT = 0.1;
         double UNFIT_POPULATION_PERCENT = 0.2;
@@ -413,14 +414,14 @@ namespace cowboys {
 
 
           size_t generation = 0; // <- the generation to start at
-          int tempRandSeed = rand();
+
           if (std::filesystem::exists(metaDataFullPath) && ScavengerQueuing) {
             std::cout << "MetaData file exists" << std::endl;
             metaData.LoadFile(metaDataFullPath.string().c_str());
             rootMetaData = metaData.FirstChildElement("GPLoopMetaData");
             auto *generationTag = rootMetaData->FirstChildElement();
             generation = generationTag->UnsignedAttribute("generation") + 1;
-            tempRandSeed = generationTag->UnsignedAttribute("randSeed");
+            rollingRandomSeed = generationTag->UnsignedAttribute("randSeed");
             std::cout << "Starting at generation " << generation << std::endl;
 
           } else {
@@ -428,13 +429,14 @@ namespace cowboys {
             {
               std::cout << "MetaData file does not exist Starting a new Scavenger Queue" << std::endl;
             }
-
+            rollingRandomSeed = TRAINING_SEED;
             rootMetaData = metaData.NewElement("GPLoopMetaData");
             metaData.InsertFirstChild(rootMetaData);
           }
 
           for (; generation < numGenerations; ++generation) {
-            srand(tempRandSeed);
+            srand(rollingRandomSeed);
+            rollingRandomSeed = rand();
 
             auto generationStartTime = std::chrono::high_resolution_clock::now();
             saveDataParams.updateGeneration(generation);
@@ -627,7 +629,8 @@ namespace cowboys {
           generationTag->SetAttribute("averageFitness", averageFitness);
           generationTag->SetAttribute("maxFitness", maxFitness);
           generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
-          generationTag->SetAttribute("Rand", rand());
+
+          generationTag->SetAttribute("Rand", rollingRandomSeed);
 
           rootMetaData->InsertFirstChild(generationTag);
 
