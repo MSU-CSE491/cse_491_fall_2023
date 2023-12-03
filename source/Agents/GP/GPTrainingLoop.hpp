@@ -77,6 +77,9 @@ namespace cowboys {
 
         int global_max_threads = std::thread::hardware_concurrency();
 
+        double ELITE_POPULATION_PERCENT = 0.1;
+        double UNFIT_POPULATION_PERCENT = 0.2;
+
     public:
         bool ScavengerQueuing = false;
 
@@ -149,26 +152,33 @@ namespace cowboys {
 
           }
 
+          loadLastGeneration();
+
+          Printgrid(STARTPOSITIONS);
+
+
+          const size_t numAgents = numArenas * NumAgentsForArena;
+
+          std::stringstream ss;
+          ss.imbue(std::locale(""));
+          ss << std::fixed << numAgents;
+
+          std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
+
+        }
+
+
+        void loadLastGeneration() {
           if (ScavengerQueuing)
           {
 
-            std::filesystem::path normalizedAbsolutePath = getSystemPath();
-// find the file that is latest or max lexographically
-            std::string lastGenerationsPrefix = "allAgentData_";
-            std::string lastGenerationsFilenameExtension = ".xml";
+            auto lastFile = FullLoadGrabLatestGeneration();
 
-            std::vector<std::filesystem::path> matchingFiles;
-            for (const auto & entry : std::filesystem::directory_iterator(normalizedAbsolutePath))
+            if (lastFile == "NOTTAFILE")
             {
-              if (entry.path().extension() == lastGenerationsFilenameExtension && entry.path().filename().string().find(lastGenerationsPrefix) != std::string::npos)
-              {
-                matchingFiles.push_back(entry.path());
-              }
+              std::cout << "No last file found" << std::endl;
+              return;
             }
-            std::sort(matchingFiles.begin(), matchingFiles.end());
-            std::filesystem::path lastFile = matchingFiles.back();
-
-            std::cout << "Last File: " << lastFile << std::endl;
 
             allOfLastGeneration.LoadFile(lastFile.string().c_str());
             rootAllOfLastGeneration = allOfLastGeneration.FirstChildElement("GPLoopAllOfLastGeneration");
@@ -187,16 +197,16 @@ namespace cowboys {
 //              std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
 //            }
 //              use typetraits to check the type of the agent
-              if (std::is_same<AgentType, CGPAgent>::value) {
-                std::cout << "Agent Type is CGPAgent" << std::endl;
-              }
-              else if (std::is_same<AgentType, LGPAgent>::value) {
-                std::cout << "Agent Type is LGPAgent" << std::endl;
-                assert(false); //TODO: Agent not implemented for import
-              }
-              else {
-                std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
-              }
+            if (std::is_same<AgentType, CGPAgent>::value) {
+              std::cout << "Agent Type is CGPAgent" << std::endl;
+            }
+            else if (std::is_same<AgentType, LGPAgent>::value) {
+              std::cout << "Agent Type is LGPAgent" << std::endl;
+              assert(false); //TODO: Agent not implemented for import
+            }
+            else {
+              std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
+            }
 
 
             auto *latestGenerationElem = rootAllOfLastGeneration->FirstChildElement();
@@ -205,6 +215,8 @@ namespace cowboys {
             tinyxml2::XMLElement* generationElem = nullptr;
 
             std::cout << agentElem->Name() << std::endl;
+            size_t numArenas = agents.size();
+            size_t NumAgentsForArena = agents.at(0).size();
             for (size_t i = 0; i < numArenas; ++i) {
               for (size_t j = 0; j < NumAgentsForArena; ++j) {
 
@@ -215,19 +227,37 @@ namespace cowboys {
               }
             }
 
+            std::cout << "Agents LoadComplete" << std::endl;
+
+          }
+        }
+
+        std::filesystem::path FullLoadGrabLatestGeneration() {
+          std::filesystem::path normalizedAbsolutePath = getSystemPath();
+
+          std::string lastGenerationsPrefix = "allAgentData_";
+          std::string lastGenerationsFilenameExtension = ".xml";
+
+          std::vector<std::filesystem::path> matchingFiles;
+          for (const auto & entry : std::filesystem::directory_iterator(normalizedAbsolutePath))
+          {
+            if (entry.path().extension() == lastGenerationsFilenameExtension && entry.path().filename().string().find(lastGenerationsPrefix) != std::string::npos)
+            {
+              matchingFiles.push_back(entry.path());
+            }
+          }
+          std::sort(matchingFiles.begin(), matchingFiles.end());
+
+          if (matchingFiles.empty())
+          {
+            return "NOTTAFILE";
           }
 
-          Printgrid(STARTPOSITIONS);
+          std::filesystem::path lastFile = matchingFiles.back();
 
+          std::cout << "Last File: " << lastFile << std::endl;
 
-          const size_t numAgents = numArenas * NumAgentsForArena;
-
-          std::stringstream ss;
-          ss.imbue(std::locale(""));
-          ss << std::fixed << numAgents;
-
-          std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
-
+          return lastFile;
         }
 
 
@@ -346,6 +376,8 @@ namespace cowboys {
 
 
         }
+
+
 
         /**
          * @brief: runs the Genetic Programming training loop for a number of generations to evolve the agents
@@ -756,8 +788,8 @@ namespace cowboys {
          */
         void GpLoopMutateHelper() {
 
-          constexpr double ELITE_POPULATION_PERCENT = 0.1;
-          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
+//          constexpr double ELITE_POPULATION_PERCENT = 0.1;
+//          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
 
 
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());

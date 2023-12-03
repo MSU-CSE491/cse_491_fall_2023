@@ -15,7 +15,7 @@
 int main() {
 
     const int num_threads = std::thread::hardware_concurrency();
-//    const int num_threads = 100;
+//    const int num_threads = 12;
     std::cout << "Number of threads: " << num_threads << std::endl;
 
 
@@ -24,8 +24,8 @@ int main() {
     cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop(true);
 
 
-    loop.Initialize(200, 100);
-    loop.Run(150, 100, num_threads, true);
+    loop.Initialize(100, 2000);
+    loop.Run(150, 50, num_threads, true);
 
 
     auto end_time = std::chrono::high_resolution_clock::now();
