@@ -56,7 +56,7 @@ struct CompareNodes {
 /// @param end Ending position for the search
 /// @return vector of A* path from start to end, empty vector if no path
 /// exist
-std::vector<cse491::GridPosition> GetShortestPath(const cse491::GridPosition &start,
+std::vector<cse491::GridPosition> static GetShortestPath(const cse491::GridPosition &start,
                                                   const cse491::GridPosition &end,
                                                   const cse491::WorldBase &world,
                                                   const cse491::AgentBase &agent) {

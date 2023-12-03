@@ -10,6 +10,7 @@
 #include "Interfaces/MainInterface.hpp"
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
+#include "Agents/AStarAgent.hpp"
 
 using namespace group6;
 
@@ -23,8 +24,12 @@ int main() {
     world.AddItem("Shield", "symbol", 'S').SetPosition(1, 4).SetName("Shield").SetProperty("Health", 4.0);
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
+    auto & astar_agent = static_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar1"));
+    astar_agent.SetPosition(17, 17);
+    astar_agent.SetGoalPosition(1, 1);
+    //astar_agent.RecalculatePath();
 //    world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
-    world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
+    world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@').SetName("Player");
 
     world.AddTeleporters();
     world.AddTeleporters();

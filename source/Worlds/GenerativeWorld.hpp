@@ -131,10 +131,11 @@ namespace group6 {
 
         /// Allow the agents to move around the maze.
         int DoAction(AgentBase &agent, size_t action_id) override {
+            AgentCollisionHelper(agent);
+
             // Skip turn if stuck on tar
             if (agent.GetProperty("tar_property") == 6.0) {
                 agent.SetProperty("tar_property", 5.0);
-
                 return true;
             }
 
@@ -300,6 +301,22 @@ namespace group6 {
                     break;
                 }
             }
+        }
+
+        void AgentCollisionHelper( AgentBase &agent )
+        {
+            //if player is on same position as agent, game ends
+            for( const auto &temp_agent : agent_map )
+            {
+                if( temp_agent.second->GetPosition() == agent.GetPosition() && ((agent.GetName() == "Player" && temp_agent.second->GetName() != "Player") || (agent.GetName() != "Player" && temp_agent.second->GetName() == "Player")) )
+                    EndGame(false);
+            }
+        }
+
+        /// Can walk on all tiles except for walls
+        bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
+            size_t tileType = main_grid.At(pos);
+            return !(tileType == wall_id || tileType == spike_id || tileType == tar_id);
         }
     };
 
