@@ -10,6 +10,10 @@
 // class project
 #include <vector>
 #include "Agents/AgentFactory.hpp"
+#include "Agents/AStarAgent.hpp"
+#include "Agents/PacingAgent.hpp"
+#include "Agents/TrackingAgent.hpp"
+#include "Agents/PathAgent.hpp"
 
 using namespace walle;
 
