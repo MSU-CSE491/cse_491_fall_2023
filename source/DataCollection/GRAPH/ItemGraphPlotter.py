@@ -120,11 +120,12 @@ if __name__ == "__main__":
     try:
         item_graph_plotter = ItemGraphPlotter(json_file)
 
-        agent_names = ["Interface", "Pacer 1", "Pacer 2"]
-        item_graph_plotter.plot_agent_line_path(agent_names)
-
+        # Determine which graph to plot based on the file name
+        if "AgentPositions" in json_file:
+            agent_names = ["Interface", "Pacer 1", "Pacer 2"]
+            item_graph_plotter.plot_agent_line_path(agent_names)
         # Determine which graph to plot based on the file content
-        if "amountOfUses" in item_graph_plotter.json_data.get("items", [])[0]:
+        elif "amountOfUses" in item_graph_plotter.json_data.get("items", [])[0]:
             item_graph_plotter.plot_item_usage_bar_graph()
         elif "damages" in item_graph_plotter.json_data.get("items", [])[0]:
             item_graph_plotter.plot_item_damage_line_graph()

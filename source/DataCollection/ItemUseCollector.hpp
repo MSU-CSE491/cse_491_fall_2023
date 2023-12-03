@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include "JsonBuilder.hpp"
 
 namespace DataCollection {
 
@@ -78,6 +79,21 @@ namespace DataCollection {
             }
 
             return "";
+        }
+
+        void WriteToItemUseFile(std::string path)
+        {
+            JsonBuilder json_builder;
+            std::ofstream jsonfilestream(path);
+            json_builder.StartArray("items");
+            for (auto& usage: usageData) {
+                json_builder.AddName(usage.first);
+                json_builder.AddUsage(usage.second);
+                json_builder.InputToArray("items", json_builder.GetJSON());
+                json_builder.ClearJSON();
+            }
+            json_builder.WriteToFile(jsonfilestream, json_builder.GetJSONArray());
+            jsonfilestream.close();
         }
     };
 }

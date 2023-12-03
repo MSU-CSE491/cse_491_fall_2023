@@ -37,8 +37,25 @@ namespace DataCollection{
             json["title"] = title;
         }
 
+        /**
+         * @brief Adds the agent's name to the JSON object.
+         * @param name The agent's name.
+         */
+        void AddName(std::string name) {
+            json["name"] = name;
+        }
+
         void Addagentname(std::string name) {
             json["agentname"] = name;
+        }
+
+        void JsonLoader(std::string filename) {
+            std::ifstream jsonfilestream(filename);
+            jsonfilestream >> json;
+        }
+
+        void updateItem(std::string item, int amount) {
+            json[item] = amount;
         }
 
         /**
@@ -69,13 +86,6 @@ namespace DataCollection{
             json["agentIds"].push_back(id);
         }
 
-        /**
-         * @brief Adds the agent's name to the JSON object.
-         * @param name The agent's name.
-         */
-        void AddName(std::string name) {
-            json["name"] = name;
-        }
 
         /**
          * @brief Retrieves the JSON object.
@@ -91,6 +101,10 @@ namespace DataCollection{
 
         nlohmann::json GetJSONArray() {
             return json_array;
+        }
+
+        void AddUsage(int usage) {
+            json["amountOfUses"] = usage;
         }
 
         /**
