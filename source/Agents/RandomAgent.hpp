@@ -21,9 +21,9 @@ class RandomAgent : public cse491::AgentBase {
 
 	private:
 
-        double mRandom = 4.0;
+        double random = 4.0;
 
-        bool mMoving = true;
+        bool moving = true;
 
 	public:
 		RandomAgent(size_t id, const std::string &name) : AgentBase(id, name) {
@@ -44,16 +44,16 @@ class RandomAgent : public cse491::AgentBase {
                             const cse491::agent_map_t & /* agent_map*/) override {
             // We are taking an action so another turn has passed
 
-            CalculateRandom(mRandom);
+            CalculateRandom(random);
 
-            if(mMoving){
-                if(mRandom < 1.0){
+            if(moving){
+                if(random < 1.0){
                     return action_map["up"];
                 }
-                else if(mRandom < 2.0){
+                else if(random < 2.0){
                     return action_map["down"];
                 }
-                else if(mRandom < 3.0){
+                else if(random < 3.0){
                     return action_map["left"];
                 }
                 else{
@@ -66,20 +66,20 @@ class RandomAgent : public cse491::AgentBase {
 
         /// function to calculate the random direction
         void CalculateRandom(double multiplier){
-            mRandom = GetWorld().GetRandom(multiplier);
+            random = GetWorld().GetRandom(multiplier);
         }
 
         /// function to set the double for the random variable
-        void SetDirection(double direction) { mRandom = direction; }
+        void SetDirection(double direction) { random = direction; }
 
         /// function to set if the agent is currently moving
-        void SetMoving(bool move) { mMoving = move; }
+        void SetMoving(bool move) { moving = move; }
 
         /// function to get the random member variable
-        double GetRandom() const { return mRandom; }
+        double GetRandom() const { return random; }
 
         /// function to get the moving member variable
-        bool GetMoving() const { return mMoving; }
+        bool GetMoving() const { return moving; }
 };
 
 }
