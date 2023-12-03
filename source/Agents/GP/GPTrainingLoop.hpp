@@ -92,7 +92,7 @@ namespace cowboys {
 
           rootMetaData = metaData.NewElement("GPLoopMetaData");
           metaData.InsertFirstChild(rootMetaData);
-
+          srand(TRAINING_SEED);
           ResetMainTagLastGenerations();
         }
 
@@ -413,13 +413,14 @@ namespace cowboys {
 
 
           size_t generation = 0; // <- the generation to start at
-
+          int tempRandSeed = rand();
           if (std::filesystem::exists(metaDataFullPath) && ScavengerQueuing) {
             std::cout << "MetaData file exists" << std::endl;
             metaData.LoadFile(metaDataFullPath.string().c_str());
             rootMetaData = metaData.FirstChildElement("GPLoopMetaData");
             auto *generationTag = rootMetaData->FirstChildElement();
             generation = generationTag->UnsignedAttribute("generation") + 1;
+            tempRandSeed = generationTag->UnsignedAttribute("randSeed");
             std::cout << "Starting at generation " << generation << std::endl;
 
           } else {
@@ -433,6 +434,7 @@ namespace cowboys {
           }
 
           for (; generation < numGenerations; ++generation) {
+            srand(tempRandSeed);
 
             auto generationStartTime = std::chrono::high_resolution_clock::now();
             saveDataParams.updateGeneration(generation);
@@ -625,6 +627,7 @@ namespace cowboys {
           generationTag->SetAttribute("averageFitness", averageFitness);
           generationTag->SetAttribute("maxFitness", maxFitness);
           generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
+          generationTag->SetAttribute("Rand", rand());
 
           rootMetaData->InsertFirstChild(generationTag);
 
