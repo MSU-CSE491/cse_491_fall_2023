@@ -34,7 +34,11 @@ if (getInventorySize(opponent)){
 print("Def=",def)
 
 # Calculate damage
-damage=rand(1,str-def)
+diff=str-def
+if (diff<=0){
+	diff=1
+}
+damage=rand(1,diff)
 print(damage," damage")
 
 hp=getProperty(opponent,"Health")-damage

@@ -134,28 +134,6 @@ public:
 };
 
 DerivedExecutor::DerivedExecutor(WorldDerived& world) : ProgramExecutor(world) {
-	// Set up constants
-	setVariable("CELL_WALL", CellType::CELL_WALL);
-	setVariable("CELL_WATER", CellType::CELL_WATER);
-	// Create a new cell type
-	registerFunction("addCellType", [this, &world](ProgramExecutor& pe){
-		auto args = pe.popArgs();
-		if (args.size() < 3) { error("Wrong number of arguments!"); return; }
-		// name, desc, symbol, props (ignored: TODO later)
-		auto name = pe.as<std::string>(args[0]);
-		auto desc = pe.as<std::string>(args[1]);
-		auto symbol = pe.as<std::string>(args[2]);
-		std::cout << desc << "," << name << "," << symbol << ",";
-		if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
-		std::cout << (int)symbol[0] << "\n";
-		
-		auto id = world.AddCellType(name, desc, symbol[0]);
-		for (size_t i = 3; i < args.size(); ++i){
-			world.SetCellProperty(id, pe.as<std::string>(args[i]));
-		}
-		
-		pe.pushStack(id);
-	});
 	// Check if location is valid (on current grid of this world)
 	registerFunction("isValid", [this, &world](ProgramExecutor& pe){
 		auto args = pe.popArgs();

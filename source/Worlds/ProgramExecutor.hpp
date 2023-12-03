@@ -16,6 +16,7 @@
 
 using cse491::AgentBase;
 using cse491::Entity;
+using cse491::CellType;
 using clogged::Logger;
 using clogged::Team;
 using clogged::LogLevel;
@@ -316,6 +317,61 @@ namespace worldlang {
 				
 				pe.pushStack(agent.GetInventory()[item_index]);
 			});
+			// Add an item to the world
+			registerFunction("addItem", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				// name,symbol,x,y,prop1,val1,prop2,val2...
+				if (args.size() < 4) { error("Wrong number of arguments!"); return; }
+				auto name = pe.as<std::string>(args[0]);
+				auto symbol = pe.as<std::string>(args[1]);
+				auto x = pe.as<double>(args[2]);
+				auto y = pe.as<double>(args[3]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				if (symbol.empty()) { error("Symbol can't be empty!"); return; }
+				
+				auto item = std::make_unique<cse491::ItemBase>(world.NextEntityID(), name);
+				item->SetProperties("symbol",symbol.at(0));
+				item->SetPosition(x,y);
+				for (size_t i = 4; i < args.size(); i += 2){
+					item->SetProperty(pe.as<std::string>(args[i]), pe.as<std::string>(args[i+1]));
+				}
+				pe.pushStack(item->GetID());
+				
+				world.AddItem(std::move(item));
+			});
+			// Gets an item from the inventory
+			registerFunction("addInventoryItem", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto owner_id = pe.as<size_t>(args[0]);
+				auto item_id = pe.as<size_t>(args[1]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				world.GetItem(item_id).SetPosition(-1,-1);
+				Entity& entity = world.HasAgent(owner_id) ? static_cast<Entity&>(world.GetAgent(owner_id)) : world.GetItem(owner_id);
+				entity.AddItem(item_id);
+			});
+			// Create a new cell type
+			registerFunction("addCellType", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() < 3) { error("Wrong number of arguments!"); return; }
+				// name, desc, symbol, props (ignored: TODO later)
+				auto name = pe.as<std::string>(args[0]);
+				auto desc = pe.as<std::string>(args[1]);
+				auto symbol = pe.as<std::string>(args[2]);
+				std::cout << desc << "," << name << "," << symbol << ",";
+				if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
+				std::cout << (int)symbol[0] << "\n";
+				
+				auto id = world.AddCellType(name, desc, symbol[0]);
+				for (size_t i = 3; i < args.size(); ++i){
+					world.type_options[id].SetProperty(pe.as<std::string>(args[i]));
+				}
+				
+				pe.pushStack(id);
+			});
 			// Get a random number
 			registerFunction("rand", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
@@ -336,8 +392,10 @@ namespace worldlang {
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 			});
-			// Set a constant for "missing/no valid id"
+			// Set constants
 			setVariable("ID_NONE",0u);
+			setVariable("CELL_WALL", CellType::CELL_WALL);
+			setVariable("CELL_WATER", CellType::CELL_WATER);
 		}
 		
 		virtual ~ProgramExecutor() = default;
