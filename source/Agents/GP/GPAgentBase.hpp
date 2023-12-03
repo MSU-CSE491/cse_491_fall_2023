@@ -71,7 +71,7 @@ namespace cowboys {
     virtual void Reset(bool /*hard*/ = false) { extra_state["previous_action"] = 0; };
 
     //    virtual void crossover(const GPAgentBase &other) {};
-    //    virtual void Import(const std::string &genotype) {};
+    virtual void Import(const std::string &genotype) {};
 
     // -- Random Number Generation --
 

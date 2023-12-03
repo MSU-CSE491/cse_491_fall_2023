@@ -108,7 +108,7 @@ namespace cowboys {
 
     /// @brief Load in the string representation of a genotype and configure this agent based on it.
     /// @param genotype The string representation of a genotype.
-    void Import(std::string genotype) {
+    void Import(const std::string &genotype) override {
       this->genotype.Configure(genotype);
       decision_graph = GraphBuilder().CartesianGraph(this->genotype, FUNCTION_SET, this);
     }

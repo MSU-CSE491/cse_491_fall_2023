@@ -247,7 +247,7 @@ namespace cowboys
          * @brief Export the agent to a string
          * @return
          */
-        std::string Export() {
+        std::string Export() override {
             std::string encodedLists = "";
 
             for (auto instruction : instructionsList)
