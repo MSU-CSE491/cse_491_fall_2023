@@ -46,6 +46,14 @@ public:
     agent.AddAction("move_arbitrary", MOVE_ARBITRARY);
   }
 
+  void ConfigAgent(AgentBase &agent) override {
+    agent.AddAction("up", MOVE_UP);
+    agent.AddAction("down", MOVE_DOWN);
+    agent.AddAction("left", MOVE_LEFT);
+    agent.AddAction("right", MOVE_RIGHT);
+    agent.AddAction("move_arbitrary", MOVE_ARBITRARY);
+  }
+
   /// Allow the agents to move around the maze.
   int DoAction(AgentBase &agent, size_t action_id) override {
     // Determine where the agent is trying to move.

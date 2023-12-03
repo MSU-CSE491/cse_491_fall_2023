@@ -20,7 +20,7 @@ TEST_CASE("Tracking Agent Alert", "[Agents]") {
 
   // Avoid all the hurdles of encapsulation and just add the agents directly
   struct MockWorld : MazeWorld {
-    int DoAction(cse491::AgentBase &agent, size_t action_id) override { return 0; }
+    int DoAction(cse491::AgentBase &, size_t) override { return 0; }
     agent_map_t & GetMap() { return agent_map; }
   };
 

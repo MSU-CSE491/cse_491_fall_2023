@@ -12,13 +12,27 @@
 
 int main() {
   cse491::MazeWorld world;
-  auto &entity = world.AddAgent<walle::TrackingAgent>("Looper").SetPosition(9, 2).SetProperty("symbol", '$');
-  assert(dynamic_cast<walle::TrackingAgent *>(&entity));
-  auto& looper = static_cast<walle::TrackingAgent &>(entity);
-  looper.SetProperty<std::basic_string_view<char>>("path", "e s w n");
-  looper.Initialize();
   auto &player = world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+
+  auto alerter = std::make_shared<walle::Alerter>(&world);
+
+  auto &looper_base = world.AddAgent<walle::TrackingAgent>("Looper").SetPosition(9, 2).SetProperty("symbol", '$');
+  assert(dynamic_cast<walle::TrackingAgent *>(&looper_base));
+  auto& looper = static_cast<walle::TrackingAgent &>(looper_base);
+  looper.SetProperty<std::basic_string_view<char>>("path", "e s w n");
+  looper.SetProperty("alerter", alerter);
   looper.SetTarget(&player);
   looper.SetTrackingDistance(4);
+  looper.Initialize();
+
+  auto &corner_base = world.AddAgent<walle::TrackingAgent>("Corner-sitter").SetPosition(22, 8).SetProperty("symbol", '$');
+  assert(dynamic_cast<walle::TrackingAgent *>(&corner_base));
+  auto& corner = static_cast<walle::TrackingAgent &>(corner_base);
+  corner.SetProperty<std::basic_string_view<char>>("path", "x");
+  corner.SetProperty("alerter", alerter);
+  corner.SetTarget(&player);
+  corner.SetTrackingDistance(4);
+  corner.Initialize();
+
   world.Run();
 }

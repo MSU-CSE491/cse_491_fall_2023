@@ -25,6 +25,29 @@
 namespace walle {
 
 /**
+ * A single Alerter is responsible for forcefully changing the state of all trackers in its network
+ * to TrackingState::TRACKING when a single TrackingAgent in the set of trackers
+ * comes into range of its target
+ */
+class Alerter {
+ private:
+  /// World the agents in the agent network are a part of
+  cse491::WorldBase* world_ptr_;
+
+  /// Set of all agents in a single network
+  std::unordered_set<size_t> agent_network_set_;
+
+ public:
+  // Must be constructed with an associated world
+  Alerter() = delete;
+  Alerter(cse491::WorldBase* world_ptr);
+  Alerter(cse491::WorldBase* world_ptr, size_t id);
+  void AddAgent(size_t id);
+  void RemoveAgent(size_t id);
+  void AlertAllTrackingAgents(size_t caller_id);
+}; // Alerter
+
+/**
  * Used to keep track of what action we are currently taking
  */
 enum class TrackingState { RETURNING_TO_START, TRACKING, PATROLLING };
@@ -37,7 +60,7 @@ template<typename T>
 concept TrackingAgentInner = std::is_same_v<PathAgent, T> || std::is_same_v<AStarAgent, T>;
 
 /**
- * Agent that switches between  user-defined custom movement pattern and
+ * Agent that switches between user-defined custom movement pattern and
  * tracking a given agent
  */
 class TrackingAgent : public cse491::AgentBase {
@@ -60,59 +83,7 @@ class TrackingAgent : public cse491::AgentBase {
   /// How close the target needs to be to begin tracking
   double tracking_distance_ = 50;
 
-  /**
-   * A single Alerter is responsible for forcefully changing the state of all trackers in its network
-   * to TrackingState::TRACKING when a single TrackingAgent in the set of trackers
-   * comes into range of its target
-   */
-  class Alerter {
-   private:
-    /// World the agents in the agent network are a part of
-    cse491::WorldBase* world_ptr_;
-
-    /// Set of all agents in a single network
-    std::unordered_set<size_t> agent_network_set_;
-
-   public:
-    Alerter(size_t id, cse491::WorldBase* world_ptr) : world_ptr_(world_ptr) {
-      assert(world_ptr != nullptr);
-      agent_network_set_.insert(id);
-    }
-
-    void AddAgent(size_t id) {
-      agent_network_set_.insert(id);
-    }
-
-    void RemoveAgent(size_t id) {
-      agent_network_set_.erase(id);
-    }
-
-    /**
-     * Uses UpdateState to focus all trackers onto their target regardless of the distance away
-     * @param caller_id the original id of the agent that came into range of its target; does not need to be updated
-     */
-    void AlertAllTrackingAgents(size_t caller_id) {
-      for (auto id : agent_network_set_) {
-        // Does not need to update the caller who gave the alert
-        if (caller_id == id) {
-          continue;
-        }
-        auto & agent = world_ptr_->GetAgent(id);
-        assert(dynamic_cast<TrackingAgent*>(&agent) != nullptr);
-        auto & tracking_agent = static_cast<TrackingAgent&>(agent);
-
-        // UpdateState sets an agent's TrackingState to TRACKING if it is within some distance of the target
-        // if this distance is positive infinity, then the state will always be reset (given that there IS a target)
-        // Important: UpdateState must be called with alerting == false in order to
-        // avoid infinite recursion from recursively calling AlertAllTrackingAgents
-        double old_tracking_dist = tracking_agent.GetTrackingDistance();
-        tracking_agent.SetTrackingDistance(std::numeric_limits<double>::infinity());
-        tracking_agent.UpdateState(false);
-        tracking_agent.SetTrackingDistance(old_tracking_dist);
-      }
-    }
-  }; // Alerter
-
+  /// Alerter that this tracking agent belongs to; Null implies that it's not associated with an alerter
   std::shared_ptr<Alerter> alerter_ = nullptr;
 
  public:
@@ -126,9 +97,9 @@ class TrackingAgent : public cse491::AgentBase {
    * @param id unique agent id
    * @param name name of path agent
    */
-  TrackingAgent(size_t id, std::string const &name) :
-    cse491::AgentBase(id, name),
-    inner_(std::in_place_type<PathAgent>, id, name) {}
+  TrackingAgent(size_t id, std::string const &name)
+      : cse491::AgentBase(id, name),
+        inner_(std::in_place_type<PathAgent>, id, name) {}
 
   /**
    * Constructor (vector)
@@ -142,32 +113,36 @@ class TrackingAgent : public cse491::AgentBase {
   TrackingAgent(size_t id,
                 std::string const &name,
                 std::vector<cse491::GridPosition> &&offsets,
-                std::shared_ptr<Alerter> alerter = nullptr) :
-    cse491::AgentBase(id, name),
-    inner_(std::in_place_type<PathAgent>, id, name, offsets),
-    offsets_(offsets),
-    alerter_(alerter){}
+                std::shared_ptr<Alerter> alerter = nullptr)
+      : cse491::AgentBase(id, name),
+        inner_(std::in_place_type<PathAgent>, id, name, offsets),
+        offsets_(offsets),
+        alerter_(alerter) {}
 
   /**
    * Constructor (string view)
    * @param id unique agent id
    * @param name name of path agent
    * @param commands sequence of commands to be interpreted as offsets
+   * @param alerter alerter network to add agent to
    * @attention The sequence of offsets must not be empty
+   * @attention alerter should be a nullptr if this tracker is not part of any group of tracking agents
    */
   TrackingAgent(size_t id,
                 std::string const &name,
                 std::string_view commands,
-                std::shared_ptr<Alerter> alerter = nullptr) :
-    cse491::AgentBase(id, name),
-    inner_(std::in_place_type<PathAgent>, id, name, commands),
-    offsets_(StrToOffsets(commands)),
-    alerter_(alerter){}
+                std::shared_ptr<Alerter> alerter = nullptr)
+      : cse491::AgentBase(id, name),
+        inner_(std::in_place_type<PathAgent>, id, name, commands),
+        offsets_(StrToOffsets(commands)),
+        alerter_(alerter) {}
 
   /**
    * Destructor
    */
-  ~TrackingAgent() override = default;
+  virtual ~TrackingAgent() override {
+    RemoveFromAlerter();
+  }
 
   /**
    * Ensure that the TrackingAgent's internal PathAgent is correctly initialized
@@ -184,30 +159,56 @@ class TrackingAgent : public cse491::AgentBase {
       std::get<PathAgent>(inner_).SetPosition(GetPosition());
 
       if (property_map.contains("alerter")) {
-        auto alerter = GetProperty<std::shared_ptr<Alerter>>("alerter");
-        AddToAlerter(alerter_);
+        auto alerter_property = GetProperty<std::shared_ptr<Alerter>>("alerter");
+        AddToAlerter(alerter_property);
       }
       return std::get<PathAgent>(inner_).Initialize();
     }
     return false;
   }
 
+  /// Creates an alerter network and adds this tracking agent to it
   void MakeAlerter() {
-    alerter_ = std::make_shared<Alerter>(id, &GetWorld());
+    alerter_ = std::make_shared<Alerter>(&GetWorld(), id);
   }
 
+  /**
+   * Adds this tracking agent to an already-existing alerter network
+   * @param alerter alerter that this agent should be associated with
+   * @note alerter must not be null
+   */
   void AddToAlerter(std::shared_ptr<Alerter> alerter) {
-    alerter_ = alerter;
+    assert(alerter != nullptr);
     alerter->AddAgent(id);
+    alerter_ = alerter;
   }
 
+  /**
+   * Removes this tracking agent from it's own tracking network
+   * @note called from the TrackingAgent destructor
+   */
   void RemoveFromAlerter() {
-    alerter_->RemoveAgent(id);
-    alerter_ = nullptr;
+    if (alerter_ != nullptr) {
+      alerter_->RemoveAgent(id);
+      alerter_ = nullptr;
+    }
   }
 
-  std::shared_ptr<Alerter> GetAlerter() {
+  /**
+   * Used to expand the alerter network by adding other tracking agents to it
+   * @return a copy of this tracking agent's alerter
+   * @note it's expected that this function is used when calling AddToAlerter on a different tracking agent
+   * @note may be null
+   */
+  [[nodiscard]] std::shared_ptr<Alerter> GetAlerter() const {
     return alerter_;
+  }
+
+  /// Tells the alerter to notify all other tracking agents in network
+  void CallAlerter(size_t agent_id) {
+    if (alerter_ != nullptr) {
+      alerter_->AlertAllTrackingAgents(agent_id);
+    }
   }
 
   /**
@@ -218,19 +219,18 @@ class TrackingAgent : public cse491::AgentBase {
    */
   void UpdateState(bool alerting = true) {
     SetPosition(std::visit([]<TrackingAgentInner Agent>(Agent const &agent) { return agent.GetPosition(); }, inner_));
-//    bool changed_internal_agent = false;
     switch (state_) {
       // Tracking can transition only to Returning
       case TrackingState::TRACKING: {
         // Reached goal position
         if (GetPosition() == std::get<AStarAgent>(inner_).GetGoalPosition()) {
-          // Target is still in range of goal position
           if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
+            // Target is still in range of goal position so
             std::get<AStarAgent>(inner_).SetGoalPosition(target_->GetPosition());
 
             // Alert all trackers
-            if (alerting && alerter_ != nullptr) {
-              alerter_->AlertAllTrackingAgents(id);
+            if (alerting) {
+              CallAlerter(id);
             }
           }
             // Target moved out of range of goal position, return to start
@@ -244,7 +244,7 @@ class TrackingAgent : public cse491::AgentBase {
         break;
       }
 
-        // Returning can transition to either Patrolling or Tracking
+      // Returning can transition to either Patrolling or Tracking
       case TrackingState::RETURNING_TO_START: {
         // Within tracking range, start tracking again
         if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
@@ -254,12 +254,12 @@ class TrackingAgent : public cse491::AgentBase {
           std::get<AStarAgent>(inner_).SetActionResult(1);
 
           // Alert other trackers
-          if (alerting && alerter_ != nullptr) {
-            alerter_->AlertAllTrackingAgents(id);
+          if (alerting) {
+            CallAlerter(id);
           }
         }
 
-          // Returned to the beginning, start patrolling again
+        // Returned to the beginning, start patrolling again
         else if (GetPosition() == start_pos_) {
           state_ = TrackingState::PATROLLING;
           inner_.emplace<PathAgent>(id, name);
@@ -272,7 +272,7 @@ class TrackingAgent : public cse491::AgentBase {
         break;
       }
 
-        // Patrolling can transition only to Tracking
+      // Patrolling can transition only to Tracking
       case TrackingState::PATROLLING: {
         // Within tracking range, needs internal object replacement
         if (target_ != nullptr && GetPosition().Distance(target_->GetPosition()) < tracking_distance_) {
@@ -289,8 +289,8 @@ class TrackingAgent : public cse491::AgentBase {
           std::get<AStarAgent>(inner_).SetActionResult(1);
 
           // Alert all other trackers
-          if (alerting && alerter_ != nullptr) {
-            alerter_->AlertAllTrackingAgents(id);
+          if (alerting) {
+            CallAlerter(id);
           }
         }
         break;
@@ -308,31 +308,34 @@ class TrackingAgent : public cse491::AgentBase {
     return pos;
   }
 
-  template<TrackingAgentInner Agent>
-  size_t SelectInnerAction(Agent &agent, cse491::WorldGrid const &grid,
+  /// Select action for PathAgent inner type
+  size_t SelectInnerAction(PathAgent &agent,
+                           cse491::WorldGrid const &grid,
                            cse491::type_options_t const &type,
                            cse491::item_map_t const &item_set,
                            cse491::agent_map_t const &agent_set) {
     return agent.SelectAction(grid, type, item_set, agent_set);
   }
 
-  template<>
-  size_t SelectInnerAction<AStarAgent>(AStarAgent &agent, cse491::WorldGrid const &grid,
-                                       cse491::type_options_t const &type,
-                                       cse491::item_map_t const &item_set,
-                                       cse491::agent_map_t const &agent_set) {
+  /// Select action for AStarAgent inner type
+  size_t SelectInnerAction(AStarAgent &agent,
+                           cse491::WorldGrid const &grid,
+                           cse491::type_options_t const &type,
+                           cse491::item_map_t const &item_set,
+                           cse491::agent_map_t const &agent_set) {
     auto next_pos = agent.GetNextPosition();
     auto res = agent.SelectAction(grid, type, item_set, agent_set);
     agent.SetPosition(next_pos);
     return res;
   }
 
+  /// Updates the internal state of the TrackingAgent and calls the internal agent's select action method
   size_t SelectAction(cse491::WorldGrid const &grid,
                       cse491::type_options_t const &type,
                       cse491::item_map_t const &item_set,
                       cse491::agent_map_t const &agent_set) override {
     UpdateState();
-    return std::visit([&]<TrackingAgentInner Agent>(Agent &agent) {
+    return std::visit([&]<TrackingAgentInner AgentInner>(AgentInner &agent) {
                         return SelectInnerAction(agent, grid, type, item_set, agent_set);
                       },
                       inner_);
@@ -343,15 +346,15 @@ class TrackingAgent : public cse491::AgentBase {
    * @param gp grid position of position
    * @return self
    */
-  TrackingAgent &SetStartPosition(cse491::GridPosition gp) {
-    start_pos_ = gp;
+  TrackingAgent &SetStartPosition(cse491::GridPosition pos) {
+    start_pos_ = pos;
     return *this;
   }
 
   /**
    * Set where this agent "patrol area" starts
-   * @param x x-coor of start pos
-   * @param y y-coor of start pos
+   * @param x x-coordinate of start pos
+   * @param y y-coordinate of start pos
    * @return self
    */
   TrackingAgent &SetStartPosition(double x, double y) {
@@ -373,7 +376,7 @@ class TrackingAgent : public cse491::AgentBase {
    * Get the distance around this tracker that it surveys
    * @return tracking distance
    */
-  [[nodiscard]] double GetTrackingDistance() { return tracking_distance_; }
+  [[nodiscard]] double GetTrackingDistance() const { return tracking_distance_; }
 
   /**
    * Set how close target has to be to start tracking
@@ -406,5 +409,67 @@ class TrackingAgent : public cse491::AgentBase {
   TrackingState GetState() {
     return state_;
   }
-};
+
+}; // TrackingAgent
+
+/**
+ * Alerter constructor (only knows its world and has no agents in its network)
+ * @param world_ptr the world this alerter is associated with
+ */
+Alerter::Alerter(cse491::WorldBase *world_ptr) : world_ptr_(world_ptr) { assert(world_ptr != nullptr); }
+
+/**
+ * Alerter constructor (adds the TrackingAgent with that id to the alerter network)
+ * @param id id of agent to be added
+ * @param world_ptr the world this alerter is associated with
+ */
+Alerter::Alerter(cse491::WorldBase* world_ptr, size_t id) : world_ptr_(world_ptr) {
+  assert(world_ptr != nullptr);
+  AddAgent(id);
+}
+
+/**
+ * Adds a TrackingAgent to the network
+ * @param id id of agent to be added
+ */
+void Alerter::AddAgent(size_t id) {
+  // Note: GetAgent already handles checking that the agent exists, but we must type-check
+  assert(dynamic_cast<TrackingAgent*>(&(world_ptr_->GetAgent(id))) != nullptr);
+  agent_network_set_.insert(id);
+}
+
+/**
+ * Removes a TrackingAgent to the network
+ * @param id id of agent to be removed
+ * @note no assertions here since we may want to allow the TrackingAgent to join another network later if it's not being destructed
+ */
+void Alerter::RemoveAgent(size_t id) {
+  agent_network_set_.erase(id);
+}
+
+/**
+ * Uses UpdateState to focus all trackers onto their target regardless of the distance away
+ * @param caller_id the original id of the agent that came into range of its target; does not need to be updated
+ */
+void Alerter::AlertAllTrackingAgents(size_t caller_id) {
+  for (auto id : agent_network_set_) {
+    // Do not update the caller who gave the alert
+    if (caller_id == id) {
+      continue;
+    }
+    auto & agent = world_ptr_->GetAgent(id);
+    assert(dynamic_cast<TrackingAgent*>(&agent) != nullptr);
+    auto & tracking_agent = static_cast<TrackingAgent&>(agent);
+
+    // UpdateState sets an agent's TrackingState to TRACKING if it is within some distance of the target
+    // if this distance is positive infinity, then the state will always be reset (given that there IS a target)
+    // Important: UpdateState must be called with alerting == false in order to
+    // avoid infinite recursion from recursively calling AlertAllTrackingAgents
+    double old_tracking_dist = tracking_agent.GetTrackingDistance();
+    tracking_agent.SetTrackingDistance(std::numeric_limits<double>::infinity());
+    tracking_agent.UpdateState(false);
+    tracking_agent.SetTrackingDistance(old_tracking_dist);
+  }
+}
+
 } // namespace walle
