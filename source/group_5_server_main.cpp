@@ -33,13 +33,13 @@ void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &worl
 
     //While this client is still connected (need to fix)
     while (serverManager.ActionMapContains(interface.GetID())){
-//        std::cout << interface.GetName() << " is connected" << std::endl;
+        //std::cout << interface.GetName() << " is connected" << std::endl;
     }
     serverManager.JoinClient(interface.GetID());
 
-    std::cout << "Joined the thread back" << std::endl;
-
-    std::cout << serverManager.interfacesPresent;
+//    std::cout << "Joined the thread back" << std::endl;
+//
+//    std::cout << serverManager.interfacesPresent;
 
 }
 
@@ -106,10 +106,10 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         //Do an atomic check to see if you can add it
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);
 
-        std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
-                                 std::ref(serverManager));
+//        std::thread clientThread(ClientThread, std::ref(serverInterface), std::ref(world),
+//                                 std::ref(serverManager));
 
-        serverManager.AddToThreadMap(serverInterface.GetID(), clientThread);
+        serverManager.AddToThreadMap(serverInterface.GetID());
         std::cout << "Added thread" << std::endl;
     }
 }

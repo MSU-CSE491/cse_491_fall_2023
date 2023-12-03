@@ -19,7 +19,8 @@ namespace netWorth{
      */
     class ServerManager {
     private:
-        std::map<size_t ,std::thread> m_clientThreads; ///Map of all agent ids and their client threads
+        //std::map<size_t ,std::thread> m_clientThreads; ///Map of all agent ids and their client threads
+        std::set<size_t> m_interface_set;   /// Set of interfaces on the server
 
         std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
@@ -82,17 +83,21 @@ namespace netWorth{
          * Joins all client threads at the end of the server's lifespan
          */
         void JoinAllClients(){
-            for (auto &thread_pair: m_clientThreads){
-                thread_pair.second.join();
-            }
+//            for (auto &thread_pair: m_clientThreads){
+//                thread_pair.second.join();
+//            }
+            m_interface_set.clear();
+            interfacesPresent = false;
         }
 
         void JoinClient(size_t id){
-            m_clientThreads.at(id).join();
-            m_clientThreads.erase(id);
-            if (m_clientThreads.empty()){
-                interfacesPresent = false;
-            }
+//            m_clientThreads.at(id).join();
+//            m_clientThreads.erase(id);
+//            if (m_clientThreads.empty()){
+//                interfacesPresent = false;
+//            }
+            m_interface_set.erase(id);
+            if (m_interface_set.empty()) interfacesPresent = false;
         }
 
         bool ActionMapContains(size_t key){return m_action_map.contains(key);}
@@ -117,9 +122,10 @@ namespace netWorth{
             m_action_map.insert_or_assign(key, val);
         }
 
-        void AddToThreadMap(size_t agent_id, std::thread& thread){
+        void AddToThreadMap(size_t agent_id){
             std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
-            m_clientThreads.insert_or_assign(agent_id, std::move(thread));
+            //m_clientThreads.insert_or_assign(agent_id, std::move(thread));
+            m_interface_set.insert(agent_id);
             interfacesPresent = true;
         }
 

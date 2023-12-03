@@ -293,6 +293,7 @@ public:
   virtual void RunServerAgents() {
       std::mutex agent_map_lock;
       agent_map_lock.lock();
+      int to_delete = -1;
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
       while (!manager->interfacesPresent) {}
@@ -303,7 +304,11 @@ public:
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
+
+      // mark agent for deletion if client disconnects
+      if (action_id == 9999) to_delete = id;
     }
+    if (to_delete != -1) RemoveAgent(to_delete);
     agent_map_lock.unlock();
   }
 
