@@ -36,7 +36,7 @@ namespace cse491 {
       for (const auto & [id, item_ptr] : item_map) {
         GridPosition pos = item_ptr->GetPosition();
 
-        if (pos.IsValid()) {
+        if (pos.IsValid() && !item_ptr->IsOwned()) {
           char c = '+';
           if (item_ptr->HasProperty("symbol")) {
             c = item_ptr->GetProperty<char>("symbol");
@@ -51,7 +51,9 @@ namespace cse491 {
         if(agent_ptr->HasProperty("symbol")){
           c = agent_ptr->GetProperty<char>("symbol");
         }
-        symbol_grid[pos.CellY()][pos.CellX()] = c;
+        if (!agent_ptr->HasProperty("Deleted")){
+          symbol_grid[pos.CellY()][pos.CellX()] = c;
+        }
       }
 
       // Print out the symbol_grid with a box around it.
@@ -100,6 +102,15 @@ namespace cse491 {
         case 'a': case 'A': action_id = GetActionID("left");  break;
         case 's': case 'S': action_id = GetActionID("down");  break;
         case 'd': case 'D': action_id = GetActionID("right"); break;
+        case 'h': case 'H': action_id = GetActionID("heal"); break;
+        case 't': case 'T': action_id = GetActionID("stats"); break;
+        case 'c': case 'C': action_id = GetActionID("use_axe"); break;
+        case 'v': case 'V': action_id = GetActionID("use_boat"); break;
+        case 'f': case 'F': action_id = GetActionID("attack"); break;
+        case 'g': case 'G': action_id = GetActionID("special"); break;
+        case 'b': case 'B': action_id = GetActionID("buff"); break;
+        case 'r': case 'R': action_id = GetActionID("run"); break;
+        case 'y': case 'Y': action_id = GetActionID("help"); break;
         case 'q': case 'Q': exit(0); // Quit!
       }
 

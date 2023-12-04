@@ -119,6 +119,8 @@ namespace cse491 {
       return *this;
     }    
 
+    /// return the property map for the entity
+    std::unordered_map<std::string, std::unique_ptr<cse491::Entity::PropertyBase>> & GetProprtyMap() { return property_map; }
 
     /// Inventory Management
     bool HasItem(size_t id) const {
