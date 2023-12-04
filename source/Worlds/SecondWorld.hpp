@@ -70,7 +70,21 @@ class SecondWorld : public cse491::WorldBase {
     agent.Notify("Going to " + world_filename, "world_switched");
 
     // Need to clear item_map so that items don't stay for the next floor.
-    item_map.clear();
+    // Don't clear items held in an inventory.
+    // TODO: How do chests interfere with this?
+    // this is more or less the example from https://en.cppreference.com/w/cpp/container/map/erase
+    for (auto it = item_map.begin(); it != item_map.end(); ){
+    	auto& item = it->second;
+    	if (item->IsOnGrid()) {
+    		// clear this item
+    		it = item_map.erase(it);
+    	} else if (item->IsOwnedByItem()){
+    		// it's owned by a chest: this is currently the only item containing items
+    		it = item_map.erase(it);
+    	} else {
+    		++it;
+    	}
+    }
 
     // Resetting the current new_position to the top left of the new grid.
     pos = cse491::GridPosition(0, 0);
@@ -263,8 +277,6 @@ class SecondWorld : public cse491::WorldBase {
         // Must set the grid back because RemoveItem() doesn't account for that
         item.SetGrid();
 
-        main_grid.At(pos) = GetCellTypeSymbol(item.GetID());
-
     }
   }
 
@@ -367,8 +379,6 @@ class SecondWorld : public cse491::WorldBase {
             agent.AddItem(item_found.GetID());
 
             item_found.SetPosition(-1, -1);
-
-            main_grid.At(pos) = floor_id;
 
           }
         }

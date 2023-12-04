@@ -333,8 +333,9 @@ namespace worldlang {
 				auto item = std::make_unique<cse491::ItemBase>(world.NextEntityID(), name);
 				item->SetProperties("symbol",symbol.at(0));
 				item->SetPosition(x,y);
+				item->SetGrid();
 				for (size_t i = 4; i < args.size(); i += 2){
-					item->SetProperty(pe.as<std::string>(args[i]), pe.as<std::string>(args[i+1]));
+					item->SetProperty(pe.as<std::string>(args[i]), pe.as<double>(args[i+1]));
 				}
 				pe.pushStack(item->GetID());
 				

@@ -7,7 +7,7 @@
 # Defense: reduced damage (on agent)
 # Armor: reduced damage (from items)
 
-print(agent,"attacks",opponent)
+print(agent," attacks ",opponent)
 
 str=getProperty(agent,"Strength")
 def=getProperty(opponent,"Defense")
