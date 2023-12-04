@@ -110,6 +110,14 @@ namespace cse491 {
         os << position.GetY() << '\n';
     }
 
+//    virtual void Serialize(std::ostream & os) {};
+//
+//    virtual void deserialize(std::istream & is) {};
+//
+//    void storeAgentData(std::string name) {
+//
+//    }
+
   };
 
 } // End of namespace cse491

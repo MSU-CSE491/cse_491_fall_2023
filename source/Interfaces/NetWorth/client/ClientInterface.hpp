@@ -82,7 +82,7 @@ namespace netWorth{
                 sf::Packet send_pkt;
 
                 // grab action ID from MainInterface
-                size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
+              std::uint32_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
                                                                      item_set, agent_set);
                 //std::cout << action_id << std::endl;
 

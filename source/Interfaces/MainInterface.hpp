@@ -13,15 +13,19 @@
 #include <sstream>
 #include "Button.hpp"
 #include "Menu.hpp"
+#include <memory>
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
 #include "TextureHolder.hpp"
+#include "TextBox.hpp"
+#include "MessageBoard.h"
 
 
 namespace i_2D {
 
     using namespace cse491;
+
 
     /**
     * @class MainInterface
@@ -39,13 +43,26 @@ namespace i_2D {
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
 
+        // Menu and message vars
         Menu mMenu; ///< for menu class
+        sf::Font mFont; ///< one font for all objects using font
+        std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
+        std::unique_ptr<MessageBoard> mMessageBoard;
+//        std::unique_ptr<Button> mTestButton;
+
+        // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder
         std::map<char, sf::Texture> mTexturesDefault;
         std::map<char, sf::Texture> mTexturesSecondWorld;
         std::map<char, sf::Texture> mTexturesManualWorld;
         std::map<char, sf::Texture> mTexturesGenerativeWorld;
         std::map<char, sf::Texture> mTexturesCurrent;
+
+        // Render range vars
+        sf::Vector2i mPlayerPosition = sf::Vector2i(0,0); ///< xy world grid location of the player
+        bool mGridSizeLarge = false;
+        int const ROW = 9;
+        int const COL = 23;
 
     public:
 
@@ -81,11 +98,8 @@ namespace i_2D {
 
         size_t HandleKeyEvent(const sf::Event &event);
 
-        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture, bool isVerticalWall);
+        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture);
 
-        void DrawEmptyCell(sf::RectangleShape &cellRect);
-
-        void DrawDefaultCell(sf::RectangleShape &cellRect);
 
         void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
 
@@ -98,8 +112,17 @@ namespace i_2D {
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
 
         void ChooseTexture();
-        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol, bool isVerticalWall);
+        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol);
 
+        void Notify(const std::string & message,
+                    const std::string & /*msg_type*/="none") override
+        {
+            std::cout << message << std::endl;
+            mMessageBoard->Send(message);
+        }
+        std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
+
+        void MouseClickEvent(const sf::Event &event);
     };
 
 } // End of namespace 2D
