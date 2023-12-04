@@ -15,17 +15,18 @@
 int main() {
 
     const int num_threads = std::thread::hardware_concurrency();
+//    const int num_threads = 12;
     std::cout << "Number of threads: " << num_threads << std::endl;
 
 
     auto start_time = std::chrono::high_resolution_clock::now();
-//    for (size_t i = 0; i < 20; ++i){
-    cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
+
+    cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop(true);
 
 
-    loop.Initialize(20, 100);
-    loop.Run(11, 100, num_threads, true);
-//    }
+    loop.Initialize(50, 200);
+    loop.Run(80, 50, num_threads, true);
+
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);

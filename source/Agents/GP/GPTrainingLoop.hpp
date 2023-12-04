@@ -6,7 +6,7 @@
 //#include "GPAgent.hpp"
 #include "GPAgentBase.hpp"
 
-
+#include "LGPAgent.hpp"
 #include "CGPAgent.hpp"
 
 #include <thread>
@@ -26,7 +26,7 @@
 
 namespace cowboys {
 
-    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
+    constexpr unsigned int TRAINING_SEED = 10; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -51,9 +51,9 @@ namespace cowboys {
 
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
-            /**
-             * Default Grid
-             */
+        /**
+         * Default Grid
+         */
         const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };
@@ -75,18 +75,25 @@ namespace cowboys {
         std::vector<std::vector<std::vector<cse491::GridPosition>>> endPositions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
         std::vector<std::vector<std::vector<double>>> independentAgentFitness = std::vector<std::vector<std::vector<double>>>();
 
+        int global_max_threads = std::thread::hardware_concurrency();
+        int rollingRandomSeed = 0;
+
+        double ELITE_POPULATION_PERCENT = 0.1;
+        double UNFIT_POPULATION_PERCENT = 0.2;
+
     public:
+        bool ScavengerQueuing = false;
 
         /**
          * @brief: constructor
          */
-        GPTrainingLoop() {
+        GPTrainingLoop(const bool scavengerQueuing = false) : ScavengerQueuing(scavengerQueuing) {
 
           topAgentsDoc.InsertFirstChild(rootTopAllGenerations);
 
           rootMetaData = metaData.NewElement("GPLoopMetaData");
           metaData.InsertFirstChild(rootMetaData);
-
+          srand(TRAINING_SEED);
           ResetMainTagLastGenerations();
         }
 
@@ -146,6 +153,8 @@ namespace cowboys {
 
           }
 
+          loadLastGeneration();
+
           Printgrid(STARTPOSITIONS);
 
 
@@ -157,6 +166,99 @@ namespace cowboys {
 
           std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
 
+        }
+
+
+        void loadLastGeneration() {
+          if (ScavengerQueuing)
+          {
+
+            auto lastFile = FullLoadGrabLatestGeneration();
+
+            if (lastFile == "NOTTAFILE")
+            {
+              std::cout << "No last file found" << std::endl;
+              return;
+            }
+
+            allOfLastGeneration.LoadFile(lastFile.string().c_str());
+            rootAllOfLastGeneration = allOfLastGeneration.FirstChildElement("GPLoopAllOfLastGeneration");
+
+            std::cout << "Loaded last file" << std::endl;
+
+//            if (auto agentType = dynamic_cast<CGPAgent *>(&agents[0][0])) {
+//              std::cout << "Agent Type is CGPAgent" << std::endl;
+//              agentType->Import(lastFile.string());
+//            }
+//            else if (auto agentType = dynamic_cast<LGPAgent *>(&agents[0][0])) {
+//              std::cout << "Agent Type is LGPAgent" << std::endl;
+//              agentType->Import(lastFile.string());
+//            }
+//            else {
+//              std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
+//            }
+//              use typetraits to check the type of the agent
+            if (std::is_same<AgentType, CGPAgent>::value) {
+              std::cout << "Agent Type is CGPAgent" << std::endl;
+            }
+            else if (std::is_same<AgentType, LGPAgent>::value) {
+              std::cout << "Agent Type is LGPAgent" << std::endl;
+              assert(false); //TODO: Agent not implemented for import
+            }
+            else {
+              std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
+            }
+
+
+            auto *latestGenerationElem = rootAllOfLastGeneration->FirstChildElement();
+            std::cout << latestGenerationElem->Name() << std::endl;
+            auto *agentElem = latestGenerationElem->FirstChildElement();
+            tinyxml2::XMLElement* generationElem = nullptr;
+
+            std::cout << agentElem->Name() << std::endl;
+            size_t numArenas = agents.size();
+            size_t NumAgentsForArena = agents.at(0).size();
+            for (size_t i = 0; i < numArenas; ++i) {
+              for (size_t j = 0; j < NumAgentsForArena; ++j) {
+
+                generationElem = agentElem->FirstChildElement();
+                const char *genotypeData = generationElem->GetText();
+                agents.at(i).at(j)->Import(genotypeData);
+                agentElem = agentElem->NextSiblingElement();
+              }
+            }
+
+            std::cout << "Agents LoadComplete" << std::endl;
+
+          }
+        }
+
+        std::filesystem::path FullLoadGrabLatestGeneration() {
+          std::filesystem::path normalizedAbsolutePath = getSystemPath();
+
+          std::string lastGenerationsPrefix = "allAgentData_";
+          std::string lastGenerationsFilenameExtension = ".xml";
+
+          std::vector<std::filesystem::path> matchingFiles;
+          for (const auto & entry : std::filesystem::directory_iterator(normalizedAbsolutePath))
+          {
+            if (entry.path().extension() == lastGenerationsFilenameExtension && entry.path().filename().string().find(lastGenerationsPrefix) != std::string::npos)
+            {
+              matchingFiles.push_back(entry.path());
+            }
+          }
+          std::sort(matchingFiles.begin(), matchingFiles.end());
+
+          if (matchingFiles.empty())
+          {
+            return "NOTTAFILE";
+          }
+
+          std::filesystem::path lastFile = matchingFiles.back();
+
+          std::cout << "Last File: " << lastFile << std::endl;
+
+          return lastFile;
         }
 
 
@@ -234,6 +336,8 @@ namespace cowboys {
           size_t threadsComplete = 0;
 
 
+
+
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             if (maxThreads == 0 || threads.size() < maxThreads) {
               threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
@@ -274,6 +378,8 @@ namespace cowboys {
 
         }
 
+
+
         /**
          * @brief: runs the Genetic Programming training loop for a number of generations to evolve the agents
          *
@@ -287,15 +393,50 @@ namespace cowboys {
 
           auto startTime = std::chrono::high_resolution_clock::now();
 
+          global_max_threads = maxThreads;
+
+
           SaveDataParams saveDataParams(0);
           saveDataParams.save = saveData;
           saveDataParams.saveMetaData = true;
-//          saveDataParams.saveAllAgentData = true;
+          saveDataParams.saveAllAgentData = true;
 //
 //          saveDataParams.saveTopAgents = true;
 //          saveDataParams.saveLastGenerations = true;
 
-          for (size_t generation = 0; generation < numGenerations; ++generation) {
+
+
+//          check to see if meta data exists
+          std::filesystem::path normalizedAbsolutePath = getSystemPath();
+          std::string metaDataFilename = "metaData.xml";
+//          check to see if the file exists
+          std::filesystem::path metaDataFullPath = normalizedAbsolutePath / metaDataFilename;
+
+
+          size_t generation = 0; // <- the generation to start at
+
+          if (std::filesystem::exists(metaDataFullPath) && ScavengerQueuing) {
+            std::cout << "MetaData file exists" << std::endl;
+            metaData.LoadFile(metaDataFullPath.string().c_str());
+            rootMetaData = metaData.FirstChildElement("GPLoopMetaData");
+            auto *generationTag = rootMetaData->FirstChildElement();
+            generation = generationTag->UnsignedAttribute("generation") + 1;
+            rollingRandomSeed = generationTag->UnsignedAttribute("randSeed");
+            std::cout << "Starting at generation " << generation << std::endl;
+
+          } else {
+            if (ScavengerQueuing)
+            {
+              std::cout << "MetaData file does not exist Starting a new Scavenger Queue" << std::endl;
+            }
+            rollingRandomSeed = TRAINING_SEED;
+            rootMetaData = metaData.NewElement("GPLoopMetaData");
+            metaData.InsertFirstChild(rootMetaData);
+          }
+
+          for (; generation < numGenerations; ++generation) {
+            srand(rollingRandomSeed);
+            rollingRandomSeed = rand();
 
             auto generationStartTime = std::chrono::high_resolution_clock::now();
             saveDataParams.updateGeneration(generation);
@@ -394,7 +535,7 @@ namespace cowboys {
 
 
           if (params.saveMetaData) {
-            const std::string metaDataFilename = "metaData_" + dateTimeStr + ".xml";
+            const std::string metaDataFilename = "metaData.xml";
             auto metaDataFullPath = normalizedAbsolutePath / metaDataFilename;
             saveXMLDoc(metaData, metaDataFullPath.string());
           }
@@ -484,10 +625,12 @@ namespace cowboys {
 
           std::string tagName = "generation_" + std::to_string(generation);
           auto *generationTag = metaData.NewElement(tagName.c_str());
-
+          generationTag->SetAttribute("generation", generation);
           generationTag->SetAttribute("averageFitness", averageFitness);
           generationTag->SetAttribute("maxFitness", maxFitness);
           generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
+
+          generationTag->SetAttribute("Rand", rollingRandomSeed);
 
           rootMetaData->InsertFirstChild(generationTag);
 
@@ -651,8 +794,8 @@ namespace cowboys {
          */
         void GpLoopMutateHelper() {
 
-          constexpr double ELITE_POPULATION_PERCENT = 0.1;
-          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
+//          constexpr double ELITE_POPULATION_PERCENT = 0.1;
+//          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
 
 
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
@@ -672,7 +815,8 @@ namespace cowboys {
           const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
           // Determine the number of threads to use
-          const int num_threads = std::thread::hardware_concurrency();
+          const int num_threads = global_max_threads;
+//          const int num_threads = std::min(static_cast<int>(std::thread::hardware_concurrency()), global_max_threads);
 
           std::vector<std::thread> threads;
 

@@ -66,7 +66,6 @@ namespace cowboys
             {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
-
         }
 
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
@@ -93,7 +92,10 @@ namespace cowboys
             return instructions;
         }
 
-
+        /**
+         * @brief Mutate this agent.
+         * @param mutation_rate
+         */
         void MutateAgent(double mutation_rate = 0.01) override
         {
             std::uniform_int_distribution<size_t> rnd_mutate(1, 100);
@@ -139,10 +141,14 @@ namespace cowboys
             Configure(dynamic_cast<const LGPAgent &>(other));
         }
 
-        std::string Export() override {
-          return "";
-        }
-
+        /**
+         * @brief Get the action object
+         * @param grid
+         * @param type_options
+         * @param item_set
+         * @param agent_set
+         * @return
+         */
         size_t GetAction([[maybe_unused]] const cse491::WorldGrid &grid,
                             [[maybe_unused]] const cse491::type_options_t &type_options,
                             [[maybe_unused]] const cse491::item_map_t &item_set,
@@ -176,10 +182,7 @@ namespace cowboys
 
                     SensorDirection direction = Sensors::getSensorDirectionEnum(sensor);
                     int distance = Sensors::wallDistance(grid, *this, direction);
-
-
                     resultsList[currentInstructionIndex] = distance;
-
 
                 }
                 else
@@ -240,8 +243,65 @@ namespace cowboys
             return 0;
         }
 
-        void Serialize(tinyxml2::XMLDocument &, tinyxml2::XMLElement *,  [[maybe_unused]] double fitness = -1) override {}
+        /**
+         * @brief Export the agent to a string
+         * @return
+         */
+        std::string Export() override {
+            std::string encodedLists = "";
 
+            for (auto instruction : instructionsList)
+            {
+                encodedLists += std::get<0>(instruction);
+                encodedLists += ".";
+                encodedLists += std::to_string(std::get<1>(instruction));
+                encodedLists += ".";
+                encodedLists += std::to_string(std::get<2>(instruction));
+                encodedLists += ",";
+            }
+
+            encodedLists += ";";
+
+            for (auto possInstruction : possibleInstructionsList)
+            {
+                encodedLists += possInstruction;
+                encodedLists += ".";
+            }
+
+            encodedLists += ";";
+
+            for (auto auction : actionsList)
+            {
+                encodedLists += auction;
+                encodedLists += ".";
+            }
+
+            encodedLists += ";";
+
+            return encodedLists;
+        }
+
+        /**
+         * @brief Serialize the agent to XML
+         * @param doc
+         * @param parentElem
+         * @param fitness
+         */
+        void Serialize(tinyxml2::XMLDocument & doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override
+        {
+            auto agentElem = doc.NewElement("LGPAgent");
+            parentElem->InsertEndChild(agentElem);
+
+            auto listElem = doc.NewElement("instruction list");
+            listElem->SetText(Export().c_str());
+            if (fitness != -1)
+                listElem->SetAttribute("fitness", fitness);
+            agentElem->InsertEndChild(listElem);
+        }
+
+        /**
+         * @brief Print the agent
+         */
         void PrintAgent() override {
           for (auto i = 0; i < LISTSIZE; i++)
           {
