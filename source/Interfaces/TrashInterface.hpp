@@ -51,7 +51,7 @@ namespace cse491 {
         if(agent_ptr->HasProperty("symbol")){
           c = agent_ptr->GetProperty<char>("symbol");
         }
-        if (!agent_ptr->HasProperty("Deleted")){
+        if (!agent_ptr->HasProperty("disabled")){
           symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
       }
