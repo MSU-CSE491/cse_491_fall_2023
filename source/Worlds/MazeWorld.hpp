@@ -77,14 +77,16 @@ class MazeWorld : public WorldBase {
     if (!main_grid.IsValid(new_position)) { return false; }
     if (!IsTraversable(agent, new_position)) { return false; }
 
-      // Set the agent to its new postion.
+      // Set the agent to its new position.
       agent.SetPosition(new_position);
       return true;
   }
 
 
   [[nodiscard]] bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
-    return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
+    //return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
+    // ^ This doesn't work because we're not assigning any properties to the cell types, so a band-aid solution is to use name
+    return !(GetCellTypes().at(main_grid.At(pos)).name == CellType::CELL_WALL);
   }
 };
 

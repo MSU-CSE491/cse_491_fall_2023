@@ -5,39 +5,24 @@
  **/
 
 // Include the modules that we will be using.
-#include "Agents/AStarAgent.hpp"
-#include "Agents/RandomAgent.hpp"
-#include "Agents/TrackingAgent.hpp"
-
 #include "Agents/AgentFactory.hpp"
-#include "Agents/PacingAgent.hpp"
-
 #include "Interfaces/TrashInterface.hpp"
 #include "Worlds/MazeWorld.hpp"
+
+void InitializeWorld(cse491::MazeWorld & world, cse491::Entity & player) {
+  walle::AgentFactory factory(world);
+
+  auto alerter = std::make_shared<walle::Alerter>(&world);
+  walle::TrackingAgentData data_first("Looper", {9, 2}, '$', "e s w n", &player, 4, {9, 2}, alerter);
+  factory.AddTrackingAgent(data_first);
+
+  walle::TrackingAgentData data_second("Corner-sitter", {22, 8}, '$', "x", &player, 4, {22, 8}, alerter);
+  factory.AddTrackingAgent(data_second);
+}
 
 int main() {
   cse491::MazeWorld world;
   auto &player = world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
-
-  auto alerter = std::make_shared<walle::Alerter>(&world);
-
-  auto &looper_base = world.AddAgent<walle::TrackingAgent>("Looper").SetPosition(9, 2).SetProperty("symbol", '$');
-  assert(dynamic_cast<walle::TrackingAgent *>(&looper_base));
-  auto& looper = static_cast<walle::TrackingAgent &>(looper_base);
-  looper.SetProperty<std::basic_string_view<char>>("path", "e s w n");
-  looper.SetProperty("alerter", alerter);
-  looper.SetTarget(&player);
-  looper.SetTrackingDistance(4);
-  looper.Initialize();
-
-  auto &corner_base = world.AddAgent<walle::TrackingAgent>("Corner-sitter").SetPosition(22, 8).SetProperty("symbol", '$');
-  assert(dynamic_cast<walle::TrackingAgent *>(&corner_base));
-  auto& corner = static_cast<walle::TrackingAgent &>(corner_base);
-  corner.SetProperty<std::basic_string_view<char>>("path", "x");
-  corner.SetProperty("alerter", alerter);
-  corner.SetTarget(&player);
-  corner.SetTrackingDistance(4);
-  corner.Initialize();
-
+  InitializeWorld(world, player);
   world.Run();
 }
