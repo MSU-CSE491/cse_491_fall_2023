@@ -31,6 +31,8 @@ namespace cse491_team8 {
     size_t rock_id;   ///< Easy access to rock CellType ID.
     size_t portal_id_a; ///< Easy access to first portal CellType ID.
     size_t portal_id_b; ///< Easy access to second portal CellType ID.
+    size_t portal_id_c; ///< Easy access to third portal CellType ID.
+    size_t portal_id_d; ///< Easy access to fourth portal CellType ID.
 
     /// Provide the agent with movement actions.
     void ConfigAgent(cse491::AgentBase & agent) override {
@@ -59,6 +61,8 @@ namespace cse491_team8 {
       rock_id = AddCellType("rock", "Rock that the player cannot cross", '$');
       portal_id_a = AddCellType("portal_a", "Portal that teleports player to another a-portal spot.", '}');
       portal_id_b = AddCellType("portal_b", "Portal that teleports player to another b-portal spot.", '{');
+      portal_id_c = AddCellType("portal_c", "Portal that teleports player to another c-portal spot.", '(');
+      portal_id_d = AddCellType("portal_d", "Portal that teleports player to another d-portal spot.", ')');
       main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
     }
     ~ManualWorld() = default;
@@ -776,19 +780,51 @@ namespace cse491_team8 {
 
       if (main_grid.At(new_position) == portal_id_a)
       {
-          // which portal should we go to?
+          // which portal should we go to - for medium grid
           if (new_position.GetX() == 33)
               new_position = cse491::GridPosition(3, 1);
-          else
+          else if (new_position.GetX() == 3)
               new_position = cse491::GridPosition(33, 0);
+
+          // for large grid, big right sand patch (x=137) to circle lake island (x=41)
+          else if (new_position.GetX() == 137)
+              new_position = cse491::GridPosition(41, 98);
+          else if (new_position.GetX() == 41)
+              new_position = cse491::GridPosition(137, 40);
       }
 
       if (main_grid.At(new_position) == portal_id_b)
       {
+          // for medium grid
           if (new_position.GetX() == 44)
               new_position = cse491::GridPosition(2, 10);
-          else
+          else if (new_position.GetX() == 2)
               new_position = cse491::GridPosition(44, 17);
+
+          // for large grid, tree-locked upper left sand patch(x=32) to lower right along water (x=114)
+          else if (new_position.GetX() == 32)
+              new_position = cse491::GridPosition(114, 132);
+          else if (new_position.GetX() == 114)
+              new_position = cse491::GridPosition(32, 36);
+
+      }
+
+      if (main_grid.At(new_position) == portal_id_c)
+      {
+          // above top right lake (x=120) to left of circle lake (x=16)
+          if (new_position.GetX() == 120)
+              new_position = cse491::GridPosition(16, 140);
+          else if (new_position.GetX() == 16)
+              new_position = cse491::GridPosition(120, 25);
+      }
+
+      if (main_grid.At(new_position) == portal_id_d)
+      {
+          // from circle lake island (x=36) to very bottom right corner (x=146)
+          if (new_position.GetX() == 36)
+              new_position = cse491::GridPosition(146, 147);
+          else if (new_position.GetX() == 146)
+              new_position = cse491::GridPosition(36, 94);
       }
 
       // Set the agent to its new postion.
