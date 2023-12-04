@@ -46,6 +46,14 @@ class MazeWorld : public WorldBase {
     agent.AddAction("move_arbitrary", MOVE_ARBITRARY);
   }
 
+  void ConfigAgent(AgentBase &agent) override {
+    agent.AddAction("up", MOVE_UP);
+    agent.AddAction("down", MOVE_DOWN);
+    agent.AddAction("left", MOVE_LEFT);
+    agent.AddAction("right", MOVE_RIGHT);
+    agent.AddAction("move_arbitrary", MOVE_ARBITRARY);
+  }
+
   /// Allow the agents to move around the maze.
   int DoAction(AgentBase &agent, size_t action_id) override {
       // Determine where the agent is trying to move.
@@ -69,14 +77,16 @@ class MazeWorld : public WorldBase {
     if (!main_grid.IsValid(new_position)) { return false; }
     if (!IsTraversable(agent, new_position)) { return false; }
 
-      // Set the agent to its new postion.
+      // Set the agent to its new position.
       agent.SetPosition(new_position);
       return true;
   }
 
 
   [[nodiscard]] bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
-    return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
+    //return !GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL);
+    // ^ This doesn't work because we're not assigning any properties to the cell types, so a band-aid solution is to use name
+    return !(GetCellTypes().at(main_grid.At(pos)).name == CellType::CELL_WALL);
   }
 };
 

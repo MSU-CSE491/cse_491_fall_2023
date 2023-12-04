@@ -252,4 +252,13 @@ StrToOffsets(std::string_view commands) {
   return positions;
 }
 
+template<typename T>
+concept Agent_Type = std::is_base_of_v<cse491::AgentBase, T>;
+
+template<typename T>
+T &DownCastAgent(cse491::Entity &entity) requires(Agent_Type<T>) {
+  assert(dynamic_cast<T *>(&entity)!=nullptr);
+  return static_cast<T &>(entity);
+}
+
 } // namespace walle
