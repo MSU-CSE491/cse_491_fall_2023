@@ -1,6 +1,6 @@
 /**
  * @file AgentFactory.cpp
- * @author Yousif Murrani
+ * @author Yousif Murrani, David Rackerby
  */
 
 // Catch2
