@@ -14,7 +14,7 @@ namespace DataCollection {
      */
     class ItemUseCollector {
     private:
-        std::unordered_map<std::string, int> usageData;  // Damage storage map of item name to amount of uses.
+        std::unordered_map<std::string, int> usageData;  /// Damage storage map of item name to amount of uses.
     public:
         /**
          * Default constructor for ItemUseCollector

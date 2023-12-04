@@ -4,6 +4,7 @@
 #include "GameReceiver.hpp"
 #include "DamageCollector.hpp"
 #include "ItemUseCollector.hpp"
+#include "AgentInteractionCollector.hpp"
 
 namespace DataCollection {
 
@@ -15,10 +16,11 @@ namespace DataCollection {
      */
     class DataManager {
     private:
-        AgentReceiver agentReceiver;        // Receiver for agent based data
-        GameReceiver gameReceiver;          // Receiver for game based data
-        DamageCollector damageCollector;    // Collector for item damage data
-        ItemUseCollector itemUseCollector;  // Collector for item usage data
+        AgentReceiver agentReceiver;                            /// Receiver for agent based data
+        GameReceiver gameReceiver;                              /// Receiver for game based data
+        DamageCollector damageCollector;                        /// Collector for item damage data
+        ItemUseCollector itemUseCollector;                      /// Collector for item usage data
+        AgentInteractionCollector agentInteractionCollector;    /// Collector for agent interaction data
         DataManager() {}
 
         DataManager(const DataManager&) = delete;

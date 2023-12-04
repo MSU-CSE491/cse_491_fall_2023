@@ -39,6 +39,10 @@ function(create_tests NAME_PREFIX)
     target_link_libraries(${EXE_NAME}
             PRIVATE tinyxml2
             )
+
+    target_link_libraries(${EXE_NAME}
+            PRIVATE nlohmann_json::nlohmann_json
+    )
     
     # Add to ctest
     add_test(NAME ${EXE_NAME} COMMAND ${EXE_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
