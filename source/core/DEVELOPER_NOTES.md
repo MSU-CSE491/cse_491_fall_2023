@@ -36,9 +36,64 @@ only on files above it in the core.
 ## `Entity.hpp`
 
 - Should we use a better/different structure for properties?  Right now properties can only have a `double` value, but we could use `std::variant` to allow for a set of allowed values, or even `std::any`.
-- If we have Entity derive from `CoreObject`, we have to think about how to keep requirements for serialize functions on subsequent derived classes.  One option is to simply provide tools (like a `SerializeEntity()` function), but don't build the required virtual functions yet.  Still, it would be nice to be able to require correctness (or at least detect common errors, like forgetting to run `SerializeEntity()`)
+- If we have Entity derive from `CoreObject`, we have to think about how to keep requirements for Serialize functions on subsequent derived classes.  One option is to simply provide tools (like a `SerializeEntity()` function), but don't build the required virtual functions yet.  Still, it would be nice to be able to require correctness (or at least detect common errors, like forgetting to run `SerializeEntity()`)
 
 ## `AgentBase.hpp`
 
 - Should Agents keep a link back to the world they're from?
 - Should Agents all have a facing?  (Or should all entities even?)
+
+
+## `EasyLogging.h`
+
+
+### 1. Basic Logging:
+```cpp
+Logger::Log() << Team::TEAM_1 << LogLevel::DEBUG << "This is a debug message." << std::endl;
+Logger::Log() << Team::TEAM_2 << LogLevel::ERROR << "An error occurred!" << std::endl;
+```
+
+### 2. Logging with Colors:
+```cpp
+Logger::Log() << Team::TEAM_3 << LogLevel::INFO << Color::GREEN << "Success message." << Logger::endl;
+Logger::Log() << Team::TEAM_4 << LogLevel::ERROR << Color::RED << "Error message." << Logger::endl;
+```
+
+### 3. Logging Variables:
+```cpp
+int variable = 42;
+Logger::Log() << Team::TEAM_5 << LogLevel::DEBUG << "The value of variable is: " << variable << Logger::endl;
+```
+
+### 4. Logging File and Line Information:
+```cpp
+Logger::Log() << Team::TEAM_6 << LogLevel::INFO << LOG_RELLINE << "This log is from " << __FILE__ << " line " << __LINE__ << Logger::endl;
+```
+
+### 5. Logging Function Names:
+```cpp
+Logger::Log() << Team::TEAM_7 << LogLevel::DEBUG << LOG_FNC << "This log is inside the function." << Logger::endl;
+```
+
+one can also just use std::endl instead of Logger::endl they are equivalent.
+
+
+calling `Team (or) LogLevel (or) std::endl (or) Logger::endl` will reset the color team, color and log level to the default values.
+
+
+Current Feature set.
+
+- setting team number
+- setting log status [debug, info, warning, error]
+- setting colors of print statements.
+- Does not compile in RELEASE
+- Line number and file name
+
+
+Future Feature set.
+- logging to a file
+- adding flags for debuging in cmake.
+- making it run on a different thread/ running it Asynchronously?. Especially helpful for improving performance and responsiveness
+    - cuz of the io operation or if we want to send stuff thru the network
+- More log levels like `Fatal` or `Trace`
+- Categorization and filtering thru flags
