@@ -203,16 +203,21 @@ namespace i_2D {
 
     void MainInterface::DrawHealthInfo() {
         //TODO fix this
-//        // Reference health property
-//        int health = GetProperty<int>("Health");
-//
-//        // Set text properties and draw
-//        sf::Text healthText(mFont);
-//        healthText.setCharacterSize(24);
-//        healthText.setPosition({20.0f, 75.0f});
-//        healthText.setFillColor(sf::Color::Green);
-//        healthText.setString("Hp: " + std::to_string(health));
-//        mWindow.draw(healthText);
+        // Reference health property
+        if(!HasProperty("Health"))
+        {
+            return;
+        }
+
+        int health = GetProperty<int>("Health");
+
+        // Set text properties and draw
+        sf::Text healthText(mFont);
+        healthText.setCharacterSize(24);
+        healthText.setPosition({20.0f, 75.0f});
+        healthText.setFillColor(sf::Color::Green);
+        healthText.setString("Hp: " + std::to_string(health));
+        mWindow.draw(healthText);
     }
 
     /**
