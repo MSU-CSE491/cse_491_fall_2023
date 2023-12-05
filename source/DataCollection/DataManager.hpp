@@ -87,9 +87,11 @@ namespace DataCollection {
             std::filesystem::path ItemUsefilePath = currentPath  / "itemUsage.json";
             std::filesystem::path ItemdamagefilePath = currentPath  / "itemDamage.json";
             std::filesystem::path PositionfilePath = currentPath  / "gridPositions.json";
+            std::filesystem::path InteractionfilePath = currentPath  / "agentInteractions.json";
             agentReceiver.WriteToPositionFile(PositionfilePath.string());
             damageCollector.WriteToDamageFile(DamagefilePath.string());
             itemUseCollector.WriteToItemUseFile(ItemUsefilePath.string());
+            agentInteractionCollector.WriteToInteractionFile(InteractionfilePath.string());
         }
     };
 }

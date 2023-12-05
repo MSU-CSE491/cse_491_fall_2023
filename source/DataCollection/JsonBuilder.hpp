@@ -103,8 +103,8 @@ namespace DataCollection{
             return json_array;
         }
 
-        void AddUsage(int usage) {
-            json["amountOfUses"] = usage;
+        void AddInt(std::string title, int usage) {
+            json[title] = usage;
         }
 
         /**

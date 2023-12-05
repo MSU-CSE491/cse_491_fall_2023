@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include "JsonBuilder.hpp"
 
 namespace DataCollection {
 
@@ -36,5 +37,20 @@ namespace DataCollection {
          * @param agentName Agent name to record new interaction with
          */
         void RecordInteraction(const std::string& agentName) { interactionData[agentName]++; }
+
+        void WriteToInteractionFile(const std::string filename){
+            JsonBuilder json_builder;
+            std::ofstream jsonfilestream(filename);
+            json_builder.StartArray("agentInteractions");
+            for (auto& [agentName, interactionCount] : interactionData) {
+                json_builder.AddName(agentName);
+                json_builder.AddInt("interactionCount", interactionCount);
+                json_builder.InputToArray("agentInteractions", json_builder.GetJSON());
+                json_builder.ClearJSON();
+            }
+            json_builder.WriteToFile(jsonfilestream, json_builder.GetJSONArray());
+            jsonfilestream.close();
+        }
+
     };
 }
