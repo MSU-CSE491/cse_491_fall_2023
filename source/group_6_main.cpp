@@ -21,7 +21,7 @@ void timer(GenerativeWorld& world, int duration) {
     world.EndGame(false);
 }
 
-GenerativeWorld runWorld(BiomeType biome, int width, int height, const unsigned int SEED, int timerDuration = -1) {
+void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, int timerDuration = -1) {
     GenerativeWorld world(biome, width, height, SEED);
 
     if (biome == BiomeType::Grasslands) {
@@ -64,9 +64,9 @@ int main() {
     int width = 100;                       // change world width here
     int height = 25;                       // change world height here
     static const unsigned int SEED = 16;   // change world seed here
-    int timerDuration = 5;                // an optional timer length, set to -1 for no timer
+    int timerDuration = 5;                 // an optional timer length, set to -1 for no timer
 
-    auto world = runWorld(biome, width, height, SEED, timerDuration);
+    runWorld(biome, width, height, SEED, timerDuration);
 
     return 0;
 }
