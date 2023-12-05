@@ -11,6 +11,7 @@
 #include "Worlds/SecondWorld.hpp"
 #include "core/WorldGrid.hpp"
 #include "core/AgentBase.hpp"
+#include "Interfaces/TrashInterface.hpp"
 
 
 #define REMAIN_STILL 0
@@ -67,8 +68,7 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
   }
 }
 
-TEST_CASE("Item Test")
-{
+TEST_CASE("Item Test", "[World][SecondWorld]") {
     // Initialize world
     group4::SecondWorld world("../assets/grids/third_floor.grid", "../assets/third_floor_input.json");
 
@@ -163,3 +163,78 @@ TEST_CASE("Print Entities", "[World][SecondWorld]") {
 
   // https://chat.openai.com/share/1adb0025-b787-44f2-bd75-243533d5ae70
 }
+
+
+TEST_CASE("Pickup Items", "[World][SecondWorld]") {
+    group4::SecondWorld world;
+//    cse491::WorldGrid grid = world.GetGrid();
+
+    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character").SetPosition(0, 0);
+
+    auto testItem1 = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
+
+    testItem1->SetPosition(0, 1);
+    testItem1->SetGrid();
+    world.AddItem(std::move(testItem1));
+
+    CHECK(test_agent.GetInventory().empty());
+
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 1);
+
+    // Check that item is in agent's inventory
+    CHECK(test_agent.GetInventory().size() == 1);
+    // Check that item is no longer on the grid
+    CHECK(world.FindItemsAt(cse491::GridPosition{0, 1}).empty());
+}
+
+TEST_CASE("Drop Items", "[World][SecondWorld]") {
+    group4::SecondWorld world;
+
+    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character").SetPosition(0, 0);
+    auto testItem1 = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
+    auto testItem2 = std::make_unique<cse491::ItemBase>(2, "Test Item 2");
+
+    testItem1->SetPosition(0, 1);
+    testItem1->SetGrid();
+    world.AddItem(std::move(testItem1));
+
+    testItem2->SetPosition(0, 2);
+    testItem2->SetGrid();
+    world.AddItem(std::move(testItem2));
+
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
+
+    // Confirm agent has both items
+    CHECK(test_agent.GetInventory().size() == 2);
+
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 5);
+    // Confirm item dropped
+    CHECK(test_agent.GetInventory().size() == 1);
+    // And that dropping a second item onto another item doesn't work... unless it's a chest
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 5);
+    CHECK(test_agent.GetInventory().size() == 1);
+
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
+    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 1);
+
+    // Confirm item can be picked up again after it's dropped
+    CHECK(test_agent.GetInventory().size() == 2);
+}
+
+
+//TEST_CASE("Chest", "[World][SecondWorld]") {
+//
+//
+//}
+
+//TEST_CASE("Max Inventory", "[World][SecondWorld]") {
+//    group4::SecondWorld world;
+//    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character").SetPosition(0, 0);
+//
+//    for (int i = 0; i < 30; ++i) {
+//        test_agent.AddItem();
+//    }
+//
+//}
