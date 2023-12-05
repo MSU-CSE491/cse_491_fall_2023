@@ -29,8 +29,7 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
     } else if (biome == BiomeType::Grasslands) {
         setTiles(grass_id, dirt_id);
     }
-
-    if (biome == BiomeType::Ocean) {
+    else if (biome == BiomeType::Ocean) {
         setTiles(water_id, sand_id);
     }
 
