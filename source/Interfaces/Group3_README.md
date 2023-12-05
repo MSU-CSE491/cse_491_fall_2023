@@ -95,3 +95,70 @@ The `GetTexture` function performs the following key tasks:
 The function allows for easy reference to any of the loaded sf::Textures without having to instantiate new ones for each use. 
 
 </details>
+
+# <span style="color: green;">MessageBoard Class</span>
+
+## <span style="color: aqua;">Description
+
+<details> <summary>Functionalities:</summary>
+
+### <span style="color: orange;"> MessageBoard Constructor
+
+The `MessageBoard` class is responsible for managing and displaying messages on the interface entity.
+Parameters: - **font:** The font used by the message board.
+
+### <span style="color: orange;"> DrawTo Method
+
+Draws the message board onto the render window. If the elapsed time since the last message exceeds 10 seconds, the message board will be cleared.
+Parameters:- **window:** The render window to be drawn on.
+
+</details>
+
+# <span style="color: green;">TextBox Class</span>
+
+## <span style="color: aqua;">Description
+
+<details> <summary>Functionalities:</summary>
+
+### <span style="color: orange;"> TextBox Constructor
+
+The `TextBox` class enables the interface entity to send messages to the `MessageBoard` and `World`. It provides functionality for handling text input, setting the string, and drawing the text to the render window.
+
+#### Parameters:
+- **font:** The font used by TextBox.
+- **size:** The size of the text.
+- **color:** The color of the text.
+- **sel:** Set the activity of TextBox.
+
+### <span style="color: orange;"> SetString Method
+
+Sets the string of the text in the TextBox.
+Parameters:- **s:** The string to be set.
+
+### <span style="color: orange;"> SetSelected Method
+
+Setter for isSelected, updates the text displayed in the box based on selection status.
+Parameters:- **sel:** Whether the TextBox is to be set selected or not.
+
+### <span style="color: orange;"> TypedOn Method
+
+TypedOn event handler, processes new text that has been typed into the TextBox.
+Parameters:- **input:** The new text event.
+
+### <span style="color: orange;"> InputLogic Method
+
+Determines what actions to take with different key presses.
+Parameters:- **charTyped:** The character that has just been entered into the TextBox.
+
+### <span style="color: orange;"> DeleteLastChar Method
+
+Removes the last character from the TextBox's current string.
+
+### <span style="color: orange;"> DrawTo Method
+
+Draws the text and border to the render window.
+Parameters:- **window:** The render window to be drawn on.
+
+</details>
+
+

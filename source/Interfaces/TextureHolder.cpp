@@ -111,6 +111,8 @@ namespace i_2D
         LoadTexture("pathTexture", "../assets/Ground_tiles/Sand1.png");
         LoadTexture("portal1Texture", "../assets/walls/portal1.png");
         LoadTexture("portal2Texture", "../assets/walls/portal2.png");
+//        LoadTexture("portal3Texture", "../assets/walls/portal3.png");
+        LoadTexture("portal4Texture", "../assets/walls/portal4.png");
         textures['P'] = GetTexture("axeTexture");
         textures['U'] = GetTexture("boatTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -121,6 +123,8 @@ namespace i_2D
         textures[' '] = GetTexture("pathTexture");
         textures['{'] = GetTexture("portal1Texture");
         textures['}'] = GetTexture("portal2Texture");
+//        textures['('] = GetTexture("portal3Texture");
+        textures[')'] = GetTexture("portal4Texture");
 
         return textures;
     }

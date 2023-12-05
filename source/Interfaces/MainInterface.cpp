@@ -1,15 +1,21 @@
 /**
- * @author : Team - 3
- * @date: 10/03/2023
- * MainInterface class creates a window and displays the default maze grid
+ * @file MainInterface.cpp
+ * @authors Gaya Kanagaraj, Vincenzo Felici, Mui Pham
+ * @date 10/03/2023
+ * @brief MainInterface class manages the game's user interface, including the menu, textbox,
+ *        message box, inventory, and texture holder. It serves as the main class responsible
+ *        for creating and managing the game window, drawing the grid, handling player movements,
+ *        and displaying menu and inventory details.
+ *
  */
+
 #include <map>
 #include "MainInterface.hpp"
 
 namespace i_2D {
 
-    sf::Clock timer;
-    float elapsedTime = 0.0f;
+    sf::Clock timer; // To drawTimer function
+    float elapsedTime = 0.0f; // Sets elapsed time  = 0.0
 
     /**
      * @brief Constructs a `MainInterface` object.
@@ -43,12 +49,14 @@ namespace i_2D {
      * @return A vector of strings representing the maze grid.
      */
     std::vector<std::string> MainInterface::CreateVectorMaze(
-
             const WorldGrid &grid, const type_options_t &type_options,
             const item_map_t &item_map, const agent_map_t &agent_map) {
+
         std::vector<std::string> symbol_grid(grid.GetHeight());
+
         mGridHeight = grid.GetHeight();
         mGridWidth = grid.GetWidth();
+
         // Load the world into the symbol_grid;
         for (size_t y = 0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
@@ -86,6 +94,7 @@ namespace i_2D {
      * @return sf::Vector2f The size of each cell as a 2D vector.
      */
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
+
         float cellSizeWide, cellSizeTall;
         if (mGridSizeLarge) {
             cellSizeWide = mWindow.getSize().x / COL;
@@ -154,6 +163,7 @@ namespace i_2D {
         renderTexture.display();
         DrawTimer();
         DrawHealthInfo();
+
         // Draw the texture to the window
         sf::Sprite sprite(renderTexture.getTexture());
         sprite.setPosition({drawCenterX, drawCenterY});
@@ -167,31 +177,31 @@ namespace i_2D {
     }
 
     /**
-     * @brief this function draws timer and checks the elapsed time and
-     * shows remainder if the timer exceed above 5 seconds. and sestart the timer every move
-     * the player makes.
-     */
+    * @brief this function draws timer and checks the elapsed time
+    * if the timer exceed above 0.5 seconds, it returns 0 to the netwrok interface
+    * and restart the timer every move player makes
+    */
     void MainInterface::DrawTimer() {
         // Get elapsed time in seconds
         elapsedTime = timer.getElapsedTime().asSeconds();
-
-        float testNum = 0.12345;
-        std::string testStr = std::to_string(testNum);
-
 
         // Set up font and location
         sf::Text timerText(mFont);
         timerText.setCharacterSize(24);
         timerText.setPosition({750.0f, 75.0f}); // Adjust position as needed
 
+        // Format the elapsed time with 2 decimal points
+        std::ostringstream stream;
+        stream << "Time: " << std::fixed << std::setprecision(2) << elapsedTime << " S";
+        std::string formattedTime = stream.str();
+
         // Create text for current value
-        timerText.setString("Time: " + std::to_string(elapsedTime) + " S");
+        timerText.setString(formattedTime);
         timerText.setFillColor(sf::Color::Blue);
         mWindow.draw(timerText);
     }
 
-    void MainInterface::DrawHealthInfo()
-    {
+    void MainInterface::DrawHealthInfo() {
         //TODO fix this
 //        // Reference health property
 //        int health = GetProperty<int>("Health");
@@ -209,7 +219,7 @@ namespace i_2D {
      * @brief Creates a 9x23 window of the symbol grid centered around the player's position.
      *
      * @param symbol_grid   The original symbol grid.
-     * @return              A new symbol grid representing the 9x23 window.
+     * @return std::vector<std::string> A new symbol grid representing the 9x23 window.
      */
     std::vector<std::string> MainInterface::LargeDisplayGrid(const std::vector<std::string> &symbol_grid) {
         // Determine the top-left corner of the 9x23 window
@@ -259,7 +269,6 @@ namespace i_2D {
     }
 
     /**
-
     * @brief Handles user input for selecting actions.
     *
     * @param grid         The WorldGrid representing the maze.
@@ -306,8 +315,7 @@ namespace i_2D {
             }
 
             // Check if a valid action was taken and return that if so
-            if(action_id != 0)
-            {
+            if (action_id != 0) {
                 return action_id;
             }
 
@@ -331,65 +339,52 @@ namespace i_2D {
      * @return size_t The action ID corresponding to the key event.
      */
     size_t MainInterface::HandleKeyEvent(const sf::Event &event) {
-        size_t action_id = 0;
-        switch (event.key.code) {
-            case sf::Keyboard::Enter:
-                if (!mTextBox->IsSelected()) {
-                    mTextBox->SetSelected(true);
-                } else {
+        if (mTextBox->IsSelected()) {
+            // TextBox is selected, handle specific cases
+            switch (event.key.code) {
+                case sf::Keyboard::Enter:
                     mMessageBoard->Send(mTextBox->GetText());
-                    mTextBox->SetString("");
+                    mTextBox->SetString("Please Enter!");
                     mTextBox->SetSelected(false);
-                }
-                break;
-            case sf::Keyboard::Escape:
-                if (mTextBox->IsSelected()) {
+                    break;
+                case sf::Keyboard::Escape:
+                    mTextBox->SetString("Please Enter!");
                     mTextBox->SetSelected(false);
-                    mTextBox->SetString("");
-                }
-                break;
-            case sf::Keyboard::W:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("up");
-                break;
-            case sf::Keyboard::A:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("left");
-                break;
-            case sf::Keyboard::S:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("down");
-                break;
-            case sf::Keyboard::D:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("right");
-                break;
-            case sf::Keyboard::Up:
-                action_id = GetActionID("up");
-                break;
-            case sf::Keyboard::Left:
-                action_id = GetActionID("left");
-                break;
-            case sf::Keyboard::Down:
-                action_id = GetActionID("down");
-                break;
-            case sf::Keyboard::Right:
-                action_id = GetActionID("right");
-                break;
-            default:
-                break; // The user pressed an unknown key.
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            // TextBox is not selected, handle movement keys
+            switch (event.key.code) {
+                case sf::Keyboard::W:
+                    return GetActionID("up");
+                case sf::Keyboard::A:
+                    return GetActionID("left");
+                case sf::Keyboard::S:
+                    return GetActionID("down");
+                case sf::Keyboard::D:
+                    return GetActionID("right");
+                case sf::Keyboard::Up:
+                    return GetActionID("up");
+                case sf::Keyboard::Left:
+                    return GetActionID("left");
+                case sf::Keyboard::Down:
+                    return GetActionID("down");
+                case sf::Keyboard::Right:
+                    return GetActionID("right");
+                default:
+                    std::cout << "Unknown key." << std::endl;
+                    break; // The user pressed an unknown key.
+            }
         }
-        // If we waited for input, but don't understand it, notify the user.
-        if (action_id == 0 && !mTextBox->IsSelected()) {
-            std::cout << "Unknown key." << std::endl;
-        }
-        // Do the action!
-        return action_id;
+        // No action performed
+        return 0;
     }
+
 
     /**
      * @brief Handles the window resize event
-     *
      * Restricts window resizing if below a minimum size.
      * Matches the window's view to the new size of the window.
      *
@@ -434,10 +429,11 @@ namespace i_2D {
 
             // Calculate the actual position based on percentages
             float xPos = (widthWindow * xPosPercentage);
-            float yPos = (heightWindow* yPosPercentage);
+            float yPos = (heightWindow * yPosPercentage);
 
             // Set the position of your textbox
-            mTextBox->SetPosition({ xPos, yPos});
+            mTextBox->SetPosition({xPos, yPos});
+
         }
     }
 
@@ -480,7 +476,7 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)){
+            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)) {
                 mGridSizeLarge = true;
             } else if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
                 mGridSizeLarge = false;
@@ -535,9 +531,9 @@ namespace i_2D {
      * @param wallTexture The texture for the wall.
      * @param renderTexture The Texture for the whole grid
     */
+    void MainInterface::DrawWall(sf::RenderTexture &renderTexture,
+                                 sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
 
-    void
-    MainInterface::DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
         cellRect.setTexture(&wallTexture);
         renderTexture.draw(cellRect);
     }
