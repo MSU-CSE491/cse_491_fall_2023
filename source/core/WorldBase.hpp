@@ -291,9 +291,10 @@ public:
   /// @brief Step through each agent giving them a chance to take an action.
   /// @note Override this function if you want to control which grid the agents receive.
   virtual void RunServerAgents() {
-      std::mutex agent_map_lock;
-      agent_map_lock.lock();
-      int to_delete = -1;
+    std::mutex agent_map_lock;
+    agent_map_lock.lock();
+    std::set<size_t> to_delete;
+
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
       while (!manager->interfacesPresent) {}
@@ -306,9 +307,14 @@ public:
       agent_ptr->SetActionResult(result);
 
       // mark agent for deletion if client disconnects
-      if (action_id == 9999) to_delete = id;
+      if (action_id == 9999) to_delete.insert(id);
     }
-    if (to_delete != -1) RemoveAgent(to_delete);
+
+    // delete agents
+    for (size_t id : to_delete) {
+        RemoveAgent(id);
+    }
+
     agent_map_lock.unlock();
   }
 
