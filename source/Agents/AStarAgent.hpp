@@ -25,6 +25,9 @@ namespace walle {
         int current_move_num = 0;            ///< What move # we are currently on
 
     public:
+        /// @brief Constructor for creating a new AStarAgent object
+        /// @param id id of the agent
+        /// @param name name of the agent
         AStarAgent(size_t id, const std::string &name) : AgentBase(id, name) {}
 
         ~AStarAgent() = default;
@@ -62,13 +65,13 @@ namespace walle {
 
         /**
          * Returns the recalculate value
-         * @return
+         * @return recalculated value
          */
         int GetRecalculateValue() const {return recalculate_after_x_turns; }
 
         /**
          * Gets the size of the current path
-         * @return
+         * @return length of path
          */
         int GetPathLength() const {return path.size(); }
 
@@ -92,6 +95,8 @@ namespace walle {
             current_move_num = 0;
         }
 
+        /// @brief Get the next position to move to
+        /// @return GridPosition to move to
         [[nodiscard]] cse491::GridPosition GetNextPosition() override {
             return !path.empty() ? path.back() : GetPosition();
         }

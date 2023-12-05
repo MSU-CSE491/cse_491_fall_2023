@@ -258,6 +258,10 @@ namespace walle {
     template<typename T>
     concept Agent_Type = std::is_base_of_v<cse491::AgentBase, T>;
 
+    /**
+     * @brief Helper function for simplifying downcasting entities that 
+     * have been added to the world
+     */
     template<typename T>
     T &DownCastAgent(cse491::Entity &entity) requires(Agent_Type<T>) {
         assert(dynamic_cast<T *>(&entity)!=nullptr);

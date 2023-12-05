@@ -51,7 +51,7 @@ namespace walle {
 
         /// Returns an immutable reference to the Alerter's set of agents it knows about
         std::unordered_set<size_t> const& GetNetworkSet() const { return agent_network_set_; }
-        }; // Alerter
+    }; // Alerter
 
         /**
          * Used to keep track of what action we are currently taking

@@ -30,7 +30,7 @@ struct TrackingAgentData;
 
 class AgentFactory {
 private:
-    cse491::WorldBase &world;
+    cse491::WorldBase &world;   /// The world to create Agents in
 
 public:
     AgentFactory() = delete;

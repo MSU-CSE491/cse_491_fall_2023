@@ -22,9 +22,9 @@ namespace walle {
 
         private:
 
-            double random = 4.0;
+            double random = 4.0; /// Random value used to determine direction
 
-            bool moving = true;
+            bool moving = true; /// Is the agent moving?
 
         public:
             /**

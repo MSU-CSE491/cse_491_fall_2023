@@ -59,8 +59,16 @@ namespace walle {
                         size_t start_index = 0);
         PathAgent &SetPath(std::string_view commands, size_t start_index = 0);
 
+        /// @brief Get the index
+        /// @return int index
         [[nodiscard]] int GetIndex() const;
+
+        /// @brief Get the Path
+        /// @return vector of GridPositions
         [[nodiscard]] std::vector<cse491::GridPosition> const &GetPath() const;
+
+        /// @brief Reset the index to 0
+        /// @return self
         PathAgent &ResetIndex() {
             index_ = 0;
             return *this;
