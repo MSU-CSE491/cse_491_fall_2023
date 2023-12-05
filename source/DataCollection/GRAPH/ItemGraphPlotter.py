@@ -121,8 +121,8 @@ if __name__ == "__main__":
         item_graph_plotter = ItemGraphPlotter(json_file)
 
         # Determine which graph to plot based on the file name
-        if "AgentPositions" in json_file:
-            agent_names = ["Interface", "Pacer 1", "Pacer 2"]
+        if "AgentPositions" in item_graph_plotter.json_data:
+            agent_names = ["Interface", "Pacer 1", "AStar 1"]
             item_graph_plotter.plot_agent_line_path(agent_names)
         # Determine which graph to plot based on the file content
         elif "amountOfUses" in item_graph_plotter.json_data.get("items", [])[0]:
