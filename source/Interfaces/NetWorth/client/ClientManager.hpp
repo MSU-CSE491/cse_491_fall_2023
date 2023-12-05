@@ -104,22 +104,40 @@ namespace netWorth{
             m_action_map.clear();
         }
 
-        /**
+//        /**
+//         * Receive serialized agent data for midgame updates
+//         * @return serialized data (or empty if no update)
+//         */
+//        std::string GetSerializedAgents() {
+//            sf::Packet recv_pkt;
+//            std::optional<sf::IpAddress> temp_ip;
+//            unsigned short temp_port;
+//            if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
+//                std::string data;
+//                recv_pkt >> data;
+//                return data;
+//            }
+//
+//            return "";
+//        }
+
+		/**
          * Receive serialized agent data for midgame updates
          * @return serialized data (or empty if no update)
          */
-        std::string GetSerializedAgents() {
-            sf::Packet recv_pkt;
-            std::optional<sf::IpAddress> temp_ip;
-            unsigned short temp_port;
-            if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
-                std::string data;
-                recv_pkt >> data;
-                return data;
-            }
+		std::string GetSerializedAgents() {
+			sf::Packet recv_pkt;
+			std::optional<sf::IpAddress> temp_ip;
+			unsigned short temp_port;
 
-            return "";
-        }
+			m_game_update_socket->receive(recv_pkt, temp_ip, temp_port);
+			std::string data;
+			recv_pkt >> data;
+			if (data.length() != 0){
+				return data;
+			}
+			return "";
+		}
 
     }; // End of class ClientManager
 } // End of namespace netWorth
