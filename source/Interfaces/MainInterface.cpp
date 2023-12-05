@@ -10,7 +10,6 @@ namespace i_2D {
 
     sf::Clock timer;
     float elapsedTime = 0.0f;
-    bool showReminder = false;
 
     /**
      * @brief Constructs a `MainInterface` object.
@@ -30,11 +29,6 @@ namespace i_2D {
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
         mMenu.initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
-//        mTestButton = std::make_unique<Button>("test",
-//                                               sf::Vector2f (200,50),sf::Color::Black,
-//                                               sf::Color::White,mFont);
-//        mTestButton->setPosition(sf::Vector2f (200,50));
-
         ChooseTexture();
     }
 
@@ -180,42 +174,35 @@ namespace i_2D {
     void MainInterface::DrawTimer() {
         // Get elapsed time in seconds
         elapsedTime = timer.getElapsedTime().asSeconds();
-        if (mPlayerHasMoved) {
-            timer.restart();
-            showReminder = false; // Clear the reminder flag
-            mPlayerHasMoved = false;
 
-        }
-        // Display timer or reminder based on elapsed time
+        float testNum = 0.12345;
+        std::string testStr = std::to_string(testNum);
+
+
+        // Set up font and location
         sf::Text timerText(mFont);
         timerText.setCharacterSize(24);
         timerText.setPosition({750.0f, 75.0f}); // Adjust position as needed
 
-
-        if (elapsedTime <= 5.0f) {
-            timerText.setString("Time: " + std::to_string(elapsedTime) + " S");
-            timerText.setFillColor(sf::Color::Blue);
-            mWindow.draw(timerText);
-        } else {
-            timerText.setCharacterSize(34);
-            timerText.setString("Make a Move!!!");
-            timerText.setFillColor(sf::Color::Red);
-            mWindow.draw(timerText);
-        }
+        // Create text for current value
+        timerText.setString("Time: " + std::to_string(elapsedTime) + " S");
+        timerText.setFillColor(sf::Color::Blue);
+        mWindow.draw(timerText);
     }
 
     void MainInterface::DrawHealthInfo()
     {
-        // Reference health property
-        int health = GetProperty<int>("Health");
-
-        // Set text properties and draw
-        sf::Text healthText(mFont);
-        healthText.setCharacterSize(24);
-        healthText.setPosition({20.0f, 75.0f});
-        healthText.setFillColor(sf::Color::Green);
-        healthText.setString("Hp: " + std::to_string(health));
-        mWindow.draw(healthText);
+        //TODO fix this
+//        // Reference health property
+//        int health = GetProperty<int>("Health");
+//
+//        // Set text properties and draw
+//        sf::Text healthText(mFont);
+//        healthText.setCharacterSize(24);
+//        healthText.setPosition({20.0f, 75.0f});
+//        healthText.setFillColor(sf::Color::Green);
+//        healthText.setString("Hp: " + std::to_string(health));
+//        mWindow.draw(healthText);
     }
 
     /**
@@ -284,22 +271,15 @@ namespace i_2D {
                                        const type_options_t &type_options,
                                        const item_map_t &item_map,
                                        const agent_map_t &agent_map) {
+        // Initialize action_id and timer
+        size_t action_id = 0;
+        timer.restart();
 
-        while (mWindow.isOpen()) {
+        // While the timer is going
+        while (mWindow.isOpen() && timer.getElapsedTime().asSeconds() < mInputWaitTime) {
             sf::Event event;
 
-//            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
-//                if(!mTextBox->IsSelected()) {
-//                    mTextBox->SetSelected(true);
-//                }else{
-//                    mMessageBoard->Send(mTextBox->GetText());
-//                    mTextBox->SetString("");
-//                    mTextBox->SetSelected(false);
-//                }
-//            }else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
-//                mTextBox->SetSelected(false);
-//            }
-
+            // Check through all events generated in this frame
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
@@ -311,8 +291,7 @@ namespace i_2D {
                     }
 
                 } else if (event.type == sf::Event::KeyPressed) {
-                    mPlayerHasMoved = true;
-                    return HandleKeyEvent(event);
+                    action_id = HandleKeyEvent(event);
 
                 } else if (event.type == sf::Event::Resized) {
                     HandleResize(event, grid);
@@ -323,16 +302,20 @@ namespace i_2D {
                 } else if (event.type == sf::Event::MouseButtonPressed) {
                     MouseClickEvent(event);
 
-
-                } else if (event.type == sf::Event::MouseWheelScrolled) {
-//                    HandleScroll(event);
                 }
-
             }
+
+            // Check if a valid action was taken and return that if so
+            if(action_id != 0)
+            {
+                return action_id;
+            }
+
+            // Otherwise update the screen drawing again...
             DrawGrid(grid, type_options, item_map, agent_map);
 
         }
-
+        // The timer has ended or the window has been closed
         return 0;
     }
 
@@ -397,7 +380,7 @@ namespace i_2D {
                 break; // The user pressed an unknown key.
         }
         // If we waited for input, but don't understand it, notify the user.
-        if (action_id == 0) {
+        if (action_id == 0 && !mTextBox->IsSelected()) {
             std::cout << "Unknown key." << std::endl;
         }
         // Do the action!
@@ -557,6 +540,10 @@ namespace i_2D {
     MainInterface::DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
         cellRect.setTexture(&wallTexture);
         renderTexture.draw(cellRect);
+    }
+
+    void MainInterface::setMInputWaitTime(double waitTime) {
+        MainInterface::mInputWaitTime = waitTime;
     }
 
 
