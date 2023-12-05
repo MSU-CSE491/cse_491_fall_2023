@@ -47,6 +47,14 @@ namespace DataCollection {
              return agentReceiver;
          }
 
+        /**
+        * Get a handle to the agent interaction collector
+        * @return Reference to the agent interaction collector
+        */
+        AgentInteractionCollector& GetAgentInteractionCollector() {
+            return agentInteractionCollector;
+        }
+
          /**
           * Get a handle to the item use collector
           * @return Reference to the item use collector

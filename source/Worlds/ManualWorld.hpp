@@ -198,6 +198,7 @@ namespace cse491_team8 {
         }
 
         std::string other_agent_name = other_agent.GetName();
+        DataCollection::DataManager::GetInstance().GetAgentInteractionCollector().RecordInteraction(other_agent_name);
 
         if (!won) {
             if (run)
