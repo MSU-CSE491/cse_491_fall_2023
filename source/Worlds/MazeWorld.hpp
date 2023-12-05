@@ -30,7 +30,7 @@ class MazeWorld : public WorldBase {
  public:
 
   MazeWorld(unsigned int seed = 0) : WorldBase(seed) {
-
+    // Create cell types
     floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
     wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
     // Set cell type properties
