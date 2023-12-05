@@ -65,7 +65,9 @@ namespace i_2D {
             if (item_ptr->HasProperty("symbol")) {
                 c = item_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if (!item_ptr->IsOwned()){
+                symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
 
         for (const auto &[id, agent_ptr]: agent_map) {
@@ -74,7 +76,9 @@ namespace i_2D {
             if (agent_ptr->HasProperty("symbol")) {
                 c = agent_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if (!agent_ptr->HasProperty("deleted")){
+                symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
         return symbol_grid;
     }
