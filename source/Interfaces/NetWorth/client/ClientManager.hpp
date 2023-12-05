@@ -8,7 +8,6 @@
 #include <map>
 #include <sstream>
 #include <vector>
-#include "Interfaces/NetWorth/NetworkInterface.hpp"
 
 namespace netWorth{
     using namespace sf;
@@ -19,6 +18,7 @@ namespace netWorth{
     class ClientManager {
     private:
         sf::UdpSocket *m_socket;                /// Socket shared with ClientInterface
+        sf::UdpSocket *m_game_update_socket;    /// Game update socket (for agent updates)
         std::optional<sf::IpAddress> m_ip;      /// Server IP address
         unsigned short m_port;                  /// Server port
         std::unordered_map<size_t, size_t> m_action_map;     ///Map of agent IDs to most recent action selected
@@ -59,6 +59,15 @@ namespace netWorth{
         }
 
         /**
+         * Set socket for game updates
+         * @param socket pointer to socket
+         */
+        void SetupGameUpdateSocket(sf::UdpSocket *socket) {
+            m_game_update_socket = socket;
+            m_game_update_socket->setBlocking(false);
+        }
+
+        /**
          * Wait until server sends action map
          */
         void RequestActionMap() {
@@ -93,6 +102,22 @@ namespace netWorth{
          */
         void ClearActionMap() {
             m_action_map.clear();
+        }
+
+        /**
+         * Receive serialized agent data for midgame updates
+         * @return serialized data (or empty if no update)
+         */
+        std::string GetSerializedAgents() {
+            sf::Packet recv_pkt;
+            std::optional<sf::IpAddress> temp_ip;
+            unsigned short temp_port;
+            if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
+                std::string data;
+                recv_pkt >> data;
+                return data;
+            }
+            return "";
         }
 
     }; // End of class ClientManager

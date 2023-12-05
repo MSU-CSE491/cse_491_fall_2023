@@ -31,7 +31,8 @@ class DataReceiver;
 class WorldBase {
 public:
   static constexpr size_t npos = static_cast<size_t>(-1);
-  netWorth::ServerManager *manager;
+  netWorth::ServerManager *server_manager = nullptr;
+  netWorth::ClientManager *client_manager = nullptr;
 
 protected:
   /// Derived worlds may choose to have more than one grid.
@@ -288,6 +289,24 @@ public:
     }
   }
 
+    /// @brief Step through each agent giving them a chance to take an action.
+    /// @note Override this function if you want to control which grid the agents receive.
+    virtual void RunClientAgents() {
+        for (auto & [id, agent_ptr] : agent_map) {
+            size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+            agent_ptr->storeActionMap(agent_ptr->GetName());
+            int result = DoAction(*agent_ptr, action_id);
+            agent_ptr->SetActionResult(result);
+        }
+
+        // Deserialize agents
+        std::string data = client_manager->GetSerializedAgents();
+        if (data.substr(0, 18) == ":::START agent_set") {
+            std::istringstream is(data);
+            DeserializeAgentSet(is, client_manager);
+        }
+    }
+
   /// @brief Step through each agent giving them a chance to take an action.
   /// @note Override this function if you want to control which grid the agents receive.
   virtual void RunServerAgents() {
@@ -297,11 +316,11 @@ public:
 
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
-      while (!manager->interfacesPresent) {}
+      while (!server_manager->interfacesPresent) {}
 
       // select action and send to client
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
-      manager->WriteToActionMap(id,action_id);
+      server_manager->WriteToActionMap(id,action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
@@ -343,10 +362,21 @@ public:
     }
   }
 
+    /// @brief Run all agents repeatedly until an end condition is met.
+    virtual void RunClient(netWorth::ClientManager *mgr) {
+        run_over = false;
+        client_manager = mgr;
+        while (!run_over) {
+            RunClientAgents();
+            CollectData();
+            UpdateWorld();
+        }
+    }
+
   /// @brief Run world as server with manager
   virtual void RunServer(netWorth::ServerManager *mgr) {
     run_over = false;
-    manager = mgr;
+    server_manager = mgr;
     while (!run_over) {
       RunServerAgents();
       CollectData();

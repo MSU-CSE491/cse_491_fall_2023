@@ -41,6 +41,7 @@ void TerminateClient() {
  */
 bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y, sf::UdpSocket *socket) {
     netWorth::ClientManager manager;
+    manager.SetupGameUpdateSocket(socket);
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
     world.Deserialize(is, &manager);
@@ -55,7 +56,7 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
     auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
     clientKillSocket = clientInterface.GetSocket();
-    world.Run();
+    world.RunClient(&manager);
     return true;
 }
 

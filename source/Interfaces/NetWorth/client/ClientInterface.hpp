@@ -21,7 +21,6 @@ namespace netWorth{
         private:
             unsigned short m_serverPort;
             netWorth::ClientManager *m_manager = nullptr;
-            sf::UdpSocket *m_game_update_socket = nullptr;
 
         protected:
 
@@ -44,8 +43,6 @@ namespace netWorth{
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
-                m_game_update_socket = GetProperty<sf::UdpSocket *>("socket");
-                m_game_update_socket->setBlocking(false);
                 m_manager->SetupSocket(&m_socket, m_ip, m_port);
 
                 Packet send_pkt, recv_pkt,two_pkt;
