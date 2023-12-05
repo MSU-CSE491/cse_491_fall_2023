@@ -12,6 +12,8 @@
 #include "../Agents/PacingAgent.hpp"
 #include "../core/WorldBase.hpp"
 
+#include <algorithm>
+
 namespace group4 {
 /// @brief Filename for the first floor grid file
 const std::string FIRST_FLOOR_FILENAME = "../assets/grids/group4_maze.grid";
@@ -59,6 +61,17 @@ class SecondWorld : public cse491::WorldBase {
 
     // Need to clear item_map so that items don't stay for the next floor.
     item_map.clear();
+
+    std::vector<size_t> agents_to_remove = {};
+    for (auto& [agent_id, agent_ptr] : agent_map) {
+      if (!agent_ptr->IsInterface()) {
+        agents_to_remove.push_back(agent_id);
+      }
+    }
+
+    for (auto agent_id : agents_to_remove) {
+      RemoveAgent(agent_id);
+    }
 
     // Resetting the current new_position to the top left of the new grid.
     pos = cse491::GridPosition(0, 0);
@@ -305,8 +318,9 @@ class SecondWorld : public cse491::WorldBase {
       // then checks if agent is on any items
     } else if ((main_grid.At(pos) == hidden_warp_id) && (agent.IsInterface())) {
       // Agent used the hidden warp tile action
-      std::cout << "Hidden warp tile activated! Warping to floor 3."
-                << std::endl;
+      // std::cout << "Hidden warp tile activated! Warping to floor 3."
+      //           << std::endl;
+      agent.Notify("Hidden warp tile activated! Warping to floor 3.", "hidden_warp");
 
       agent.Notify("Leaving " + world_filename, "world_switched");
 
@@ -314,13 +328,7 @@ class SecondWorld : public cse491::WorldBase {
       world_filename = FINAL_FLOOR_FILENAME;
       agents_filename = "../assets/third_floor_input.json";
 
-      // Clear item_map for the next floor
-      item_map.clear();
-
-      // Reset the current new_position to the top left of the new grid.
-      pos = cse491::GridPosition(0, 0);
-      main_grid.Read(FINAL_FLOOR_FILENAME, type_options);
-      LoadFromFile(agents_filename);
+      SwitchGrid(agent, pos);
 
       // Update the agent's position on the new floor
       agent.SetPosition(pos);

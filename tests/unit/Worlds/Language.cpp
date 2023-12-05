@@ -45,7 +45,16 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::number, "-0.4")
 		PARSE_FALSE(worldlang::number, "abcd");
 	}
-
+	
+	SECTION("String rule"){
+		PEGTL_GRAMMAR_CHECK(worldlang::string);
+		
+		PARSE_TRUE(worldlang::string, "\"1234\"");
+		PARSE_TRUE(worldlang::string, "\"agasad\"");
+		PARSE_TRUE(worldlang::string, "\"74s76\"");
+		PARSE_FALSE(worldlang::string, "abcdef");
+	}
+	
 	SECTION("Identifier rule"){
 		PEGTL_GRAMMAR_CHECK(worldlang::identifier);
 		
@@ -104,8 +113,40 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::expression, "(3+-5)+Name");
 		PARSE_TRUE(worldlang::expression, "(((3))+36+dd)+5");
 		PARSE_TRUE(worldlang::expression, "asdf-asdf+asdf");
+		PARSE_TRUE(worldlang::expression, "\"A\"+\"B\"");
 		
 		PARSE_FALSE(worldlang::expression, "-iden");
+	}
+	
+	SECTION("Assignment rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::assignment);
+		
+		PARSE_TRUE(worldlang::expression, "a=(((3))+5)+5");
+		PARSE_TRUE(worldlang::expression, "b=4-6+5");
+		PARSE_TRUE(worldlang::expression, "b=\"STR\"");
+	}
+	
+	SECTION("Block rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::code_block);
+		
+		PARSE_TRUE(worldlang::code_block, "{\ntest(a,b)\n}\n");
+		PARSE_TRUE(worldlang::code_block, "{\nb=4-6+5\n}\n");
+		PARSE_TRUE(worldlang::code_block, "{\nb=\"STR\"\n}\n");
+		
+		PARSE_FALSE(worldlang::code_block, "{\nb=\"STR\"\n}");
+	}
+	
+	SECTION("Comparison rules"){
+		PEGTL_GRAMMAR_CHECK(worldlang::expression);
+		
+		PARSE_TRUE(worldlang::expression, "6+3<=10");
+		PARSE_TRUE(worldlang::expression, "6+3>=5");
+		PARSE_TRUE(worldlang::expression, "1!=3");
+		PARSE_TRUE(worldlang::expression, "\"A\"==\"B\"");
+		PARSE_TRUE(worldlang::expression, "1<2");
+		PARSE_TRUE(worldlang::expression, "1>2");
+		
+		PARSE_FALSE(worldlang::expression, "(A=B)");
 	}
 	
 	SECTION("Program rules"){
@@ -115,7 +156,9 @@ TEST_CASE("Langauge check", "[World][Langauge]"){
 		PARSE_TRUE(worldlang::program, "func(3+func2(5))\n");
 		PARSE_TRUE(worldlang::program, "b=64\nfunc(b,23)\n");
 		PARSE_TRUE(worldlang::program, "b=1+2*3/4-5\nc=(8*5)+6-7*(42/7+0)\nfunc(func2(b),func3(c))\n");
-}
+		
+		PARSE_TRUE(worldlang::program, "if(1){\nb=\"STR\"\n}\n");
+	}
 }
 
 using worldlang::ProgramExecutor;
@@ -135,7 +178,7 @@ void square(ProgramExecutor& pe){
 void summation(ProgramExecutor& pe){
 	auto args = pe.popArgs();
 	double sum = 0;
-	for (int i = 0; i < args.size(); ++i){
+	for (size_t i = 0; i < args.size(); ++i){
 		auto arg = pe.as<double>(args[i]);
 		
 		sum += arg;
@@ -222,11 +265,106 @@ TEST_CASE("Program execution correct", "[World][Language]"){
 		}
 	}
 	
+	//TODO: Figure out why this is slow?
 	SECTION("Multiple return into multiple args"){
 		PROGRAM_RUN("a=sum(seq(5))\n"){
 			CHECK(pe.var<double>("a") == 15.0);
 		}
 	}
+	
+	SECTION("Allow blank lines"){
+		PROGRAM_RUN("a=5\n\nb=5\n"){
+			CHECK(pe.var<double>("a") == 5.0);
+			CHECK(pe.var<double>("b") == 5.0);
+		}
+	}
+	
+	SECTION("String assignment + empty string"){
+		PROGRAM_RUN("S=\"Hello, World!\"\nE=\"\"\n"){
+			CHECK(pe.var<std::string>("S") == "Hello, World!");
+			CHECK(pe.var<std::string>("E") == "");
+		}
+	}
+	
+	SECTION("Code blocks"){
+		PROGRAM_RUN("if(1){\nS=\"Hello, World!\"\nE=\"\"\n}\n"){
+			CHECK(pe.var<std::string>("S") == "Hello, World!");
+			CHECK(pe.var<std::string>("E") == "");
+		}
+	}
+	
+	SECTION("if block"){
+		PROGRAM_RUN("if(1){\na=3\n}\nb=2\nif(0){\nb=6\n}\n"){
+			CHECK(pe.var<double>("a") == 3.0);
+			CHECK(pe.var<double>("b") == 2.0);
+		}
+	}
+	
+	SECTION("for block"){
+		PROGRAM_RUN("s=0\nfor(i,1,10){\ns=s+i\n}\n"){
+			CHECK(pe.var<double>("s") == 55.0);
+			CHECK(pe.var<double>("i") == 10.0);
+		}
+	}
+	
+	SECTION("for block with step"){
+		PROGRAM_RUN("s=0\nfor(i,2,10,2){\ns=s+i\n}\n"){
+			CHECK(pe.var<double>("s") == 30.0);
+			CHECK(pe.var<double>("i") == 10.0);
+		}
+	}
+	
+	SECTION("for block with negative step"){
+		PROGRAM_RUN("s=0\nfor(i,10,-10,-2){\ns=s+i\n}\n"){
+			CHECK(pe.var<double>("s") == 0.0);
+			CHECK(pe.var<double>("i") == -10.0);
+		}
+	}
+	
+	SECTION("for block with invalid condition"){
+		PROGRAM_RUN("s=3\nfor(i,0,-1){\ns=6\n}\n"){
+			CHECK(pe.var<double>("s") == 3.0);
+			CHECK(pe.var<double>("i") == 0.0);
+		}
+	}
+	
+	SECTION("nested for block"){
+		PROGRAM_RUN("s=0\nfor(i,0,10){\nfor(j,0,10){\ns=s+i+j\n}\n}\n"){
+			CHECK(pe.var<double>("s") == 1210.0);
+			CHECK(pe.var<double>("i") == 10.0);
+			CHECK(pe.var<double>("j") == 10.0);
+		}
+	}
+	
+	SECTION("comparison operations"){
+		PROGRAM_RUN("s=5==5\nx=3<0\n"){
+			CHECK(pe.var<double>("s") == 1.0);
+			CHECK(pe.var<double>("x") == 0.0);
+		}
+	}
+	
+	SECTION("User defined function"){
+		PROGRAM_RUN("s(){\na=5\n}\na=0\ns()\n"){
+			CHECK(pe.var<double>("a") == 5);
+		}
+	}
+	
+	SECTION("User defined function with arguments"){
+		PROGRAM_RUN("s2(){\na=5\n}\ns(a,b){\nc=a\nd=b\ns2()\n}\ns(1,3)\n"){
+			CHECK(pe.var<double>("c") == 1.0);
+			CHECK(pe.var<double>("d") == 3.0);
+			CHECK(pe.var<double>("a") == 5.0); // assigned in s by s2
+			CHECK(pe.var<double>("b") == 3.0); // assigned via function call
+		}
+	}
+	
+	SECTION("User defined function (recursive)"){
+		PROGRAM_RUN("s=0\nf(x){\nif(x>0){\ns=s+x\nf(x-1)\n}\n}\nf(5)\n"){
+			CHECK(pe.var<double>("s") == 15.0);
+			CHECK(pe.var<double>("x") == 0.0);
+		}
+	}
+
 }
 
 TEST_CASE("Program execution errors", "[World][Langauge]"){
@@ -247,11 +385,12 @@ TEST_CASE("Program execution errors", "[World][Langauge]"){
 			CHECK(!pe.getErrorMessage().empty());
 		}
 	}
+}
 
+TEST_CASE("Space stripping", "[Langauge]"){
 	SECTION("Check if spaces were removed"){
-			CHECK(worldlang::stripWhitespace("  func (a, b)") == "func(a,b)"); // simple check
-			CHECK(worldlang::stripWhitespace("if(1) {\n\ttest()  \n}\n") == "if(1){\ntest()\n}\n"); // doesn't strip newlines
-			CHECK(worldlang::stripWhitespace("print( \"Hello world\" )   ") == "print(\"Hello world\")"); // doesn't remove spaces from strings
+		CHECK(worldlang::stripWhitespace("  func (a, b)") == "func(a,b)"); // simple check
+		CHECK(worldlang::stripWhitespace("if(1) {\n\ttest()  \n}\n") == "if(1){\ntest()\n}\n"); // doesn't strip newlines
+		CHECK(worldlang::stripWhitespace("print( \"Hello world\" )   ") == "print(\"Hello world\")"); // doesn't remove spaces from strings
 	}
-	
 }
