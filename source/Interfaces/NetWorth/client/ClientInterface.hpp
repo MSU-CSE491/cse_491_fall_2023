@@ -49,6 +49,7 @@ namespace netWorth{
                 m_manager->SetupSocket(&m_socket, m_ip, m_port);
 
                 Packet send_pkt, recv_pkt,two_pkt;
+                setMInputWaitTime(0.25f);
 
                 // send request message
                 send_pkt << "New client requesting connection.";
@@ -105,6 +106,7 @@ namespace netWorth{
                 SendPacket(send_pkt, m_ip.value(), m_port);
 
                 m_manager->ClearActionMap();
+                DrawGrid(grid, type_options, item_set, agent_set);
 
                 // Do the action!
                 return action_id;
