@@ -202,8 +202,6 @@ namespace i_2D {
     }
 
     void MainInterface::DrawHealthInfo() {
-        //TODO fix this
-        // Reference health property
         if(!HasProperty("Health"))
         {
             return;
