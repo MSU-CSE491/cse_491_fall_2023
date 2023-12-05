@@ -297,6 +297,39 @@ namespace cowboys {
           return fitness;
         }
 
+//        STARTPOSITIONS[startPos_idx], agents[arena][a]->GetPosition(), arena, a
+        double AStarFitnessFunction(const cse491::GridPosition  & startpos, const cse491::GridPosition & endpos, int arena, int a)
+        {
+          double fitness = 0;
+
+          // Euclidean distance
+          cse491::GridPosition currentPosition = endpos;
+          double distance = static_cast<double>(
+                  Get_A_StarDistance(startpos, currentPosition, arena, a)
+                  );
+
+
+          double score = distance;
+
+          fitness += score;
+
+          cse491::AgentBase &agent = *agents[arena][a];
+          // Agent complexity, temporarily doing this in a bad way
+          if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)){
+            auto genotype = cgp->GetGenotype();
+            double connection_complexity =
+                    static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
+
+            double functional_nodes = genotype.GetNumFunctionalNodes();
+            double node_complexity = functional_nodes / (functional_nodes + 1);
+
+            double complexity = connection_complexity + node_complexity;
+            fitness -= complexity;
+          }
+
+          return fitness;
+        }
+
         /**
          * Gets the path of the save location
          * @return
@@ -585,6 +618,15 @@ namespace cowboys {
           return ss.str();
         }
 
+        size_t Get_A_StarDistance(const cse491::GridPosition & startpos, const cse491::GridPosition & endpos, int arenaIDX, int agentIDX) {
+          auto& agent = agents[arenaIDX][agentIDX];
+          auto& world = environments[arenaIDX];
+
+
+          auto distance = walle::GetShortestPath(startpos, endpos, *world, *agent).size() - 1;
+          assert(distance >= 0);
+          return distance;
+        }
 
 
         /**
@@ -651,6 +693,11 @@ namespace cowboys {
 
           Printgrid(endPositions[bestAgent.first][bestAgent.second], 'A');
 
+          auto& agent = agents[bestAgent.first][bestAgent.second];
+          auto& startPosition = STARTPOSITIONS;
+          auto& endPosition = endPositions[bestAgent.first][bestAgent.second];
+
+          auto& world = environments[bestAgent.first];
 
 
           auto calculateDistance = [](const cse491::GridPosition& startPosition, const cse491::GridPosition & currentPosition) {
@@ -662,14 +709,21 @@ namespace cowboys {
 
           std::cout << std::left << std::setw(columnWidth) << "Start"
                     << std::setw(columnWidth) << "Final"
-                    << "Distance\n";
+                  << std::setw(columnWidth) << "Distance"
+                  << "A* Distance\n";
           for (size_t i = 0; i < STARTPOSITIONS.size(); ++i) {
             std::cout << std::setw(columnWidth) << FormatPosition(STARTPOSITIONS[i])
                       << std::setw(columnWidth) << FormatPosition(endPositions[bestAgent.first][bestAgent.second][i]);
 
 
-              double distance = calculateDistance(STARTPOSITIONS[i], endPositions[bestAgent.first][bestAgent.second][i]);
-              std::cout << std::fixed << std::setprecision(2) << std::setw(6) << distance;
+            // Calculate and print Euclidean distance
+            double distance = calculateDistance(STARTPOSITIONS[i], endPositions[bestAgent.first][bestAgent.second][i]);
+            std::cout << std::fixed << std::setprecision(2) << std::setw(12) << distance;
+
+
+            // Calculate and print A* distance
+            size_t astarDistance = Get_A_StarDistance(startPosition[i], endPosition[i], bestAgent.first, bestAgent.second);
+            std::cout << std::setw(12) << astarDistance;
 
 
             std::cout << std::endl;
@@ -990,7 +1044,8 @@ namespace cowboys {
               environments[arena]->UpdateWorld();
             }
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[startPos_idx]);
+//              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[startPos_idx]);
+              double tempscore = AStarFitnessFunction(STARTPOSITIONS[startPos_idx], agents[arena][a]->GetPosition(), arena, a);
               auto tempEndPosition = agents[arena][a]->GetPosition();
               endPositions[arena][a][startPos_idx] = tempEndPosition;
               independentAgentFitness[arena][a][startPos_idx] = tempscore;

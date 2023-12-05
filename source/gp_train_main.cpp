@@ -24,7 +24,7 @@ int main() {
     cowboys::GPTrainingLoop <cowboys::CGPAgent, cse491::MazeWorld> loop(false);
 
 
-    loop.Initialize(10, 100);
+    loop.Initialize(50, 200);
     loop.Run(80, 50, num_threads, false);
 
 
