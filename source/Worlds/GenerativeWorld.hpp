@@ -58,21 +58,6 @@ namespace group6 {
             }
         }
 
-        /**
-         * Ends the game
-         * @param win True if the game is ending in a win. False if it is a loss
-         */
-        [[noreturn]] void EndGame(bool win) {
-            run_over = true;
-
-            if (win) {
-                std::cout << "You successfully exited maze!" << std::endl;
-            } else {
-                std::cout << "Game over, try again!" << std::endl;
-            }
-            std::exit(0);
-        }
-
     public:
         explicit GenerativeWorld(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed) : WorldBase(seed) {
             floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
@@ -108,6 +93,21 @@ namespace group6 {
             // TODO: remove hard-coded positions
             main_grid.At(2, 5) = teleporter_id;
             main_grid.At(95, 15) = teleporter_id;
+        }
+
+        /**
+         * Ends the game
+         * @param win True if the game is ending in a win. False if it is a loss
+         */
+        [[noreturn]] void EndGame(bool win) {
+            run_over = true;
+
+            if (win) {
+                std::cout << "You successfully exited maze!" << std::endl;
+            } else {
+                std::cout << "Game over, try again!" << std::endl;
+            }
+            std::exit(0);
         }
 
         void AddArmory()
