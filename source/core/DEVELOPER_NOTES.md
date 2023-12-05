@@ -50,13 +50,13 @@ only on files above it in the core.
 ### 1. Basic Logging:
 ```cpp
 Logger::Log() << Team::TEAM_1 << LogLevel::DEBUG << "This is a debug message." << std::endl;
-Logger::Log() << Team::TEAM_2 << LogLevel::ERROR << "An error occurred!" << std::endl;
+Logger::Log() << Team::TEAM_2 << LogLevel::ERR << "An error occurred!" << std::endl;
 ```
 
 ### 2. Logging with Colors:
 ```cpp
 Logger::Log() << Team::TEAM_3 << LogLevel::INFO << Color::GREEN << "Success message." << Logger::endl;
-Logger::Log() << Team::TEAM_4 << LogLevel::ERROR << Color::RED << "Error message." << Logger::endl;
+Logger::Log() << Team::TEAM_4 << LogLevel::ERR << Color::RED << "Error message." << Logger::endl;
 ```
 
 ### 3. Logging Variables:

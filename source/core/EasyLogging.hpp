@@ -11,7 +11,7 @@ namespace clogged {
  * @brief Log levels for logging
  *
  */
-enum class LogLevel { DEBUG, INFO, WARNING, ERROR, NA };
+enum class LogLevel { DEBUG, INFO, WARNING, ERR, NA };
 
 /**
  * @brief Teams Names for logging
@@ -272,7 +272,7 @@ class Logger {
       return "(INFO) ";
     } else if (logLevel == LogLevel::WARNING) {
       return "(WARNING) ";
-    } else if (logLevel == LogLevel::ERROR) {
+    } else if (logLevel == LogLevel::ERR) {
       return "(ERROR) ";
     } else {
       return "";

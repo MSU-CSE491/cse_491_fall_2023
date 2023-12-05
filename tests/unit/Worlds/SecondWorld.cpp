@@ -70,7 +70,7 @@ TEST_CASE("SecondWorld Construction", "[World][SecondWorld]"){
 TEST_CASE("Item Test")
 {
     // Initialize world
-    group4::SecondWorld world;
+    group4::SecondWorld world("../assets/grids/third_floor.grid", "../assets/third_floor_input.json");
 
     // Test adding and removing an Item  w/ properties
     auto testItem1 = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
@@ -111,20 +111,22 @@ TEST_CASE("Third floor agents") {
 TEST_CASE("SecondWorld LoadFromFile", "[World][SecondWorld]") {
   // Test loading agents from a JSON file
   SECTION("Load Agents from Valid File") {
-    group4::SecondWorld world;
-    REQUIRE_NOTHROW(world.LoadFromFile("../assets/input.json"));
+    group4::SecondWorld world("../assets/grids/group4_maze.grid", "../assets/input.json");
+    // REQUIRE_NOTHROW(world.LoadFromFile("../assets/input.json"));
   
     REQUIRE(world.GetNumAgents() == 3);
   }
   SECTION("Load Agents from Valid File2") {
-    group4::SecondWorld world;
-    REQUIRE_NOTHROW(world.LoadFromFile("../assets/second_floor_input.json"));
+    // group4::SecondWorld world;
+    // REQUIRE_NOTHROW(world.LoadFromFile("../assets/second_floor_input.json"));
+    group4::SecondWorld world("../assets/grids/second_floor.grid", "../assets/second_floor_input.json");
   
     REQUIRE(world.GetNumAgents() == 2);
   }
   SECTION("Load Agents from Valid File3") {
-    group4::SecondWorld world;
-    REQUIRE_NOTHROW(world.LoadFromFile("../assets/third_floor_input.json"));
+    // group4::SecondWorld world;
+    // REQUIRE_NOTHROW(world.LoadFromFile("../assets/third_floor_input.json"));
+    group4::SecondWorld world("../assets/grids/third_floor.grid", "../assets/third_floor_input.json");
   
     REQUIRE(world.GetNumAgents() == 1);
   }
@@ -134,7 +136,7 @@ TEST_CASE("SecondWorld LoadFromFile", "[World][SecondWorld]") {
 
 
 TEST_CASE("Print Entities", "[World][SecondWorld]") {
-  group4::SecondWorld world;
+  group4::SecondWorld world("../assets/grids/third_floor.grid", "../assets/third_floor_input.json");
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
 
   auto testItem = std::make_unique<cse491::ItemBase>(1, "Test Item");
