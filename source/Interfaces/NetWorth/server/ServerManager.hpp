@@ -8,6 +8,7 @@
 #include <thread>
 #include <map>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 
@@ -19,6 +20,8 @@ namespace netWorth{
      */
     class ServerManager {
     private:
+
+		sf::UdpSocket m_manager_socket;
         //std::map<size_t ,std::thread> m_clientThreads; ///Map of all agent ids and their client threads
         std::set<size_t> m_interface_set;   /// Set of interfaces on the server
 
@@ -29,6 +32,8 @@ namespace netWorth{
         std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
 
         std::string m_currentSerializedAgents; ///String with all current serialized agents
+
+		std::vector<std::pair<sf::IpAddress, unsigned short>> m_updateVec;
 
     protected:
 
@@ -100,6 +105,25 @@ namespace netWorth{
             if (m_interface_set.empty()) interfacesPresent = false;
         }
 
+		void AddToUpdatePairs(sf::IpAddress ip, unsigned short port){
+			m_updateVec.emplace_back(ip, port);
+		}
+
+		 void SendGameUpdates(){
+			if (hasNewAgent)
+			{
+				sf::Packet serializedAgentPkt;
+				serializedAgentPkt << GetSerializedAgents();
+				for (auto client: m_updateVec){
+					std::cout << "sending game updates to IP: " << client.first.toString() << " with port " <<
+					client.second << std::endl;
+					m_manager_socket.send(serializedAgentPkt, client.first, client.second);
+				}
+				hasNewAgent = false;
+			}
+		}
+
+
         bool ActionMapContains(size_t key){return m_action_map.contains(key);}
 
         size_t ReadFromActionMap(size_t key){
@@ -116,6 +140,13 @@ namespace netWorth{
         void RemoveFromActionMap(size_t key){
             m_action_map.erase(key);
         }
+
+		void RemoveFromUpdatePairs(sf::IpAddress ip, unsigned short port){
+			m_updateVec.erase(std::remove_if(m_updateVec.begin(), m_updateVec.end(),
+				[ip, port](std::pair<sf::IpAddress, unsigned short> pair){
+				return (pair.first == ip && pair.second == port);
+			}), m_updateVec.end());
+		}
 
         void WriteToActionMap(size_t key, size_t val){
             std::lock_guard<std::mutex> actionLock(m_actionMapMutex);

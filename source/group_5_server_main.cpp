@@ -23,25 +23,25 @@
 
 
 
-void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &world,
-                  netWorth::ServerManager & serverManager){
-    // Send to acknowledge client
-
-    std::cout << "In client thread" << std::endl;
-
-    std::cout << interface.GetName() << std::endl;
-
-    //While this client is still connected (need to fix)
-    while (serverManager.ActionMapContains(interface.GetID())){
-        //std::cout << interface.GetName() << " is connected" << std::endl;
-    }
-    serverManager.JoinClient(interface.GetID());
-
-//    std::cout << "Joined the thread back" << std::endl;
+//void ClientThread(netWorth::ServerInterface & interface, cse491::WorldBase &world,
+//                  netWorth::ServerManager & serverManager){
+//    // Send to acknowledge client
 //
-//    std::cout << serverManager.interfacesPresent;
-
-}
+//    std::cout << "In client thread" << std::endl;
+//
+//    std::cout << interface.GetName() << std::endl;
+//
+//    //While this client is still connected (need to fix)
+//    while (serverManager.ActionMapContains(interface.GetID())){
+//        //std::cout << interface.GetName() << " is connected" << std::endl;
+//    }
+//    serverManager.JoinClient(interface.GetID());
+//
+////    std::cout << "Joined the thread back" << std::endl;
+////
+////    std::cout << serverManager.interfacesPresent;
+//
+//}
 
 /**
  * The initial connection for the server to a client
@@ -101,7 +101,11 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
         auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
 
+		serverManager.AddToUpdatePairs(sender.value(), port);
+
         serverManager.hasNewAgent = true;
+
+		serverManager.SendGameUpdates();
 
         //Do an atomic check to see if you can add it
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);

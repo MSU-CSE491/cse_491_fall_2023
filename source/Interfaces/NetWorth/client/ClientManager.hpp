@@ -117,6 +117,7 @@ namespace netWorth{
                 recv_pkt >> data;
                 return data;
             }
+
             return "";
         }
 

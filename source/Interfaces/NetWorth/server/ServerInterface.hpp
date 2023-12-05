@@ -44,8 +44,7 @@ namespace netWorth
 		{
 			// resolve port and IP from entity properties
 			m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
-			m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
-			m_world_update_port = m_port;
+			m_world_update_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
 			m_manager = GetProperty<netWorth::ServerManager*>("server_manager");
 			return InitialConnection(m_ip, m_port);
 		}
@@ -172,13 +171,7 @@ namespace netWorth
 			const cse491::item_map_t& item_set,
 			const cse491::agent_map_t& agent_set) override
 		{
-			if (m_manager->hasNewAgent)
-			{
-				sf::Packet serializedAgentPkt;
-				serializedAgentPkt << m_manager->GetSerializedAgents();
-				SendPacket(serializedAgentPkt, m_ip.value(), m_world_update_port);
-				m_manager->hasNewAgent = false;
-			}
+
 
 			// send action map to client
 			sf::Packet send_pkt = m_manager->ActionMapToPacket();
@@ -199,21 +192,12 @@ namespace netWorth
 			ReceivePacket(recv_pkt, m_ip, m_port);
 			recv_pkt >> action_id;
 
-			// uncomment this out for speed
-//                std::optional<sf::IpAddress> temp_ip;
-//                unsigned short temp_port;
-//                if (m_socket.receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
-//                    // received from client
-//                    recv_pkt >> action_id;
-//                } else {
-//                    action_id = 0;
-//                }
-
 			// TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
 			//            if (input == "quit") exit(0);
 			if (action_id == 9999)
 			{
 				m_manager->RemoveFromActionMap(GetID());
+				m_manager->RemoveFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}
 
 			return action_id;
