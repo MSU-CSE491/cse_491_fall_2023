@@ -15,6 +15,8 @@
 #include "Interfaces/TrashInterface.hpp"
 
 using cse491::AgentBase;
+using cse491::Entity;
+using cse491::CellType;
 using clogged::Logger;
 using clogged::Team;
 using clogged::LogLevel;
@@ -40,7 +42,7 @@ namespace worldlang {
 		struct Identifier : std::string {};
 		
 		/// Variant type containing all possible values types for variables.
-		using Value = std::variant < double, std::string, Callable, Identifier >;
+		using Value = std::variant < size_t, double, std::string, Callable, Identifier >;
 		
 	// Execution state
 	private:
@@ -113,12 +115,13 @@ namespace worldlang {
 				for (auto a : args){
 					if (pe.has<double>(a)){
 						std::cout << pe.as<double>(a);
+					} else if (pe.has<size_t>(a)){
+						std::cout << pe.as<size_t>(a);
 					} else if (pe.has<std::string>(a)){
 						std::cout << pe.as<std::string>(a);
 					} else if (pe.has<Callable>(a)){
 						std::cout << "<Callable>";
 					}
-					std::cout << ", ";
 				}
 				std::cout << std::endl;
 			});
@@ -143,7 +146,7 @@ namespace worldlang {
 			registerFunction("addAgent", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() < 5) { error("Wrong number of arguments!"); return; }
-				// type, name, symbol, x, y (ignored: TODO later)
+				// type, name, symbol, x, y
 				auto type = pe.as<std::string>(args[0]);
 				auto name = pe.as<std::string>(args[1]);
 				auto symbol = pe.as<std::string>(args[2]);
@@ -153,6 +156,7 @@ namespace worldlang {
 				if (!pe.getErrorMessage().empty()){ return; }
 				if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
 				
+				//TODO:Use the agent Factory class here, see if that works better.
 				AgentBase* agent;
 				if (type == "Player"){
 					agent = &world.AddAgent<cse491::TrashInterface>(name, "symbol", symbol[0]);
@@ -161,20 +165,20 @@ namespace worldlang {
 					error("Unknown agent type!"); return;
 				}
 				
-				pe.pushStack(static_cast<double>(agent->GetID()));
+				pe.pushStack(agent->GetID());
 			});
 			// Set agent property
-			registerFunction("setAgentProperty", [this, &world](ProgramExecutor& pe){
+			registerFunction("setProperty", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto id = pe.as<size_t>(args[0]);
 				auto prop = pe.as<std::string>(args[1]);
 				auto value = args[2];
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				
-				AgentBase& agent = world.GetAgent(agent_id);
+				Entity& agent = world.HasAgent(id) ? static_cast<Entity&>(world.GetAgent(id)) : world.GetItem(id);
 				if (pe.has<double>(value)){
 					agent.SetProperty(prop, as<double>(value));
 				} else if (pe.has<std::string>(value)){
@@ -190,33 +194,52 @@ namespace worldlang {
 				}
 			});
 			// Get agent property
-			registerFunction("getAgentProperty", [this, &world](ProgramExecutor& pe){
+			registerFunction("getProperty", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto id = pe.as<size_t>(args[0]);
 				auto prop = pe.as<std::string>(args[1]);
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				
-				AgentBase& agent = world.GetAgent(agent_id);
+				Entity& agent = world.HasAgent(id) ? static_cast<Entity&>(world.GetAgent(id)) : world.GetItem(id);
 				if(agent.HasProperty(prop)){
 					// property exists but type is unknown
+					// assume double, as there is no way to determine the type currently
+					// TODO: Fix this if types are ever stored
 					pushStack(agent.GetProperty<double>(prop));
 				} else {
-					error("Unsupported property type!");
+					error("Undefined property:" + prop);
+				}
+			});
+			// Check if property exists
+			registerFunction("hasProperty", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto id = pe.as<size_t>(args[0]);
+				auto prop = pe.as<std::string>(args[1]);
+				
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				Entity& agent = world.HasAgent(id) ? static_cast<Entity&>(world.GetAgent(id)) : world.GetItem(id);
+				if(agent.HasProperty(prop)){
+					pushStack(1.0);
+				} else {
+					pushStack(0.0);
 				}
 			});
 			// Get agent position
 			registerFunction("getAgentPosition", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto id = pe.as<size_t>(args[0]);
 				
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 				
-				AgentBase& agent = world.GetAgent(agent_id);
+				AgentBase& agent = world.GetAgent(id);
 				auto x = agent.GetPosition().GetX();
 				auto y = agent.GetPosition().GetY();
 				pushStack(x);
@@ -226,7 +249,7 @@ namespace worldlang {
 			registerFunction("setAgentPosition", [this, &world](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				if (args.size() != 3) { error("Wrong number of arguments!"); return; }
-				auto agent_id = static_cast<size_t>(pe.as<double>(args[0]));
+				auto agent_id = pe.as<size_t>(args[0]);
 				auto x = pe.as<double>(args[1]);
 				auto y = pe.as<double>(args[2]);
 				// check for argument errors
@@ -246,9 +269,9 @@ namespace worldlang {
 				
 				auto res = world.FindAgentsAt({x, y});
 				if (res.size()){
-					pe.pushStack(static_cast<double>(res[0]));
+					pe.pushStack(res[0]);
 				} else {
-					pe.pushStack(-1.0);
+					pe.pushStack(0u);
 				}
 			});
 			// Get item at this position
@@ -262,10 +285,93 @@ namespace worldlang {
 				
 				auto res = world.FindItemsAt({x, y});
 				if (res.size()){
-					pe.pushStack(static_cast<double>(res[0]));
+					pe.pushStack(res[0]);
 				} else {
-					pe.pushStack(-1.0);
+					pe.pushStack(0u);
 				}
+			});
+			// Get size of the agent's inventory
+			registerFunction("getInventorySize", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 1) { error("Wrong number of arguments!"); return; }
+				auto agent_id = pe.as<size_t>(args[0]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				pe.pushStack(static_cast<double>(agent.GetInventory().size()));
+			});
+			// Gets an item from the inventory
+			registerFunction("getInventoryItem", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto agent_id = pe.as<size_t>(args[0]);
+				auto item_index = pe.as<double>(args[1]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				AgentBase& agent = world.GetAgent(agent_id);
+				if (item_index >= agent.GetInventory().size()) {
+					error("Item index out of range!"); return;
+				}
+				
+				pe.pushStack(agent.GetInventory()[item_index]);
+			});
+			// Add an item to the world
+			registerFunction("addItem", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				// name,symbol,x,y,prop1,val1,prop2,val2...
+				if (args.size() < 4) { error("Wrong number of arguments!"); return; }
+				auto name = pe.as<std::string>(args[0]);
+				auto symbol = pe.as<std::string>(args[1]);
+				auto x = pe.as<double>(args[2]);
+				auto y = pe.as<double>(args[3]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				if (symbol.empty()) { error("Symbol can't be empty!"); return; }
+				
+				auto item = std::make_unique<cse491::ItemBase>(world.NextEntityID(), name);
+				item->SetProperties("symbol",symbol.at(0));
+				item->SetPosition(x,y);
+				item->SetGrid();
+				for (size_t i = 4; i < args.size(); i += 2){
+					item->SetProperty(pe.as<std::string>(args[i]), pe.as<double>(args[i+1]));
+				}
+				pe.pushStack(item->GetID());
+				
+				world.AddItem(std::move(item));
+			});
+			// Gets an item from the inventory
+			registerFunction("addInventoryItem", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() != 2) { error("Wrong number of arguments!"); return; }
+				auto owner_id = pe.as<size_t>(args[0]);
+				auto item_id = pe.as<size_t>(args[1]);
+				// check for argument errors
+				if (!pe.getErrorMessage().empty()){ return; }
+				
+				world.GetItem(item_id).SetPosition(-1,-1);
+				Entity& entity = world.HasAgent(owner_id) ? static_cast<Entity&>(world.GetAgent(owner_id)) : world.GetItem(owner_id);
+				entity.AddItem(item_id);
+			});
+			// Create a new cell type
+			registerFunction("addCellType", [this, &world](ProgramExecutor& pe){
+				auto args = pe.popArgs();
+				if (args.size() < 3) { error("Wrong number of arguments!"); return; }
+				// name, desc, symbol, props (ignored: TODO later)
+				auto name = pe.as<std::string>(args[0]);
+				auto desc = pe.as<std::string>(args[1]);
+				auto symbol = pe.as<std::string>(args[2]);
+				std::cout << desc << "," << name << "," << symbol << ",";
+				if (!symbol.size()) { error("Symbol cannot be empty!"); return; }
+				std::cout << (int)symbol[0] << "\n";
+				
+				auto id = world.AddCellType(name, desc, symbol[0]);
+				for (size_t i = 3; i < args.size(); ++i){
+					world.type_options[id].SetProperty(pe.as<std::string>(args[i]));
+				}
+				
+				pe.pushStack(id);
 			});
 			// Get a random number
 			registerFunction("rand", [this, &world](ProgramExecutor& pe){
@@ -287,6 +393,10 @@ namespace worldlang {
 				// check for argument errors
 				if (!pe.getErrorMessage().empty()){ return; }
 			});
+			// Set constants
+			setVariable("ID_NONE",0u);
+			setVariable("CELL_WALL", CellType::CELL_WALL);
+			setVariable("CELL_WATER", CellType::CELL_WATER);
 		}
 		
 		virtual ~ProgramExecutor() = default;
@@ -604,6 +714,8 @@ namespace worldlang {
 							} else if (unit.value == "=="){
 								if (has<double>(a) && has<double>(b)){
 									pushStack(static_cast<double>(as<double>(a) == as<double>(b)));
+								} else if (has<size_t>(a) && has<size_t>(b)){
+									pushStack(static_cast<double>(as<size_t>(a) == as<size_t>(b)));
 								} else if (has<std::string>(a) && has<std::string>(b)){
 									pushStack(static_cast<double>(as<std::string>(a) == as<std::string>(b)));
 								} else {
@@ -612,6 +724,8 @@ namespace worldlang {
 							} else if (unit.value == "!="){
 								if (has<double>(a) && has<double>(b)){
 									pushStack(static_cast<double>(as<double>(a) != as<double>(b)));
+								} else if (has<size_t>(a) && has<size_t>(b)){
+									pushStack(static_cast<double>(as<size_t>(a) != as<size_t>(b)));
 								} else if (has<std::string>(a) && has<std::string>(b)){
 									pushStack(static_cast<double>(as<std::string>(a) != as<std::string>(b)));
 								} else {

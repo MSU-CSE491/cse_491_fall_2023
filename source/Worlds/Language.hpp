@@ -235,6 +235,16 @@ namespace worldlang{
 	>
 	{};
 	
+	// Comment
+	// # Comment text goes here
+	struct comment : pegtl::seq<
+		pegtl::one< '#' >,
+		pegtl::until<
+			pegtl::eol
+		>
+	>
+	{};
+	
 	struct statement_list;
 	
 	// Matches a block of code
@@ -258,6 +268,7 @@ namespace worldlang{
 			assignment,
 			pegtl::opt<pegtl::eol>
 		>,
+		comment,
 		pegtl::eol
 	>
 	{};

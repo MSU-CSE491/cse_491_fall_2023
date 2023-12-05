@@ -11,8 +11,11 @@
 
 #include "../Agents/PacingAgent.hpp"
 #include "../core/WorldBase.hpp"
+#include "ProgramExecutor.hpp" //< for attack, item scripts
 
 #include <algorithm>
+
+using cse491::CellType;
 
 namespace group4 {
 /// @brief Filename for the first floor grid file
@@ -23,6 +26,19 @@ const std::string SECOND_FLOOR_FILENAME = "../assets/grids/second_floor.grid";
 
 /// @brief Filename for the last floor grid file
 const std::string FINAL_FLOOR_FILENAME = "../assets/grids/third_floor.grid";
+
+/// @brief Filename for item pickup script
+///
+/// This script modifies properties of the agent collecting the item.
+const std::string ITEM_PICKUP_SCRIPT = "../assets/scripts/g4_item_pickup.ws";
+
+/// @brief Filename for agent combat script
+/// 
+/// When an agent attempts to move into another agent, this attack script runs.
+const std::string COMBAT_SCRIPT = "../assets/scripts/g4_agent_attack.ws";
+
+/// @brief Filename for world initialization script
+const std::string WORLD_LOAD_SCRIPT = "../assets/scripts/g4_world_load.ws";
 
 /// @brief Maximum inventory size for an agent
 const size_t MAX_INVENTORY_SIZE = 30;
@@ -105,6 +121,12 @@ class SecondWorld : public cse491::WorldBase {
   /// Easy access to warp CellType ID.
   size_t hidden_warp_id;
 
+  /// Script executor object.
+  worldlang::ProgramExecutor pe;
+
+  /// Vector of the items in this world
+  std::map<size_t, std::unique_ptr<cse491::ItemBase>> inventory;
+
   /// Provide the agent with movement actions.
   void ConfigAgent(cse491::AgentBase& agent) override {
     agent.AddAction("up", MOVE_UP);
@@ -119,17 +141,8 @@ class SecondWorld : public cse491::WorldBase {
   /**
    * Constructor with no arguments
    */
-  SecondWorld() : world_filename(FIRST_FLOOR_FILENAME) {
-    floor_id =
-        AddCellType("floor", "Floor that you can easily walk over.", ' ');
-    flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
-    wall_id = AddCellType(
-        "wall", "Impenetrable wall that you must find a way around.", '#');
-    hidden_warp_id = AddCellType(
-        "hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
-    water_id = AddCellType("water", "Water that distinguishes fire.", 'w');
-
-    main_grid.Read(FIRST_FLOOR_FILENAME, type_options);
+  SecondWorld() : world_filename(FIRST_FLOOR_FILENAME), pe{*this}{
+    pe.runFile(WORLD_LOAD_SCRIPT);
   }
 
   /**
@@ -138,7 +151,8 @@ class SecondWorld : public cse491::WorldBase {
    * @param agent_filename Relative path to agent input.json file
    */
   SecondWorld(std::string grid_filename, std::string agent_filename)
-      : world_filename(grid_filename), agents_filename(agent_filename) {
+      : world_filename(grid_filename), agents_filename(agent_filename), 
+      pe{*this}{
     floor_id =
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
@@ -297,7 +311,7 @@ class SecondWorld : public cse491::WorldBase {
    */
   void CheckPosition(cse491::AgentBase& agent, cse491::GridPosition& pos) {
     // First check to see if agent is on win flag
-    if ((main_grid.At(pos) == flag_id) && (agent.IsInterface())) {
+    if ((type_options[main_grid.At(pos)].HasProperty("Goal")) && (agent.IsInterface())) {
       // Set win flag to true
 
       agent.Notify("Flag found ", "item_alert");
@@ -316,7 +330,7 @@ class SecondWorld : public cse491::WorldBase {
       }
 
       // then checks if agent is on any items
-    } else if ((main_grid.At(pos) == hidden_warp_id) && (agent.IsInterface())) {
+    } else if ((type_options[main_grid.At(pos)].HasProperty("Warp")) && (agent.IsInterface())) {
       // Agent used the hidden warp tile action
       // std::cout << "Hidden warp tile activated! Warping to floor 3."
       //           << std::endl;
@@ -418,13 +432,31 @@ class SecondWorld : public cse491::WorldBase {
     if (!main_grid.IsValid(new_position)) {
       return false;
     }
-    if (main_grid.At(new_position) == wall_id) {
+    if (!IsTraversable(agent, new_position)){
       return false;
     }
+
+    // At this point, new_position is valid and not going into a wall.
+    // Check if there are any agents on this tile:
+    auto res = this->FindAgentsAt(new_position);
+    if (res.size() && res[0] != agent.GetID()){
+        // At least one agent was found (and isn't the player)
+        // Take the first agent and attack it.
+        pe.setVariable("agent", agent.GetID());
+        pe.setVariable("opponent", res[0]);
+        pe.runFile(COMBAT_SCRIPT);
+        
+        // The movement was not legal, so we return false.
+        // TODO: Should this return a status indicating that an attack occured,
+        // to distinguish moves that do nothing from attacks?
+        return false; 
+    }
+    
 
     if (!IsDropped) {
         CheckPosition(agent, new_position);
     }
+    
 
     IsDropped = false;
     agent.SetPosition(new_position);
@@ -443,5 +475,15 @@ class SecondWorld : public cse491::WorldBase {
     }
     std::cout << std::endl;
   }
+  
+  	/// Can walk on all tiles except for walls and water (unless agent has property set)
+	bool IsTraversable(const AgentBase & agent, cse491::GridPosition pos) const override {
+		if (GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WALL))
+			return false;
+		else if (GetCellTypes().at(main_grid.At(pos)).HasProperty(CellType::CELL_WATER))
+			return agent.HasProperty("Swimmer");
+		else
+			return true;
+	}
 };
 }  // namespace group4

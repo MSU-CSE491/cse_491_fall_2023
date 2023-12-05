@@ -18,20 +18,20 @@ if(isValid(nx,ny)){
 	if(isTraversable(agent,nx,ny)){
 		_="Check for an agent at this position: attack if this is the case"
 		opponent=findAgentAt(nx,ny)
-		if(opponent>-1){
+		if(opponent!=ID_NONE){
 			_="Agent exists, attack it (opponent=id of opponent)"
-			str=getAgentProperty(agent,"Strength")
-			def=getAgentProperty(opponent,"Defense")
+			str=getProperty(agent,"Strength")
+			def=getProperty(opponent,"Defense")
 			damage=rand(1,str-def)
 			
-			hp=getAgentProperty(opponent,"Health")-damage
+			hp=getProperty(opponent,"Health")-damage
 			if (hp<0){
 				hp=0
-				setAgentProperty(opponent,"symbol","x")
+				setProperty(opponent,"symbol","x")
 			}
-			setAgentProperty(opponent,"Health",hp)
+			setProperty(opponent,"Health",hp)
 		}
-		if(opponent<0){
+		if(opponent==ID_NONE){
 			_="Only set position if movement is allowed"
 			setAgentPosition(agent,nx,ny)
 		}

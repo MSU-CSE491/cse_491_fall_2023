@@ -20,8 +20,12 @@
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
 
-namespace cse491 {
+// Forward declaration
+namespace worldlang{
+	class ProgramExecutor;
+}
 
+namespace cse491 {
 class DataReceiver;
 
 class WorldBase {
@@ -391,6 +395,8 @@ public:
     return true;
   }
 
+  // Needs access to most things here so this is easiest way to do so
+  friend worldlang::ProgramExecutor;
 };
 
 } // End of namespace cse491
