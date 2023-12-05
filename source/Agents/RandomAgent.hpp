@@ -1,5 +1,6 @@
 /**
- * This file is part of the Fall 2023, CSE 491 Course Project - Group 1 Fork - yousif_m Branch.
+ * This file is part of the Fall 2023, CSE 491 Course Project
+ * @file RandomAgent.hpp
  * @brief An Agent that will move around using random actions
  * @note Status: PROPOSAL
  * @author Yousif Murrani
@@ -14,72 +15,96 @@
 
 namespace walle {
 
-/**
- * Class for the Random Agent
- */
-class RandomAgent : public cse491::AgentBase {
+    /**
+     * Class for the Random Agent
+     */
+    class RandomAgent : public cse491::AgentBase {
 
-	private:
+        private:
 
-        double random = 4.0;
+            double random = 4.0; /// Random value used to determine direction
 
-        bool moving = true;
+            bool moving = true; /// Is the agent moving?
 
-	public:
-		RandomAgent(size_t id, const std::string &name) : AgentBase(id, name) {
-		}
-
-		~RandomAgent() = default;
-
-		/// @brief This agent needs a specific set of actions to function.
-		/// @return Success.
-		bool Initialize() override {
-			return HasAction("up") && HasAction("down") && HasAction("left") && HasAction("right");
-		}
-
-        /// Choose the action to take a step in the random direction
-        size_t SelectAction(const cse491::WorldGrid & /*grid*/,
-                            const cse491::type_options_t & /* type_options*/,
-                            const cse491::item_map_t & /* item_map*/,
-                            const cse491::agent_map_t & /* agent_map*/) override {
-            // We are taking an action so another turn has passed
-
-            CalculateRandom(random);
-
-            if(moving){
-                if(random < 1.0){
-                    return action_map["up"];
-                }
-                else if(random < 2.0){
-                    return action_map["down"];
-                }
-                else if(random < 3.0){
-                    return action_map["left"];
-                }
-                else{
-                    return action_map["right"];
-                }
+        public:
+            /**
+             * @brief Construct a new Random Agent object
+             * @param id id of the agent
+             * @param name name of the agent
+             */
+            RandomAgent(size_t id, const std::string &name) : AgentBase(id, name) {
             }
 
-            return 0; // should not reach this point
-        }
+            ~RandomAgent() = default;
 
-        /// function to calculate the random direction
-        void CalculateRandom(double multiplier){
-            random = GetWorld().GetRandom(multiplier);
-        }
+            /**
+             * @brief This agent needs a specific set of actions to function.
+             * @return Success.
+             */
+            bool Initialize() override {
+                return HasAction("up") && HasAction("down") && HasAction("left") && HasAction("right");
+            }
 
-        /// function to set the double for the random variable
-        void SetDirection(double direction) { random = direction; }
+            /**
+             * @brief Choose the action to take a step in the random direction
+             */
+            size_t SelectAction(const cse491::WorldGrid & /*grid*/,
+                                const cse491::type_options_t & /* type_options*/,
+                                const cse491::item_map_t & /* item_map*/,
+                                const cse491::agent_map_t & /* agent_map*/) override {
+                // We are taking an action so another turn has passed
 
-        /// function to set if the agent is currently moving
-        void SetMoving(bool move) { moving = move; }
+                CalculateRandom(random);
 
-        /// function to get the random member variable
-        double GetRandom() const { return random; }
+                if(moving){
+                    if(random < 1.0){
+                        return action_map["up"];
+                    }
+                    else if(random < 2.0){
+                        return action_map["down"];
+                    }
+                    else if(random < 3.0){
+                        return action_map["left"];
+                    }
+                    else{
+                        return action_map["right"];
+                    }
+                }
 
-        /// function to get the moving member variable
-        bool GetMoving() const { return moving; }
-};
+                return 0; // should not reach this point
+            }
 
+            /**
+             * @brief Function to calculate the random direction
+             * @param multiplier double: random multiplier
+             */
+            void CalculateRandom(double multiplier){
+                random = GetWorld().GetRandom(multiplier);
+            }
+
+            /**
+             * @brief Set the Direction object
+             * @param direction direction to set
+             */
+            void SetDirection(double direction) { random = direction; }
+
+            /**
+             * @brief Set the Moving object
+             * @param move move to set
+             */
+            void SetMoving(bool move) { moving = move; }
+
+            /**
+             * @brief Get the Random object
+             * @return double random member variable
+             */
+            double GetRandom() const { return random; }
+
+            /**
+             * @brief Get the Moving object
+             * @return true 
+             * @return false 
+             */
+            bool GetMoving() const { return moving; }
+    };
 }
