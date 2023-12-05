@@ -140,11 +140,6 @@ namespace cowboys
             assert(dynamic_cast<const LGPAgent *>(&other) != nullptr);
             Configure(dynamic_cast<const LGPAgent &>(other));
         }
-
-
-        std::string Export() override {
-          return "";
-        }
         
         /**
          * @brief Get the action object
