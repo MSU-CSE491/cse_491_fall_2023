@@ -13,8 +13,7 @@
 
 namespace i_2D
 {
-    class Component : public sf::Drawable
-            , public sf::Transformable
+    class Component : public sf::Drawable, public sf::Transformable
     {
     public:
         typedef std::shared_ptr<Component> Ptr;
