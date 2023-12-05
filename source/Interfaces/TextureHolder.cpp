@@ -34,11 +34,11 @@ namespace i_2D
     const sf::Texture &TextureHolder::GetTexture(std::string id) {
         // Find iterator of matching id (avoids copy of unique_ptr)
         auto got = textures_.find(id);
-        // Return dereferenced unique_ptr found at iterator pair
+        // Return dereference unique_ptr found at iterator pair
         return *got->second;
     }
 
-    /*
+    /**
      * @brief This function loads texture for the maze world images - Default maze
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -57,7 +57,7 @@ namespace i_2D
         textures['@'] = GetTexture("agentTexture");
         return textures;
     }
-    /*
+    /**
      * @brief This function loads texture for the second world images group 4
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -77,6 +77,7 @@ namespace i_2D
         LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
         LoadTexture("flagTexture", "../assets/weapons/flag.png");
         LoadTexture("pathTexture", "../assets/Ground_tiles/Grass2.png");
+
         textures['#'] = GetTexture("wallTexture");
         textures['*'] = GetTexture("trollTexture");
         textures['@'] = GetTexture("agentTexture");
@@ -87,9 +88,10 @@ namespace i_2D
         textures['C'] = GetTexture("chestTexture");
         textures['g'] = GetTexture("flagTexture");
         textures[' '] = GetTexture("pathTexture");
+
         return textures;
     }
-    /*
+    /**
      * @brief This function loads texture for the manual world images group 8
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -107,6 +109,8 @@ namespace i_2D
         LoadTexture("axeTexture", "../assets/weapons/w_axe_war_steel.png");
         LoadTexture("boatTexture", "../assets/weapons/Boat_color1_2.png");
         LoadTexture("pathTexture", "../assets/Ground_tiles/Sand1.png");
+        LoadTexture("portal1Texture", "../assets/walls/portal1.png");
+        LoadTexture("portal2Texture", "../assets/walls/portal2.png");
         textures['P'] = GetTexture("axeTexture");
         textures['U'] = GetTexture("boatTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -115,11 +119,12 @@ namespace i_2D
         textures['^'] = GetTexture("treeTexture");
         textures['~'] = GetTexture("waterTexture");
         textures[' '] = GetTexture("pathTexture");
-
+        textures['{'] = GetTexture("portal1Texture");
+        textures['}'] = GetTexture("portal2Texture");
 
         return textures;
     }
-    /*
+    /**
      * @brief This function loads texture for the generative world images group 6
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -137,6 +142,19 @@ namespace i_2D
         LoadTexture("spikeTexture", "../assets/weapons/Individual_Spike.png");
         LoadTexture("keyTexture", "../assets/weapons/key.png");
         LoadTexture("pathTexture", "../assets/Ground_tiles/Dirt1.png");
+        LoadTexture("bootTexture", "../assets/weapons/2.png");
+        LoadTexture("shieldTexture", "../assets/weapons/shield.png");
+        LoadTexture("teleportTexture", "../assets/walls/teleport.png");
+        LoadTexture("armoryTexture", "../assets/weapons/steel_armor.png");
+        LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
+        LoadTexture("sandTexture", "../assets/Ground_tiles/Sand1.png");
+        LoadTexture("grassTexture", "../assets/Ground_tiles/Grass2.png");
+        LoadTexture("dirtTexture", "../assets/Ground_tiles/Dirt1.png");
+        textures['~'] = GetTexture("dirtTexture");
+        textures['M'] = GetTexture("grassTexture");
+        textures['-'] = GetTexture("sandTexture");
+        textures['W'] = GetTexture("waterTexture");
+        textures['B'] = GetTexture("bootTexture");
         textures['X'] = GetTexture("spikeTexture");
         textures['O'] = GetTexture("tarTexture");
         textures['#'] = GetTexture("wallTexture");
@@ -145,6 +163,9 @@ namespace i_2D
         textures['D'] = GetTexture("doorTexture");
         textures['K'] = GetTexture("keyTexture");
         textures[' '] = GetTexture("pathTexture");
+        textures['S'] = GetTexture("shieldTexture");
+        textures['T'] = GetTexture("teleportTexture");
+        textures['A'] = GetTexture("armoryTexture");
 
         return textures;
     }
