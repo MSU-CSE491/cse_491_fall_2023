@@ -135,7 +135,8 @@ if (${BUILD_MAIN})
         string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
         # Create list of source files (currently just the one .cpp file)
         # Create executable and link to includes / libraries
-        add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
+        add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp
+                source/Agents/GP/GPAgentAnalyze.h)
         target_include_directories(${EXE_NAME}
                 PRIVATE ${CMAKE_SOURCE_DIR}/source
                 )

@@ -21,12 +21,12 @@
 
 
 #include "tinyxml2.h"
-
+#include "GPAgentAnalyze.h"
 
 
 namespace cowboys {
 
-    constexpr unsigned int TRAINING_SEED = 10; ///< If this is 0, then a random seed will be used
+    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -36,6 +36,7 @@ namespace cowboys {
         std::vector<std::vector<cowboys::GPAgentBase *>> agents;
         std::vector<std::vector<double>> TEMPAgentFitness;
 
+        GPAgentAnalyzer analyzer;
 
         tinyxml2::XMLDocument topAgentsDoc;
         tinyxml2::XMLDocument lastGenerationsTopAgentsDoc; // <- Saves the last 5 generations
@@ -487,6 +488,7 @@ namespace cowboys {
             saveDataParams.countMaxAgents = countMaxAgents;
             SaveDataCheckPoint(saveDataParams);
 
+
             GpLoopMutateHelper();
             resetEnvironments();
 
@@ -495,6 +497,7 @@ namespace cowboys {
                     generationEndTime - generationStartTime);
             std::cout << "Generation " << generation << " took " << generationDuration.count() / 1000000.0 << " seconds"
                       << std::endl;
+          analyzer.saveToFile();
 
           }
 
@@ -597,6 +600,7 @@ namespace cowboys {
 
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
+//            analyzer.saveToFile(getSystemPath() / "fitness.csv");
           lastGenerationsTopAgentsDoc.Clear();
           ResetMainTagLastGenerations();
         }
@@ -663,7 +667,11 @@ namespace cowboys {
 
           std::cout << "Generation " << generation << " complete" << std::endl;
           std::cout << "Average fitness: " << averageFitness << " ";
+          analyzer.addAverageFitness(averageFitness);
+
           std::cout << "Max fitness: " << maxFitness << std::endl;
+          analyzer.addMaxFitness(maxFitness);
+
 
 
           std::string tagName = "generation_" + std::to_string(generation);
@@ -723,12 +731,13 @@ namespace cowboys {
             std::cout << std::endl;
           }
 
-          std::cout << "with an average score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
+          std::cout << "with best agent weighted score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
           std::cout << std::endl;
-
+          analyzer.addAverageScore(TEMPAgentFitness[bestAgent.first][bestAgent.second]);
 
           std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
           std::cout << "------------------------------------------------------------------" << std::endl;
+          analyzer.addNumAgentsWithMaxFitness(countMaxAgents);
           return countMaxAgents;
         }
 
@@ -867,7 +876,7 @@ namespace cowboys {
           averageEliteFitness /= ELITE_POPULATION_SIZE;
 
           std::cout << " --- average elite score " << averageEliteFitness << "------ " << std::endl;
-
+          analyzer.addEliteScore(averageEliteFitness);
 
           const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * (1 - UNFIT_POPULATION_PERCENT));
           const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
