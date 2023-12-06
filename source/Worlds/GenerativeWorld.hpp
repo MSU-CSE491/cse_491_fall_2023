@@ -7,9 +7,10 @@
 #pragma once
 
 #include <cassert>
+#include <random>
 
 #include "BiomeGenerator.hpp"
-#include "Interfaces/MainInterface.hpp"
+//#include "Interfaces/MainInterface.hpp"
 #include "../core/WorldBase.hpp"
 
 namespace group6 {
@@ -35,10 +36,12 @@ namespace group6 {
         size_t tree_id;
         size_t grass_id;
         size_t dirt_id;
-//        size_t hole_id;
+        size_t hole_id;
 
         size_t water_id;
         size_t sand_id;
+
+        bool anotherMap = false;
 
         /// Provide the agent with movement actions.
         void ConfigAgent(AgentBase &agent) override {
@@ -76,7 +79,7 @@ namespace group6 {
             tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
-//            hole_id = AddCellType("hole", "A hole that you can fall into the maze from.", 'H');
+            hole_id = AddCellType("hole", "A hole that you can fall into the maze from.", '8');
 
             water_id = AddCellType("water", "Water that you may be able to swim on.", 'W');
             sand_id = AddCellType("sand", "Sand you can walk on.", '-');
@@ -101,12 +104,27 @@ namespace group6 {
                 UpdateWorld();
             }
 
-            RunNewWorld();
+            if (anotherMap)  {
+                anotherMap = false;
+                RunNewWorld();
+            }
+
         }
 
         void RunNewWorld() {
-            GenerativeWorld world(BiomeType::Maze, 50, 15, 19);
-            world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@').SetName("Player");
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> distrib(1, 1000);
+            int randomInt = distrib(gen);
+
+            std::uniform_int_distribution<> distrib2(20, 100);
+            int randomInt2 = distrib2(gen);
+
+            std::uniform_int_distribution<> distrib3(10, 25);
+            int randomInt3 = distrib3(gen);
+
+            GenerativeWorld world(BiomeType::Maze, randomInt2, randomInt3, randomInt);
+//            world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@').SetName("Player");
 
             world.setRunOver(false);
             while (!world.isRunOver()) {
@@ -137,15 +155,14 @@ namespace group6 {
          * Ends the game
          * @param win True if the game is ending in a win. False if it is a loss
          */
-        [[noreturn]] void EndGame(bool win) {
-            run_over = true;
-
+        void EndGame(bool win) {
             if (win) {
                 std::cout << "You successfully exited maze!" << std::endl;
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
-//            std::exit(0);
+
+            run_over = true;
         }
 
         void AddArmory()
@@ -232,10 +249,10 @@ namespace group6 {
                 DoorTileHelper(agent);
             }
 
-            // check to see if player is moving onto a tar tile
-//            else if (main_grid.At(new_position) == hole_id) {
-//                HoleTileHelper();
-//            }
+            // check to see if player is moving onto a hole tile
+            else if (main_grid.At(new_position) == hole_id) {
+                HoleTileHelper();
+            }
 
             //check to see if agent is walking on an item
             ItemHelper(agent, new_position);
@@ -336,7 +353,8 @@ namespace group6 {
 
         void HoleTileHelper()
         {
-            EndGame(true);
+            anotherMap = true;
+            run_over = true;
         }
 
         void ItemHelper( AgentBase &agent, GridPosition &new_position )
