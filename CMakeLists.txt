@@ -86,12 +86,27 @@ if (BUILD_GP_ONLY)
     #added the executable
     add_executable(gp_train_main source/gp_train_main.cpp)
 
+    add_executable(gp_selective_runner_main source/gp_selective_runner_main.cpp)
+
+    target_sources(gp_selective_runner_main PRIVATE source/core/Entity.cpp)
+    target_include_directories(gp_selective_runner_main
+            PRIVATE ${CMAKE_SOURCE_DIR}/source/core
+            ${CMAKE_SOURCE_DIR}/source/Agents
+            )
+
+    target_link_libraries(gp_selective_runner_main
+            PRIVATE tinyxml2
+            PRIVATE pthread
+            )
+
     #linking the targets
     target_sources(gp_train_main PRIVATE source/core/Entity.cpp)
     target_include_directories(gp_train_main
             PRIVATE ${CMAKE_SOURCE_DIR}/source/core
             ${CMAKE_SOURCE_DIR}/source/Agents
             )
+
+
     target_link_libraries(gp_train_main
             PRIVATE tinyxml2
             PRIVATE pthread
