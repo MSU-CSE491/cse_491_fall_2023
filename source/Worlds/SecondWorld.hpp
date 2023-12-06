@@ -323,7 +323,6 @@ class SecondWorld : public cse491::WorldBase {
     agent.RemoveItem(item_drop.GetID());
     item_drop.SetGrid();
     item_drop.SetPosition(pos);
-//    main_grid.At(pos) = GetCellTypeSymbol(item_drop.GetID());
 
     agent.Notify("Dropping " + item_drop.GetName() + " onto the ground!",
                  "item_alert");
@@ -425,7 +424,6 @@ class SecondWorld : public cse491::WorldBase {
 
             // Set the position off the grid, so it doesn't render
             item_found.SetPosition(OffGrid);
-            main_grid.At(pos) = floor_id;
           }
         }
       }

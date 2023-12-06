@@ -3,6 +3,7 @@ floor_id = addCellType("floor", "Floor that you can easily walk over.", " ")
 flag_id = addCellType("flag", "Goal flag for a game end state", "g","Goal")
 wall_id = addCellType("wall", "Impenetrable wall that you must find a way around.", "#", CELL_WALL)
 hidden_warp_id = addCellType("hidden_warp", "Hidden warp tile that warps to floor 3.", "u","Warp")
+water_id = addCellType("water","Water that distinguishes fire.","w",CELL_WATER)
 
 # Load the actual world
 loadWorld("assets/grids/group4_maze.grid")
