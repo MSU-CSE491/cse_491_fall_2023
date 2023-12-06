@@ -63,7 +63,7 @@ namespace cse491_team8 {
       portal_id_b = AddCellType("portal_b", "Portal that teleports player to another b-portal spot.", '{');
       portal_id_c = AddCellType("portal_c", "Portal that teleports player to another c-portal spot.", '(');
       portal_id_d = AddCellType("portal_d", "Portal that teleports player to another d-portal spot.", ')');
-      main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
+      main_grid.Read("../assets/grids/team8_grid_v2.grid", type_options);
     }
     ~ManualWorld() = default;
 
