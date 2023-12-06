@@ -70,6 +70,7 @@ namespace netWorth{
 
                 std::cout<<"I love bread" << std::endl;
 
+                // receive action map from server for previous agents
                 ReceivePacket(recv_pkt, m_ip, m_port);
                 m_manager->PacketToActionMap(recv_pkt);
 
@@ -91,12 +92,6 @@ namespace netWorth{
             {
                 // Receive and draw map
                 sf::Packet send_pkt, recv_pkt;
-                std::string map;
-                //std::cout<<"going to receive packet" << std::endl;
-                //ReceivePacket(rec_pkt, m_ip, m_serverPort);
-                //rec_pkt >> map;
-                //std::cout<<"hiiiiii" << std::endl;
-                //ProcessPacket(rec_pkt);
 
                 // grab action ID from MainInterface
                 size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
@@ -110,6 +105,7 @@ namespace netWorth{
                 m_manager->ClearActionMap();
                 DrawGrid(grid, type_options, item_set, agent_set);
 
+                // await action map from server
                 ReceivePacket(recv_pkt, m_ip, m_port);
                 m_manager->PacketToActionMap(recv_pkt);
 

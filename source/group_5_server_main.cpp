@@ -83,7 +83,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         world.Serialize(os);
         std::string serialized = os.str();
 
-
+        std::cout << serialized << std::endl;
 
         serverManager.IncreasePort();
 
@@ -114,8 +114,6 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 		world.SerializeAgentSet(agent_os);
 		std::string serialized_agents = agent_os.str();
 		serverManager.SetSerializedAgents(serialized_agents);
-
-		std::cout << serialized << std::endl;
 
         //Do an atomic check to see if you can add it
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);

@@ -106,6 +106,7 @@ namespace cse491 {
      */
     void Serialize(std::ostream &os) override {
         os << name << '\n';
+        os << id << '\n';
         os << position.GetX() << '\n';
         os << position.GetY() << '\n';
     }

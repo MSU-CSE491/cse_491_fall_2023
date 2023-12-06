@@ -302,6 +302,13 @@ public:
             agent_ptr->SetActionResult(result);
         }
 
+        // delete agents that have been removed on the server
+        for (auto &pair : agent_map) {
+            // check if agent ID is in action map
+            // if it is not present, the agent ID is not on the server
+            if (!client_manager->IdPresent(pair.first)) RemoveAgent(pair.first);
+        }
+
         // Deserialize agents
         std::string data = client_manager->GetSerializedAgents();
         //std::cout << "data: " << data << std::endl;
@@ -488,7 +495,7 @@ public:
 
   void SerializeAgentSet(std::ostream &os) {
       os << ":::START agent_set\n";
-      os << agent_map.size() << '\n';
+      os << last_entity_id << '\n';
 
       for (const auto &agent: agent_map) {
         agent.second->Serialize(os);
@@ -511,8 +518,8 @@ public:
       return;
     }
 
-    std::string name, x, y;
-    size_t size;
+    std::string name, x, y, id_string;
+    size_t size, id;
     size_t client_id = manager->GetClientID();
 
     for (auto &pair : agent_map) {
@@ -528,11 +535,16 @@ public:
     // read each agent (only deserialize name, x, and y for now)
     for (size_t i = 0; i < size; i++) {
         std::getline(is, name, '\n');
+        if (name == ":::END agent_set") return;
+
+        std::getline(is, id_string, '\n');
         std::getline(is, x, '\n');
         std::getline(is, y, '\n');
 
+        id = stoi(id_string);
+
         // is this new agent NOT the client interface
-        if (last_entity_id + 1 != manager->GetClientID()) {
+        if (last_entity_id + 1 != manager->GetClientID() && last_entity_id + 1 == id) {
             AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
         }
     }
