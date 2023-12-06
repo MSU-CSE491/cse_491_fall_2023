@@ -7,7 +7,8 @@
         "entities": [
             
         ],
-        "hasInventory": false
+        "hasInventory": false,
+        "properties": {}
     },
     {
         "name": "pacer1",
@@ -17,7 +18,12 @@
             "fire_sword"
             
         ],
-        "hasInventory": false
+        "hasInventory": false,
+        "properties": {
+            "Health": 30.0,
+            "Strength": 10.0,
+            "Defense": 5.0
+        }
     },
     {
         "name": "pacer2",
@@ -26,6 +32,11 @@
         "entities": [
             
         ],
-        "hasInventory": false
+        "hasInventory": false,
+        "properties": {
+            "Health": 30.0,
+            "Strength": 8.0,
+            "Defense": 4.0
+        }
     }
 ]
