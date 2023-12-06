@@ -26,7 +26,7 @@
 
 namespace cowboys {
 
-    constexpr unsigned int TRAINING_SEED = 10; ///< If this is 0, then a random seed will be used
+    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
