@@ -36,9 +36,8 @@ class ControlledAgent : public cse491::AgentBase {
                             const cse491::item_map_t & /* item_map*/,
                             const cse491::agent_map_t & /* agent_map*/) override
         {
-            if (m_manager->IdPresent(id)) {
-                // wait for server to complete agent movements
-                m_manager->RequestActionMap();
+            if (!m_manager->IdPresent(id)) {
+                return 0;
             }
             return m_manager->GetActionID(id);
         }

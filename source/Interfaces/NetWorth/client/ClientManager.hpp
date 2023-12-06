@@ -86,7 +86,7 @@ namespace netWorth{
          * @return true if ID is present
          */
         bool IdPresent(size_t id) {
-            return m_action_map.find(id) == m_action_map.end();
+            return m_action_map.contains(id);
         }
 
         /**

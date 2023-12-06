@@ -69,6 +69,10 @@ namespace netWorth{
                 if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
 
                 std::cout<<"I love bread" << std::endl;
+
+                ReceivePacket(recv_pkt, m_ip, m_port);
+                m_manager->PacketToActionMap(recv_pkt);
+
                 return true;
             }
 
@@ -105,6 +109,9 @@ namespace netWorth{
 
                 m_manager->ClearActionMap();
                 DrawGrid(grid, type_options, item_set, agent_set);
+
+                ReceivePacket(recv_pkt, m_ip, m_port);
+                m_manager->PacketToActionMap(recv_pkt);
 
                 // Do the action!
                 return action_id;
