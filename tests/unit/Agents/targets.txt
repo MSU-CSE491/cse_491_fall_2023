@@ -1,4 +1,0 @@
-PathAgent
-AStarAgent
-RandomAgent
-AgentFactory

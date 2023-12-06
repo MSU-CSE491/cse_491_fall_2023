@@ -26,7 +26,7 @@ TEST_CASE("Tracking Agent Alert", "[Agents]") {
 
   SECTION("Alerter network") {
     MockWorld world;
-    Entity entity {0, "mock"};
+    TrackingAgent target {0, "mock", "x"};
     auto & map = world.GetMap();
     auto & first = map[0] = make_unique<TrackingAgent>(0, "first", "x");
     auto & second = map[1] = make_unique<TrackingAgent>(1, "second", "x");
@@ -36,8 +36,8 @@ TEST_CASE("Tracking Agent Alert", "[Agents]") {
     auto & first_tracking = dynamic_cast<TrackingAgent&>(*first);
     auto & second_tracking = dynamic_cast<TrackingAgent&>(*second);
 
-    first_tracking.SetTarget(&entity);
-    second_tracking.SetTarget(&entity);
+    first_tracking.SetTarget(&target);
+    second_tracking.SetTarget(&target);
 
     REQUIRE(first_tracking.GetAlerter() == nullptr);
 
