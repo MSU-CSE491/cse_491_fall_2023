@@ -16,7 +16,7 @@ int main()
   cse491_team8::ManualWorld world;
 
   world.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(80, 120);
-  world.AddItem("Axe", "Uses", 10, "symbol", 'P').SetPosition(40, 5);
+  world.AddItem("Axe", "Uses", 10, "symbol", 'P').SetPosition(97, 40);
 
   world.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(55, 11);
 
@@ -29,9 +29,9 @@ int main()
 
   world.AddAgent<cse491::TrashInterface>("Interface", "symbol", '@').SetPosition(80, 63);
   //world.AddAgent<i_2D::MainInterface>("Interface", "symbol", '@').SetPosition(80,63);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(45, 3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(97, 45);
   world.AddAgent<cse491::PacingAgent>("Pacer 5").SetPosition(3,14);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7,30);
   world.AddAgent<cse491::PacingAgent>("Pacer 6").SetPosition(27, 10);
   world.AddAgent<cse491::PacingAgent>("Pacer 7").SetPosition(38, 10);
   world.AddAgent<cse491::PacingAgent>("Pacer 3").SetPosition(18,3);
