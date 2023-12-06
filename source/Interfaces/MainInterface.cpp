@@ -380,33 +380,6 @@ namespace i_2D {
             case sf::Keyboard::Right:
                 action_id = GetActionID("right");
                 break;
-            case sf::Keyboard::H:
-                action_id = GetActionID("heal");
-                break;
-            case sf::Keyboard::T:
-                action_id = GetActionID("stats");
-                break;
-            case sf::Keyboard::C:
-                action_id = GetActionID("use_axe");
-                break;
-            case sf::Keyboard::V:
-                action_id = GetActionID("use_boat");
-                break;
-            case sf::Keyboard::F:
-                action_id = GetActionID("attack");
-                break;
-            case sf::Keyboard::G:
-                action_id = GetActionID("special");
-                break;
-            case sf::Keyboard::B:
-                action_id = GetActionID("buff");
-                break;
-            case sf::Keyboard::R:
-                action_id = GetActionID("run");
-                break;
-            case sf::Keyboard::Y:
-                action_id = GetActionID("help");
-                break;
             default:
                 break; // The user pressed an unknown key.
         }

@@ -10,7 +10,7 @@
 #include <cassert>
 #include <compare>    // For operator<=>
 #include <cstddef>    // For size_t
-#include <cmath>      // For sqrt
+#include <cmath>      // For sqrt and std::nan()
 
 namespace cse491 {
 
@@ -29,6 +29,8 @@ class GridPosition {
     GridPosition(double x, double y) : x(x), y(y) { }
     GridPosition(const GridPosition &) = default;
 
+    ~GridPosition() = default;
+
     GridPosition & operator=(const GridPosition &) = default;
 
     // -- Accessors --
@@ -40,6 +42,8 @@ class GridPosition {
 
     /// Enable all comparison operators (==, !=, <, <=, >, >=)
     auto operator<=>(const GridPosition &) const = default;
+
+    [[nodiscard]] bool IsValid() const { return !(std::isnan(x) || std::isnan(y)); }
 
     // -- Modifiers --
 
@@ -55,6 +59,7 @@ class GridPosition {
     GridPosition & operator+=(const GridPosition & in) { return Shift(in.x, in.y); }
     GridPosition & operator-=(const GridPosition & in) { return Shift(-in.x, -in.y); }
 
+    GridPosition & MakeInvalid() { x = y = std::nan("NAN(0)"); return *this; }
 
     // -- Const Operations --
 
