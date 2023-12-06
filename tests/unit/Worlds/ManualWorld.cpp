@@ -98,7 +98,7 @@ TEST_CASE("Agent dropping items after being defeated"){
     agent->SetProperties("Health", 13, "Max_Health", 20);
     auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
     item->SetProperty("Healing", 10);
-    item->SetOwner(*agent);
+    agent->AddItem(2);
     CHECK(item->GetOwnerID() == 1);
     world.AddItem(std::move(item));
     world.DropItems(*agent2, *agent);

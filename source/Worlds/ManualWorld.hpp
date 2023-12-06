@@ -268,8 +268,7 @@ namespace cse491_team8 {
                     auto item_strength = item->GetProperty<int>("Strength");
                     other_agent.SetProperty<int>("Strength", (int)(agent_health - item_strength));
                 }
-                item->SetUnowned();
-                agent.RemoveItem(item->GetID());
+                other_agent.RemoveItem(item->GetID());
                 item->SetPosition(other_agent.GetPosition());
                 agent.Notify(other_agent.GetName() + " dropped their " + item->GetName() + "!");
             }
