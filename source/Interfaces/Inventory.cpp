@@ -11,7 +11,7 @@
  *
  * @param font The font used by the inventory list
  */
-void i_2D::Inventory::ConstructInventory(sf::Font &font) {
+void i_2D::Inventory::ConstructInventory(sf::Font &font,const std::vector<std::string> &interfaceAgentInventory) {
     mInventoryWindow = std::make_unique<sf::RectangleShape>();
     mInventoryWindow->setSize({mWorldSize.x,mWorldSize.y/2});
     mInventoryWindow->setFillColor(sf::Color::Black);
@@ -26,12 +26,18 @@ void i_2D::Inventory::ConstructInventory(sf::Font &font) {
     }else mRow = 3;
 
     // Create 2d vector of buttons
+    size_t Index = 0;
     for(int i = 0; i < mRow; i++) {
         std::vector<std::unique_ptr<Button>> v1;
         for (int j = 0; j < mCol; j++) {
             v1.push_back(std::make_unique<Button>(
                     "text", sf::Vector2f{(mWorldSize.x)/mCol,(mWorldSize.y/2-50)/mRow},
                     sf::Color::Black, sf::Color::White, font));
+            if(Index < interfaceAgentInventory.size()){
+                v1[j]->setString(interfaceAgentInventory[Index]);
+            }else{
+                v1[j]->setString("empty");
+            }
             v1[j]->setPosition(sf::Vector2f{j*(mWorldSize.x/mCol),
                                             mWorldSize.y/2 + 50 + i*(mWorldSize.y/2-50)/mRow});
         }

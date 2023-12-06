@@ -28,7 +28,8 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         void initialize(sf::Font &font,sf::Vector2f size);
         void drawto(sf::RenderWindow &window);
         void HandleMouseMove(sf::RenderWindow &window);
-        void HandleMouseButtonPressed(sf::RenderWindow &window);
+        void HandleMouseButtonPressed(sf::RenderWindow &window,
+                                      const std::vector<std::string> &interfaceAgentInventory);
         /**
          * @brief Getter for MenuBar
          * @return MenuBar
@@ -60,9 +61,9 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         /**
          * @brief Builds an inventory
          */
-        void ConstructInventory(){
+        void ConstructInventory(const std::vector<std::string> &interfaceAgentInventory){
             mInventory = std::make_unique<Inventory>(mWorldSize);
-            mInventory->ConstructInventory(*mFont);
+            mInventory->ConstructInventory(*mFont, interfaceAgentInventory);
         }
 
         /**

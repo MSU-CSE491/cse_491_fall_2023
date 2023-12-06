@@ -76,14 +76,15 @@ namespace i_2D {
      *
      * @param window the main window of the graphic interface
      */
-    void Menu::HandleMouseButtonPressed(sf::RenderWindow &window) {
+    void Menu::HandleMouseButtonPressed(sf::RenderWindow &window,
+                                        const std::vector<std::string> &interfaceAgentInventory) {
         if(mMenuBar[2]->isMouseOver(window)){
             exit(0);
         }else if(mMenuBar[1]->isMouseOver(window)){
             if(mInventory){
                 DeconstructInventory();
             }else {
-                ConstructInventory();
+                ConstructInventory(interfaceAgentInventory);
             }
         }
 

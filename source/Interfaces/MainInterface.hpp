@@ -51,6 +51,7 @@ namespace i_2D {
         sf::Font mFont; ///< one font for all objects using font
         std::unique_ptr<TextBox> mTextBox; ///< for chatting and possible event handling by text
         std::unique_ptr<MessageBoard> mMessageBoard; ///< message box object
+        std::vector<std::string> mAgentInventory;
 
         // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder
@@ -84,7 +85,7 @@ namespace i_2D {
 
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
-        void MouseClickEvent(const sf::Event &event);
+        void MouseClickEvent(const sf::Event &event,const size_t entity_id, const item_map_t &item_map);
 
         void DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
                            sf::Texture &agent);

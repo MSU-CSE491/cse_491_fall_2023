@@ -33,7 +33,7 @@ namespace i_2D {
     public:
         explicit Inventory(const sf::Vector2f size) : mWorldSize(size) {}
         void SetSize(const sf::Vector2f size) {mWorldSize = size;}
-        void ConstructInventory(sf::Font &font);
+        void ConstructInventory(sf::Font &font,const std::vector<std::string> &interfaceAgentInventory);
         void DrawTo(sf::RenderWindow &window);
         void HandleMouseMove(sf::RenderWindow &window);
     };

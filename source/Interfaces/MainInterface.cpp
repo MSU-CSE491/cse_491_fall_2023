@@ -312,7 +312,7 @@ namespace i_2D {
                     mMenu.HandleMouseMove(mWindow);
 
                 } else if (event.type == sf::Event::MouseButtonPressed) {
-                    MouseClickEvent(event);
+                    MouseClickEvent(event, GetID(), item_map);
 
                 }
             }
@@ -412,8 +412,9 @@ namespace i_2D {
 
         mMenu.SetWorldSize(sf::Vector2f(widthWindow, heightWindow));
         if (mMenu.IsInventoryOpen()) {
+
             mMenu.DeconstructInventory();
-            mMenu.ConstructInventory();
+            mMenu.ConstructInventory(mAgentInventory);
         }
         // Restrict window size if necessary
         if (widthWindow <= widthMin || heightWindow <= heightMin) {
@@ -465,7 +466,7 @@ namespace i_2D {
      * this function handles mouseclick event
      * @param event for mouse click
      */
-    void MainInterface::MouseClickEvent(const sf::Event &event) {
+    void MainInterface::MouseClickEvent(const sf::Event &event, const size_t entity_id, const item_map_t &item_map) {
         if (event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2f mousePos(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
 
@@ -485,7 +486,13 @@ namespace i_2D {
                 mGridSizeLarge = false;
             } else {
                 // Handle mouse button press for the general menu
-                mMenu.HandleMouseButtonPressed(mWindow);
+                mAgentInventory.clear();
+                for(const auto &[x,y]:item_map){
+                    if(GetID() == y->GetOwnerID()){
+                        mAgentInventory.push_back(y->GetName());
+                    }
+                }
+                mMenu.HandleMouseButtonPressed(mWindow, mAgentInventory);
             }
         }
     }
