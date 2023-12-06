@@ -21,7 +21,7 @@
 #include "./GPAgentSensors.hpp"
 
 /**
- * @brief Namespace for GPAgent and its related classes
+ * @brief Namespace for GPagent and its related classes
  *
  * @note yeeeeeeeehaaaaaaaaa 🤠
  */
