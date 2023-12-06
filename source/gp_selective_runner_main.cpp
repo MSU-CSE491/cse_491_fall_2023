@@ -102,8 +102,10 @@ int main() {
     std::cout << "Generation: " << i << std::endl;
     Printgrid(world, 'G', {&GPagent});
 
+
     constexpr const int kMicrosecondsPerSecond = 170000;
     usleep(kMicrosecondsPerSecond);
+
   }
 
 }

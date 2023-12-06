@@ -665,9 +665,11 @@ namespace cowboys {
           std::cout << "Average fitness: " << averageFitness << " ";
           std::cout << "Max fitness: " << maxFitness << std::endl;
 
+
           std::string tagName = "generation_" + std::to_string(generation);
           auto *generationTag = metaData.NewElement(tagName.c_str());
           generationTag->SetAttribute("generation", generation);
+
           generationTag->SetAttribute("averageFitness", averageFitness);
           generationTag->SetAttribute("maxFitness", maxFitness);
           generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
@@ -769,8 +771,10 @@ namespace cowboys {
         void SerializeAgents(int generation, tinyxml2::XMLElement *rootElement, tinyxml2::XMLDocument &paramDocument,
                              size_t topN = 5) {
 
+
           std::string tagName = "generation_" + std::to_string(generation);
           auto *generationTag = paramDocument.NewElement(tagName.c_str());
+
 
           rootElement->InsertFirstChild(generationTag);
 

@@ -144,6 +144,7 @@ namespace cowboys
             Configure(dynamic_cast<const LGPAgent &>(other));
         }
 
+
         /// @brief Get the action to take.
         /// @param grid The world grid.
         /// @param type_options The available types of cells in the grid.

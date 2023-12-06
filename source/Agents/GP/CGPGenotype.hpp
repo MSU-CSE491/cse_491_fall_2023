@@ -6,6 +6,7 @@
 #include <functional>
 #include <iostream>
 #include <random>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -507,6 +508,19 @@ namespace cowboys {
     /// @return The number of functional (non-input) nodes in the graph.
     size_t GetNumFunctionalNodes() const { return nodes.size(); }
 
+    /// @brief Identify if the genome has any non-zero input connections in it.
+    /// @return Bool value to indicate if any input connections non-zero.
+    bool HasInputConnections() const {
+      for (auto it = begin(); it != end(); ++it) {
+        if (std::any_of(
+          it->input_connections.begin(),
+          it->input_connections.end(),
+          [](char c) { return c != '0'; }
+        )) return true;
+      }
+      return false;
+    }
+
     /// @brief Initializes an empty genotype with the cartesian graph parameters.
     void InitGenotype() {
       // Clear node configurations
@@ -754,7 +768,7 @@ namespace cowboys {
     inline bool operator==(const CGPGenotype &other) const {
       if (params != other.params) // Compare CGPParameters for equality
         return false;
-      if (std::ranges::size(nodes) != std::ranges::size(other.nodes)) // # of genes should be equal
+      if (nodes.size() != other.nodes.size()) // # of genes should be equal
         return false;
       bool all_same = true;
       for (auto it = cbegin(), it2 = other.cbegin(); it != cend(); ++it, ++it2) {
