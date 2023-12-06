@@ -25,7 +25,7 @@ namespace i_2D {
         mTextBox->setPosition({10, 650});
         isSelected = sel;
         if (!isSelected)
-            mTextBox->setString("Press Enter!");
+            mTextBox->setString("Press Click!");
 
     }
 

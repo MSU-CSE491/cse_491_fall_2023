@@ -347,11 +347,12 @@ namespace i_2D {
             switch (event.key.code) {
                 case sf::Keyboard::Enter:
                     mMessageBoard->Send(mTextBox->GetText());
-                    mTextBox->SetString("Please Enter!");
+                    mTextBox->SetString("");
                     mTextBox->SetSelected(false);
+
                     break;
                 case sf::Keyboard::Escape:
-                    mTextBox->SetString("Please Enter!");
+                    mTextBox->SetString("");
                     mTextBox->SetSelected(false);
                     break;
                 default:
