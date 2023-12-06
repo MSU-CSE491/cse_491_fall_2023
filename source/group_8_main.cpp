@@ -7,9 +7,8 @@
 // Include the modules that we will be using.
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/MainInterface.hpp"
-#include "Worlds/ManualWorld.hpp"
-#include "Interfaces/MainInterface.hpp"
 #include "Interfaces/TrashInterface.hpp"
+#include "Worlds/ManualWorld.hpp"
 #include "Agents/AStarAgent.hpp"
 
 int main()
@@ -28,8 +27,8 @@ int main()
   world.AddItem("Health Potion", "Healing", 25, "symbol", 'j').SetPosition(38, 16);
   world.AddItem("Health Potion", "Healing", 30, "symbol", 'j').SetPosition(1, 18);
 
-  world.AddAgent<cse491::TrashInterface>("Interface", "symbol", '@').SetPosition(80, 63);
-  //world.AddAgent<i_2D::MainInterface>("Interface", "symbol", '@').SetPosition(80,63);
+  // world.AddAgent<cse491::TrashInterface>("Interface", "symbol", '@').SetPosition(80, 63);
+  world.AddAgent<i_2D::MainInterface>("Interface", "symbol", '@').SetPosition(80,63);
   world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(97, 45);
   world.AddAgent<cse491::PacingAgent>("Pacer 5").SetPosition(3,14);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7,30);
@@ -50,7 +49,6 @@ int main()
   world.MoveSetAction(interface);
 
   world.GenerateMoveSets();
-  // world.SetBattling();
 
   world.Run();
   

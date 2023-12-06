@@ -42,7 +42,7 @@ int main() {
     daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
     daedricArmor->SetPosition(5, 0);
     world_1.AddItem(std::move(daedricArmor));
-    world_1.Run();
+    // world_1.Run();
 
     static const unsigned int SEED = 973;
     BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
@@ -58,23 +58,17 @@ int main() {
     world_2.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
     world_2.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
 
-    world_2.Run();
+    // world_2.Run();
 
     cse491_team8::ManualWorld world_3;
-    world_3.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
-    world_3.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
-    world_3.AddAgent<i_2D::MainInterface>("Interface3", "Strength", 15, "Health", 15, "Max_Health", 40, "Direction",
-                                          0).SetProperty("symbol", '@').SetPosition(40, 3);
-    world_3.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health", 5, "Max_Health", 30, "Direction",
-                                          0).SetPosition(45, 3);
-    world_3.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 15, "Health", 10, "Max_Health", 30, "Direction",
-                                          0).SetPosition(3, 14);
-    world_3.AddAgent<cse491::PacingAgent>("Pacer 2", "Strength", 20, "Health", 20, "Max_Health", 30, "Direction",
-                                          0).SetPosition(7, 3);
-    world_3.AddAgent<cse491::PacingAgent>("Pacer 3", "Strength", 25, "Health", 30, "Max_Health", 30, "Direction",
-                                          0).SetPosition(18, 3);
-    world_3.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 30, "Health", 40, "Max_Health", 30, "Direction",
-                                          0).SetPosition(45, 17);
+    world_3.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(37, 3);
+    world_3.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
+    world_3.AddAgent<i_2D::MainInterface>("Interface3").SetProperty("symbol", '@').SetPosition(40, 3);
+    world_3.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(45, 3);
+    world_3.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 14);
+    world_3.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7, 3);
+    world_3.AddAgent<cse491::PacingAgent>("Pacer 3").SetPosition(18, 3);
+    world_3.AddAgent<cse491::PacingAgent>("Pacer 4").SetPosition(45, 17);
 
     world_3.GenerateMoveSets();
 
