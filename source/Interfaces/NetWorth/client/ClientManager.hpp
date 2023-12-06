@@ -22,6 +22,7 @@ namespace netWorth{
         std::optional<sf::IpAddress> m_ip;      /// Server IP address
         unsigned short m_port;                  /// Server port
         std::unordered_map<size_t, size_t> m_action_map;     ///Map of agent IDs to most recent action selected
+        size_t m_client_id = 0;
 
     protected:
 
@@ -115,9 +116,19 @@ namespace netWorth{
             if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
                 std::string data;
                 recv_pkt >> data;
+                std::cout << "pong!" << std::endl;
                 return data;
             }
             return "";
+        }
+
+
+        void SetClientID(size_t id) {
+            m_client_id = id;
+        }
+
+        size_t GetClientID() {
+            return m_client_id;
         }
 
     }; // End of class ClientManager

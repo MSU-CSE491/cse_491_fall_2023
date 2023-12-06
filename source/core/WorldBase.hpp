@@ -23,6 +23,7 @@
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
 #include "Interfaces/NetWorth/client/ClientManager.hpp"
 #include "Interfaces/NetWorth/client/ControlledAgent.hpp"
+#include "Interfaces/NetWorth/client/ClientInterface.hpp"
 
 namespace cse491 {
 
@@ -190,9 +191,9 @@ public:
   /// @return A reference to the newly created agent
   template<typename AGENT_T, typename... PROPERTY_Ts>
   AgentBase & AddAgent(std::string agent_name = "None", PROPERTY_Ts... properties) {
-      std::mutex agent_map_lock;
-      agent_map_lock.lock();
-      const size_t agent_id = NextEntityID();
+    std::mutex agent_map_lock;
+    agent_map_lock.lock();
+    const size_t agent_id = NextEntityID();
     auto agent_ptr = std::make_unique<AGENT_T>(agent_id, agent_name);
     agent_ptr->SetWorld(*this);
     agent_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
@@ -301,9 +302,11 @@ public:
 
         // Deserialize agents
         std::string data = client_manager->GetSerializedAgents();
+        //std::cout << "data: " << data << std::endl;
         if (data.substr(0, 18) == ":::START agent_set") {
             std::istringstream is(data);
             DeserializeAgentSet(is, client_manager);
+            std::cout << "double pong " << agent_map.size() << std::endl;
         }
     }
 
@@ -498,6 +501,13 @@ public:
 
     std::string name, x, y;
     size_t size;
+    size_t client_id = manager->GetClientID();
+
+    for (auto &pair : agent_map) {
+        if (pair.first != client_id) RemoveAgent(pair.first);
+    }
+
+    last_entity_id = 0;
 
     // how many agents?
     std::getline(is, read, '\n');
@@ -509,7 +519,10 @@ public:
         std::getline(is, x, '\n');
         std::getline(is, y, '\n');
 
-        AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+        // is this new agent NOT the client interface
+        if (last_entity_id + 1 != manager->GetClientID()) {
+            AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+        }
     }
 
     std::getline(is, read, '\n');

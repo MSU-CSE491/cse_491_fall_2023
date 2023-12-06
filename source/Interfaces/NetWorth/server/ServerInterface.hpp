@@ -44,8 +44,7 @@ namespace netWorth
 		{
 			// resolve port and IP from entity properties
 			m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
-			m_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
-			m_world_update_port = m_port;
+			m_world_update_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
 			m_manager = GetProperty<netWorth::ServerManager*>("server_manager");
 			return InitialConnection(m_ip, m_port);
 		}
@@ -67,8 +66,6 @@ namespace netWorth
 			// Await client
 			if (!ReceivePacket(recv_pkt, sender, port))
 				return false;
-
-			m_port = port;
 
 			recv_pkt >> str;
 			std::cout << str << std::endl;

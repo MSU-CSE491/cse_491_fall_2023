@@ -80,7 +80,13 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
         world.Serialize(os);
         std::string serialized = os.str();
-        serverManager.SetSerializedAgents(serialized);
+
+        // serialize agents
+        std::ostringstream agent_os;
+        world.SerializeAgentSet(agent_os);
+        std::string serialized_agents = agent_os.str();
+        serverManager.SetSerializedAgents(serialized_agents);
+
         std::cout << serialized << std::endl;
 
         serverManager.IncreasePort();

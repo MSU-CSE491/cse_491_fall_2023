@@ -44,6 +44,7 @@ namespace netWorth{
                 m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
                 m_manager->SetupSocket(&m_socket, m_ip, m_port);
+                m_manager->SetClientID(id);
 
                 Packet send_pkt, recv_pkt,two_pkt;
                 setMInputWaitTime(0.25f);
