@@ -63,9 +63,8 @@ namespace cse491_team8 {
       portal_id_b = AddCellType("portal_b", "Portal that teleports player to another b-portal spot.", '{');
       portal_id_c = AddCellType("portal_c", "Portal that teleports player to another c-portal spot.", '(');
       portal_id_d = AddCellType("portal_d", "Portal that teleports player to another d-portal spot.", ')');
-      main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
+      main_grid.Read("../assets/grids/team8_grid_v2.grid", type_options);
     }
-
     ~ManualWorld() = default;
 
     /// @brief Generates move sets for all the agents
@@ -270,6 +269,7 @@ namespace cse491_team8 {
                     other_agent.SetProperty<int>("Strength", (int)(agent_health - item_strength));
                 }
                 item->SetUnowned();
+                agent.RemoveItem(item->GetID());
                 item->SetPosition(other_agent.GetPosition());
                 agent.Notify(other_agent.GetName() + " dropped their " + item->GetName() + "!");
             }
@@ -312,17 +312,6 @@ namespace cse491_team8 {
           }
         }
         return other_damage;
-    }
-
-    /// @brief Generates the battling boolean
-    /// Sets the battling boolean as a property for each agent
-    /// @return None
-    void SetBattling()
-    {
-        for (auto & [id, agent_ptr] : agent_map)
-        {
-            agent_ptr->SetProperty<bool>("Battling", false);
-        }
     }
 
     /// @brief Checks the strength between two agents
@@ -421,7 +410,7 @@ namespace cse491_team8 {
           agent.SetProperty<bool>("Battling", false);
           other_agent.SetProperty<bool>("Battling", false);
           DropItems(agent, other_agent);
-          other_agent.SetProperty<bool>("Deleted", true);
+          other_agent.SetProperty<bool>("deleted", true);
         }
     }
 
@@ -443,7 +432,7 @@ namespace cse491_team8 {
 
       void RunAgents() override {
         for (auto & [id, agent_ptr] : agent_map) {
-          if (agent_ptr->HasProperty("Deleted")) {
+          if (agent_ptr->HasProperty("deleted")) {
             continue;
           }
           size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
@@ -484,6 +473,7 @@ namespace cse491_team8 {
 
           // remove it from the board
           item_ptr->SetOwner(agent);
+          agent.AddItem(item_ptr->GetID());
           break;
         }
       }
@@ -628,7 +618,7 @@ namespace cse491_team8 {
             auto agents = FindAgentsNear(agent.GetPosition(), 1);
             for (auto agent_id : agents)
             {
-                if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
+                if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("deleted"))
                 {
                     agent.Notify("You are running away");
                     agent_map[agent_id]->SetProperty<bool>("Battling", false);
@@ -666,7 +656,7 @@ namespace cse491_team8 {
           for (auto agent_id : agents)
           {
               // Battle other agent near the player
-              if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
+              if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("deleted"))
               {
                   agent.SetProperty<bool>("Battling", true);
                   agent_map[agent_id]->SetProperty<bool>("Battling", true);
