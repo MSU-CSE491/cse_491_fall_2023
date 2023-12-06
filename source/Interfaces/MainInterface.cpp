@@ -269,9 +269,6 @@ namespace i_2D {
                 }
             }
 
-
-
-
             DrawGrid(grid, type_options, item_map, agent_map);
 
         }

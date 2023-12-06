@@ -22,7 +22,7 @@ namespace walle {
 
         private:
 
-            double random = 4.0; /// Random value used to determine direction
+            double random_val = 4.0; /// Random value used to determine direction
 
             bool moving = true; /// Is the agent moving?
 
@@ -54,16 +54,16 @@ namespace walle {
                                 const cse491::agent_map_t & /* agent_map*/) override {
                 // We are taking an action so another turn has passed
 
-                CalculateRandom(random);
+                CalculateRandom(random_val);
 
                 if(moving){
-                    if(random < 1.0){
+                    if(random_val < 1.0){
                         return action_map["up"];
                     }
-                    else if(random < 2.0){
+                    else if(random_val < 2.0){
                         return action_map["down"];
                     }
-                    else if(random < 3.0){
+                    else if(random_val < 3.0){
                         return action_map["left"];
                     }
                     else{
@@ -79,14 +79,14 @@ namespace walle {
              * @param multiplier double: random multiplier
              */
             void CalculateRandom(double multiplier){
-                random = GetWorld().GetRandom(multiplier);
+                random_val = GetWorld().GetRandom(multiplier);
             }
 
             /**
              * @brief Set the Direction object
              * @param direction direction to set
              */
-            void SetDirection(double direction) { random = direction; }
+            void SetDirection(double direction) { random_val = direction; }
 
             /**
              * @brief Set the Moving object
@@ -98,7 +98,7 @@ namespace walle {
              * @brief Get the Random object
              * @return double random member variable
              */
-            double GetRandom() const { return random; }
+            double GetRandom() const { return random_val; }
 
             /**
              * @brief Get the Moving object
