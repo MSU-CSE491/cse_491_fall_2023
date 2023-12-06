@@ -38,7 +38,7 @@ namespace netWorth{
          * @param pkt received packet
          */
         void PacketToActionMap(sf::Packet pkt) {
-            size_t data_size, agent_id, action_id;
+            uint64_t data_size, agent_id, action_id;
             pkt >> data_size;
             for (size_t i = 0; i < data_size; i++) {
                 pkt >> agent_id >> action_id;
