@@ -88,7 +88,7 @@ namespace cowboys {
     /// @param doc The XML document to serialize to.
     /// @param parentElem The parent element to serialize to.
     /// @param fitness The fitness of this agent to write to the XML.
-    void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) override {
+    void SerializeGP(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) override {
       auto agentElem = doc.NewElement("CGPAgent");
       parentElem->InsertEndChild(agentElem);
 

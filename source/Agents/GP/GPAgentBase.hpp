@@ -63,7 +63,7 @@ namespace cowboys {
 
     };
 
-    virtual void Serialize(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) = 0;
+    virtual void SerializeGP(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) = 0;
 
     /// TODO: Might have to remove it
     virtual std::string Export() { return ""; }
@@ -71,7 +71,7 @@ namespace cowboys {
     virtual void Reset(bool /*hard*/ = false) { extra_state["previous_action"] = 0; };
 
     //    virtual void crossover(const GPAgentBase &other) {};
-    virtual void Import(const std::string &genotype) {};
+    virtual void Import(const std::string &genotype) = 0;
 
     // -- Random Number Generation --
 

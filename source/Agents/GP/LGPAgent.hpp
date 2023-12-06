@@ -285,7 +285,7 @@ namespace cowboys
         /// @param doc The XML document to serialize to.
         /// @param parentElem The parent element to serialize to.
         /// @param fitness The fitness of this agent to write to the XML.
-        void Serialize(tinyxml2::XMLDocument & doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override
+        void SerializeGP(tinyxml2::XMLDocument & doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override
         {
             auto agentElem = doc.NewElement("LGPAgent");
             parentElem->InsertEndChild(agentElem);
@@ -299,7 +299,7 @@ namespace cowboys
 
         /// @brief Load in the string representation of an LGP agent and configure this agent based on it.
         /// @param genotype The string representation of an LGP agent.
-        void Import(std::string encodedLists) {
+        void Import(const std::string & encodedLists) override {
             std::vector<std::tuple<std::string, int, int>> decodedInstructionsList = {};
             std::string decodedInstruction;
             size_t start_pos = 0;

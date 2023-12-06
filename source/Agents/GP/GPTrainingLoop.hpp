@@ -780,7 +780,7 @@ namespace cowboys {
 
           for (size_t i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->Serialize(paramDocument, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
+            agents[arenaIDX][agentIDX]->SerializeGP(paramDocument, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
           }
 
 
