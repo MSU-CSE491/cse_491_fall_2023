@@ -297,7 +297,7 @@ class SecondWorld : public cse491::WorldBase {
 
     // Transfer ownership to chest
     if (!items_found.empty()) {
-      auto& target_item = GetItem(items_found.at(item_id));
+      auto& target_item = GetItem(items_found.at(0));
       if (target_item.HasProperty("Chest")) {
         item_drop.SetPosition(OffGrid);
         target_item.AddItem(item_drop);
@@ -323,7 +323,7 @@ class SecondWorld : public cse491::WorldBase {
     agent.RemoveItem(item_drop.GetID());
     item_drop.SetGrid();
     item_drop.SetPosition(pos);
-    main_grid.At(pos) = GetCellTypeSymbol(item_drop.GetID());
+//    main_grid.At(pos) = GetCellTypeSymbol(item_drop.GetID());
 
     agent.Notify("Dropping " + item_drop.GetName() + " onto the ground!",
                  "item_alert");
