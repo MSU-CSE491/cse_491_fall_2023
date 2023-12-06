@@ -63,8 +63,6 @@ namespace cowboys {
         genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       }
 
-      genotype.SetSeed(rand());
-
       // Mutate the beginning genotype, might not want this.
       MutateAgent(0.2);
 

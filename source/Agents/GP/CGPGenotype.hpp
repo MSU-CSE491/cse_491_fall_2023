@@ -232,9 +232,6 @@ namespace cowboys {
     /// The node configurations.
     std::vector<CGPNodeGene> nodes;
 
-    /// The random number generator.
-    std::mt19937 rng;
-
   private:
     /// @brief Encodes the header into a string.
     /// @return The encoded header.
@@ -512,11 +509,8 @@ namespace cowboys {
     /// @return Bool value to indicate if any input connections non-zero.
     bool HasInputConnections() const {
       for (auto it = begin(); it != end(); ++it) {
-        if (std::any_of(
-          it->input_connections.begin(),
-          it->input_connections.end(),
-          [](char c) { return c != '0'; }
-        )) return true;
+        if (std::any_of(it->input_connections.begin(), it->input_connections.end(), [](char c) { return c != '0'; }))
+          return true;
       }
       return false;
     }
@@ -563,22 +557,15 @@ namespace cowboys {
       return header + HEADER_END + genotype;
     }
 
-    /// @brief Sets the seed of the random number generator.
-    CGPGenotype &SetSeed(size_t seed) {
-      rng.seed(seed);
-      return *this;
-    }
-
     /// @brief Mutates the genotype.
     /// @param mutation_rate Value between 0 and 1 representing the probability of mutating a value.
     /// @param mutation The function to use for mutating the output. The function will receive the node gene as a
     /// parameter.
     /// @return This genotype.
-    CGPGenotype &Mutate(double mutation_rate, std::function<void(CGPNodeGene &)> mutation) {
+    CGPGenotype &Mutate(double mutation_rate, GPAgentBase &agent, std::function<void(CGPNodeGene &)> mutation) {
       assert(mutation_rate >= 0.0 && mutation_rate <= 1.0);
-      std::uniform_real_distribution<double> dist_mutation(0.0, 1.0);
       for (CGPNodeGene &node : nodes)
-        if (dist_mutation(rng) < mutation_rate)
+        if (agent.GetRandom() < mutation_rate)
           mutation(node);
       return *this;
     }
@@ -590,7 +577,7 @@ namespace cowboys {
     /// @return This genotype.
     CGPGenotype &MutateConnections(double mutation_rate, GPAgentBase &agent) {
       std::uniform_int_distribution<size_t> dist(0, 1);
-      Mutate(mutation_rate, [&agent](CGPNodeGene &node) {
+      Mutate(mutation_rate, agent, [&agent](CGPNodeGene &node) {
         for (char &con : node.input_connections) {
           con = agent.GetRandomULL(2) == 0 ? '0' : '1';
         }
@@ -603,7 +590,7 @@ namespace cowboys {
     /// @param num_functions The number of functions available to the nodes.
     /// @return This genotype.
     CGPGenotype &MutateFunctions(double mutation_rate, size_t num_functions, GPAgentBase &agent) {
-      Mutate(mutation_rate,
+      Mutate(mutation_rate, agent,
              [num_functions, &agent](CGPNodeGene &node) { node.function_idx = agent.GetRandomULL(num_functions); });
       return *this;
     }
@@ -615,7 +602,7 @@ namespace cowboys {
     /// @return This genotype.
     CGPGenotype &MutateOutputs(double mutation_rate, double mean, double std, GPAgentBase &agent,
                                bool additive = true) {
-      Mutate(mutation_rate, [mean, std, &agent, additive](CGPNodeGene &node) {
+      Mutate(mutation_rate, agent, [mean, std, &agent, additive](CGPNodeGene &node) {
         double mutation = agent.GetRandomNormal(mean, std);
         if (additive) {
           node.default_output += mutation;
