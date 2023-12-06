@@ -85,18 +85,13 @@ class SecondWorld : public cse491::WorldBase {
 
     if (world_filename == FIRST_FLOOR_FILENAME) {
       pe.runFile(WORLD_LOAD_SCRIPT_2);
-      world_filename = SECOND_FLOOR_FILENAME;
       agents_filename = "../assets/second_floor_input.json";
     } else if (world_filename == SECOND_FLOOR_FILENAME) {
       pe.runFile(WORLD_LOAD_SCRIPT_3);
-      world_filename = FINAL_FLOOR_FILENAME;
       agents_filename = "../assets/third_floor_input.json";
     }
 
     agent.Notify("Going to " + world_filename, "world_switched");
-
-    // Need to clear item_map so that items don't stay for the next floor.
-    item_map.clear();
 
     std::vector<size_t> agents_to_remove = {};
     for (auto& [agent_id, agent_ptr] : agent_map) {
@@ -111,7 +106,6 @@ class SecondWorld : public cse491::WorldBase {
 
     // Resetting the current new_position to the top left of the new grid.
     pos = cse491::GridPosition(0, 0);
-    main_grid.Read(world_filename, type_options);
     LoadFromFile(agents_filename);
   }
 
