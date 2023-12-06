@@ -270,6 +270,7 @@ namespace cse491_team8 {
                     other_agent.SetProperty<int>("Strength", (int)(agent_health - item_strength));
                 }
                 item->SetUnowned();
+                agent.RemoveItem(item->GetID());
                 item->SetPosition(other_agent.GetPosition());
                 agent.Notify(other_agent.GetName() + " dropped their " + item->GetName() + "!");
             }
@@ -473,6 +474,7 @@ namespace cse491_team8 {
 
           // remove it from the board
           item_ptr->SetOwner(agent);
+          agent.AddItem(item_ptr->GetID());
           break;
         }
       }
