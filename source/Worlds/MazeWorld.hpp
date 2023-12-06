@@ -37,6 +37,7 @@ class MazeWorld : public WorldBase {
     // Load map
     main_grid.Read("../assets/grids/default_maze.grid", type_options);
   }
+
   ~MazeWorld() = default;
 
   /// Allow the agents to move around the maze.
