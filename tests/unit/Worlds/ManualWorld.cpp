@@ -31,8 +31,10 @@ TEST_CASE("Finding item for agent"){
     agent->SetProperties("Health", 13, "Max_Health", 20);
     auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
     item->SetProperty("Healing", 10);
-    agent->AddItem(*item);
+    const size_t item_id = item->GetID();
     world.AddItem(std::move(item));
+    agent->SetWorld(world);
+    agent->AddItem(world.GetItem(item_id));
     CHECK(world.FindItem(*agent, "Health Potion") == 2);
   }
 
@@ -42,8 +44,10 @@ TEST_CASE("Finding item for agent"){
     agent->SetProperties("Health", 13, "Max_Health", 20);
     auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
     item->SetProperty("Healing", 10);
-    agent->AddItem(*item);
+    const size_t item_id = item->GetID();
     world.AddItem(std::move(item));
+    agent->SetWorld(world);
+    agent->AddItem(world.GetItem(item_id));
     CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
   }
 
@@ -51,6 +55,7 @@ TEST_CASE("Finding item for agent"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
     agent->SetProperties("Health", 13, "Max_Health", 20);
+    agent->SetWorld(world);
     CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
   }
 }
@@ -62,8 +67,10 @@ TEST_CASE("Agent Healing"){
     agent->SetProperties("Health", 5, "Max_Health", 20);
     auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
     item->SetProperty("Healing", 10);
-    item->SetOwner(*agent);
+    const size_t item_id = item->GetID();
     world.AddItem(std::move(item));
+    agent->SetWorld(world);
+    agent->AddItem(world.GetItem(item_id));
     world.HealAction(*agent);
     CHECK(agent->GetProperty<int>("Health") == 15);
   }
@@ -74,8 +81,10 @@ TEST_CASE("Agent Healing"){
     agent->SetProperties("Health", 13, "Max_Health", 20);
     auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
     item->SetProperty("Healing", 10);
-    item->SetOwner(*agent);
+    const size_t item_id = item->GetID();
     world.AddItem(std::move(item));
+    agent->SetWorld(world);
+    agent->AddItem(world.GetItem(item_id));
     world.HealAction(*agent);
     CHECK(agent->GetProperty<int>("Health") == 20);
     CHECK(world.GetItem(world.GetItemID("Health Potion")).GetProperty<int>("Healing") == 3);
@@ -85,6 +94,7 @@ TEST_CASE("Agent Healing"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
     agent->SetProperties("Health", 13, "Max_Health", 20);
+    agent->SetWorld(world);
     world.HealAction(*agent);
     CHECK(agent->GetProperty<int>("Health") == 13);
   }
@@ -98,11 +108,14 @@ TEST_CASE("Agent dropping items after being defeated"){
     agent->SetProperties("Health", 13, "Max_Health", 20);
     auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
     item->SetProperty("Healing", 10);
-    agent->AddItem(2);
-    CHECK(item->GetOwnerID() == 1);
+    const size_t item_id = item->GetID();
     world.AddItem(std::move(item));
+    agent->SetWorld(world);
+    agent2->SetWorld(world);
+    agent->AddItem(item_id);
+    CHECK(world.GetItem(item_id).GetOwnerID() == 1);
     world.DropItems(*agent2, *agent);
-    CHECK(world.GetItem(2).GetOwnerID() == 0);
+    CHECK(world.GetItem(item_id).GetOwnerID() == 0);
   }
 }
 
@@ -110,6 +123,7 @@ TEST_CASE("Agent looking ahead"){
   SECTION("Looking above"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetWorld(world);
     agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 0);
     agent->SetPosition(5, 5);
     auto look_position = world.LookAhead(*agent);
@@ -120,6 +134,7 @@ TEST_CASE("Agent looking ahead"){
   SECTION("Looking below"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetWorld(world);
     agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 2);
     agent->SetPosition(5, 5);
     auto look_position = world.LookAhead(*agent);
@@ -130,6 +145,7 @@ TEST_CASE("Agent looking ahead"){
   SECTION("Looking left"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetWorld(world);
     agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 3);
     agent->SetPosition(5, 5);
     auto look_position = world.LookAhead(*agent);
@@ -140,6 +156,7 @@ TEST_CASE("Agent looking ahead"){
   SECTION("Looking right"){
     cse491_team8::ManualWorld world;
     auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetWorld(world);
     agent->SetProperties("Health", 13, "Max_Health", 20, "Direction", 1);
     agent->SetPosition(5, 5);
     auto look_position = world.LookAhead(*agent);
