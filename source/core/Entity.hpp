@@ -69,7 +69,7 @@ class Entity {
     Entity & SetName(const std::string in_name) { name = in_name; return *this; }
     Entity & SetPosition(GridPosition in_pos) { position = in_pos; return *this; }
     Entity & SetPosition(double x, double y) { position = GridPosition{x,y}; return *this; }
-    Entity & SetWorld(WorldBase & in_world) { world_ptr = &in_world; return *this; }
+    virtual Entity & SetWorld(WorldBase & in_world) { world_ptr = &in_world; return *this; }
 
     virtual bool IsAgent() const { return false; }     ///< Is Entity an autonomous agent?
     virtual bool IsItem() const { return false; }      ///< Is Entity an item?
