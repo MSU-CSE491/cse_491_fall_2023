@@ -15,6 +15,9 @@
 int main() {
 
     const int num_threads = std::thread::hardware_concurrency();
+
+//    const int num_threads = 6;
+
     std::cout << "Number of threads: " << num_threads << std::endl;
 
 
@@ -23,17 +26,17 @@ int main() {
     cowboys::GPTrainingLoop <cowboys::LGPAgent, cse491::MazeWorld> loop;
 
 
+
     loop.Initialize(100, 1000);
     loop.Run(11, 100, num_threads, true);
 //    }
+
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
     auto seconds = duration.count() / 1000000.0;
     std::cout << "Time taken by Training: " << seconds << " seconds" << std::endl;
-
-
 
     return  0;
 }
