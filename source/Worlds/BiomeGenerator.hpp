@@ -64,8 +64,8 @@ namespace group6 {
 
         size_t tree_id = 8;
 
-//        size_t sand_id = 9;
-//        size_t water_id = 10;
+        size_t sand_id = 9;
+        size_t water_id = 10;
 
         size_t hole_id = 9;
 

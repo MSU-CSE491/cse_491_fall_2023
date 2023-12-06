@@ -29,9 +29,9 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
     } else if (biome == BiomeType::Grasslands) {
         setTiles(grass_id, dirt_id);
     }
-//    else if (biome == BiomeType::Ocean) {
-//        setTiles(water_id, sand_id);
-//    }
+    else if (biome == BiomeType::Ocean) {
+        setTiles(water_id, sand_id);
+    }
 
     perlinNoise = PerlinNoise(seed);
     grid.Resize(width, height);
@@ -74,6 +74,10 @@ void BiomeGenerator::generate() {
     if (biome == BiomeType::Grasslands) {
         placeTrees(); // Placing tree tiles
         placeTileRandom(hole_id, grass_id); // placing hole tile
+    }
+
+    if (biome == BiomeType::Ocean) {
+        oceanHandler();
     }
 
 //    bool reachable = isKeyReachable();
@@ -208,6 +212,9 @@ void BiomeGenerator::saveToFile(const std::string &filename) const {
     types.push_back(CellType{"tree", "A tree that blocks the way.", 't'});
     types.push_back(CellType{"hole", "A hole that you can fall into the maze from.", '8'});
 
+    types.push_back(CellType{"water","Water that you may be able to swim on.", 'W'});
+    types.push_back(CellType{"sand", "Sand you can walk on.", '-'});
+
 
     grid.Write(filename, types);
 
@@ -261,22 +268,23 @@ void BiomeGenerator::placeTrees() {
 
 
 
-//void BiomeGenerator::oceanHandler(){
-//    for (unsigned int y = 1; y < height - 1; ++y) {
-//        for (unsigned int x = 1; x < width - 1; ++x) {
-//            if (grid.At(x, y) == water_id) {
-//                if (worldPtr->GetRandom(100) < 15) {
-//                    for (int i = -1; i <= 1; ++i) {
-//                        for (int j = -1; j <= 1; ++j) {
-//                            if (x + i > 0 && x + i < width - 1 && y + j > 0 && y + j < height - 1) {
-//                                grid.At(x + i, y + j) = sand_id;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+void BiomeGenerator::oceanHandler(){
+    for (unsigned int y = 1; y < height - 1; ++y) {
+        for (unsigned int x = 1; x < width - 1; ++x) {
+            if (grid.At(x, y) == water_id) {
+                if (worldPtr->GetRandom(100) < 15) {
+                    for (int i = -1; i <= 1; ++i) {
+                        for (int j = -1; j <= 1; ++j) {
+                            if (x + i > 0 && x + i < width - 1 && y + j > 0 && y + j < height - 1) {
+                                grid.At(x + i, y + j) = sand_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 
