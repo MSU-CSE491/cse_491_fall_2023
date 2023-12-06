@@ -7,15 +7,13 @@
 #pragma once
 
 #include <cassert>
-#include <random>
 
 #include "BiomeGenerator.hpp"
-//#include "Interfaces/MainInterface.hpp"
 #include "../core/WorldBase.hpp"
 
 namespace group6 {
     using namespace cse491;
-    using std::vector;
+    using std::vector, std::string;
 
     class GenerativeWorld : public WorldBase {
     protected:
@@ -41,7 +39,8 @@ namespace group6 {
         size_t water_id;
         size_t sand_id;
 
-        bool anotherMap = false;
+        unsigned int world_width;
+        unsigned int world_height;
 
         /// Provide the agent with movement actions.
         void ConfigAgent(AgentBase &agent) override {
@@ -63,8 +62,30 @@ namespace group6 {
             }
         }
 
+        /**
+         * Creates a new grid with the given parameters
+         *
+         * @param biome The BiomeType being used
+         * @param width The width of the grid
+         * @param height The height of the grid
+         * @param seed The seed used for random generation
+         * @param file The file to save the grid to. Full path is "../assets/grids/generated_[file].grid"
+         */
+        void CreateGrid(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed, const string &file) {
+            BiomeGenerator biomeGenerator(biome, width, height, seed);
+            biomeGenerator.setWorld(this);
+            biomeGenerator.generate();
+
+            string filePath = "../assets/grids/generated_" + file + ".grid";
+
+            biomeGenerator.saveToFile(filePath);
+
+            main_grid.Read(filePath, type_options);
+        }
+
     public:
-        explicit GenerativeWorld(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed) : WorldBase(seed) {
+        explicit GenerativeWorld(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed)
+                : WorldBase(seed) {
             floor_id = AddCellType("floor", "Floor that you can easily walk over.", ' ');
             wall_id = AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
 
@@ -84,66 +105,13 @@ namespace group6 {
             water_id = AddCellType("water", "Water that you may be able to swim on.", 'W');
             sand_id = AddCellType("sand", "Sand you can walk on.", '-');
 
-            BiomeGenerator biomeGenerator(biome, width, height, seed);
-            biomeGenerator.setWorld(this);
-            biomeGenerator.generate();
+            world_width = width;
+            world_height = height;
 
-            biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
-
-            main_grid.Read("../assets/grids/generated_maze.grid", type_options);
+            CreateGrid(biome, width, height, seed, "maze");
         }
 
         ~GenerativeWorld() override = default;
-
-        /// @brief Run all agents repeatedly until an end condition is met.
-        void Run() override {
-            run_over = false;
-            while (!run_over) {
-                RunAgents();
-                CollectData();
-                UpdateWorld();
-            }
-
-            if (anotherMap)  {
-                anotherMap = false;
-                RunNewWorld();
-            }
-
-        }
-
-        void RunNewWorld() {
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<> distrib(1, 1000);
-            int randomInt = distrib(gen);
-
-            std::uniform_int_distribution<> distrib2(20, 100);
-            int randomInt2 = distrib2(gen);
-
-            std::uniform_int_distribution<> distrib3(10, 25);
-            int randomInt3 = distrib3(gen);
-
-            GenerativeWorld world(BiomeType::Maze, randomInt2, randomInt3, randomInt);
-//            world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@').SetName("Player");
-
-            world.setRunOver(false);
-            while (!world.isRunOver()) {
-                world.RunAgents();
-                world.CollectData();
-                world.UpdateWorld();
-            }
-            run_over = true;
-        }
-
-        // Getter
-        bool isRunOver() const {
-            return run_over;
-        }
-
-        // Setter
-        void setRunOver(bool value) {
-            run_over = value;
-        }
 
         void AddTeleporters() {
             // TODO: remove hard-coded positions
@@ -155,18 +123,17 @@ namespace group6 {
          * Ends the game
          * @param win True if the game is ending in a win. False if it is a loss
          */
-        void EndGame(bool win) {
+        [[noreturn]] void EndGame(bool win) {
+            run_over = true;
+
             if (win) {
                 std::cout << "You successfully exited maze!" << std::endl;
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
-
-            run_over = true;
         }
 
-        void AddArmory()
-        {
+        void AddArmory() {
             main_grid.At(5, 5) = armory_id;
         }
 
@@ -219,39 +186,38 @@ namespace group6 {
             if (main_grid.At(new_position) == wall_id) { return false; }
 
             //check to see if player is going onto armory tile
-            if( main_grid.At(new_position) == armory_id ) {
+            if (main_grid.At(new_position) == armory_id) {
                 ArmoryTileHelper(agent);
             }
 
             // check to see if player is moving onto spike tile
-            if (main_grid.At(new_position) == spike_id)
-            {
+            if (main_grid.At(new_position) == spike_id) {
                 SpikeTileHelper(agent);
             }
 
-            // check to see if player is moving onto a tar tile
+                // check to see if player is moving onto a tar tile
             else if (main_grid.At(new_position) == tar_id) {
                 TarTileHelper(agent);
             }
 
-            // check to see if player is moving onto teleporter
+                // check to see if player is moving onto teleporter
             else if (main_grid.At(new_position) == teleporter_id) {
                 TeleporterHelper(agent, new_position);
             }
 
-            // check to see if player is moving onto key tile
+                // check to see if player is moving onto key tile
             else if (main_grid.At(new_position) == key_id) {
                 KeyTileHelper(agent, new_position);
             }
 
-            // check to see if the player is moving onto door tile
+                // check to see if the player is moving onto door tile
             else if (main_grid.At(new_position) == door_id) {
                 DoorTileHelper(agent);
             }
 
-            // check to see if player is moving onto a hole tile
+                // check to see if player is moving onto a hole tile
             else if (main_grid.At(new_position) == hole_id) {
-                HoleTileHelper();
+                HoleTileHelper(agent, new_position);
             }
 
             //check to see if agent is walking on an item
@@ -263,20 +229,16 @@ namespace group6 {
             return true;
         }
 
-        void ArmoryTileHelper( AgentBase &agent )
-        {
-            for( const auto &pair : item_map )
-            {
+        void ArmoryTileHelper(AgentBase &agent) {
+            for (const auto &pair: item_map) {
                 //if agent has the item in its inventory, heal it back to full health
-                if( agent.HasItem(pair.first) )
-                {
+                if (agent.HasItem(pair.first)) {
                     pair.second->SetProperty("Health", 4.0);
                 }
             }
         }
 
-        void SpikeTileHelper( AgentBase &agent )
-        {
+        void SpikeTileHelper(AgentBase &agent) {
             bool spike_immune = false;
 
             //check to see if player has shield on
@@ -298,8 +260,7 @@ namespace group6 {
             }
         }
 
-        void TarTileHelper( AgentBase &agent )
-        {
+        void TarTileHelper(AgentBase &agent) {
             bool tar_immune = false;
 
             //check to see if player has boots on
@@ -321,8 +282,7 @@ namespace group6 {
             }
         }
 
-        void TeleporterHelper( AgentBase &agent, GridPosition &new_position )
-        {
+        void TeleporterHelper(AgentBase &agent, GridPosition &new_position) {
             vector<GridPosition> teleporters = FindTiles(main_grid, teleporter_id);
 
             for (GridPosition teleporter: teleporters) {
@@ -334,8 +294,7 @@ namespace group6 {
             }
         }
 
-        void KeyTileHelper( AgentBase &agent, GridPosition &new_position)
-        {
+        void KeyTileHelper(AgentBase &agent, GridPosition &new_position) {
             // Only player can pick up keys
             if (agent.IsInterface()) {
                 agent.SetProperty("key_property", 1.0);
@@ -343,22 +302,21 @@ namespace group6 {
             }
         }
 
-        void DoorTileHelper( AgentBase &agent )
-        {
+        void DoorTileHelper(AgentBase &agent) {
             // Only player with key can win game
             if (agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
                 EndGame(true);
             }
         }
 
-        void HoleTileHelper()
-        {
-            anotherMap = true;
-            run_over = true;
+        void HoleTileHelper(AgentBase &agent, GridPosition &new_position) {
+            if (agent.IsInterface()) {
+                CreateGrid(BiomeType::Maze, world_width, world_height, ++seed, "maze2");
+                new_position.Set(0, 0);
+            }
         }
 
-        void ItemHelper( AgentBase &agent, GridPosition &new_position )
-        {
+        void ItemHelper(AgentBase &agent, GridPosition &new_position) {
             for (const auto &pair: item_map) {
                 if (pair.second->GetPosition() == new_position) {
                     //Add item to inventory
@@ -369,12 +327,12 @@ namespace group6 {
             }
         }
 
-        void AgentCollisionHelper( AgentBase &agent )
-        {
+        void AgentCollisionHelper(AgentBase &agent) {
             //if player is on same position as agent, game ends
-            for( const auto &temp_agent : agent_map )
-            {
-                if( temp_agent.second->GetPosition() == agent.GetPosition() && ((agent.GetName() == "Player" && temp_agent.second->GetName() != "Player") || (agent.GetName() != "Player" && temp_agent.second->GetName() == "Player")) )
+            for (const auto &temp_agent: agent_map) {
+                if (temp_agent.second->GetPosition() == agent.GetPosition() &&
+                    ((agent.GetName() == "Player" && temp_agent.second->GetName() != "Player") ||
+                     (agent.GetName() != "Player" && temp_agent.second->GetName() == "Player")))
                     EndGame(false);
             }
         }
