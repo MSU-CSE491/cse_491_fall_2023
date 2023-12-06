@@ -546,8 +546,12 @@ public:
 
         id = stoi(id_string);
 
+		while (last_entity_id + 1 != id){
+			last_entity_id++;
+		}
+
         // is this new agent NOT the client interface
-        if (last_entity_id + 1 != manager->GetClientID() && last_entity_id + 1 == id) {
+        if (last_entity_id + 1 != manager->GetClientID()) {
             AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
         } else {
             last_entity_id++;
