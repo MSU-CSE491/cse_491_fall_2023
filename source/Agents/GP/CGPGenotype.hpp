@@ -511,15 +511,14 @@ namespace cowboys {
     /// @brief Identify if the genome has any non-zero input connections in it.
     /// @return Bool value to indicate if any input connections non-zero.
     bool HasInputConnections() const {
-      bool all_0s = true;
       for (auto it = begin(); it != end(); ++it) {
-        all_0s = all_0s && std::any_of(
+        if (std::any_of(
           it->input_connections.begin(),
           it->input_connections.end(),
           [](char c) { return c != '0'; }
-        );
+        )) return true;
       }
-      return !all_0s;
+      return false;
     }
 
     /// @brief Initializes an empty genotype with the cartesian graph parameters.
