@@ -9,6 +9,7 @@
 #include "Interfaces/MainInterface.hpp"
 #include "Worlds/ManualWorld.hpp"
 #include "Interfaces/MainInterface.hpp"
+#include "Interfaces/TrashInterface.hpp"
 #include "Agents/AStarAgent.hpp"
 
 int main()
@@ -27,8 +28,9 @@ int main()
   world.AddItem("Health Potion", "Healing", 25, "symbol", 'j').SetPosition(38, 16);
   world.AddItem("Health Potion", "Healing", 30, "symbol", 'j').SetPosition(1, 18);
 
-  world.AddAgent<i_2D::MainInterface>("Interface", "symbol", '@').SetPosition(24, 2);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(45, 3);
+  world.AddAgent<cse491::TrashInterface>("Interface", "symbol", '@').SetPosition(80, 63);
+  //world.AddAgent<i_2D::MainInterface>("Interface", "symbol", '@').SetPosition(80,63);
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(97, 45);
   world.AddAgent<cse491::PacingAgent>("Pacer 5").SetPosition(3,14);
   world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7,30);
   world.AddAgent<cse491::PacingAgent>("Pacer 6").SetPosition(27, 10);
@@ -41,13 +43,14 @@ int main()
   world.AddAgent<cse491::PacingAgent>("Shark", "OnlyWater", 1).SetPosition(125, 140);
 
   auto & pacer_1 = world.GetAgent(world.GetAgentID("Pacer 1"));
-  world.AddItem("Sword", "Strength", 10, "symbol", 't').SetPosition(pacer_1.GetPosition());
+  world.AddItem("Sword", "Strength", 15, "symbol", 't').SetPosition(pacer_1.GetPosition());
   world.DoActionAttemptItemPickup(pacer_1, pacer_1.GetPosition());
 
   auto & interface = world.GetAgent(world.GetAgentID("Interface"));
   world.MoveSetAction(interface);
 
   world.GenerateMoveSets();
+  // world.SetBattling();
 
   world.Run();
   
