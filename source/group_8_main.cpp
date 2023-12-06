@@ -8,7 +8,6 @@
 #include "Agents/PacingAgent.hpp"
 #include "Interfaces/MainInterface.hpp"
 #include "Worlds/ManualWorld.hpp"
-#include "Interfaces/MainInterface.hpp"
 #include "Agents/AStarAgent.hpp"
 
 int main()
@@ -48,7 +47,6 @@ int main()
   world.MoveSetAction(interface);
 
   world.GenerateMoveSets();
-  // world.SetBattling();
 
   world.Run();
   
