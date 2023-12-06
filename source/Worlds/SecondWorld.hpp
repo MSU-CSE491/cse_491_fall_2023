@@ -69,15 +69,12 @@ class SecondWorld : public cse491::WorldBase {
       auto& item = it->second;
       if (item->IsOnGrid()) {
         // clear this item
-      std::cout << "DG" << item->GetID() << std::endl;
         it = item_map.erase(it);
       } else if (item->IsOwnedByItem()) {
         // it's owned by a chest: this is currently the only item containing
         // items
-      std::cout << "DI" << item->GetID() << std::endl;
         it = item_map.erase(it);
       } else {
-      std::cout << "K" << item->GetID() << std::endl;
         ++it;
       }
     }
