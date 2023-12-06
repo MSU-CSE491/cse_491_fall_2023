@@ -328,7 +328,7 @@ public:
 
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
-      while (!server_manager->interfacesPresent && !world_running) {}
+      while (!server_manager->interfacesPresent || !world_running) {}
 
       // select action and send to client
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
