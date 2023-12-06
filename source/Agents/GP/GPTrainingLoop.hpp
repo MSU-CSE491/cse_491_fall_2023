@@ -162,7 +162,7 @@ namespace cowboys {
           const size_t numAgents = numArenas * NumAgentsForArena;
 
           std::stringstream ss;
-          ss.imbue(std::locale(""));
+          // ss.imbue(std::locale(""));
           ss << std::fixed << numAgents;
 
           std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
