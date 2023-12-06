@@ -61,11 +61,11 @@ namespace group6 {
 
         size_t grass_id = 6;
         size_t dirt_id = 7;
-
         size_t tree_id = 8;
+        size_t hole_id = 9;
 
-        size_t sand_id = 9;
-        size_t water_id = 10;
+        size_t sand_id = 10;
+        size_t water_id = 11;
 
     public:
         BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
@@ -83,8 +83,8 @@ namespace group6 {
         [[nodiscard]] BiomeType getBiome() const { return biome; }
 
         void placeDoorTile(const size_t &doorTile);
-        void placeKeyTile(const size_t &keyTile);
         void placeArmoryTile(const size_t &armoryTile);
+        void placeTileRandom(const size_t& tile, const size_t& spawnTile);
 
         [[nodiscard]] std::vector<GridPosition> clearPath() const;
         void applyPathToGrid(const std::vector<GridPosition>& path);
@@ -94,6 +94,5 @@ namespace group6 {
 //        bool isKeyReachable();
 
         void oceanHandler();
-
     };
 }

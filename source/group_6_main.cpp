@@ -60,11 +60,11 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
 }
 
 int main() {
-    auto biome = BiomeType::Maze;          // change world biome type here
+    auto biome = BiomeType::Grasslands;          // change world biome type here
     int width = 100;                       // change world width here
     int height = 25;                       // change world height here
-    static const unsigned int SEED = 16;   // change world seed here
-    int timerDuration = 5;                 // an optional timer length, set to -1 for no timer
+    static const unsigned int SEED = 19;   // change world seed here
+    int timerDuration = -1;                 // an optional timer length, set to -1 for no timer
 
     runWorld(biome, width, height, SEED, timerDuration);
 

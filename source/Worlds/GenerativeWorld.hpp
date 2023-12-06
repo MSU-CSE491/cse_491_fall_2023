@@ -9,6 +9,7 @@
 #include <cassert>
 
 #include "BiomeGenerator.hpp"
+//#include "Interfaces/MainInterface.hpp"
 #include "../core/WorldBase.hpp"
 
 namespace group6 {
@@ -34,6 +35,7 @@ namespace group6 {
         size_t tree_id;
         size_t grass_id;
         size_t dirt_id;
+        size_t hole_id;
 
         size_t water_id;
         size_t sand_id;
@@ -74,6 +76,7 @@ namespace group6 {
             tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
+            hole_id = AddCellType("hole", "A hole that you can fall into the maze from.", 'H');
 
             water_id = AddCellType("water", "Water that you may be able to swim on.", 'W');
             sand_id = AddCellType("sand", "Sand you can walk on.", '-');
@@ -88,6 +91,41 @@ namespace group6 {
         }
 
         ~GenerativeWorld() override = default;
+
+        /// @brief Run all agents repeatedly until an end condition is met.
+        void Run() override {
+            run_over = false;
+            while (!run_over) {
+                RunAgents();
+                CollectData();
+                UpdateWorld();
+            }
+
+            RunNewWorld();
+        }
+
+        void RunNewWorld() {
+            GenerativeWorld world(BiomeType::Maze, 50, 15, 19);
+//            world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@').SetName("Player");
+
+            world.setRunOver(false);
+            while (!world.isRunOver()) {
+                world.RunAgents();
+                world.CollectData();
+                world.UpdateWorld();
+            }
+            run_over = true;
+        }
+
+        // Getter
+        bool isRunOver() const {
+            return run_over;
+        }
+
+        // Setter
+        void setRunOver(bool value) {
+            run_over = value;
+        }
 
         void AddTeleporters() {
             // TODO: remove hard-coded positions
@@ -107,7 +145,7 @@ namespace group6 {
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
-            std::exit(0);
+//            std::exit(0);
         }
 
         void AddArmory()
@@ -192,6 +230,11 @@ namespace group6 {
             // check to see if the player is moving onto door tile
             else if (main_grid.At(new_position) == door_id) {
                 DoorTileHelper(agent);
+            }
+
+            // check to see if player is moving onto a tar tile
+            else if (main_grid.At(new_position) == hole_id) {
+                HoleTileHelper();
             }
 
             //check to see if agent is walking on an item
@@ -289,6 +332,11 @@ namespace group6 {
             if (agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
                 EndGame(true);
             }
+        }
+
+        void HoleTileHelper()
+        {
+            EndGame(true);
         }
 
         void ItemHelper( AgentBase &agent, GridPosition &new_position )

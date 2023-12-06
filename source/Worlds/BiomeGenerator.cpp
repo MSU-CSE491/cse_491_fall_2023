@@ -64,7 +64,7 @@ void BiomeGenerator::generate() {
         placeSpecialTiles(tile1, spike_id, 0.05); // Placing spike tiles
         placeSpecialTiles(tile1, tar_id, 0.08); // Placing tar tiles
         placeDoorTile(door_id); // placing door tile
-        placeKeyTile(key_id); // placing key tile
+        placeTileRandom(key_id, floor_id); // placing key tile
 
         vector<GridPosition> path = clearPath();
         applyPathToGrid(path);
@@ -72,6 +72,7 @@ void BiomeGenerator::generate() {
 
     if (biome == BiomeType::Grasslands) {
         placeTrees(); // Placing tree tiles
+        placeTileRandom(hole_id, grass_id); // placing key tile
     }
 
 //    bool reachable = isKeyReachable();
@@ -86,15 +87,19 @@ void BiomeGenerator::generate() {
  * Generates random coordinate to place Key tile
  * @param keyTile  Door Tile
  */
-void BiomeGenerator::placeKeyTile(const size_t &keyTile) {
+void BiomeGenerator::placeTileRandom(const size_t &tile, const size_t &spawnTile) {
     bool counter = false;
     while (!counter) {
         int random_x = (int)worldPtr->GetRandom(width / 2.0, width - 1);
         int random_y = (int)worldPtr->GetRandom(height / 2.0, height - 1);
 
-        if (grid.At(random_x, random_y) == floor_id) {
-            grid.At(random_x, random_y) = keyTile;
-            keyLocation = GridPosition(random_x, random_y);
+        if (grid.At(random_x, random_y) == spawnTile) {
+            grid.At(random_x, random_y) = tile;
+
+            if (tile == key_id) {
+                keyLocation = GridPosition(random_x, random_y);
+            }
+
             counter = true;
         }
     }
@@ -200,6 +205,7 @@ void BiomeGenerator::saveToFile(const std::string &filename) const {
     types.push_back(CellType{"grass", "Grass you can walk on.", 'M'});
     types.push_back(CellType{"dirt", "Dirt you can walk on.", '~'});
     types.push_back(CellType{"tree", "A tree that blocks the way.", 't'});
+    types.push_back(CellType{"hole", "A hole that you can fall into the maze from.", 'H'});
 
 
     grid.Write(filename, types);
