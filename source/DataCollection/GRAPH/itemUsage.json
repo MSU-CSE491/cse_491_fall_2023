@@ -1,0 +1,20 @@
+{
+    "items": [
+        {
+            "amountOfUses": 1,
+            "name": "Health Potion"
+        },
+        {
+            "amountOfUses": 1,
+            "name": "Boat"
+        },
+        {
+            "amountOfUses": 1,
+            "name": "Axe"
+        },
+        {
+            "amountOfUses": 1,
+            "name": "Sword"
+        }
+    ]
+}

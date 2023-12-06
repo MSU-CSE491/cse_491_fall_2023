@@ -16,7 +16,7 @@ function(add_source_to_target TARGET_NAME SOURCE_PATH)
     message(STATUS "Loading source: ${SOURCE_PATH}")
     target_sources(${TARGET_NAME}
             PRIVATE ${CMAKE_SOURCE_DIR}/${SOURCE_PATH}
-            )
+    )
 endfunction()
 
 # Set the necessary C++ flags, some of which are configuration-specific
@@ -59,11 +59,11 @@ if (SANITIZE_MEMORY)
     target_include_directories(gp_train_main
             PRIVATE ${CMAKE_SOURCE_DIR}/source/core
             ${CMAKE_SOURCE_DIR}/source/Agents
-            )
+    )
     target_link_libraries(gp_train_main
             PRIVATE tinyxml2
             PRIVATE pthread
-            )
+    )
 
 
 endif ()
@@ -91,20 +91,28 @@ if (BUILD_GP_ONLY)
     target_include_directories(gp_train_main
             PRIVATE ${CMAKE_SOURCE_DIR}/source/core
             ${CMAKE_SOURCE_DIR}/source/Agents
-            )
+    )
     target_link_libraries(gp_train_main
             PRIVATE tinyxml2
             PRIVATE pthread
-            )
+    )
 
 endif ()
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+
+
+# Configure json
+set(JSON_SRC_DIR third_party/json)
+set(JSON_BUILD_DIR json_build)
+add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
 
 # Build the main application executables, if requested
 if (${BUILD_MAIN})
-#    line to set santizers
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=[sanitizer]")
-#     can be set to address, undefined, thread, memory, or leak
+    #    line to set santizers
+    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=[sanitizer]")
+    #     can be set to address, undefined, thread, memory, or leak
 
     # Configure all of SFML
     set(SFML_SRC_DIR third_party/SFML)
@@ -134,14 +142,14 @@ if (${BUILD_MAIN})
         add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
         target_include_directories(${EXE_NAME}
                 PRIVATE ${CMAKE_SOURCE_DIR}/source
-                )
+        )
         target_link_libraries(${EXE_NAME}
-                PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
-                )
+                PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network nlohmann_json::nlohmann_json
+        )
 
         target_link_libraries(${EXE_NAME}
                 PRIVATE tinyxml2
-                )
+        )
 
         if (EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
             message(STATUS "Loading ${EXE_NAME}.cmake")
