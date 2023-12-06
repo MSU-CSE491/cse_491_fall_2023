@@ -69,12 +69,15 @@ class SecondWorld : public cse491::WorldBase {
       auto& item = it->second;
       if (item->IsOnGrid()) {
         // clear this item
+      std::cout << "DG" << item->GetID() << std::endl;
         it = item_map.erase(it);
       } else if (item->IsOwnedByItem()) {
         // it's owned by a chest: this is currently the only item containing
         // items
+      std::cout << "DI" << item->GetID() << std::endl;
         it = item_map.erase(it);
       } else {
+      std::cout << "K" << item->GetID() << std::endl;
         ++it;
       }
     }
@@ -401,11 +404,12 @@ class SecondWorld : public cse491::WorldBase {
             agent.Notify("You found " + item_found.GetName() + "!",
                          "item_alert");
 
+            // Set the position off the grid, so it doesn't render
+            // Note: Setting the position with a GridPosition SETS THE OWNER
+            item_found.SetPosition(OffGrid);
             // Add item to the agent's inventory
             agent.AddItem(item_found.GetID());
 
-            // Set the position off the grid, so it doesn't render
-            item_found.SetPosition(OffGrid);
           }
         }
       }
