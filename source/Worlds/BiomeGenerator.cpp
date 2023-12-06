@@ -27,7 +27,7 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
     if (biome == BiomeType::Maze) {
         setTiles(floor_id, wall_id);
     } else if (biome == BiomeType::Grasslands) {
-        setTiles(grass_id, dirt_id);
+        setTiles(spike_id, dirt_id);
     }
     else if (biome == BiomeType::Ocean) {
         setTiles(water_id, sand_id);
@@ -72,7 +72,7 @@ void BiomeGenerator::generate() {
 
     if (biome == BiomeType::Grasslands) {
         placeTrees(); // Placing tree tiles
-        placeTileRandom(hole_id, grass_id); // placing key tile
+//        placeTileRandom(hole_id, grass_id); // placing key tile
     }
 
 //    bool reachable = isKeyReachable();

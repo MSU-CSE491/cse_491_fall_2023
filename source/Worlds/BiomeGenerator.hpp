@@ -61,11 +61,11 @@ namespace group6 {
 
         size_t grass_id = 6;
         size_t dirt_id = 7;
-        size_t tree_id = 8;
-        size_t hole_id = 9;
 
-        size_t sand_id = 10;
-        size_t water_id = 11;
+        size_t tree_id = 8;
+
+        size_t sand_id = 9;
+        size_t water_id = 10;
 
     public:
         BiomeGenerator(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed);
