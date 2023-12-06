@@ -47,6 +47,10 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
         world.AddArmory();
     }
 
+    else if (biome == BiomeType::Ocean) {
+        world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+    }
+
     // Start an optional timer
     if (timerDuration != -1) {
         std::thread timerThread(timer, std::ref(world), timerDuration);
@@ -61,8 +65,8 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
 
 int main() {
     auto biome = BiomeType::Grasslands;          // change world biome type here
-    int width = 100;                       // change world width here
-    int height = 25;                       // change world height here
+    int width = 20;                       // change world width here
+    int height = 9;                       // change world height here
     static const unsigned int SEED = 19;   // change world seed here
     int timerDuration = -1;                 // an optional timer length, set to -1 for no timer
 

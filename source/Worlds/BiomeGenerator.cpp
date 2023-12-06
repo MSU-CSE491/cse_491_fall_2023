@@ -27,11 +27,11 @@ BiomeGenerator::BiomeGenerator(BiomeType biome, unsigned int width, unsigned int
     if (biome == BiomeType::Maze) {
         setTiles(floor_id, wall_id);
     } else if (biome == BiomeType::Grasslands) {
-        setTiles(spike_id, dirt_id);
+        setTiles(grass_id, dirt_id);
     }
-    else if (biome == BiomeType::Ocean) {
-        setTiles(water_id, sand_id);
-    }
+//    else if (biome == BiomeType::Ocean) {
+//        setTiles(water_id, sand_id);
+//    }
 
     perlinNoise = PerlinNoise(seed);
     grid.Resize(width, height);
@@ -63,20 +63,17 @@ void BiomeGenerator::generate() {
     if (biome == BiomeType::Maze) {
         placeSpecialTiles(tile1, spike_id, 0.05); // Placing spike tiles
         placeSpecialTiles(tile1, tar_id, 0.08); // Placing tar tiles
-        placeDoorTile(door_id); // placing door tile
+//        placeDoorTile(door_id); // placing door tile
         placeTileRandom(key_id, floor_id); // placing key tile
 
         vector<GridPosition> path = clearPath();
         applyPathToGrid(path);
+        placeDoorTile(door_id); // placing door tile
     }
 
     if (biome == BiomeType::Grasslands) {
         placeTrees(); // Placing tree tiles
-//        placeTileRandom(hole_id, grass_id); // placing key tile
-    }
-
-    if (biome == BiomeType::Ocean){
-        oceanHandler();
+        placeTileRandom(hole_id, grass_id); // placing hole tile
     }
 
 //    bool reachable = isKeyReachable();
@@ -114,7 +111,7 @@ void BiomeGenerator::placeTileRandom(const size_t &tile, const size_t &spawnTile
  * @param doorTile  Door Tile
  */
 void BiomeGenerator::placeDoorTile(const size_t &doorTile) {
-    grid.At(1, 1) = doorTile;
+    grid.At(2, 2) = doorTile;
 }
 
 /**
@@ -209,9 +206,7 @@ void BiomeGenerator::saveToFile(const std::string &filename) const {
     types.push_back(CellType{"grass", "Grass you can walk on.", 'M'});
     types.push_back(CellType{"dirt", "Dirt you can walk on.", '~'});
     types.push_back(CellType{"tree", "A tree that blocks the way.", 't'});
-    types.push_back(CellType{"hole", "A hole that you can fall into the maze from.", 'H'});
-    types.push_back(CellType{"sand", "Sand you can walk on.", '-'});
-    types.push_back(CellType{"water", "Water that you may be able to swim on.", 'W'});
+    types.push_back(CellType{"hole", "A hole that you can fall into the maze from.", '8'});
 
 
     grid.Write(filename, types);
@@ -263,26 +258,25 @@ void BiomeGenerator::placeTrees() {
 //
 //    return true;
 //}
-//
-//
 
-void BiomeGenerator::oceanHandler(){
-    // Iterate through the entire grid
-    for (unsigned int y = 0; y < height; ++y) {
-        for (unsigned int x = 0; x < width; ++x) {
-            if (grid.At(x, y) != sand_id) {
-                grid.At(x, y) = water_id;
-            }
-        }
-    }
 
-    bool foundSandTile = false;
-    for (unsigned int y = 0; y < height && !foundSandTile; ++y) {
-        for (unsigned int x = 0; x < width && !foundSandTile; ++x) {
-            if (grid.At(x, y) == sand_id) {
-                foundSandTile = true;
-            }
-        }
-    }
-}
+
+//void BiomeGenerator::oceanHandler(){
+//    for (unsigned int y = 1; y < height - 1; ++y) {
+//        for (unsigned int x = 1; x < width - 1; ++x) {
+//            if (grid.At(x, y) == water_id) {
+//                if (worldPtr->GetRandom(100) < 15) {
+//                    for (int i = -1; i <= 1; ++i) {
+//                        for (int j = -1; j <= 1; ++j) {
+//                            if (x + i > 0 && x + i < width - 1 && y + j > 0 && y + j < height - 1) {
+//                                grid.At(x + i, y + j) = sand_id;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
 
