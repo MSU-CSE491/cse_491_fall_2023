@@ -6,11 +6,9 @@
 #include "Button.hpp"
 
 /// Constructor
-i_2D::Button::Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Color textColor) {
-    if(!mfont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
-        std::cout << "Error loading font file" << std::endl;
-    }
-    text = std::make_unique<sf::Text>(mfont);
+i_2D::Button::Button(const std::string &t, sf::Vector2f size, sf::Color bgColor,
+                     sf::Color textColor, const sf::Font &font) {
+    text = std::make_unique<sf::Text>(font);
 
     text->setString(t);
     text->setFillColor(textColor);
@@ -22,11 +20,8 @@ i_2D::Button::Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Co
 /**
  * @brief set the font of the button
  */
-void i_2D::Button::setMFont() {
-    if(!mfont.loadFromFile("../../assets/font/ArialNarrow7.ttf")){
-        std::cout << "Error loading font file" << std::endl;
-    }
-    text = std::make_unique<sf::Text>(mfont);
+void i_2D::Button::setMFont(const sf::Font &font) {
+    text = std::make_unique<sf::Text>(font);
 }
 
 /**
@@ -36,7 +31,6 @@ void i_2D::Button::setMFont() {
  */
 void i_2D::Button::setPosition(sf::Vector2f pos) {
     button.setPosition(pos);
-
     float xPos = (pos.x + button.getGlobalBounds().width / 2) - (text->getLocalBounds().width/2);
     float yPos = (pos.y + button.getGlobalBounds().height / 2) - (text->getLocalBounds().height/2);
     text->setPosition({xPos, yPos});
@@ -56,10 +50,10 @@ bool i_2D::Button::isMouseOver(sf::RenderWindow &window) {
     float btnPosX = button.getPosition().x;
     float btnPosY = button.getPosition().y;
 
-    float btnxPosWidth = button.getPosition().x + button.getLocalBounds().width;
-    float btnyPosHeight = button.getPosition().y + button.getLocalBounds().height;
+    float btnXPosWidth = button.getPosition().x + button.getLocalBounds().width;
+    float btnYPosHeight = button.getPosition().y + button.getLocalBounds().height;
 
-    if(mouseX < btnxPosWidth && mouseX > btnPosX && mouseY < btnyPosHeight && mouseY > btnPosY){
+    if(mouseX < btnXPosWidth && mouseX > btnPosX && mouseY < btnYPosHeight && mouseY > btnPosY){
         return true;
     }
     return false;

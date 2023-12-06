@@ -29,6 +29,8 @@ namespace cse491 {
     GridPosition(double x, double y) : x(x), y(y) { }
     GridPosition(const GridPosition &) = default;
 
+    ~GridPosition() = default;
+
     GridPosition & operator=(const GridPosition &) = default;
 
     // -- Accessors --
