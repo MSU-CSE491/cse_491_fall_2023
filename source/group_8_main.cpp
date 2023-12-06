@@ -17,8 +17,9 @@ int main()
 
   world.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(80, 120);
   world.AddItem("Axe", "Uses", 10, "symbol", 'P').SetPosition(40, 5);
-  // do not need this boat
-  //world.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
+
+  world.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(55, 11);
+
   world.AddItem("Sword", "Strength", 8, "symbol", 't').SetPosition(18, 4);
   world.AddItem("Sword", "Strength", 5, "symbol", 't').SetPosition(27, 11);
   world.AddItem("Sword", "Strength", 4, "symbol", 't').SetPosition(65, 89);
