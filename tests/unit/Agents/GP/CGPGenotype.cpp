@@ -69,10 +69,7 @@ TEST_CASE("Genotype iterators", "[group7][genotype]") {
     CHECK(it == genotype.end());
 
     // All nodes should have 0 input connections when initialized by default
-    bool all_0s = true;
-    for (auto it = genotype.begin(); it != genotype.end(); ++it)
-      all_0s = all_0s && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
-    CHECK(all_0s);
+    CHECK(genotype.HasInputConnections() == false);
   }
 }
 TEST_CASE("Genotype mutation", "[group7][genotype]") {
@@ -81,18 +78,12 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
   SECTION("Mutate connections") {
     // Each connection will have a 0% chance of being mutated
     genotype.MutateConnections(0., mock_agent);
-    bool all_0s = true;
-    for (auto it = genotype.begin(); it != genotype.end(); ++it)
-      all_0s = all_0s && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
-    CHECK(all_0s);
+    CHECK_FALSE(genotype.HasInputConnections());
     CHECK(genotype.GetNumConnections() == 0);
 
     // Each connection will have a 100% chance of being mutated
     genotype.MutateConnections(1., mock_agent);
-    all_0s = true;
-    for (auto it = genotype.begin(); it != genotype.end(); ++it)
-      all_0s = all_0s && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
-    CHECK_FALSE(all_0s);
+    CHECK(genotype.HasInputConnections());
     CHECK_FALSE(genotype.GetNumConnections() == 0);
   }
   SECTION("Mutate functions") {
@@ -152,9 +143,9 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
       all_default = all_default && it->function_idx == 0;
-      all_default = all_default && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
     }
     CHECK(all_default);
+    CHECK_FALSE(genotype.HasInputConnections());
     CHECK(genotype.GetNumConnections() == 0);
 
     // Mutate with 0 probability, nothing should change
@@ -163,9 +154,9 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
       all_default = all_default && it->function_idx == 0;
-      all_default = all_default && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
     }
     CHECK(all_default);
+    CHECK_FALSE(genotype.HasInputConnections());
     CHECK(genotype.GetNumConnections() == 0);
 
     // Mutate with 100% probability, everything should have a high chance of changing (input connections will have a 1/2
@@ -175,9 +166,9 @@ TEST_CASE("Genotype mutation", "[group7][genotype]") {
     for (auto it = genotype.begin(); it != genotype.end(); ++it) {
       all_default = all_default && it->default_output == 0;
       all_default = all_default && it->function_idx == 0;
-      all_default = all_default && std::ranges::all_of(it->input_connections, [](char c) { return c == '0'; });
     }
     CHECK_FALSE(all_default);
+    CHECK(genotype.HasInputConnections());
     CHECK_FALSE(genotype.GetNumConnections() == 0);
   }
 }
