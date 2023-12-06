@@ -31,19 +31,15 @@ function(create_tests NAME_PREFIX)
     # Add includes and libraries
     target_include_directories(${EXE_NAME}
       PRIVATE ${CMAKE_SOURCE_DIR}/source
+      PRIVATE ${CMAKE_SOURCE_DIR}/third_party/SFML/include
       )
     target_link_libraries(${EXE_NAME}
       PRIVATE Catch2::Catch2WithMain
+      PRIVATE  sfml-network
+      PRIVATE tinyxml2
+      PRIVATE nlohmann_json::nlohmann_json
       )
 
-    target_link_libraries(${EXE_NAME}
-            PRIVATE tinyxml2
-            )
-
-    target_link_libraries(${EXE_NAME}
-            PRIVATE nlohmann_json::nlohmann_json
-    )
-    
     # Add to ctest
     add_test(NAME ${EXE_NAME} COMMAND ${EXE_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
   endforeach()

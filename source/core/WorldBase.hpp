@@ -13,6 +13,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "AgentBase.hpp"
 #include "Data.hpp"
@@ -20,6 +21,8 @@
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
 #include "DataCollection/DataManager.hpp"
+#include "Interfaces/NetWorth/server/ServerManager.hpp"
+#include "Interfaces/NetWorth/client/ControlledAgent.hpp"
 
 namespace cse491 {
 
@@ -28,6 +31,7 @@ class DataReceiver;
 class WorldBase {
 public:
   static constexpr size_t npos = static_cast<size_t>(-1);
+  netWorth::ServerManager *manager = nullptr;
 
 protected:
   /// Derived worlds may choose to have more than one grid.
@@ -275,6 +279,18 @@ public:
     }
   }
 
+  /// @brief Step through each agent giving them a chance to take an action.
+  /// @note Override this function if you want to control which grid the agents receive.
+  virtual void RunServerAgents() {
+    for (auto & [id, agent_ptr] : agent_map) {
+      size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      manager->TellAction(id, action_id);
+      agent_ptr->storeActionMap(agent_ptr->GetName());
+      int result = DoAction(*agent_ptr, action_id);
+      agent_ptr->SetActionResult(result);
+    }
+  }
+
   void CollectData() {
       for (const auto & [id, agent_ptr] : agent_map) {
           DataCollection::DataManager::GetInstance().GetAgentReceiver().StoreData(
@@ -293,6 +309,17 @@ public:
     run_over = false;
     while (!run_over) {
       RunAgents();
+      CollectData();
+      UpdateWorld();
+    }
+  }
+
+  /// @brief Run world as server with manager
+  virtual void RunServer(netWorth::ServerManager *mgr) {
+    run_over = false;
+    manager = mgr;
+    while (!run_over) {
+      RunServerAgents();
       CollectData();
       UpdateWorld();
     }
@@ -383,6 +410,113 @@ public:
   /// @return If an agent should be allowed on this square
   [[nodiscard]] virtual bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition /*pos*/) const {
     return true;
+  }
+
+  void SerializeAgentSet(std::ostream &os) {
+      os << ":::START agent_set\n";
+      os << agent_map.size() << '\n';
+
+      for (const auto &agent: agent_map) {
+        agent.second->Serialize(os);
+      }
+      os << ":::END agent_set\n";
+  }
+
+  /**
+   * Deserialize agents and add to world
+   * @param is istream
+   * @param world world that is being added to
+   * @param manager pointer to ClientManager for agents
+   */
+  void DeserializeAgentSet(std::istream &is, netWorth::ClientManager *manager) {\
+    // find beginning of agent_set serialization
+    std::string read;
+    std::getline(is, read, '\n');
+    if (read != ":::START agent_set") {
+      std::cerr << "Could not find start of agent_set serialization" << std::endl;
+      return;
+    }
+
+    std::string name, x, y;
+    size_t size;
+
+    // how many agents?
+    std::getline(is, read, '\n');
+      size = stoi(read);
+
+      // read each agent (only deserialize name, x, and y for now)
+      for (size_t i = 0; i < size; i++) {
+        std::getline(is, name, '\n');
+        std::getline(is, x, '\n');
+        std::getline(is, y, '\n');
+
+        AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+      }
+
+    std::getline(is, read, '\n');
+    if (read != ":::END agent_set") {
+        std::cerr << "Could not find end of agent_set serialization" << std::endl;
+        return;
+    }
+    }
+
+  void SerializeItemSet(std::ostream &os) {
+    os << ":::START item_set\n";
+    os << item_map.size() << '\n';
+
+    for (const auto &item: item_map) {
+        item.second->Serialize(os);
+    }
+    os << ":::END item_set\n";
+  }
+
+  void DeserializeItemSet(std::istream &is) {
+  // find beginning of item_set serialization
+  std::string read;
+  std::getline(is, read, '\n');
+  if (read != ":::START item_set") {
+      std::cerr << "Could not find start of item_set serialization" << std::endl;
+      return;
+  }
+
+  size_t size;
+
+  // how many items?
+  std::getline(is, read, '\n');
+  size = stoi(read);
+
+  // read each item
+  for (size_t i = 0; i < size; i++) {
+      auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
+      item->Deserialize(is);
+      AddItem(std::move(item));
+  }
+
+  std::getline(is, read, '\n');
+  if (read != ":::END item_set") {
+      std::cerr << "Could not find end of item_set serialization" << std::endl;
+      return;
+  }
+  }
+
+  /**
+   * Serialize world grid and agents into ostream
+   * @param os ostream
+   */
+  void Serialize(std::ostream &os) {
+    main_grid.Serialize(os);
+    SerializeAgentSet(os);
+    SerializeItemSet(os);
+  }
+
+  /**
+   * Deserialize world grid from istream
+   * @param is
+   */
+  void Deserialize(std::istream &is, netWorth::ClientManager *manager) {
+    main_grid.Deserialize(is);
+    DeserializeAgentSet(is, manager);
+    DeserializeItemSet(is);
   }
 
 };

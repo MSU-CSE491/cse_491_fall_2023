@@ -12,15 +12,34 @@
 int main()
 {
   cse491_team8::ManualWorld world;
-  world.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
-  world.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
-  world.AddAgent<cse491::TrashInterface>("Interface", "Strength", 15, "Health", 15, "Max_Health", 40, "Direction", 0).SetProperty("symbol", '@').SetPosition(40,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health",  5, "Max_Health", 30, "Direction", 0).SetPosition(45, 3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 15, "Health", 10, "Max_Health", 30, "Direction", 0).SetPosition(3,14);
-  world.AddAgent<cse491::PacingAgent>("Pacer 2", "Strength", 20, "Health", 20, "Max_Health", 30, "Direction", 0).SetPosition(7,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 3", "Strength", 25, "Health", 30, "Max_Health", 30, "Direction", 0).SetPosition(18,3);
-  world.AddAgent<cse491::PacingAgent>("Pacer 4", "Strength", 30, "Health", 40, "Max_Health", 30, "Direction", 0).SetPosition(45,17);
+
+  world.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(37, 3);
+  world.AddItem("Axe", "Uses", 10, "symbol", 'P').SetPosition(40, 5);
+  world.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
+  
+  world.AddItem("Sword", "Strength", 10, "symbol", 't').SetPosition(27, 11);
+  world.AddItem("Health Potion", "Healing", 25, "symbol", 'j').SetPosition(38, 16);
+  world.AddItem("Health Potion", "Healing", 40, "symbol", 'j').SetPosition(40, 1);
+
+  world.AddAgent<cse491::TrashInterface>("Interface", "symbol", '@').SetPosition(40,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(45, 3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 5").SetPosition(3,14);
+  world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(7,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 3").SetPosition(18,3);
+  world.AddAgent<cse491::PacingAgent>("Pacer 4").SetPosition(45,17);
+
+  world.AddAgent<cse491::PacingAgent>("Shark", "OnlyWater", 1).SetPosition(11, 4);
+
+  auto & pacer_1 = world.GetAgent(world.GetAgentID("Pacer 1"));
+  world.AddItem("Sword", "Strength", 15, "symbol", 't').SetPosition(pacer_1.GetPosition());
+  world.DoActionAttemptItemPickup(pacer_1, pacer_1.GetPosition());
+
+  auto & interface = world.GetAgent(world.GetAgentID("Interface"));
+  world.MoveSetAction(interface);
 
   world.GenerateMoveSets();
+  // world.SetBattling();
+
   world.Run();
+  
 }

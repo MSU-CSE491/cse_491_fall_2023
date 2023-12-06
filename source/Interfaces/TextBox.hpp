@@ -88,6 +88,11 @@ namespace i_2D {
             return isSelected;
         }
 
+        /**
+         * @brief Checks if a point is within the TextBox
+         * @param point an xy point to check the location of
+         * @return True if the point is in bounds, False otherwise
+         */
         bool Contains(sf::Vector2f point) const {
             return mBorderRect.getGlobalBounds().contains(point);
         }
