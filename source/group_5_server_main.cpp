@@ -107,13 +107,14 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
         serverManager.hasNewAgent = true;
 
-		serverManager.SendGameUpdates();
+
 
 		// serialize agents
 		std::ostringstream agent_os;
 		world.SerializeAgentSet(agent_os);
 		std::string serialized_agents = agent_os.str();
 		serverManager.SetSerializedAgents(serialized_agents);
+        serverManager.SendGameUpdates();
 
         //Do an atomic check to see if you can add it
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);

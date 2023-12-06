@@ -522,9 +522,12 @@ public:
     size_t size, id;
     size_t client_id = manager->GetClientID();
 
+    std::set<size_t> to_delete;
     for (auto &pair : agent_map) {
-        if (pair.first != client_id) RemoveAgent(pair.first);
+        if (pair.first != client_id) to_delete.insert(pair.first);
     }
+
+    for (size_t agent_id : to_delete) RemoveAgent(agent_id);
 
     last_entity_id = 0;
 
@@ -546,6 +549,8 @@ public:
         // is this new agent NOT the client interface
         if (last_entity_id + 1 != manager->GetClientID() && last_entity_id + 1 == id) {
             AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+        } else {
+            last_entity_id++;
         }
     }
 
