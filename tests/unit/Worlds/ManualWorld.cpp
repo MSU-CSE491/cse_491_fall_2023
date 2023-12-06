@@ -24,6 +24,37 @@ TEST_CASE("ManualWorld Construction", "[worlds][manual]"){
   }
 }
 
+TEST_CASE("Finding item for agent"){
+  SECTION("Successful Item Find"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    agent->AddItem(*item);
+    world.AddItem(std::move(item));
+    CHECK(world.FindItem(*agent, "Health Potion") == 2);
+  }
+
+  SECTION("Item owned, finding different item"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
+    item->SetProperty("Healing", 10);
+    agent->AddItem(*item);
+    world.AddItem(std::move(item));
+    CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
+  }
+
+  SECTION("No items owned"){
+    cse491_team8::ManualWorld world;
+    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
+    agent->SetProperties("Health", 13, "Max_Health", 20);
+    CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
+  }
+}
+
 TEST_CASE("Agent Healing"){
   SECTION("Attempt Heal Success Full Heal"){
     cse491_team8::ManualWorld world;
@@ -56,37 +87,6 @@ TEST_CASE("Agent Healing"){
     agent->SetProperties("Health", 13, "Max_Health", 20);
     world.HealAction(*agent);
     CHECK(agent->GetProperty<int>("Health") == 13);
-  }
-}
-
-TEST_CASE("Finding item for agent"){
-  SECTION("Successful Item Find"){
-    cse491_team8::ManualWorld world;
-    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
-    agent->SetProperties("Health", 13, "Max_Health", 20);
-    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
-    item->SetProperty("Healing", 10);
-    item->SetOwner(*agent);
-    world.AddItem(std::move(item));
-    CHECK(world.FindItem(*agent, "Health Potion") == 2);
-  }
-
-  SECTION("Item owned, finding different item"){
-    cse491_team8::ManualWorld world;
-    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
-    agent->SetProperties("Health", 13, "Max_Health", 20);
-    auto item = std::make_unique<cse491::ItemBase>(2, "Health Potion");
-    item->SetProperty("Healing", 10);
-    item->SetOwner(*agent);
-    world.AddItem(std::move(item));
-    CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
-  }
-
-  SECTION("No items owned"){
-    cse491_team8::ManualWorld world;
-    auto agent = std::make_unique<cse491::PacingAgent>(1, "Pacer");
-    agent->SetProperties("Health", 13, "Max_Health", 20);
-    CHECK(world.FindItem(*agent, "Axe") == SIZE_MAX);
   }
 }
 

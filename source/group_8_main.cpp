@@ -9,7 +9,6 @@
 #include "Interfaces/MainInterface.hpp"
 #include "Worlds/ManualWorld.hpp"
 #include "Interfaces/MainInterface.hpp"
-#include "Interfaces/TrashInterface.hpp"
 #include "Agents/AStarAgent.hpp"
 
 int main()
