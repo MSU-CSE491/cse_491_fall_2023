@@ -77,7 +77,9 @@ void BiomeGenerator::generate() {
     }
 
     if (biome == BiomeType::Ocean) {
-        oceanHandler();
+        placeTileRandom(hole_id, sand_id);
+        placeSpecialTiles(tile1, spike_id, 0.01); // Placing spike tiles
+        placeSpecialTiles(tile1, tar_id, 0.04); // Placing tar tiles
     }
 
 }
