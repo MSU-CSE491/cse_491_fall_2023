@@ -36,7 +36,7 @@ only on files above it in the core.
 ## `Entity.hpp`
 
 - Should we use a better/different structure for properties?  Right now properties can only have a `double` value, but we could use `std::variant` to allow for a set of allowed values, or even `std::any`.
-- If we have Entity derive from `CoreObject`, we have to think about how to keep requirements for serialize functions on subsequent derived classes.  One option is to simply provide tools (like a `SerializeEntity()` function), but don't build the required virtual functions yet.  Still, it would be nice to be able to require correctness (or at least detect common errors, like forgetting to run `SerializeEntity()`)
+- If we have Entity derive from `CoreObject`, we have to think about how to keep requirements for Serialize functions on subsequent derived classes.  One option is to simply provide tools (like a `SerializeEntity()` function), but don't build the required virtual functions yet.  Still, it would be nice to be able to require correctness (or at least detect common errors, like forgetting to run `SerializeEntity()`)
 
 ## `AgentBase.hpp`
 

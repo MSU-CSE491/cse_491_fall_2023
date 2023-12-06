@@ -9,6 +9,7 @@
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Interfaces/MainInterface.hpp"
+#include "ClientManager.hpp"
 
 namespace netWorth{
     /**
@@ -18,6 +19,7 @@ namespace netWorth{
 
     class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
         private:
+            netWorth::ClientManager *m_manager = nullptr;
 
         protected:
 
@@ -39,6 +41,8 @@ namespace netWorth{
                 // resolve port and IP from entity properties
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("port");
+                m_manager = GetProperty<netWorth::ClientManager *>("manager");
+                m_manager->SetupSocket(&m_socket, m_ip, m_port);
 
                 Packet send_pkt, recv_pkt;
                 std::string str;
@@ -75,34 +79,38 @@ namespace netWorth{
                                 const cse491::item_map_t & item_set,
                                 const cse491::agent_map_t & agent_set) override
             {
-                // Receive and draw map
-                sf::Packet send_pkt, recv_pkt;
-                std::string map;
-
-                ReceivePacket(recv_pkt, m_ip, m_port);
-                ProcessPacket(recv_pkt);
+                sf::Packet send_pkt;
 
                 // grab action ID from MainInterface
-                size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
+              std::uint32_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
                                                                      item_set, agent_set);
-                std::cout << action_id << std::endl;
+                //std::cout << action_id << std::endl;
 
                 // Send instruction to server
                 send_pkt << action_id;
                 SendPacket(send_pkt, m_ip.value(), m_port);
+
+                m_manager->ClearActionMap();
 
                 // Do the action!
                 return action_id;
             }
 
             /**
-             * Process packet from server (just print map for now)
+             * Process packet from server (just print agent action map for now)
              * @param packet packet from server
              */
             void ProcessPacket(Packet packet) override {
-                std::string str;
-                packet >> str;
-                std::cout << str;
+                size_t data_size, data;
+                packet >> data_size;
+                std::cout << data_size << " agents" << std::endl;
+                for (size_t i = 0; i < data_size; i++) {
+                    packet >> data;
+                    std::cout << "agent " << data;
+                    packet >> data;
+                    std::cout << " action " << data << std::endl;
+                }
+                std::cout << std::endl;
             }
 
     }; // End of ClientInterface

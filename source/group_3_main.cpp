@@ -23,7 +23,7 @@ int main() {
 //     group 4 maze -1
     group4::SecondWorld world_1;
 
-    world_1.AddAgent<i_2D::MainInterface>("Interface").SetProperty<char>("symbol", '@');
+    world_1.AddAgent<i_2D::MainInterface>("Interface", "Health", 5).SetProperty<char>("symbol", '@');
 
     // Adding power sword with id = 1; name = sword of power
     auto powerSword = std::make_unique<cse491::ItemBase>(1, "Sword of Power");

@@ -54,6 +54,12 @@ namespace cse491 {
       is >> width >> height;
       cells.resize(width * height);
       for (size_t & state : cells) is >> state;
+
+      // add one to the position
+      // EndDeserialize seems to be getting the end of the current line
+      // but, it expects the next line
+      int curr_pos = is.tellg();
+      is.seekg(curr_pos + 1);
     }
 
   public:
@@ -191,7 +197,6 @@ namespace cse491 {
       Read(is, types);
       return true;
     }
-
     
   };
 
