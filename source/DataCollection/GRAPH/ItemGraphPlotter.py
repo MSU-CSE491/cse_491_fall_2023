@@ -52,23 +52,22 @@ class ItemGraphPlotter:
         plt.legend()
         plt.show()
 
-    def plot_agent_line_path(self, agent_names):
+    def plot_agent_line_path(self):
         agents = self.json_data.get("AgentPositions", [])
         if not agents:
             print("No 'agents' key found in the JSON data.")
             return
 
-        for agent_name in agent_names:
-            for agent in agents:
-                if agent.get("agentname") == agent_name:
-                    agent_positions = agent.get("positions", [])
-                    if not agent_positions:
-                        print(f"No 'positions' data found for agent '{agent_name}'.")
-                        continue
+        for agent in agents:
+            agent_name = agent.get("agentname", "")
+            agent_positions = agent.get("positions", [])
+            if not agent_positions:
+                print(f"No 'positions' data found for agent '{agent_name}'.")
+                continue
 
-                    df = pd.DataFrame(agent_positions)
+            df = pd.DataFrame(agent_positions)
 
-                    plt.plot(df["x"], df["y"], label=agent_name)
+            plt.plot(df["x"], df["y"], label=agent_name)
 
         plt.title(f"Agent Path")
         plt.xlabel("X")
@@ -79,8 +78,6 @@ class ItemGraphPlotter:
         plt.show()
 
         return
-
-        print(f"Agent with name '{agent_name}' not found in the JSON data.")
 
     def plot_agent_path(self, agent_name):
         agents = self.json_data.get("AgentPositions", [])
@@ -111,6 +108,21 @@ class ItemGraphPlotter:
 
         print(f"Agent with name '{agent_name}' not found in the JSON data.")
 
+    def plot_agent_interaction_bar_graph(self):
+        interactions = self.json_data.get("agentInteractions", [])
+        if not interactions:
+            print("No 'agentInteractions' key found in the JSON data.")
+            return
+
+        names = [interaction.get("name", "") for interaction in interactions]
+        uses = [interaction.get("interactionCount", 0) for interaction in interactions]
+
+        plt.bar(names, uses, color='skyblue')
+        plt.title("Agent Interactions")
+        plt.xlabel("Agents")
+        plt.ylabel("Amount of Interactions")
+        plt.show()
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python ItemGraphPlotter.py <json_file>")
@@ -122,8 +134,9 @@ if __name__ == "__main__":
 
         # Determine which graph to plot based on the file name
         if "AgentPositions" in item_graph_plotter.json_data:
-            agent_names = ["Interface", "Pacer 1", "AStar 1"]
-            item_graph_plotter.plot_agent_line_path(agent_names)
+            item_graph_plotter.plot_agent_line_path()
+        if "agentInteractions" in item_graph_plotter.json_data:
+            item_graph_plotter.plot_agent_interaction_bar_graph()
         # Determine which graph to plot based on the file content
         elif "amountOfUses" in item_graph_plotter.json_data.get("items", [])[0]:
             item_graph_plotter.plot_item_usage_bar_graph()

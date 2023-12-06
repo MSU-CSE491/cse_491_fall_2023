@@ -88,7 +88,7 @@ namespace DataCollection {
             json_builder.StartArray("items");
             for (auto& usage: usageData) {
                 json_builder.AddName(usage.first);
-                json_builder.AddInt("amountOfUsese", usage.second);
+                json_builder.AddInt("amountOfUses", usage.second);
                 json_builder.InputToArray("items", json_builder.GetJSON());
                 json_builder.ClearJSON();
             }

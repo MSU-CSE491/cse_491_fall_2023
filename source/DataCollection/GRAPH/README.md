@@ -65,20 +65,3 @@ python ItemGraphPlotter.py gridPositions.json
 ```
 
 Replace `gridPositions.json` with the path to your JSON file containing grid positions data.
-
-
-
-## Contributing
-
-If you'd like to contribute to this project, please follow the [contribution guidelines](CONTRIBUTING.md).
-
-## License
-
-This project is licensed under the [License Name] - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Acknowledgments
-
-Mention and thank contributors, libraries, or resources that you found helpful in your project.
-
-
-Feel free to customize this template based on the specifics of your project and add any additional information that might be relevant.

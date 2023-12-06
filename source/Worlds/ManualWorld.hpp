@@ -340,6 +340,7 @@ namespace cse491_team8 {
       run_over = false;
       while (!run_over) {
         RunAgents();
+        CollectData();
         UpdateWorld();
       }
     }
