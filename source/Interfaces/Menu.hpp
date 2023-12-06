@@ -4,8 +4,8 @@
 * Menu class creates a menu and displays it in the render window
 */
 
-#ifndef CSE_491_MENU_HPP
-#define CSE_491_MENU_HPP
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include "Button.hpp"
 #include <vector>
@@ -75,4 +75,3 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
 
     };
 }
-#endif //CSE_491_MENU_HPP

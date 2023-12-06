@@ -22,19 +22,19 @@ namespace i_2D {
 
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[0]->setPosition({0,0});
+        mMenuBar[0]->SetPosition({0,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[1]->setPosition({200,0});
+        mMenuBar[1]->SetPosition({200,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[2]->setPosition({400,0});
+        mMenuBar[2]->SetPosition({400,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Normal", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[3]->setPosition({600,0});
+        mMenuBar[3]->SetPosition({600,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Enlarge", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[4]->setPosition({800,0});
+        mMenuBar[4]->SetPosition({800,0});
 
     }
 
@@ -45,7 +45,7 @@ namespace i_2D {
      */
     void Menu::drawto(sf::RenderWindow &window) {
         for( const auto &button : mMenuBar){
-            button->drawTo(window);
+            button->DrawTo(window);
         }
         if(mInventory) {
             mInventory->DrawTo(window);
@@ -60,10 +60,10 @@ namespace i_2D {
      */
     void Menu::HandleMouseMove(sf::RenderWindow &window) {
         for (int i = 0; i < mMenuBar.size(); ++i) {
-            if (mMenuBar[i]->isMouseOver(window)) {
-                mMenuBar[i]->setBackColor(sf::Color::Magenta);
+            if (mMenuBar[i]->IsMouseOver(window)) {
+                mMenuBar[i]->SetBackColor(sf::Color::Magenta);
             } else {
-                mMenuBar[i]->setBackColor(sf::Color::Black);
+                mMenuBar[i]->SetBackColor(sf::Color::Black);
             }
         }
         if(mInventory){
@@ -78,9 +78,9 @@ namespace i_2D {
      */
     void Menu::HandleMouseButtonPressed(sf::RenderWindow &window,
                                         const std::vector<std::string> &interfaceAgentInventory) {
-        if(mMenuBar[2]->isMouseOver(window)){
+        if(mMenuBar[2]->IsMouseOver(window)){
             exit(0);
-        }else if(mMenuBar[1]->isMouseOver(window)){
+        }else if(mMenuBar[1]->IsMouseOver(window)){
             if(mInventory){
                 DeconstructInventory();
             }else {

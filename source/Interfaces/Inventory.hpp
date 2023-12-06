@@ -4,8 +4,7 @@
  * Inventory class creates an array of buttons and uses it as inventory
  */
 
-#ifndef CSE_491_INVENTORY_HPP
-#define CSE_491_INVENTORY_HPP
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include "Button.hpp"
@@ -39,5 +38,3 @@ namespace i_2D {
     };
 }
 
-
-#endif //CSE_491_INVENTORY_HPP

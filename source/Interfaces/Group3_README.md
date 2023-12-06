@@ -51,9 +51,31 @@ The function ensures that the user's interactions with the maze application are 
 
 ## <span style="color: aqua;">Description
 
+The `Button` class is responsible for drawing rectangles on the RenderWindow and handling mouse's hover and click events
+
 <details> <summary>Functionalities:</summary>
 
+
 ### <span style="color: orange;"> Button Constructor
+
+Construct the text with the font in the asset folder. Set the text to be displayed by the button and set the properties of the text and rectangleshape by the parameters passed to the constructor.
+
+### <span style="color: orange;"> Setters
+SetString : 
+SetFont : 
+SetButtonSize : 
+SetBackGroundColor : 
+SetTextColor : 
+SetPosition
+
+### <span style="color: orange;"> DrawTo
+
+Draws itself onto the RenderWindow
+
+### <span style="color: orange;"> IsMouseOver
+
+Check mouse position and return true if it's on the button
+
 </details>
 
 
