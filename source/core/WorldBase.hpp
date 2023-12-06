@@ -13,12 +13,16 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <sstream>
 
+#include "../DataCollection/AgentReciever.hpp"
 #include "AgentBase.hpp"
 #include "Data.hpp"
 #include "ItemBase.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
+#include "Interfaces/NetWorth/server/ServerManager.hpp"
+#include "Interfaces/NetWorth/client/ControlledAgent.hpp"
 
 namespace cse491 {
 
@@ -27,21 +31,27 @@ class DataReceiver;
 class WorldBase {
 public:
   static constexpr size_t npos = static_cast<size_t>(-1);
+  netWorth::ServerManager *manager = nullptr;
+
+  /// Helper function that is run whenever a new agent is created.
+  /// @note Override this function to provide agents with actions or other
+  /// setup.
+  virtual void ConfigAgent(AgentBase & /* agent */) const {}
 
 protected:
   /// Derived worlds may choose to have more than one grid.
   std::unordered_map<size_t, WorldGrid> grids;
 
-  WorldGrid & main_grid;        ///< Main grid for this world; shortcut to `grids["main"]`
-  type_options_t type_options;  ///< Vector of types of cells in grids for this world.
+  WorldGrid &main_grid; ///< Main grid for this world; shortcut to `grids["main"]`
+  type_options_t type_options; ///< Vector of types of cells in grids for this world.
 
   item_map_t item_map;          ///< Map of IDs to pointers to non-agent entities
   agent_map_t agent_map;        ///< Map of IDs to pointers to agent entities
   size_t last_entity_id = 0;     ///< The last Entity ID used; increment at each creation
 
-  bool run_over = false;        ///< Should the run end?
-  
-  std::string action;           ///< The action that the agent is currently performing
+  bool run_over = false; ///< Should the run end?
+
+  std::string action; ///< The action that the agent is currently performing
   std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
 
   unsigned int seed;            ///< Seed used for generator
@@ -59,8 +69,10 @@ protected:
   /// @brief  Add a new type of cell to this world.
   /// @param name A unique name for this cell type
   /// @param desc A longer description of the cell type
-  /// @param symbol An (optional) unique symbol for text IO (files, command line)
-  /// @return A unique ID associated with this cell type (position in type_options vector)
+  /// @param symbol An (optional) unique symbol for text IO (files, command
+  /// line)
+  /// @return A unique ID associated with this cell type (position in
+  /// type_options vector)
   size_t AddCellType(const std::string &name, const std::string &desc = "",
                      char symbol = '\0') {
     type_options.push_back(CellType{name, desc, symbol});
@@ -127,7 +139,6 @@ public:
     }
     return npos;
   }
-  
 
   /// Return an editable version of the current grid for this world (main_grid by default)
   virtual WorldGrid & GetGrid() { return main_grid; }
@@ -144,7 +155,7 @@ public:
 
   /// @brief  Get the seed used to initialize this RNG
   unsigned int GetSeed() const { return seed; }
- 
+
   /// @brief  Return a uniform random value between 0.0 and 1.0
   double GetRandom() { return uni_dist(random_gen); }
 
@@ -161,17 +172,17 @@ public:
   double GetRandomNormal() { return norm_dist(random_gen); }
 
   /// @brief  Return a gaussian random value with provided mean and sd.
-  double GetRandomNormal(double mean, double sd=1.0) {
+  double GetRandomNormal(double mean, double sd = 1.0) {
     assert(sd > 0);
     return mean + norm_dist(random_gen) * sd;
   }
 
- 
   // -- Agent Management --
 
   /// @brief Build a new agent of the specified type
   /// @tparam AGENT_T The type of agent to build
-  /// @tparam PROPERTY_Ts Types for any properties to set at creation (automatic)
+  /// @tparam PROPERTY_Ts Types for any properties to set at creation
+  /// (automatic)
   /// @param agent_name The name of this agent
   /// @param properties Name/value pairs for any properties set at creation
   /// @return A reference to the newly created agent
@@ -183,7 +194,8 @@ public:
     agent_ptr->SetProperties(std::forward<PROPERTY_Ts>(properties)...);
     ConfigAgent(*agent_ptr);
     if (agent_ptr->Initialize() == false) {
-      std::cerr << "Failed to initialize agent '" << agent_name << "'." << std::endl;
+      std::cerr << "Failed to initialize agent '" << agent_name << "'."
+                << std::endl;
     }
     agent_map[agent_id] = std::move(agent_ptr);
     return *agent_map[agent_id];
@@ -235,16 +247,16 @@ public:
   /// @brief Remove an agent from the agent map by name
   /// @param agent_name The name of this agent
   /// @return This world
-  WorldBase & RemoveAgent(std::string agent_name="None") {
+  WorldBase &RemoveAgent(std::string agent_name = "None") {
     assert(agent_name != "Interface"); // We are not allowed to remove interfaces.
-    return RemoveAgent( GetAgentID(agent_name) );
+    return RemoveAgent(GetAgentID(agent_name));
   }
 
   /// @brief Remove an item from the item map by name
   /// @param item_id The ID of this item
   /// @return This world
-  WorldBase & RemoveItem(std::string item_name) {
-    return RemoveItem( GetItemID(item_name) );
+  WorldBase &RemoveItem(std::string item_name) {
+    return RemoveItem(GetItemID(item_name));
   }
   
 
@@ -255,13 +267,26 @@ public:
   /// @param action The id of the action to take
   /// @return The result of this action (usually 0/1 to indicate success)
   /// @note Thus function must be overridden in any derived world.
-  virtual int DoAction(AgentBase & agent, size_t action_id) = 0;
+  virtual int DoAction(AgentBase &agent, size_t action_id) = 0;
 
   /// @brief Step through each agent giving them a chance to take an action.
-  /// @note Override this function if you want to control which grid the agents receive.
+  /// @note Override this function if you want to control which grid the agents
+  /// receive.
   virtual void RunAgents() {
     for (auto & [id, agent_ptr] : agent_map) {
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      agent_ptr->storeActionMap(agent_ptr->GetName());
+      int result = DoAction(*agent_ptr, action_id);
+      agent_ptr->SetActionResult(result);
+    }
+  }
+
+  /// @brief Step through each agent giving them a chance to take an action.
+  /// @note Override this function if you want to control which grid the agents receive.
+  virtual void RunServerAgents() {
+    for (auto & [id, agent_ptr] : agent_map) {
+      size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+      manager->TellAction(id, action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
@@ -293,28 +318,44 @@ public:
     }
   }
 
+  /// @brief Run world as server with manager
+  virtual void RunServer(netWorth::ServerManager *mgr) {
+    run_over = false;
+    manager = mgr;
+    while (!run_over) {
+      RunServerAgents();
+      CollectData();
+      UpdateWorld();
+    }
+  }
+
   // CellType management.
 
   // Return a const vector of all of the possible cell types.
-  [[nodiscard]] const type_options_t &GetCellTypes() const { return type_options; }
+  [[nodiscard]] const type_options_t &GetCellTypes() const {
+    return type_options;
+  }
 
   /// @brief Return the ID associated with the cell type name.
   /// @param name The unique name of the cell type
   /// @return The unique ID of the cell type (or 0 if it doesn't exist.)
   [[nodiscard]] size_t GetCellTypeID(const std::string &name) const {
     for (size_t i = 1; i < type_options.size(); ++i) {
-      if (type_options[i].name == name) return i;
+      if (type_options[i].name == name)
+        return i;
     }
     return 0;
   }
 
   [[nodiscard]] const std::string &GetCellTypeName(size_t id) const {
-    if (id >= type_options.size()) return type_options[0].name;
+    if (id >= type_options.size())
+      return type_options[0].name;
     return type_options[id].name;
   }
 
   [[nodiscard]] char GetCellTypeSymbol(size_t id) const {
-    if (id >= type_options.size()) return type_options[0].symbol;
+    if (id >= type_options.size())
+      return type_options[0].symbol;
     return type_options[id].symbol;
   }
 
@@ -378,6 +419,113 @@ public:
   /// @return If an agent should be allowed on this square
   [[nodiscard]] virtual bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition /*pos*/) const {
     return true;
+  }
+
+  void SerializeAgentSet(std::ostream &os) {
+      os << ":::START agent_set\n";
+      os << agent_map.size() << '\n';
+
+      for (const auto &agent: agent_map) {
+        agent.second->Serialize(os);
+      }
+      os << ":::END agent_set\n";
+  }
+
+  /**
+   * Deserialize agents and add to world
+   * @param is istream
+   * @param world world that is being added to
+   * @param manager pointer to ClientManager for agents
+   */
+  void DeserializeAgentSet(std::istream &is, netWorth::ClientManager *manager) {
+    // find beginning of agent_set serialization
+    std::string read;
+    std::getline(is, read, '\n');
+    if (read != ":::START agent_set") {
+      std::cerr << "Could not find start of agent_set serialization" << std::endl;
+      return;
+    }
+
+    std::string name, x, y;
+    size_t size;
+
+    // how many agents?
+    std::getline(is, read, '\n');
+      size = stoi(read);
+
+      // read each agent (only deserialize name, x, and y for now)
+      for (size_t i = 0; i < size; i++) {
+        std::getline(is, name, '\n');
+        std::getline(is, x, '\n');
+        std::getline(is, y, '\n');
+
+        AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+      }
+
+    std::getline(is, read, '\n');
+    if (read != ":::END agent_set") {
+        std::cerr << "Could not find end of agent_set serialization" << std::endl;
+        return;
+    }
+  }
+
+  void SerializeItemSet(std::ostream &os) {
+    os << ":::START item_set\n";
+    os << item_map.size() << '\n';
+
+    for (const auto &item: item_map) {
+        item.second->Serialize(os);
+    }
+    os << ":::END item_set\n";
+  }
+
+  void DeserializeItemSet(std::istream &is) {
+    // find beginning of item_set serialization
+    std::string read;
+    std::getline(is, read, '\n');
+    if (read != ":::START item_set") {
+        std::cerr << "Could not find start of item_set serialization" << std::endl;
+        return;
+    }
+
+    size_t size;
+
+    // how many items?
+    std::getline(is, read, '\n');
+    size = stoi(read);
+
+    // read each item
+    for (size_t i = 0; i < size; i++) {
+        auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
+        item->Deserialize(is);
+        AddItem(std::move(item));
+    }
+
+    std::getline(is, read, '\n');
+    if (read != ":::END item_set") {
+        std::cerr << "Could not find end of item_set serialization" << std::endl;
+        return;
+    }
+  }
+
+  /**
+   * Serialize world grid and agents into ostream
+   * @param os ostream
+   */
+  void Serialize(std::ostream &os) {
+    main_grid.Serialize(os);
+    SerializeAgentSet(os);
+    SerializeItemSet(os);
+  }
+
+  /**
+   * Deserialize world grid from istream
+   * @param is
+   */
+  void Deserialize(std::istream &is, netWorth::ClientManager *manager) {
+    main_grid.Deserialize(is);
+    DeserializeAgentSet(is, manager);
+    DeserializeItemSet(is);
   }
 
 };

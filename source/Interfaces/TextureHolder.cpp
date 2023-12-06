@@ -34,11 +34,11 @@ namespace i_2D
     const sf::Texture &TextureHolder::GetTexture(std::string id) {
         // Find iterator of matching id (avoids copy of unique_ptr)
         auto got = textures_.find(id);
-        // Return dereferenced unique_ptr found at iterator pair
+        // Return dereference unique_ptr found at iterator pair
         return *got->second;
     }
 
-    /*
+    /**
      * @brief This function loads texture for the maze world images - Default maze
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -57,7 +57,7 @@ namespace i_2D
         textures['@'] = GetTexture("agentTexture");
         return textures;
     }
-    /*
+    /**
      * @brief This function loads texture for the second world images group 4
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -91,7 +91,7 @@ namespace i_2D
 
         return textures;
     }
-    /*
+    /**
      * @brief This function loads texture for the manual world images group 8
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */
@@ -124,7 +124,7 @@ namespace i_2D
 
         return textures;
     }
-    /*
+    /**
      * @brief This function loads texture for the generative world images group 6
      * @return std::map< name, texture> returns the map, key is the name of the texture and values is the actual texture
      */

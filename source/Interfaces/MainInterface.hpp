@@ -48,7 +48,6 @@ namespace i_2D {
         sf::Font mFont; ///< one font for all objects using font
         std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
         std::unique_ptr<MessageBoard> mMessageBoard;
-//        std::unique_ptr<Button> mTestButton;
 
         // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder
@@ -67,7 +66,9 @@ namespace i_2D {
         int mGridWidth  = 0;
         int mGridHeight = 0;
 
-        bool mPlayerHasMoved = false;
+        double mInputWaitTime = 0.5f;
+    public:
+        void setMInputWaitTime(double mInputWaitTime);
 
     public:
 
@@ -132,6 +133,8 @@ namespace i_2D {
         void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
 
         void DrawTimer();
+
+        void DrawHealthInfo();
     };
 
 } // End of namespace 2D

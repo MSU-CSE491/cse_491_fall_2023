@@ -31,7 +31,6 @@ void i_2D::Button::setMFont(const sf::Font &font) {
  */
 void i_2D::Button::setPosition(sf::Vector2f pos) {
     button.setPosition(pos);
-
     float xPos = (pos.x + button.getGlobalBounds().width / 2) - (text->getLocalBounds().width/2);
     float yPos = (pos.y + button.getGlobalBounds().height / 2) - (text->getLocalBounds().height/2);
     text->setPosition({xPos, yPos});
@@ -51,10 +50,10 @@ bool i_2D::Button::isMouseOver(sf::RenderWindow &window) {
     float btnPosX = button.getPosition().x;
     float btnPosY = button.getPosition().y;
 
-    float btnxPosWidth = button.getPosition().x + button.getLocalBounds().width;
-    float btnyPosHeight = button.getPosition().y + button.getLocalBounds().height;
+    float btnXPosWidth = button.getPosition().x + button.getLocalBounds().width;
+    float btnYPosHeight = button.getPosition().y + button.getLocalBounds().height;
 
-    if(mouseX < btnxPosWidth && mouseX > btnPosX && mouseY < btnyPosHeight && mouseY > btnPosY){
+    if(mouseX < btnXPosWidth && mouseX > btnPosX && mouseY < btnYPosHeight && mouseY > btnPosY){
         return true;
     }
     return false;

@@ -36,6 +36,10 @@ void i_2D::TextBox::SetString(const std::string &s) {
     mText << s;
 }
 
+/***
+ * @brief Setter for isSelected, updates the text displayed in the box
+ * @param sel whether the TextBox is to be set selected or not
+ */
 void i_2D::TextBox::SetSelected(bool sel) {
     isSelected = sel;
     if(!sel){
@@ -48,6 +52,10 @@ void i_2D::TextBox::SetSelected(bool sel) {
     }
 }
 
+/***
+ * @brief TypedOn event handler
+ * @param input the new text that has been typed into the TextBox
+ */
 void i_2D::TextBox::TypedOn(sf::Event input) {
     if(isSelected){
         int charTyped = static_cast<int>(input.text.unicode);
@@ -65,6 +73,10 @@ void i_2D::TextBox::TypedOn(sf::Event input) {
     }
 }
 
+/***
+ * @brief Determines what actions to take with different key presses
+ * @param charTyped The character that has just been entered into the TextBox
+ */
 void i_2D::TextBox::InputLogic(int charTyped) {
     if(isSelected)
     {
@@ -91,6 +103,9 @@ void i_2D::TextBox::InputLogic(int charTyped) {
     mTextBox->setString(mText.str() + "_");
 }
 
+/**
+ * @brief removes the last character from the TextBox's current string
+ */
 void i_2D::TextBox::DeleteLastChar() {
     std::string t = mText.str();
     std::string newT;
