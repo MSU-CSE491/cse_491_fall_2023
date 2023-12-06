@@ -167,9 +167,9 @@ TEST_CASE("Print Entities", "[World][SecondWorld]") {
 
 TEST_CASE("Pickup Items", "[World][SecondWorld]") {
     group4::SecondWorld world;
-//    cse491::WorldGrid grid = world.GetGrid();
 
-    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character").SetPosition(0, 0);
+    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character");
+    test_agent.SetPosition(0, 0);
 
     auto testItem1 = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
 
@@ -179,8 +179,8 @@ TEST_CASE("Pickup Items", "[World][SecondWorld]") {
 
     CHECK(test_agent.GetInventory().empty());
 
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 1);
+    world.DoAction(test_agent, MOVE_DOWN);
+    world.DoAction(test_agent, MOVE_UP);
 
     // Check that item is in agent's inventory
     CHECK(test_agent.GetInventory().size() == 1);
@@ -191,7 +191,8 @@ TEST_CASE("Pickup Items", "[World][SecondWorld]") {
 TEST_CASE("Drop Items", "[World][SecondWorld]") {
     group4::SecondWorld world;
 
-    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character").SetPosition(0, 0);
+    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character");
+    test_agent.SetPosition(0, 0);
     auto testItem1 = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
     auto testItem2 = std::make_unique<cse491::ItemBase>(2, "Test Item 2");
 
@@ -203,38 +204,49 @@ TEST_CASE("Drop Items", "[World][SecondWorld]") {
     testItem2->SetGrid();
     world.AddItem(std::move(testItem2));
 
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
+    world.DoAction(test_agent, MOVE_DOWN);
+    world.DoAction(test_agent, MOVE_DOWN);
 
     // Confirm agent has both items
     CHECK(test_agent.GetInventory().size() == 2);
 
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 5);
+    world.DoAction(test_agent, DROP_ITEM);
     // Confirm item dropped
     CHECK(test_agent.GetInventory().size() == 1);
     // And that dropping a second item onto another item doesn't work... unless it's a chest
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 5);
+    world.DoAction(test_agent, DROP_ITEM);
     CHECK(test_agent.GetInventory().size() == 1);
 
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 2);
-    world.DoAction(dynamic_cast<cse491::AgentBase &>(test_agent), 1);
+    world.DoAction(test_agent, MOVE_DOWN);
+    world.DoAction(test_agent, MOVE_UP);
 
     // Confirm item can be picked up again after it's dropped
     CHECK(test_agent.GetInventory().size() == 2);
 }
 
 
-//TEST_CASE("Chest", "[World][SecondWorld]") {
-//
-//
-//}
+TEST_CASE("Chest", "[World][SecondWorld]") {
+    group4::SecondWorld world;
 
-//TEST_CASE("Max Inventory", "[World][SecondWorld]") {
-//    group4::SecondWorld world;
-//    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character").SetPosition(0, 0);
-//
-//    for (int i = 0; i < 30; ++i) {
-//        test_agent.AddItem();
-//    }
-//
-//}
+    auto &test_agent = world.AddAgent<cse491::TrashInterface>("Playable Character");
+    test_agent.SetPosition(0, 0);
+    auto dagger = std::make_unique<cse491::ItemBase>(1, "Test Item 1");
+
+    auto chest = std::make_unique<cse491::ItemBase>(2, "Chest");
+    chest->SetPosition(0, 1);
+    chest->SetProperties("symbol", 'C', "Chest", 0);
+    chest->SetGrid();
+    auto& temp_chest = world.AddItem(std::move(chest));
+
+    auto& temp_dagger = world.AddItem(std::move(dagger));
+    temp_chest.AddItem(temp_dagger.GetID());
+    temp_dagger.SetPosition(-1, -1);
+
+    // Check that the chest has the item in its inventory
+    CHECK(temp_chest.GetInventory().size() == 1);
+
+    world.DoAction(test_agent, MOVE_DOWN);
+    // Check that the item transferred from chest to agent
+    CHECK(test_agent.GetInventory().size() == 1);
+    CHECK(temp_chest.GetInventory().empty());
+}
