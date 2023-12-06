@@ -10,6 +10,7 @@
 
 #include "BiomeGenerator.hpp"
 #include "../core/WorldBase.hpp"
+#include "Agents/AStarAgent.hpp"
 
 namespace group6 {
     using namespace cse491;
@@ -73,7 +74,43 @@ namespace group6 {
          */
         void CreateGrid(BiomeType biome, unsigned int width, unsigned int height, unsigned int seed, const string &file) {
             BiomeGenerator biomeGenerator(biome, width, height, seed);
+
+//            if (biome == BiomeType::Maze) {
+//                bool counter = false;
+//                while (!counter) {
+//                    int random_y = GetRandom((height / 2) - (height/2), height - 1);
+//                    int random_x = GetRandom(0, width);
+//
+//                    if (GetGrid().At(random_x, random_y) == 1) {
+//                        AddItem("Boots", "symbol", 'B').SetPosition(random_x, random_y).SetName("Boots").SetProperty("Health", 3.0);
+//                        counter = true;
+//                    }
+//                }
+//                counter = false;
+//                while (!counter) {
+//                    int random_y = GetRandom((height / 2) - (height/2), height - 1);
+//                    int random_x = GetRandom(0, width);
+//
+//                    if (GetGrid().At(random_x, random_y) == 1) {
+//                        AddItem("Shield", "symbol", 'S').SetPosition(random_x, random_y).SetName("Boots").SetProperty("Health", 3.0);
+//                        counter = true;
+//                    }
+//                }
+//            }
+
+            AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+            AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
+            auto & astar_agent = static_cast<walle::AStarAgent&>(AddAgent<walle::AStarAgent>("AStar1"));
+            astar_agent.SetPosition(17, 17);
+            astar_agent.SetGoalPosition(1, 1);
+            // astar_agent.RecalculatePath();
+
+//            AddTeleporters();
+//            AddTeleporters();
+//            AddArmory();
+
             biomeGenerator.setWorld(this);
+
             biomeGenerator.generate();
 
             string filePath = "../assets/grids/generated_" + file + ".grid";
@@ -97,7 +134,7 @@ namespace group6 {
             teleporter_id = AddCellType("teleporter", "Teleports agent to other teleporter", 'T');
 
             armory_id = AddCellType("armory", "Armory tile that repairs damaged inventory items", 'A');
-            tree_id = AddCellType("tree", "A tree that blocks the way.", 't');
+            tree_id = AddCellType("tree", "A tree that blocks the way.", '^');
             grass_id = AddCellType("grass", "Grass you can walk on.", 'M');
             dirt_id = AddCellType("dirt", "Dirt you can walk on.", '~');
             hole_id = AddCellType("hole", "A hole that you can fall into the maze from.", '8');
@@ -134,7 +171,27 @@ namespace group6 {
         }
 
         void AddArmory() {
-            main_grid.At(5, 5) = armory_id;
+            bool counter = false;
+            while (!counter) {
+                int random_y = GetRandom(world_height / 2, world_height - 1);
+                int random_x = GetRandom(0, world_width / 2);
+
+                if (main_grid.At(random_x, random_y) == floor_id) {
+                    main_grid.At(random_x, random_y) = armory_id;
+                    counter = true;
+                }
+            }
+
+            counter = false;
+            while (!counter) {
+                int random_y = GetRandom(0, world_height / 2);
+                int random_x = GetRandom(world_width / 2, world_width - 1);
+
+                if (main_grid.At(random_x, random_y) == floor_id) {
+                    main_grid.At(random_x, random_y) = armory_id;
+                    counter = true;
+                }
+            }
         }
 
         [[nodiscard]] static vector<GridPosition> FindTiles(WorldGrid grid, size_t tile_id) {
@@ -311,7 +368,13 @@ namespace group6 {
 
         void HoleTileHelper(AgentBase &agent, GridPosition &new_position) {
             if (agent.IsInterface()) {
-                CreateGrid(BiomeType::Maze, world_width, world_height, ++seed, "maze2");
+                std::random_device rd;
+                std::mt19937 gen(rd());
+
+                std::uniform_int_distribution<> distrib3(1, 1000);
+                int randomSeed = distrib3(gen);
+
+                CreateGrid(BiomeType::Maze, world_width, world_height, ++randomSeed, "maze2");
                 new_position.Set(0, 0);
             }
         }
