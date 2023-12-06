@@ -102,7 +102,7 @@ class SecondWorld : public cse491::WorldBase {
    * @param agent The player agent
    * @param pos The player position
    */
-  void SwitchGrid(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+  void SwitchGrid(cse491::AgentBase& agent) {
 
     // This value initialized by each world load script to point to the next level
     auto next_world_script = pe.var<std::string>("next_world");
@@ -125,23 +125,8 @@ class SecondWorld : public cse491::WorldBase {
     MOVE_LEFT,
     MOVE_RIGHT,
     DROP_ITEM,
-    WARP_TO_FLOOR_3  // New action for hidden warp tile
+//    WARP_TO_FLOOR_3  // New action for hidden warp tile
   };
-
-  /// Easy access to floor CellType ID.
-  size_t floor_id;
-
-  /// Easy access to flag CellType ID.
-  size_t flag_id;
-
-  /// Easy access to wall CellType ID.
-  size_t wall_id;
-
-  /// Easy access to water CellType ID.
-  size_t water_id;
-
-  /// Easy access to warp CellType ID.
-  size_t hidden_warp_id;
 
   /// Script executor object.
   worldlang::ProgramExecutor pe;
@@ -156,7 +141,7 @@ class SecondWorld : public cse491::WorldBase {
     agent.AddAction("left", MOVE_LEFT);
     agent.AddAction("right", MOVE_RIGHT);
     agent.AddAction("drop", DROP_ITEM);
-    agent.AddAction("warp", WARP_TO_FLOOR_3);
+//    agent.AddAction("warp", WARP_TO_FLOOR_3);
   }
 
  public:
@@ -184,14 +169,11 @@ class SecondWorld : public cse491::WorldBase {
       : world_filename(grid_filename),
         agents_filename(agent_filename),
         pe{*this} {
-    floor_id =
-        AddCellType("floor", "Floor that you can easily walk over.", ' ');
-    flag_id = AddCellType("flag", "Goal flag for a game end state", 'g');
-    wall_id = AddCellType(
-        "wall", "Impenetrable wall that you must find a way around.", '#');
-    hidden_warp_id = AddCellType(
-        "hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
-    water_id = AddCellType("water", "Water that distinguishes fire.", 'w');
+    AddCellType("floor", "Floor that you can easily walk over.", ' ');
+    AddCellType("flag", "Goal flag for a game end state", 'g');
+    AddCellType("wall", "Impenetrable wall that you must find a way around.", '#');
+    AddCellType("hidden_warp", "Hidden warp tile that warps to floor 3.", 'u');
+    AddCellType("water", "Water that distinguishes fire.", 'w');
 
     main_grid.Read(grid_filename, type_options);
     LoadFromFile(agent_filename);
@@ -226,7 +208,7 @@ class SecondWorld : public cse491::WorldBase {
     /// The base max health for an agent.
     /// Can be added to by giving the agent specific items,
     /// such as "chocolate_bar", that are specified below.
-    const int BASE_MAX_HEALTH = 100;
+//    const int BASE_MAX_HEALTH = 100;
     for (const auto& agent : data) {
       // May get a json.exception.type_error here if you assign to the wrong C++
       // type, so make sure to nail down what types things are in JSON first! My
@@ -237,21 +219,21 @@ class SecondWorld : public cse491::WorldBase {
       int x_pos = agent.at("x");
       int y_pos = agent.at("y");
 
-      int additional_max_health = 0;
-      std::vector<std::string> entities = agent.at("entities");
+//      int additional_max_health = 0;
+//      std::vector<std::string> entities = agent.at("entities");
 
 
-      for (const auto& entity : entities) {
+//      for (const auto& entity : entities) {
         // TODO: How should we set the entity properties here?
         // Just adding to MaxHealth now, but this doesn't seem very scalable.
-        if (entity == "chocolate_bar") {
+/*        if (entity == "chocolate_bar") {
           additional_max_health = 10;
-        }
-      }
+        }*/
+//      }
 
       auto& a = AddAgent<cse491::PacingAgent>(agent_name)
-          .SetPosition(x_pos, y_pos)
-          .SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
+          .SetPosition(x_pos, y_pos);
+//          .SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
 
       auto properties = agent.at("properties");
       for (const auto& p : properties.items()){
@@ -302,8 +284,7 @@ class SecondWorld : public cse491::WorldBase {
    * @param agent This agent's item we're dropping
    * @param pos The position where the item will be dropped
    */
-  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos,
-                size_t item_id = 0) {
+  void DropItem(cse491::AgentBase& agent, cse491::GridPosition& pos) {
     // Cannot drop
     if (agent.GetInventory().empty()) {
       agent.Notify("Cannot drop any items, inventory is empty.", "item_alert");
@@ -360,7 +341,7 @@ class SecondWorld : public cse491::WorldBase {
 
       agent.Notify("Leaving " + world_filename, "world_switched");
 
-      SwitchGrid(agent, pos);
+      SwitchGrid(agent);
       
       return false;
 
