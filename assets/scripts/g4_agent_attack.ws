@@ -38,11 +38,13 @@ diff=str-def
 if (diff<=0){
 	diff=1
 }
-damage=rand(1,diff)
+damage=rand(1,2*diff)
 print(damage," damage")
 
 hp=getProperty(opponent,"Health")-damage
 if (hp<0){
 	hp=0
+	setProperty(opponent,"Dead",1)
+	setProperty(opponent,"symbol","x")
 }
 setProperty(opponent,"Health",hp)

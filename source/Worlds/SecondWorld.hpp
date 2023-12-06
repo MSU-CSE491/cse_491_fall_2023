@@ -62,13 +62,9 @@ class SecondWorld : public cse491::WorldBase {
   /// @brief File name for agent input JSON file.
   std::string agents_filename = "";
 
-  /**
-   * Switches to the next grid file
-   * and resets player position and item map.
-   * @param agent The player agent
-   * @param pos The player position
-   */
-  void SwitchGrid(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+  
+  void LoadWorldScript(std::string source){
+    // Clear items on the current grid, unless held by a player
     for (auto it = item_map.begin(); it != item_map.end();) {
       auto& item = it->second;
       if (item->IsOnGrid()) {
@@ -83,16 +79,7 @@ class SecondWorld : public cse491::WorldBase {
       }
     }
 
-    if (world_filename == FIRST_FLOOR_FILENAME) {
-      pe.runFile(WORLD_LOAD_SCRIPT_2);
-      agents_filename = "../assets/second_floor_input.json";
-    } else if (world_filename == SECOND_FLOOR_FILENAME) {
-      pe.runFile(WORLD_LOAD_SCRIPT_3);
-      agents_filename = "../assets/third_floor_input.json";
-    }
-
-    agent.Notify("Going to " + world_filename, "world_switched");
-
+    // Clear agents, unless they are the player (an interface)
     std::vector<size_t> agents_to_remove = {};
     for (auto& [agent_id, agent_ptr] : agent_map) {
       if (!agent_ptr->IsInterface()) {
@@ -103,10 +90,31 @@ class SecondWorld : public cse491::WorldBase {
     for (auto agent_id : agents_to_remove) {
       RemoveAgent(agent_id);
     }
+    
+    // Initialize level
+    pe.runFile(source);
+  }
+  
+  
+  /**
+   * Switches to the next grid file
+   * and resets player position and item map.
+   * @param agent The player agent
+   * @param pos The player position
+   */
+  void SwitchGrid(cse491::AgentBase& agent, cse491::GridPosition& pos) {
 
-    // Resetting the current new_position to the top left of the new grid.
-    pos = cse491::GridPosition(0, 0);
-    LoadFromFile(agents_filename);
+    // This value initialized by each world load script to point to the next level
+    auto next_world_script = pe.var<std::string>("next_world");
+
+    agent.Notify("Going to " + world_filename, "world_switched");
+    if (next_world_script == "GAME_END") {
+      agent.Notify("Congrats, you won the game!", "congrats_msg");
+      run_over = true;
+      return;
+    }
+
+    LoadWorldScript(next_world_script);
   }
 
  protected:
@@ -156,7 +164,15 @@ class SecondWorld : public cse491::WorldBase {
    * Constructor with no arguments
    */
   SecondWorld() : world_filename(FIRST_FLOOR_FILENAME), pe{*this} {
-    pe.runFile(WORLD_LOAD_SCRIPT);
+    pe.registerFunction("loadAgents", [this](worldlang::ProgramExecutor& pe){
+      auto args = pe.popArgs();
+      if (args.size() != 1) { pe.error("Wrong number of arguments!"); return; }
+      auto path = pe.as<std::string>(args[0]);
+      
+      this->LoadFromFile(path);
+    });
+    
+    LoadWorldScript(WORLD_LOAD_SCRIPT);
   }
 
   /**
@@ -224,6 +240,7 @@ class SecondWorld : public cse491::WorldBase {
       int additional_max_health = 0;
       std::vector<std::string> entities = agent.at("entities");
 
+
       for (const auto& entity : entities) {
         // TODO: How should we set the entity properties here?
         // Just adding to MaxHealth now, but this doesn't seem very scalable.
@@ -232,9 +249,16 @@ class SecondWorld : public cse491::WorldBase {
         }
       }
 
-      AddAgent<cse491::PacingAgent>(agent_name)
+      auto& a = AddAgent<cse491::PacingAgent>(agent_name)
           .SetPosition(x_pos, y_pos)
           .SetProperty("MaxHealth", BASE_MAX_HEALTH + additional_max_health);
+
+      auto properties = agent.at("properties");
+      for (const auto& p : properties.items()){
+        std::cout << p.value().is_number() << std::endl;
+        a.SetProperty(p.key(), p.value().get<double>());
+      }
+
     }
   }
 
@@ -326,48 +350,31 @@ class SecondWorld : public cse491::WorldBase {
    * Checks to see if there is a flag or item at the agent's current position
    * @param agent The agent
    * @param pos The position
+   * @return true if agent should update position on return
    */
-  void CheckPosition(cse491::AgentBase& agent, cse491::GridPosition& pos) {
+  bool CheckPosition(cse491::AgentBase& agent, cse491::GridPosition& pos) {
     // First check to see if agent is on win flag
     if ((type_options[main_grid.At(pos)].HasProperty("Goal")) &&
         (agent.IsInterface())) {
-      // Set win flag to true
-
       agent.Notify("Flag found ", "item_alert");
 
       agent.Notify("Leaving " + world_filename, "world_switched");
 
-      if (world_filename == FIRST_FLOOR_FILENAME ||
-          world_filename == SECOND_FLOOR_FILENAME) {
-        // We are currently on floor 1 or 2,
-        // so switch to the next world
-        // and reset the item_map and player position.
-        SwitchGrid(agent, pos);
-      } else if (world_filename == FINAL_FLOOR_FILENAME) {
-        agent.Notify("Congrats, you won the game!", "congrats_msg");
-        run_over = true;
-      }
+      SwitchGrid(agent, pos);
+      
+      return false;
 
       // then checks if agent is on any items
     } else if ((type_options[main_grid.At(pos)].HasProperty("Warp")) &&
                (agent.IsInterface())) {
       // Agent used the hidden warp tile action
-      // std::cout << "Hidden warp tile activated! Warping to floor 3."
-      //           << std::endl;
       agent.Notify("Hidden warp tile activated! Warping to floor 3.",
                    "hidden_warp");
 
       agent.Notify("Leaving " + world_filename, "world_switched");
 
-      // Update the world to floor 3
-      world_filename = FINAL_FLOOR_FILENAME;
-      agents_filename = "../assets/third_floor_input.json";
-
-      SwitchGrid(agent, pos);
-
-      // Update the agent's position on the new floor
-      agent.SetPosition(pos);
-
+      LoadWorldScript(WORLD_LOAD_SCRIPT_3); // skip right to the end
+      return false;
     } else {
       auto items_found = FindItemsAt(pos, 0);
       // If there are items at this position
@@ -422,6 +429,7 @@ class SecondWorld : public cse491::WorldBase {
         }
       }
     }
+    return true;
   }
 
   /**
@@ -431,6 +439,10 @@ class SecondWorld : public cse491::WorldBase {
    * @return An int that declares if the move is legal or illegal (true / false)
    */
   int DoAction(cse491::AgentBase& agent, size_t action_id) override {
+    if (agent.HasProperty("Dead")){
+      return false; // Can't move when dead!
+    }
+    
     cse491::GridPosition new_position;
     bool IsDropped = false;
     switch (action_id) {
@@ -452,7 +464,8 @@ class SecondWorld : public cse491::WorldBase {
       case DROP_ITEM:
         new_position = agent.GetPosition();
         DropItem(agent, new_position);
-        IsDropped = true;
+//        IsDropped = true;
+        return true;
         break;
     }
 
@@ -473,6 +486,17 @@ class SecondWorld : public cse491::WorldBase {
       pe.setVariable("opponent", res[0]);
       pe.runFile(COMBAT_SCRIPT);
 
+      auto& opponent = GetAgent(res[0]);
+      if (opponent.HasProperty("Dead") && opponent.IsInterface()){
+        // game over!
+        opponent.Notify("You have died.", "game_over");
+        run_over = true;
+      } else if (opponent.HasProperty("Dead") && opponent.HasProperty("Boss")){
+        // level up: i.e. you can go on water now
+        agent.Notify("You have defeated the boss! You now can walk on water.", "message");
+        agent.SetProperty("Swimmer", true);
+      }
+
       // The movement was not legal, so we return false.
       // TODO: Should this return a status indicating that an attack occured,
       // to distinguish moves that do nothing from attacks?
@@ -480,7 +504,9 @@ class SecondWorld : public cse491::WorldBase {
     }
 
     if (!IsDropped) {
-      CheckPosition(agent, new_position);
+      if (!CheckPosition(agent, new_position))
+        //does not set position if grid changed, but move is considered successful
+        return true; 
     }
 
     IsDropped = false;
