@@ -87,6 +87,8 @@ namespace netWorth
 
 			// set non-blocking for gameplay
 			//m_socket.setBlocking(false);
+
+			GetWorld().IsWorldRunning(true);
 			return true;
 		}
 

@@ -71,6 +71,8 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
             exit(0);
         }
 
+		world.IsWorldRunning(false);
+
         std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
         pkt >> str;
         std::cout << str << std::endl;
@@ -81,13 +83,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         world.Serialize(os);
         std::string serialized = os.str();
 
-        // serialize agents
-        std::ostringstream agent_os;
-        world.SerializeAgentSet(agent_os);
-        std::string serialized_agents = agent_os.str();
-        serverManager.SetSerializedAgents(serialized_agents);
 
-        std::cout << serialized << std::endl;
 
         serverManager.IncreasePort();
 
@@ -113,6 +109,14 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
 		serverManager.SendGameUpdates();
 
+		// serialize agents
+		std::ostringstream agent_os;
+		world.SerializeAgentSet(agent_os);
+		std::string serialized_agents = agent_os.str();
+		serverManager.SetSerializedAgents(serialized_agents);
+
+		std::cout << serialized << std::endl;
+
         //Do an atomic check to see if you can add it
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);
 
@@ -121,6 +125,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
         serverManager.AddToThreadMap(serverInterface.GetID());
         std::cout << "Added thread" << std::endl;
+
     }
 }
 

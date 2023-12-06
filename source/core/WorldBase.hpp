@@ -47,6 +47,8 @@ protected:
   size_t last_entity_id = 0;     ///< The last Entity ID used; increment at each creation
 
   bool run_over = false;        ///< Should the run end?
+
+  bool world_running = true; ///< Is the world currently running?
   
   std::string action;           ///< The action that the agent is currently performing
   std::shared_ptr<DataCollection::AgentReceiver> agent_receiver;
@@ -313,13 +315,13 @@ public:
   /// @brief Step through each agent giving them a chance to take an action.
   /// @note Override this function if you want to control which grid the agents receive.
   virtual void RunServerAgents() {
-    std::mutex agent_map_lock;
-    agent_map_lock.lock();
+//    std::mutex agent_map_lock;
+//    agent_map_lock.lock();
     std::set<size_t> to_delete;
 
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
-      while (!server_manager->interfacesPresent) {}
+      while (!server_manager->interfacesPresent && !world_running) {}
 
       // select action and send to client
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
@@ -337,7 +339,7 @@ public:
         RemoveAgent(id);
     }
 
-    agent_map_lock.unlock();
+//    agent_map_lock.unlock();
   }
 
   void CollectData() {
@@ -359,9 +361,11 @@ public:
   virtual void Run() {
     run_over = false;
     while (!run_over) {
-      RunAgents();
-      CollectData();
-      UpdateWorld();
+		if (world_running){
+			RunAgents();
+			CollectData();
+			UpdateWorld();
+		}
     }
   }
 
@@ -370,9 +374,11 @@ public:
         run_over = false;
         client_manager = mgr;
         while (!run_over) {
-            RunClientAgents();
-            CollectData();
-            UpdateWorld();
+			if (world_running){
+				RunClientAgents();
+				CollectData();
+				UpdateWorld();
+			}
         }
     }
 
@@ -381,10 +387,16 @@ public:
     run_over = false;
     server_manager = mgr;
     while (!run_over) {
-      RunServerAgents();
-      CollectData();
-      UpdateWorld();
+		if (world_running){
+			RunServerAgents();
+			CollectData();
+			UpdateWorld();
+		}
     }
+  }
+
+  virtual void IsWorldRunning(bool running){
+	  world_running = running;
   }
 
   // CellType management.
