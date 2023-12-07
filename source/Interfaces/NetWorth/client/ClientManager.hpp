@@ -105,7 +105,6 @@ namespace netWorth{
             sf::Packet recvPkt;
             std::optional<sf::IpAddress> tempIP;
             unsigned short tempPort;
-			std::cout << m_game_update_socket->getLocalPort() << std::endl;
             if (m_game_update_socket->receive(recvPkt, tempIP, tempPort) == sf::Socket::Status::Done) {
                 std::string data;
                 recvPkt >> data;

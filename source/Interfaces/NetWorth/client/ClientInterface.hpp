@@ -84,23 +84,22 @@ namespace netWorth{
              */
             size_t SelectAction(const cse491::WorldGrid & grid,
                                 const cse491::type_options_t & typeOptions,
-                                const cse491::item_map_t & itemSet,
-                                const cse491::agent_map_t & agentSet) override
+                                const cse491::item_map_t & itemMap,
+                                const cse491::agent_map_t & agentMap) override
             {
                 // Receive and draw map
                 sf::Packet sendPkt, recvPkt;
 
                 // grab action ID from MainInterface
                 size_t actionID = i_2D::MainInterface::SelectAction(grid, typeOptions,
-                            itemSet, agentSet);
-                std::cout << actionID << std::endl;
+                            itemMap, agentMap);
 
                 // Send instruction to server
                 sendPkt << actionID;
 				sendPacket(sendPkt, m_ip.value(), m_port);
 
 				m_manager->clearActionMap();
-                DrawGrid(grid, typeOptions, itemSet, agentSet);
+                DrawGrid(grid, typeOptions, itemMap, agentMap);
 
                 // await action map from server
 				receivePacket(recvPkt, m_ip, m_port);
