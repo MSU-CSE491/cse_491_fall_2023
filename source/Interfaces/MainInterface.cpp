@@ -511,7 +511,7 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)){
+            if (mMenu.GetMenu()[4]->isMouseOver(mWindow)){
                 mGridSizeLarge = true;
             } else if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
                 mGridSizeLarge = false;
