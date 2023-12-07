@@ -156,6 +156,7 @@ namespace cse491_team8 {
           agent.Notify("You healed " + std::to_string(healing) + " health!\n");
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing);
           agent.RemoveItem(can_heal);
+          RemoveItem(can_heal);
         } 
         else if (healing_req == 0) {
           agent.Notify("You already have max health");
@@ -704,6 +705,7 @@ namespace cse491_team8 {
           if (item_map[item_id]->GetProperty<int>("Uses") == 0)
           {
             agent.RemoveItem(item_id);
+            RemoveItem(item_id);
           }
           main_grid[new_position] = grass_id;
         }
@@ -726,6 +728,7 @@ namespace cse491_team8 {
             if (item_map[item_id]->GetProperty<int>("Uses") == 0)
             {
                 agent.RemoveItem(item_id);
+                RemoveItem(item_id);
             }
             return true;
         }
