@@ -302,13 +302,6 @@ public:
             agent_ptr->SetActionResult(result);
         }
 
-        // delete agents that have been removed on the server
-        for (auto &pair : agent_map) {
-            // check if agent ID is in action map
-            // if it is not present, the agent ID is not on the server
-            if (!client_manager->IdPresent(pair.first)) RemoveAgent(pair.first);
-        }
-
         // Deserialize agents
         std::string data = client_manager->GetSerializedAgents();
         //std::cout << "data: " << data << std::endl;
@@ -317,6 +310,13 @@ public:
             DeserializeAgentSet(is, client_manager);
             std::cout << "double pong " << agent_map.size() << std::endl;
         }
+
+//        // delete agents that have been removed on the server
+//        for (auto &pair : agent_map) {
+//            // check if agent ID is in action map
+//            // if it is not present, the agent ID is not on the server
+//            if (!client_manager->IdPresent(pair.first)) RemoveAgent(pair.first);
+//        }
     }
 
   /// @brief Step through each agent giving them a chance to take an action.
@@ -344,6 +344,16 @@ public:
     // delete agents
     for (size_t id : to_delete) {
         RemoveAgent(id);
+    }
+
+    // send updates to client for deleted agents
+    if (!to_delete.empty()) {
+        std::ostringstream os;
+        SerializeAgentSet(os);
+        std::string data = os.str();
+        server_manager->SetSerializedAgents(data);
+        server_manager->hasNewAgent = true;
+        server_manager->SendGameUpdates();
     }
 
 //    agent_map_lock.unlock();

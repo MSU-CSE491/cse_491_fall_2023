@@ -101,7 +101,9 @@ namespace netWorth{
 				for (auto client: m_updateVec){
 					std::cout << "sending game updates to IP: " << client.first.toString() << " with port " <<
 					client.second << std::endl;
-					m_manager_socket.send(serializedAgentPkt, client.first, client.second);
+					if (m_manager_socket.send(serializedAgentPkt, client.first, client.second) != sf::Socket::Status::Done) {
+                        std::cerr << "Error sending updates to client at " << client.first.toString() << " port " << client.second << std::endl;
+                    }
 				}
 				hasNewAgent = false;
 			}
