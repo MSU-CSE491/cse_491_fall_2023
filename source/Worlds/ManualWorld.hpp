@@ -79,31 +79,31 @@ namespace cse491_team8 {
     {
         for (auto & [id, agent_ptr] : agent_map)
         {
-            auto agent_strength = agent_ptr->GetProperty<int>("Strength");
-            if (agent_ptr->GetName() == "Interface")
-            {
-                std::map<std::string, std::tuple<char, double>> move_set = {
-                    {"Attack", std::make_tuple('d', 1.0)},
-                    {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
-                    {"Heal", std::make_tuple('h', 0.25)}};
-                // agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
-                agent_ptr->SetProperty("MoveSet", move_set);
-                continue;
-            }
-            std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)}};
-            if (agent_strength >= 10)
-            {
-                move_set["Special"] = std::make_tuple('d', 1.5);
-            }
-            if (agent_strength >= 15)
-            {
-                move_set["Heal"] = std::make_tuple('h', 0);
-            }
-            if (agent_strength >= 20)
-            {
-                move_set["Buff"] = std::make_tuple('s', 0.5);
-            }
-            agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+          auto agent_strength = agent_ptr->GetProperty<int>("Strength");
+          if (agent_ptr->GetName() == "Interface")
+          {
+            std::map<std::string, std::tuple<char, double>> move_set = {
+                {"Attack", std::make_tuple('d', 1.0)},
+                {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
+                {"Heal", std::make_tuple('h', 0.25)}};
+            // agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+            agent_ptr->SetProperty("MoveSet", move_set);
+            continue;
+          }
+          std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)}};
+          if (agent_strength >= 10)
+          {
+            move_set["Special"] = std::make_tuple('d', 1.5);
+          }
+          if (agent_strength >= 15)
+          {
+            move_set["Heal"] = std::make_tuple('h', 0);
+          }
+          if (agent_strength >= 20)
+          {
+            move_set["Buff"] = std::make_tuple('s', 0.5);
+          }
+          agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
         }
     }
 
@@ -162,7 +162,7 @@ namespace cse491_team8 {
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing);
           agent.RemoveItem(can_heal);
           RemoveItem(can_heal);
-        } 
+        }
         else if (healing_req == 0) {
           agent.Notify("You already have max health");
         } else {
@@ -174,8 +174,8 @@ namespace cse491_team8 {
 
     }
 
-    /// @brief Displays the items aand properties that the player has
-    /// @param agent 
+    /// @brief Displays the items and properties that the player has
+    /// @param agent Agent stats being showed.
     void StatsAction(cse491::AgentBase & agent)
     {
         std::string output = "";
@@ -206,15 +206,15 @@ namespace cse491_team8 {
         agent.Notify(output);
     }
 
-    /// @brief displays the 
-    /// @param agent 
+    /// @brief Displays the moveset for the agent.
+    /// @param agent Agent moveset being displayed.
     void MoveSetAction(cse491::AgentBase & agent)
     {
         agent.Notify("Your Moveset is:\nMove Up: W\nMove Down: S\nMove Left: A\nMove Right: D\nUse Axe: C\nUse Boat: V\nDisplay Stats: T\nHeal: H\nAttack: F\nSpecial: G\nRun: R\nBuff: B\nDebuff: X\nDisplay Moveset: Y");
     }
 
     /// @brief looks one tile ahead of the agent based on facing direction
-    /// @param agent 
+    /// @param agent Agent that is looking ahead
     /// @return the grid position
     cse491::GridPosition LookAhead(cse491::AgentBase & agent)
     {
@@ -235,7 +235,7 @@ namespace cse491_team8 {
         case (3):
           look_position = agent.GetPosition().ToLeft();
           break;
-        
+
         default:
           agent.Notify("Invalid Position: Returning Current Position");
           look_position = agent.GetPosition();
@@ -246,8 +246,8 @@ namespace cse491_team8 {
     }
 
     /// @brief Removes all items from other agent
-    /// @param agent 
-    /// @param other_agent 
+    /// @param agent Agent that won the battle
+    /// @param other_agent Agent that is dropping items
     void DropItems(cse491::AgentBase & agent, cse491::AgentBase & other_agent)
     {
         for (const auto& [id, item] : item_map)
@@ -366,12 +366,12 @@ namespace cse491_team8 {
           if (agent.IsInterface() && agent.GetProperty<int>("Health") <= 0)
           {
             agent.Notify(other_agent_name + " has beat " + agent.GetName() + "\nYou Lost...\n");
-            
+
             DropItems(agent, agent);
 
             agent.SetProperty<int>("Health", 100);
             agent.SetProperty<int>("Direction", 0);
-            
+
             agent.SetProperty<bool>("Battling", false);
             other_agent.SetProperty<bool>("Battling", false);
 
@@ -392,10 +392,10 @@ namespace cse491_team8 {
     /// @brief Looks for adjacencies
     void UpdateWorld() override
     {
-      
+
     }
 
-    /// Runs agents, updates the world.
+    /// @brief Runs agents, updates the world.
     void Run() override
     {
       run_over = false;
@@ -405,17 +405,18 @@ namespace cse491_team8 {
       }
     }
 
-      void RunAgents() override {
-        for (auto & [id, agent_ptr] : agent_map) {
-          if (agent_ptr->HasProperty("deleted")) {
-            continue;
-          }
-          size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
-          agent_ptr->storeActionMap(agent_ptr->GetName());
-          int result = DoAction(*agent_ptr, action_id);
-          agent_ptr->SetActionResult(result);
+    /// @brief Step through each agent giving them a chance to take an action.
+    void RunAgents() override {
+      for (auto & [id, agent_ptr] : agent_map) {
+        if (agent_ptr->HasProperty("deleted")) {
+          continue;
         }
+        size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+        agent_ptr->storeActionMap(agent_ptr->GetName());
+        int result = DoAction(*agent_ptr, action_id);
+        agent_ptr->SetActionResult(result);
       }
+    }
 
     /// @brief Attempt to pick up an item for the agent.
     /// @param agent The agent that is picking up the item.
@@ -584,7 +585,7 @@ namespace cse491_team8 {
             }
             new_position = agent.GetPosition();
             agent.SetProperty<bool>("Battling", false);
-            
+
             auto agents = FindAgentsNear(agent.GetPosition(), 1);
             for (auto agent_id : agents)
             {
@@ -643,7 +644,7 @@ namespace cse491_team8 {
 
       // assume new position is valid
       return new_position;
-    
+
     }
 
     /// @brief Check if an agent owns an item
@@ -674,7 +675,7 @@ namespace cse491_team8 {
         {
           agent.Notify("You have used your Axe to chop down this tree. You have " +
                         std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
-          
+
           // decrement uses by 1, change the tree to grass
           item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
           if (item_map[item_id]->GetProperty<int>("Uses") == 0)
@@ -695,9 +696,9 @@ namespace cse491_team8 {
         size_t item_id = FindItem(agent, "Boat");
         if (item_id != SIZE_MAX)
         {
-            agent.Notify("You have used your Boat to float on the water. You have " + 
+            agent.Notify("You have used your Boat to float on the water. You have " +
                           std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
-            
+
             // decrement uses by 1
             item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
             if (item_map[item_id]->GetProperty<int>("Uses") == 0)
@@ -716,7 +717,7 @@ namespace cse491_team8 {
     /// @return The result of this action (usually 0/1 to indicate success)
     /// @note Thus function must be overridden in any derived world.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
-      
+
       cse491::GridPosition new_position = DoActionFindNewPosition(agent, action_id);
 
       // Don't let the agent move off the world or into a wall.
