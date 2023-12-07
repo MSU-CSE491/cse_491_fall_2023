@@ -170,6 +170,8 @@ namespace cse491_team8 {
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing_req);
           item_map[can_heal]->SetProperty("Healing", healing - healing_req);
         }
+      } else {
+        agent.Notify("You do not have any health potions!\n");
       }
 
     }
@@ -572,7 +574,6 @@ namespace cse491_team8 {
             else
             {
                 HealAction(agent);
-                agent.Notify("You have healed!\nYour health is now: " + std::to_string(agent.GetProperty<int>("Health")));
             }
             break;
         }
