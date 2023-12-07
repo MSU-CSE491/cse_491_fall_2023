@@ -6,10 +6,10 @@ hidden_warp_id = addCellType("hidden_warp", "Hidden warp tile that warps to floo
 water_id = addCellType("water","Water that distinguishes fire.","w",CELL_WATER)
 
 # Load the actual world
-loadWorld("assets/grids/group4_maze.grid")
+loadWorld("../assets/grids/group4_maze.grid")
 
 # Place the player agent into the world
-player=addAgent("Player","PlayerAgent","@",0,0)
+player=addAgent("Player2D","PlayerAgent","@",0,0)
 setProperty(player,"Health",100.0)
 setProperty(player,"Strength",7.0)
 setProperty(player,"Defense",7.0)
@@ -26,5 +26,5 @@ fire_dagger = addItem("Fire Dagger","D",-1,-1,"Damage",15.0)
 addInventoryItem(chest,fire_dagger)
 
 # Set link to next world
-next_world = "assets/scripts/g4_world_2_load.ws"
+next_world = "../assets/scripts/g4_world_2_load.ws"
 

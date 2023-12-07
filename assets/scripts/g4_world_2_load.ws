@@ -1,8 +1,8 @@
 # Load the actual world
-loadWorld("assets/grids/second_floor.grid")
+loadWorld("../assets/grids/second_floor.grid")
 
 # Load the agents for this world
-loadAgents("assets/second_floor_input.json")
+loadAgents("../assets/second_floor_input.json")
 
 # Reset player position
 print(player)
@@ -14,5 +14,5 @@ addItem("Dagger","D",12,1,"Damage",10)
 addItem("Leather Armor","+",1,6,"Armor",6)
 
 # Set link to next world
-next_world = "assets/scripts/g4_world_3_load.ws"
+next_world = "../assets/scripts/g4_world_3_load.ws"
 
