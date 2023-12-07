@@ -53,6 +53,7 @@ class GenerativeWorld : public WorldBase {
 
     main_grid.Read("../assets/grids/generated_maze.grid", type_options);
   }
+
   ~GenerativeWorld() = default;
 
   /// Allow the agents to move around the maze.
