@@ -115,7 +115,6 @@ namespace group6 {
         ~GenerativeWorld() override = default;
 
         void AddTeleporters() {
-            // TODO: remove hard-coded positions
             main_grid.At(53, 6) = teleporter_id;
             main_grid.At(18, 18) = teleporter_id;
         }
@@ -132,7 +131,6 @@ namespace group6 {
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
-            std::exit(0);
         }
 
         void AddArmory() {
@@ -225,7 +223,7 @@ namespace group6 {
 
                 // check to see if player is moving onto teleporter
             else if (main_grid.At(new_position) == teleporter_id) {
-                TeleporterHelper(agent, new_position);
+                TeleporterHelper(new_position);
             }
 
                 // check to see if player is moving onto key tile
@@ -320,7 +318,7 @@ namespace group6 {
             }
         }
 
-        void TeleporterHelper(AgentBase &agent, GridPosition &new_position) {
+        void TeleporterHelper(GridPosition &new_position) {
             vector<GridPosition> teleporters = FindTiles(main_grid, teleporter_id);
 
             for (GridPosition teleporter: teleporters) {

@@ -10,6 +10,7 @@
 // Class project
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/BiomeGenerator.hpp"
+#include "Agents/PacingAgent.hpp"
 
 using namespace std;
 using namespace group6;
@@ -21,6 +22,76 @@ TEST_CASE("Constructor", "[worlds][generative]") {
 
     GenerativeWorld world(biome, 50, 50, SEED);
     CHECK(world.GetSeed() == SEED);
+}
+
+TEST_CASE("ItemHelper", "[worlds][generative]") {
+    static const unsigned int SEED = 5;
+    BiomeType biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 50, 50, SEED);
+    AgentBase &agent = world.AddAgent<PacingAgent>("Agent");
+    world.AddItem("Boots", "symbol", 'B').SetPosition(1, 1).SetName("Boots").SetProperty("Health", 3.0);
+    size_t itemId = world.GetItemID("Boots");
+    GridPosition pos(0, 0);
+
+    world.ItemHelper(agent, pos);
+    CHECK_FALSE(agent.HasItem(itemId));
+
+    pos = GridPosition(1, 1);
+    world.ItemHelper(agent, pos);
+    CHECK(agent.HasItem(itemId));
+}
+
+TEST_CASE("SpikeTileHelper", "[worlds][generative]") {
+    static const unsigned int SEED = 5;
+    BiomeType biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 50, 50, SEED);
+    AgentBase &agent = world.AddAgent<PacingAgent>("Agent");
+    world.AddItem("Shield", "symbol", 'B').SetPosition(1, 1).SetName("Shield").SetProperty("Health", 3.0);
+
+    GridPosition pos(1, 1);
+    world.ItemHelper(agent, pos);
+
+    world.SpikeTileHelper(agent);
+    ItemBase &item = world.GetItem(world.GetItemID("Shield"));
+    CHECK(item.GetProperty("Health") == 2.0);
+}
+
+TEST_CASE("TarTileHelper", "[worlds][generative]") {
+    static const unsigned int SEED = 5;
+    BiomeType biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 50, 50, SEED);
+    AgentBase &agent = world.AddAgent<PacingAgent>("Agent");
+    world.AddItem("Boots", "symbol", 'B').SetPosition(1, 1).SetName("Boots").SetProperty("Health", 3.0);
+
+    world.TarTileHelper(agent);
+    CHECK(agent.HasProperty("tar_property"));
+
+    agent.RemoveProperty("tar_property");
+    GridPosition pos(1, 1);
+    world.ItemHelper(agent, pos);
+
+    world.TarTileHelper(agent);
+    CHECK_FALSE(agent.HasProperty("tar_property"));
+}
+
+TEST_CASE("KeyTileHelper", "[worlds][generative]") {
+    static const unsigned int SEED = 5;
+    BiomeType biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 50, 50, SEED);
+    AgentBase &agent = world.AddAgent<PacingAgent>("Agent");
+    GridPosition pos(1, 1);
+
+    world.KeyTileHelper(agent, pos);
+    CHECK(agent.GetProperty("key_property") == 0.0);
+
+    AgentBase &agent2 = world.AddAgent<InterfaceBase>("Interface");
+
+    world.KeyTileHelper(agent2, pos);
+    CHECK(agent2.GetProperty("key_property") == 1.0);
 }
 
 TEST_CASE("FindTiles", "[worlds][generative]") {
@@ -46,4 +117,23 @@ TEST_CASE("FindTiles", "[worlds][generative]") {
     CHECK(GenerativeWorld::FindTiles(grid, wall_id) == walls);
     CHECK(GenerativeWorld::FindTiles(grid, spike_id) == spikes);
     CHECK(GenerativeWorld::FindTiles(grid, door_id) == doors);
+}
+
+TEST_CASE("TeleporterHelper", "[worlds][generative]") {
+    static const unsigned int SEED = 5;
+    BiomeType biome = BiomeType::Maze;
+
+    GenerativeWorld world(biome, 100, 100, SEED);
+    world.AddTeleporters();
+
+    GridPosition pos1(53, 6);
+    GridPosition pos2(18, 18);
+    GridPosition newPos = pos1;
+
+    world.TeleporterHelper(newPos);
+    CHECK(newPos == pos2);
+
+    newPos = pos2;
+    world.TeleporterHelper(newPos);
+    CHECK(newPos == pos1);
 }
