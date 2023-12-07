@@ -19,12 +19,12 @@ std::string clientKillIP;
 
 sf::UdpSocket * clientKillSocket = nullptr;
 
-void TerminateClient() {
+void terminateClient() {
     // Request connection to server
-    sf::Packet send_pkt;
-    std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(clientKillIP);
-    send_pkt << static_cast<size_t>(9999);
-    if (clientKillSocket->send(send_pkt, ip_addr.value(), clientKillPort) != sf::Socket::Status::Done) {
+    sf::Packet sendPkt;
+    std::optional<sf::IpAddress> ipAddr = sf::IpAddress::resolve(clientKillIP);
+    sendPkt << static_cast<size_t>(9999);
+    if (clientKillSocket->send(sendPkt, ipAddr.value(), clientKillPort) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
     }
 }
@@ -32,26 +32,26 @@ void TerminateClient() {
 /**
  * Run Maze World client instance
  * @param is istream to deserialize
- * @param ip_string IP address of server
- * @param start_x x start position
- * @param start_y y start position
+ * @param ipString IP address of server
+ * @param startX x start position
+ * @param startY y start position
  * @return true if successful
  */
-bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
-	sf::UdpSocket *socket, unsigned short initport) {
+bool runMazeWorldDemo(std::istream &is, const std::string &ipString, unsigned short port, int startX, int startY,
+	sf::UdpSocket *socket, unsigned short initPort) {
     netWorth::ClientManager manager;
-	manager.setUpdatePort(initport);
+	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
-    std::string interface_name = "Interface1";
+    std::string interfaceName = "Interface1";
     cse491::MazeWorld world;
     world.Deserialize(is, &manager);
     clientKillPort = port;
-    clientKillIP = ip_string;
-    cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
+    clientKillIP = ipString;
+    cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interfaceName, "server_ip", ipString,
                                               "server_port", port, "manager", &manager,
                                               "socket", socket)
                                               .SetProperty("symbol", '@')
-                                              .SetPosition(start_x, start_y);
+                                              .SetPosition(startX, startY);
 
     auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
@@ -63,26 +63,26 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
 /**
  * Run Second World client instance
  * @param is istream to deserialize
- * @param ip_string IP address of server
- * @param start_x x start position
- * @param start_y y start position
+ * @param ipString IP address of server
+ * @param startX x start position
+ * @param startY y start position
  * @return true if successful
  */
-bool RunSecondWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
-	sf::UdpSocket *socket, unsigned short initport) {
+bool runSecondWorldDemo(std::istream &is, const std::string &ipString, unsigned short port, int startX, int startY,
+	sf::UdpSocket *socket, unsigned short initPort) {
 	netWorth::ClientManager manager;
-	manager.setUpdatePort(initport);
+	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
-	std::string interface_name = "Interface2";
+	std::string interfaceName = "Interface2";
 	group4::SecondWorld world;;
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
-	clientKillIP = ip_string;
-	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
+	clientKillIP = ipString;
+	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interfaceName, "server_ip", ipString,
 			"server_port", port, "manager", &manager,
 			"socket", socket)
 		.SetProperty("symbol", '@')
-		.SetPosition(start_x, start_y);
+		.SetPosition(startX, startY);
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
@@ -94,26 +94,26 @@ bool RunSecondWorldDemo(std::istream &is, const std::string &ip_string, unsigned
 /**
  * Run Generative World client instance
  * @param is istream to deserialize
- * @param ip_string IP address of server
- * @param start_x x start position
- * @param start_y y start position
+ * @param ipString IP address of server
+ * @param startX x start position
+ * @param startY y start position
  * @return true if successful
  */
-bool RunGenerativeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x,
-	int start_y, sf::UdpSocket *socket, unsigned short initport) {
+bool runGenerativeWorldDemo(std::istream &is, const std::string &ipString, unsigned short port, int startX,
+	int startY, sf::UdpSocket *socket, unsigned short initPort) {
 	netWorth::ClientManager manager;
-	manager.setUpdatePort(initport);
+	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
-	std::string interface_name = "Interface3";
+	std::string interfaceName = "Interface3";
 	cse491::GenerativeWorld world;
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
-	clientKillIP = ip_string;
-	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
+	clientKillIP = ipString;
+	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interfaceName, "server_ip", ipString,
 			"server_port", port, "manager", &manager,
 			"socket", socket)
 		.SetProperty("symbol", '@')
-		.SetPosition(start_x, start_y);
+		.SetPosition(startX, startY);
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
@@ -125,26 +125,26 @@ bool RunGenerativeWorldDemo(std::istream &is, const std::string &ip_string, unsi
 /**
  * Run Manual World client instance
  * @param is istream to deserialize
- * @param ip_string IP address of server
- * @param start_x x start position
- * @param start_y y start position
+ * @param ipString IP address of server
+ * @param startX x start position
+ * @param startY y start position
  * @return true if successful
  */
-bool RunManualWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
-	sf::UdpSocket *socket, unsigned short initport) {
+bool runManualWorldDemo(std::istream &is, const std::string &ipString, unsigned short port, int startX, int startY,
+	sf::UdpSocket *socket, unsigned short initPort) {
 	netWorth::ClientManager manager;
-	manager.setUpdatePort(initport);
+	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
 	std::string interface_name = "Interface3";
 	cse491_team8::ManualWorld world;
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
-	clientKillIP = ip_string;
-	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ip_string,
+	clientKillIP = ipString;
+	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ipString,
 			"server_port", port, "manager", &manager,
 			"socket", socket)
 		.SetProperty("symbol", '@')
-		.SetPosition(start_x, start_y);
+		.SetPosition(startX, startY);
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
@@ -162,53 +162,53 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::atexit(TerminateClient);
+	std::atexit(terminateClient);
 
-    std::string ip_string(argv[1]);
+    std::string ipString(argv[1]);
     // port is hardcoded, 55000 will be the initial connection port
     unsigned short port = 55000;
 
     // Request connection to server
     sf::UdpSocket socket;
 	std::cout << socket.getLocalPort();
-    sf::Packet send_pkt, recv_pkt;
-    std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(ip_string);
+    sf::Packet sendPkt, recvPkt;
+    std::optional<sf::IpAddress> ipAddr = sf::IpAddress::resolve(ipString);
     std::string serialized;
 
-    send_pkt << "Requesting connection";
-    if (socket.send(send_pkt, ip_addr.value(), port) != sf::Socket::Status::Done) {
+    sendPkt << "Requesting connection";
+    if (socket.send(sendPkt, ipAddr.value(), port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
         return 1;
     }
 
     // Receive world and deserialize
-    if (socket.receive(recv_pkt, ip_addr, port) !=  sf::Socket::Status::Done) {
+    if (socket.receive(recvPkt, ipAddr, port) !=  sf::Socket::Status::Done) {
         std::cerr << "Failed to receive" << std::endl;
         return 1;
     }
 
-	unsigned short init_port = socket.getLocalPort();
-	std::cout << init_port  << std::endl;
+	unsigned short initPort = socket.getLocalPort();
+	std::cout << initPort << std::endl;
 
-    recv_pkt >> port;
-    int world_type_int, start_x, start_y;
-    recv_pkt >> world_type_int >> start_x >> start_y;
-    recv_pkt >> serialized;
+    recvPkt >> port;
+    int worldTypeInt, startX, startY;
+    recvPkt >> worldTypeInt >> startX >> startY;
+    recvPkt >> serialized;
     std::istringstream is(serialized);
-    auto world_type = static_cast<cse491::WorldType>(world_type_int);
+    auto worldType = static_cast<cse491::WorldType>(worldTypeInt);
 
     // TODO: Find a better way to deal with worlds other than commenting/uncommenting
     // Will probably find a way to determine world type from server
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
-    if (world_type == cse491::WorldType::w_maze) {
-        return RunMazeWorldDemo(is, ip_string, port, start_x, start_y, &socket, init_port);
-    } else if (world_type == cse491::WorldType::w_second) {
-        return RunSecondWorldDemo(is, ip_string, port, start_x, start_y, &socket, init_port);
-    } else if (world_type == cse491::WorldType::w_generative) {
-        return RunGenerativeWorldDemo(is, ip_string, port, start_x, start_y, &socket, init_port);
-    } else if (world_type == cse491::WorldType::w_manual) {
-        return RunManualWorldDemo(is, ip_string, port, start_x, start_y, &socket, init_port);
+    if (worldType == cse491::WorldType::w_maze) {
+        return runMazeWorldDemo(is, ipString, port, startX, startY, &socket, initPort);
+    } else if (worldType == cse491::WorldType::w_second) {
+        return runSecondWorldDemo(is, ipString, port, startX, startY, &socket, initPort);
+    } else if (worldType == cse491::WorldType::w_generative) {
+        return runGenerativeWorldDemo(is, ipString, port, startX, startY, &socket, initPort);
+    } else if (worldType == cse491::WorldType::w_manual) {
+        return runManualWorldDemo(is, ipString, port, startX, startY, &socket, initPort);
     }
 
     return 0;
