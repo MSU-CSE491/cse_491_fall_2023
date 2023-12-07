@@ -79,6 +79,8 @@ class ItemGraphPlotter:
 
         return
 
+        print(f"Agent with name '{agent_name}' not found in the JSON data.")
+
     def plot_agent_path(self, agent_name):
         agents = self.json_data.get("AgentPositions", [])
         if not agents:

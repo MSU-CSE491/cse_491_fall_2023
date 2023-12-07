@@ -29,10 +29,7 @@ namespace DataCollection {
          /**
            * Destructor
            */
-         ~DataManager()
-         {
-             WriteToJson();
-         }
+         ~DataManager() = default;
 
          static DataManager& GetInstance() {
              static DataManager instance;
@@ -89,7 +86,6 @@ namespace DataCollection {
             std::filesystem::path PositionfilePath = currentPath  / "gridPositions.json";
             std::filesystem::path InteractionfilePath = currentPath  / "agentInteractions.json";
             agentReceiver.WriteToPositionFile(PositionfilePath.string());
-            damageCollector.WriteToDamageFile(DamagefilePath.string());
             itemUseCollector.WriteToItemUseFile(ItemUsefilePath.string());
             agentInteractionCollector.WriteToInteractionFile(InteractionfilePath.string());
         }

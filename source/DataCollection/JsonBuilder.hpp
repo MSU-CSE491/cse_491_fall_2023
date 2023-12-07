@@ -33,10 +33,6 @@ namespace DataCollection{
             json_array[title].push_back(input);
         }
 
-        void CreateObject(std::string title) {
-            json["title"] = title;
-        }
-
         /**
          * @brief Adds the agent's name to the JSON object.
          * @param name The agent's name.
@@ -47,15 +43,6 @@ namespace DataCollection{
 
         void Addagentname(std::string name) {
             json["agentname"] = name;
-        }
-
-        void JsonLoader(std::string filename) {
-            std::ifstream jsonfilestream(filename);
-            jsonfilestream >> json;
-        }
-
-        void updateItem(std::string item, int amount) {
-            json[item] = amount;
         }
 
         /**
@@ -69,23 +56,6 @@ namespace DataCollection{
         void AddDamage(double damage) {
             json["damage"].push_back(damage);
         }
-
-        /**
-         * @brief Adds an action to the JSON object.
-         * @param action The action to be added.
-         */
-        void AddAction(std::unordered_map<std::string, size_t> action) {
-            json["actions"].push_back(action);
-        }
-
-        /**
-         * @brief Adds an agent ID to the JSON object.
-         * @param id The agent ID to be added.
-         */
-        void AddAgentId(int id) {
-            json["agentIds"].push_back(id);
-        }
-
 
         /**
          * @brief Retrieves the JSON object.
@@ -110,9 +80,9 @@ namespace DataCollection{
         /**
          * @brief Writes the JSON object to a file.
          */
-        void WriteToFile(std::ofstream &jsonfilestream, nlohmann::json json)
+        void WriteToFile(std::ofstream &jsonfilestream, nlohmann::json Json)
         {
-            jsonfilestream << json.dump(4);
+            jsonfilestream << Json.dump(4);
         }
     };
 } // namespace DataCollection
