@@ -286,7 +286,7 @@ namespace i_2D {
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
-                    exit(0);
+                    exitCleanup();
 
                 } else if (event.type == sf::Event::TextEntered) {
                     if (mTextBox->IsSelected()) {

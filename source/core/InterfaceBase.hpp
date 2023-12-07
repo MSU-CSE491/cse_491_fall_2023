@@ -10,11 +10,18 @@
 
 #include "AgentBase.hpp"
 #include "ItemBase.hpp"
+#include "../DataCollection/DataManager.hpp"
 
 namespace cse491 {
 
   class InterfaceBase : public AgentBase {
   protected:
+    static void exitCleanup()
+    {
+        DataCollection::DataManager::GetInstance().WriteToJson();
+        exit(0);
+    }
+
 
   public:
     InterfaceBase(size_t id, const std::string & name) : AgentBase(id, name) { }

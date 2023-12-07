@@ -375,6 +375,7 @@ namespace cse491_team8 {
                 "Enemy Strength: " + std::to_string(other_agent.GetProperty<int>("Strength")));
 
         std::string other_agent_name = other_agent.GetName();
+        DataCollection::DataManager::GetInstance().GetAgentInteractionCollector().RecordInteraction(other_agent_name);
 
         if (!won) {
           if (run)
@@ -437,6 +438,7 @@ namespace cse491_team8 {
       run_over = false;
       while (!run_over) {
         RunAgents();
+        CollectData();
         UpdateWorld();
       }
     }
@@ -478,6 +480,7 @@ namespace cse491_team8 {
             }
           }
 
+          DataCollection::DataManager::GetInstance().GetItemUseCollector().IncrementItemUsage(item_ptr->GetName());
           agent.Notify("Picked up the " + item_ptr->GetName() + "!\nYou gained " +
                         std::to_string(item_ptr->GetProperty<int>(uses_property)) + " " +
                         uses_property + "!\n");

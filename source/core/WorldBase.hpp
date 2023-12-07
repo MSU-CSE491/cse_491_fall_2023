@@ -21,6 +21,7 @@
 #include "ItemBase.hpp"
 #include "WorldGrid.hpp"
 #include "../DataCollection/AgentReciever.hpp"
+#include "DataCollection/DataManager.hpp"
 #include "Interfaces/NetWorth/server/ServerManager.hpp"
 #include "Interfaces/NetWorth/client/ControlledAgent.hpp"
 
@@ -212,10 +213,6 @@ public:
     return *agent_map[agent_id];
   }
 
-  void SetAgentReceiver(DataCollection::AgentReceiver r) {
-    agent_receiver = std::make_shared<DataCollection::AgentReceiver>(r);
-  }
-
   /// @brief Add a new, already-built item
   /// @return A reference to the newly created item
   ItemBase & AddItem(std::unique_ptr<ItemBase> item_ptr) {
@@ -309,14 +306,12 @@ public:
   }
 
   void CollectData() {
-    if (agent_receiver != nullptr) {
       for (const auto & [id, agent_ptr] : agent_map) {
-        agent_receiver->StoreData(
+          DataCollection::DataManager::GetInstance().GetAgentReceiver().StoreData(
           agent_ptr->GetName(), 
           agent_ptr->GetPosition(), agent_ptr->GetActionResult()
         );
       }
-    }
   }
 
   /// @brief UpdateWorld() is run after every agent has a turn.

@@ -16,7 +16,7 @@ function(add_source_to_target TARGET_NAME SOURCE_PATH)
     message(STATUS "Loading source: ${SOURCE_PATH}")
     target_sources(${TARGET_NAME}
             PRIVATE ${CMAKE_SOURCE_DIR}/${SOURCE_PATH}
-            )
+    )
 endfunction()
 
 # Set the necessary C++ flags, some of which are configuration-specific
@@ -59,11 +59,11 @@ if (SANITIZE_MEMORY)
     target_include_directories(gp_train_main
             PRIVATE ${CMAKE_SOURCE_DIR}/source/core
             ${CMAKE_SOURCE_DIR}/source/Agents
-            )
+    )
     target_link_libraries(gp_train_main
             PRIVATE tinyxml2
             PRIVATE pthread
-            )
+    )
 
 
 endif ()
@@ -91,21 +91,17 @@ if (BUILD_GP_ONLY)
     target_include_directories(gp_train_main
             PRIVATE ${CMAKE_SOURCE_DIR}/source/core
             ${CMAKE_SOURCE_DIR}/source/Agents
-            )
+    )
     target_link_libraries(gp_train_main
             PRIVATE tinyxml2
             PRIVATE pthread
-            )
+    )
 
 endif ()
-
 
 # Typically you don't care so much for a third party library's tests to be
 # run from your own project's code.
 set(JSON_BuildTests OFF CACHE INTERNAL "")
-
-
-
 # Configure json
 set(JSON_SRC_DIR third_party/json)
 set(JSON_BUILD_DIR json_build)
@@ -201,4 +197,3 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SFML_INTERFACE")
       endif ()
   endforeach ()
 endif ()
-
