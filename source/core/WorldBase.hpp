@@ -317,11 +317,11 @@ public:
 
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
-      while (!server_manager->HasAgentsPresent()|| !world_running) {}
+      while (!server_manager->hasAgentsPresent()|| !world_running) {}
 
       // select action and send to client
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
-      server_manager->WriteToActionMap(id,action_id);
+		server_manager->writeToActionMap(id, action_id);
       agent_ptr->storeActionMap(agent_ptr->GetName());
       int result = DoAction(*agent_ptr, action_id);
       agent_ptr->SetActionResult(result);
@@ -340,9 +340,9 @@ public:
         std::ostringstream os;
         SerializeAgentSet(os);
         std::string data = os.str();
-        server_manager->SetSerializedAgents(data);
-		server_manager->SetNewAgent(true);
-        server_manager->SendGameUpdates();
+		server_manager->setSerializedAgents(data);
+		server_manager->setNewAgent(true);
+		server_manager->sendGameUpdates();
     }
   }
 

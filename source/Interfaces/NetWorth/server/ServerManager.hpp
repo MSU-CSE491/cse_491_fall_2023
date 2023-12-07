@@ -53,31 +53,31 @@ namespace netWorth{
 		 * Returns the current serialized agents
 		 * @return a string of the current serialized agents
 		 */
-        std::string GetSerializedAgents(){return m_current_serialized_agents;}
+        std::string getSerializedAgents(){return m_current_serialized_agents;}
 
 		/**
 		 * Sets the current serialized agents of the server
 		 * @param serializedAgents string reference representing the serialized agents
 		 */
-        void SetSerializedAgents(std::string & serializedAgents) { m_current_serialized_agents = serializedAgents;}
+        void setSerializedAgents(std::string & serializedAgents) { m_current_serialized_agents = serializedAgents;}
 
 		/**
 		 * Returns if there are agents present on the server as a boolean
 		 * @return boolean representing if there are agents present on the server
 		 */
-		[[nodiscard]] bool HasAgentsPresent() const {return m_interfaces_present;}
+		[[nodiscard]] bool hasAgentsPresent() const {return m_interfaces_present;}
 
 		/**
 		 * Sets a boolean stating if the server has received a new agent
 		 * @param hasNewAgent boolean stating that a new agent has joined
 		 */
-		void SetNewAgent(bool hasNewAgent){ m_has_new_agent = hasNewAgent;}
+		void setNewAgent(bool hasNewAgent){ m_has_new_agent = hasNewAgent;}
 
         /**
          * Convert action map to packet to send to client
          * @return packet containing action map as series of integers
          */
-        sf::Packet ActionMapToPacket()
+        sf::Packet actionMapToPacket()
         {
             sf::Packet pkt;
 
@@ -93,13 +93,13 @@ namespace netWorth{
         /**
          * Increases the max client port
          */
-        void IncreasePort(){++m_max_client_port;}
+        void increasePort(){++m_max_client_port;}
 
 		/**
 		 * Removes an interface by ID
 		 * @param id
 		 */
-        void RemoveInterface(size_t id){
+        void removeInterface(size_t id){
             m_interface_set.erase(id);
             if (m_interface_set.empty()) m_interfaces_present = false;
         }
@@ -109,18 +109,18 @@ namespace netWorth{
 		 * @param ip IP address of client receiving updates
 		 * @param port port of client receiving updates
 		 */
-		void AddToUpdatePairs(sf::IpAddress ip, unsigned short port){
+		void addToUpdatePairs(sf::IpAddress ip, unsigned short port){
 			m_update_vec.emplace_back(ip, port);
 		}
 
 		/**
 		 * Sends game updates to all clients when a new agent joins
 		 */
-		 void SendGameUpdates(){
+		 void sendGameUpdates(){
 			if (m_has_new_agent)
 			{
 				sf::Packet serializedAgentPkt;
-				serializedAgentPkt << GetSerializedAgents();
+				serializedAgentPkt << getSerializedAgents();
 				//Loops through all pairs of IP and port and sends serialized agents
 				for (auto client: m_update_vec){
 					std::cout << "sending game updates to IP: " << client.first.toString() << " with port " <<
@@ -137,7 +137,7 @@ namespace netWorth{
 		 * Removes an interface from action map by key
 		 * @param key
 		 */
-        void RemoveFromActionMap(size_t key){
+        void removeFromActionMap(size_t key){
             m_action_map.erase(key);
         }
 
@@ -146,7 +146,7 @@ namespace netWorth{
 		 * @param ip ip to remove
 		 * @param port port to remove
 		 */
-		void RemoveFromUpdatePairs(sf::IpAddress ip, unsigned short port){
+		void removeFromUpdatePairs(sf::IpAddress ip, unsigned short port){
 			m_update_vec.erase(std::remove_if(m_update_vec.begin(), m_update_vec.end(),
 				[ip, port](std::pair<sf::IpAddress, unsigned short> pair){
 				return (pair.first == ip && pair.second == port);
@@ -158,7 +158,7 @@ namespace netWorth{
 		 * @param key to reference
 		 * @param val to write
 		 */
-        void WriteToActionMap(size_t key, size_t val){
+        void writeToActionMap(size_t key, size_t val){
             m_action_map.insert_or_assign(key, val);
         }
 
@@ -166,7 +166,7 @@ namespace netWorth{
 		 * Adds and interface to the interface set
 		 * @param agent_id
 		 */
-        void AddToInterfaceSet(size_t agent_id){
+        void addToInterfaceSet(size_t agent_id){
             m_interface_set.insert(agent_id);
 			m_interfaces_present = true;
         }
