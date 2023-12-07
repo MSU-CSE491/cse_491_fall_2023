@@ -288,7 +288,7 @@ class Logger {
 #define LOG_RELLINE ""
 #define LOG_FNC ""
 
-#define log Log()
+//#define log Log()
 
 class Logger {
  public:
