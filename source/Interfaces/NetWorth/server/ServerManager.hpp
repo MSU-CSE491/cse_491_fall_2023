@@ -22,29 +22,25 @@ namespace netWorth{
     private:
 
 		sf::UdpSocket m_manager_socket;
-        //std::map<size_t ,std::thread> m_clientThreads; ///Map of all agent ids and their client threads
+
         std::set<size_t> m_interface_set;   /// Set of interfaces on the server
 
         std::map<size_t, size_t> m_action_map; ///Map of agent IDs to most recent action selected
 
-        std::mutex m_actionMapMutex; ///Mutex regarding the action map
+        std::string m_current_serialized_agents; ///String with all current serialized agents
 
-        std::mutex m_connectionThreadMutex; ///Mutex regarding all connection threads
+		std::vector<std::pair<sf::IpAddress, unsigned short>> m_update_vec; ///IP Addresses and ports to send updates to
 
-        std::string m_currentSerializedAgents; ///String with all current serialized agents
+		bool m_has_new_agent = false; ///Boolean that states if this manager has gotten a new agent
 
-		std::vector<std::pair<sf::IpAddress, unsigned short>> m_updateVec;
+		bool m_interfaces_present = false; ///Boolean that states if there are interfaces present on the server
 
     protected:
 
     public:
-        const static constexpr unsigned short m_initConnectionPort = 55000; ///Port for initial client connection
+        const static constexpr unsigned short m_init_connection_port = 55000; ///Port for initial client connection
 
-        unsigned short m_maxClientPort = 55000; ///Port that is incremented for client thread handoff
-
-        bool hasNewAgent;
-
-        bool interfacesPresent = false;
+        unsigned short m_max_client_port = 55000; ///Port that is incremented for client thread handoff
 
         /**
          * Default constructor (AgentBase)
@@ -53,10 +49,29 @@ namespace netWorth{
          */
         ServerManager() = default;
 
-        std::string GetSerializedAgents(){return m_currentSerializedAgents;}
+		/**
+		 * Returns the current serialized agents
+		 * @return a string of the current serialized agents
+		 */
+        std::string GetSerializedAgents(){return m_current_serialized_agents;}
 
-        void SetSerializedAgents(std::string & serializedAgents) {m_currentSerializedAgents = serializedAgents;}
+		/**
+		 * Sets the current serialized agents of the server
+		 * @param serializedAgents string reference representing the serialized agents
+		 */
+        void SetSerializedAgents(std::string & serializedAgents) { m_current_serialized_agents = serializedAgents;}
 
+		/**
+		 * Returns if there are agents present on the server as a boolean
+		 * @return boolean representing if there are agents present on the server
+		 */
+		[[nodiscard]] bool HasAgentsPresent() const {return m_interfaces_present;}
+
+		/**
+		 * Sets a boolean stating if the server has received a new agent
+		 * @param hasNewAgent boolean stating that a new agent has joined
+		 */
+		void SetNewAgent(bool hasNewAgent){ m_has_new_agent = hasNewAgent;}
 
         /**
          * Convert action map to packet to send to client
@@ -75,74 +90,85 @@ namespace netWorth{
             return pkt;
         }
 
-        std::mutex & GetThreadMutex(){return m_connectionThreadMutex;}
-
-        std::mutex & GetActionMutex(){return m_actionMapMutex;}
-
         /**
          * Increases the max client port
          */
-        void IncreasePort(){++m_maxClientPort;}
+        void IncreasePort(){++m_max_client_port;}
 
-        void JoinClient(size_t id){
+		/**
+		 * Removes an interface by ID
+		 * @param id
+		 */
+        void RemoveInterface(size_t id){
             m_interface_set.erase(id);
-            if (m_interface_set.empty()) interfacesPresent = false;
+            if (m_interface_set.empty()) m_interfaces_present = false;
         }
 
+		/**
+		 * Adds an IP and port to a vector for group update
+		 * @param ip IP address of client receiving updates
+		 * @param port port of client receiving updates
+		 */
 		void AddToUpdatePairs(sf::IpAddress ip, unsigned short port){
-			m_updateVec.emplace_back(ip, port);
+			m_update_vec.emplace_back(ip, port);
 		}
 
+		/**
+		 * Sends game updates to all clients when a new agent joins
+		 */
 		 void SendGameUpdates(){
-			if (hasNewAgent)
+			if (m_has_new_agent)
 			{
 				sf::Packet serializedAgentPkt;
 				serializedAgentPkt << GetSerializedAgents();
-				for (auto client: m_updateVec){
+				//Loops through all pairs of IP and port and sends serialized agents
+				for (auto client: m_update_vec){
 					std::cout << "sending game updates to IP: " << client.first.toString() << " with port " <<
 					client.second << std::endl;
 					if (m_manager_socket.send(serializedAgentPkt, client.first, client.second) != sf::Socket::Status::Done) {
                         std::cerr << "Error sending updates to client at " << client.first.toString() << " port " << client.second << std::endl;
                     }
 				}
-				hasNewAgent = false;
+				m_has_new_agent = false;
 			}
 		}
 
-
-        bool ActionMapContains(size_t key){return m_action_map.contains(key);}
-
-        size_t ReadFromActionMap(size_t key){
-            std::lock_guard<std::mutex> actionLock(m_actionMapMutex);
-            try{
-                return m_action_map.at(key);
-            }
-
-            catch (std::out_of_range & e){
-                return 0;
-            }
-        }
-
+		/**
+		 * Removes an interface from action map by key
+		 * @param key
+		 */
         void RemoveFromActionMap(size_t key){
             m_action_map.erase(key);
         }
 
+		/**
+		 * Removes ip and port from the update vector
+		 * @param ip ip to remove
+		 * @param port port to remove
+		 */
 		void RemoveFromUpdatePairs(sf::IpAddress ip, unsigned short port){
-			m_updateVec.erase(std::remove_if(m_updateVec.begin(), m_updateVec.end(),
+			m_update_vec.erase(std::remove_if(m_update_vec.begin(), m_update_vec.end(),
 				[ip, port](std::pair<sf::IpAddress, unsigned short> pair){
 				return (pair.first == ip && pair.second == port);
-			}), m_updateVec.end());
+			}), m_update_vec.end());
 		}
 
+		/**
+		 * Writes to the action map
+		 * @param key to reference
+		 * @param val to write
+		 */
         void WriteToActionMap(size_t key, size_t val){
-            std::lock_guard<std::mutex> actionLock(m_actionMapMutex);
             m_action_map.insert_or_assign(key, val);
         }
 
+		/**
+		 * Adds and interface to the interface set
+		 * @param agent_id
+		 */
         void AddToInterfaceSet(size_t agent_id){
-            std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
             m_interface_set.insert(agent_id);
-            interfacesPresent = true;
+			m_interfaces_present = true;
         }
 
     }; // End of class ServerManager

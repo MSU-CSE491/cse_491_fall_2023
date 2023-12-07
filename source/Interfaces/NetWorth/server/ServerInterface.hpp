@@ -24,7 +24,7 @@ namespace netWorth
 	private:
 		ServerManager* m_manager = nullptr; ///Manager to handle updates of the world
 
-		unsigned short m_world_update_port = 0;  ///Port used by servermanager to handle world updates
+		unsigned short m_world_update_port = 0;  ///Port used by server manager to handle world updates
 	protected:
 
 	public:
@@ -40,45 +40,39 @@ namespace netWorth
 
 		}
 
+		/**
+		 * Function that initializes server interface
+		 * @return boolean stating whether initialization was successful or not
+		 */
 		bool Initialize() override
 		{
 			// resolve port and IP from entity properties
 			m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("client_ip"));
 			m_world_update_port = NetworkingInterface::GetProperty<unsigned short>("client_port");
 			m_manager = GetProperty<netWorth::ServerManager*>("server_manager");
-			return InitialConnection(m_ip, m_port);
-		}
 
-		/**
-		 * The initial connection for the server to a client
-		 * @param sender address of the sender
-		 * @param port port of the connection
-		 * @return true if successful
-		 */
-		bool InitialConnection(std::optional<IpAddress>& sender, unsigned short& port)
-		{
 			Packet sendPkt, recvPkt;
 			std::string str;
 
 			bindSocket(m_socket, GetProperty<unsigned short>("server_port"));
 
 			// Await client
-			if (!receivePacket(recvPkt, sender, port))
+			if (!receivePacket(recvPkt, m_ip, m_port))
 				return false;
 
-			std::cout << sender.value() << " has connected successfully." << std::endl;
+			std::cout << m_ip.value() << " has connected successfully." << std::endl;
 
 			// Acknowledge client
 			sendPkt << "Connection established.";
-			if (!sendPacket(sendPkt, sender.value(), m_port))
+			if (!sendPacket(sendPkt, m_ip.value(), m_port))
 				return false;
 
 			recvPkt.clear();
 			// await request for map
-			if (!receivePacket(recvPkt, sender, m_port))
+			if (!receivePacket(recvPkt, m_ip, m_port))
 				return false;
 
-            GetWorld().SetWorldRunning(true);
+			GetWorld().SetWorldRunning(true);
 			return true;
 		}
 
@@ -180,7 +174,7 @@ namespace netWorth
             // handle leaving client
 			if (actionID == 9999)
 			{
-                m_manager->JoinClient(GetID());
+				m_manager->RemoveInterface(GetID());
 				m_manager->RemoveFromActionMap(GetID());
 				m_manager->RemoveFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}

@@ -37,7 +37,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
     std::string str;
 
     // initial connection socket (redirect to serverinterface later)
-    if (socket.bind(netWorth::ServerManager::m_initConnectionPort) != sf::Socket::Status::Done){
+    if (socket.bind(netWorth::ServerManager::m_init_connection_port) != sf::Socket::Status::Done){
         std::cerr << "Failed to bind" << std::endl;
         exit(0);
     }
@@ -66,7 +66,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
         // send port of server interface, worldtype, x, y, and world data
         pkt.clear();
-        pkt << serverManager.m_maxClientPort << static_cast<int>(world_type);
+        pkt << serverManager.m_max_client_port << static_cast<int>(world_type);
         pkt << start_x << start_y << serialized;
         if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
             std::cerr << "Failed to send" << std::endl;
@@ -74,10 +74,10 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         }
 
         // add ServerInterface[port number] to world
-        std::string serverInterfaceName = "ServerInterface" + std::to_string(serverManager.m_maxClientPort);
+        std::string serverInterfaceName = "ServerInterface" + std::to_string(serverManager.m_max_client_port);
         cse491::Entity & interface = world.AddAgent<netWorth::ServerInterface>
                 (serverInterfaceName, "client_ip", sender->toString(), "client_port", port, "server_port",
-                 serverManager.m_maxClientPort, "server_manager", &serverManager)
+                 serverManager.m_max_client_port, "server_manager", &serverManager)
                  .SetProperty("symbol", '@');
 
         auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
@@ -86,7 +86,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         serverManager.WriteToActionMap(serverInterface.GetID(), 0);
 		serverManager.AddToUpdatePairs(sender.value(), port);
         serverManager.AddToInterfaceSet(serverInterface.GetID());
-        serverManager.hasNewAgent = true;
+		serverManager.SetNewAgent(true);
 
 		// serialize agents and send game updates to all clients
 		std::ostringstream agent_os;

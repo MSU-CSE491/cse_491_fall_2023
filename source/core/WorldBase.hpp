@@ -317,7 +317,7 @@ public:
 
     for (auto & [id, agent_ptr] : agent_map) {
       // wait until clients have connected to run
-      while (!server_manager->interfacesPresent || !world_running) {}
+      while (!server_manager->HasAgentsPresent()|| !world_running) {}
 
       // select action and send to client
       size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
@@ -341,7 +341,7 @@ public:
         SerializeAgentSet(os);
         std::string data = os.str();
         server_manager->SetSerializedAgents(data);
-        server_manager->hasNewAgent = true;
+		server_manager->SetNewAgent(true);
         server_manager->SendGameUpdates();
     }
   }
