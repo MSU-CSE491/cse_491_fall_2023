@@ -21,12 +21,15 @@ namespace netWorth{
         sf::UdpSocket *m_game_update_socket;    /// Game update socket (for agent updates)
         std::optional<sf::IpAddress> m_ip;      /// Server IP address
         unsigned short m_port;                  /// Server port
+
         std::unordered_map<size_t, size_t> m_action_map;     ///Map of agent IDs to most recent action selected
         size_t m_client_id = 0;
 
     protected:
 
     public:
+
+		unsigned short m_update_port;
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
@@ -66,6 +69,7 @@ namespace netWorth{
         void SetupGameUpdateSocket(sf::UdpSocket *socket) {
             m_game_update_socket = socket;
             m_game_update_socket->setBlocking(false);
+			m_game_update_socket->bind(m_update_port);
         }
 
         /**
@@ -113,6 +117,8 @@ namespace netWorth{
             sf::Packet recv_pkt;
             std::optional<sf::IpAddress> temp_ip;
             unsigned short temp_port;
+//			m_game_update_socket->bind(m_port - 1);
+			std::cout << m_game_update_socket->getLocalPort() << std::endl;
             if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
                 std::string data;
                 recv_pkt >> data;

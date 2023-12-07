@@ -39,8 +39,10 @@ void TerminateClient() {
  * @param start_y y start position
  * @return true if successful
  */
-bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y, sf::UdpSocket *socket) {
+bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
+	sf::UdpSocket *socket, unsigned short initport) {
     netWorth::ClientManager manager;
+	manager.m_update_port = initport;
     manager.SetupGameUpdateSocket(socket);
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
@@ -146,6 +148,7 @@ int main(int argc, char *argv[]) {
 
     // Request connection to server
     sf::UdpSocket socket;
+	std::cout << socket.getLocalPort();
     sf::Packet send_pkt, recv_pkt;
     std::optional<sf::IpAddress> ip_addr = sf::IpAddress::resolve(ip_string);
     std::string serialized;
@@ -161,6 +164,10 @@ int main(int argc, char *argv[]) {
         std::cerr << "Failed to receive" << std::endl;
         return 1;
     }
+
+	unsigned short init_port = socket.getLocalPort();
+	std::cout << init_port  << std::endl;
+
     recv_pkt >> port >> serialized;
     std::istringstream is(serialized);
     int world_type_int, start_x, start_y;
@@ -172,7 +179,7 @@ int main(int argc, char *argv[]) {
     // Note that interface names must be different to properly load textures
     // Will probably also send start position instead of hard-coding
     if (world_type == cse491::WorldType::w_maze) {
-        return RunMazeWorldDemo(is, ip_string, port, start_x, start_y, &socket);
+        return RunMazeWorldDemo(is, ip_string, port, start_x, start_y, &socket, init_port);
     } else if (world_type == cse491::WorldType::w_second) {
         return RunSecondWorldDemo(is, ip_string, port, start_x, start_y);
     } else if (world_type == cse491::WorldType::w_generative) {
