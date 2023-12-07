@@ -22,9 +22,9 @@ namespace netWorth
 	class ServerInterface : public NetworkingInterface
 	{
 	private:
-		ServerManager* m_manager = nullptr;
+		ServerManager* m_manager = nullptr; ///Manager to handle updates of the world
 
-		unsigned short m_world_update_port;
+		unsigned short m_world_update_port = 0;  ///Port used by servermanager to handle world updates
 	protected:
 
 	public:
@@ -57,25 +57,25 @@ namespace netWorth
 		 */
 		bool InitialConnection(std::optional<IpAddress>& sender, unsigned short& port)
 		{
-			Packet send_pkt, recv_pkt;
+			Packet sendPkt, recvPkt;
 			std::string str;
 
 			BindSocket(m_socket, GetProperty<unsigned short>("server_port"));
 
 			// Await client
-			if (!ReceivePacket(recv_pkt, sender, port))
+			if (!ReceivePacket(recvPkt, sender, port))
 				return false;
 
 			std::cout << sender.value() << " has connected successfully." << std::endl;
 
 			// Acknowledge client
-			send_pkt << "Connection established.";
-			if (!SendPacket(send_pkt, sender.value(), m_port))
+			sendPkt << "Connection established.";
+			if (!SendPacket(sendPkt, sender.value(), m_port))
 				return false;
 
-			recv_pkt.clear();
+			recvPkt.clear();
 			// await request for map
-			if (!ReceivePacket(recv_pkt, sender, m_port))
+			if (!ReceivePacket(recvPkt, sender, m_port))
 				return false;
 
             GetWorld().SetWorldRunning(true);
@@ -86,36 +86,36 @@ namespace netWorth
 		 * The grid that will be sent to the client from the server after the connection
 		 * so the client can start asking to make moves
 		 * @param grid the grid to send to the server
-		 * @param type_options different cell types of the world
-		 * @param item_map the items that may be apart of the grid
-		 * @param agent_map the agents that may be apart of the grid
+		 * @param typeOptions different cell types of the world
+		 * @param itemMap the items that may be apart of the grid
+		 * @param agentMap the agents that may be apart of the grid
 		 * @return the grid that will be sent to the client
 		 */
 		static Packet GridToPacket(const cse491::WorldGrid& grid,
-			const cse491::type_options_t& type_options,
-			const cse491::item_map_t& item_map,
-			const cse491::agent_map_t& agent_map)
+			const cse491::type_options_t& typeOptions,
+			const cse491::item_map_t& itemMap,
+			const cse491::agent_map_t& agentMap)
 		{
-			std::vector<std::string> packet_grid(grid.GetHeight());
+			std::vector<std::string> packetGrid(grid.GetHeight());
 
 			// Load the world into the symbol_grid;
 			for (size_t y = 0; y < grid.GetHeight(); ++y)
 			{
-				packet_grid[y].resize(grid.GetWidth());
+				packetGrid[y].resize(grid.GetWidth());
 				for (size_t x = 0; x < grid.GetWidth(); ++x)
 				{
-					packet_grid[y][x] = type_options[grid.At(x, y)].symbol;
+					packetGrid[y][x] = typeOptions[grid.At(x, y)].symbol;
 				}
 			}
 
 			// Add in the agents / entities
-			for (const auto& [id, entity_ptr] : item_map)
+			for (const auto& [id, entityPtr] : itemMap)
 			{
-				cse491::GridPosition pos = entity_ptr->GetPosition();
-				packet_grid[pos.CellY()][pos.CellX()] = '+';
+				cse491::GridPosition pos = entityPtr->GetPosition();
+				packetGrid[pos.CellY()][pos.CellX()] = '+';
 			}
 
-			for (const auto& [id, agent_ptr] : agent_map)
+			for (const auto& [id, agent_ptr] : agentMap)
 			{
 				cse491::GridPosition pos = agent_ptr->GetPosition();
 				char c = '*';
@@ -123,13 +123,13 @@ namespace netWorth
 				{
 					c = agent_ptr->GetProperty<char>("symbol");
 				}
-				packet_grid[pos.CellY()][pos.CellX()] = c;
+				packetGrid[pos.CellY()][pos.CellX()] = c;
 			}
 
 			// Print out the symbol_grid with a box around it.
 			std::ostringstream oss;
 			oss << '+' << std::string(grid.GetWidth(), '-') << "+\n";
-			for (const auto& row : packet_grid)
+			for (const auto& row : packetGrid)
 			{
 				oss << "|";
 				for (char cell : row)
@@ -150,55 +150,43 @@ namespace netWorth
 		/**
 		 * Choose action for player agent (mirror client agent)
 		 * @param grid the server-side grid
-		 * @param type_options different cell types of the world
-		 * @param item_map the items that may be apart of the grid
-		 * @param agent_map the agents that may be apart of the grid
+		 * @param typeOptions different cell types of the world
+		 * @param itemMap the items that may be apart of the grid
+		 * @param agentMap the agents that may be apart of the grid
 		 * @return action ID of the interface
 		 */
 		size_t SelectAction(const cse491::WorldGrid& grid,
-			const cse491::type_options_t& type_options,
-			const cse491::item_map_t& item_set,
-			const cse491::agent_map_t& agent_set) override
+			const cse491::type_options_t& typeOptions,
+			const cse491::item_map_t& itemMap,
+			const cse491::agent_map_t& agentMap) override
 		{
 			// send action map to client
-			sf::Packet send_pkt = m_manager->ActionMapToPacket();
+			sf::Packet sendPkt = m_manager->ActionMapToPacket();
 			std::cout << "Sending action map to " << m_ip.value().toString() << " on port " << m_port << std::endl;
-			SendPacket(send_pkt, m_ip.value(), m_port);
+			SendPacket(sendPkt, m_ip.value(), m_port);
 
 			// print server-side map (for test purposes)
-			sf::Packet map_pkt = GridToPacket(grid, type_options, item_set, agent_set);
+			sf::Packet mapPkt = GridToPacket(grid, typeOptions, itemMap, agentMap);
 			std::string map;
-			map_pkt >> map;
+			mapPkt >> map;
 			std::cout << map << std::endl;
 
 			// receive player input
-			sf::Packet recv_pkt;
-			size_t action_id;
-            ReceivePacket(recv_pkt, m_ip, m_port);
-			recv_pkt >> action_id;
+			sf::Packet recvPkt;
+			size_t actionID;
+            ReceivePacket(recvPkt, m_ip, m_port);
+			recvPkt >> actionID;
 
             // handle leaving client
-			if (action_id == 9999)
+			if (actionID == 9999)
 			{
                 m_manager->JoinClient(GetID());
 				m_manager->RemoveFromActionMap(GetID());
 				m_manager->RemoveFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}
 
-            // return action_id
-			return action_id;
-		}
-
-		/**
-		 * Process client input packet (just print action for now, testing purposes)
-		 * @param packet packet from client
-		 */
-		void ProcessPacket(Packet packet)
-		override
-		{
-			size_t str;
-			packet >> str;
-			std::cout << str << std::endl;
+            // return actionId
+			return actionID;
 		}
 
 	}; // End of class ServerInterface

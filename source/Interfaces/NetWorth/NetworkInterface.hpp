@@ -1,6 +1,6 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
- * @brief A networking interface that allows information to be sent across a  network
+ * @brief A networking interface that allows information to be sent across a network
  * @note Status: PROTOTYPE
  **/
 
@@ -25,9 +25,7 @@ namespace netWorth{
         protected:
             UdpSocket m_socket;             ///The socket we are going to make our connection
             std::optional<IpAddress> m_ip;  /// the destination IP of the machine this communicates with
-            unsigned short m_port;          /// the destination port of the machine this communicates with
-            //Thought about making m_clients a shared pointer to a vector, but it'll be a vector for now
-            std::vector<std::string> m_clients; ///list of all the clients that will connect with the server
+            unsigned short m_port = 0;      /// the destination port of the machine this communicates with
 
         public:
             /**
@@ -91,15 +89,5 @@ namespace netWorth{
                 return true;
             }
 
-            /**
-             * Processes the packet and outputs it
-             * @param packet the packet we want to output
-             */
-            virtual void ProcessPacket(Packet packet){
-                std::string actionInd;
-                packet >> actionInd;
-                std::cout << actionInd;
-            }
-
         }; // End of NetworkingInterface
-} // End of namespace networth
+} // End of namespace netWorth
