@@ -85,7 +85,7 @@ namespace netWorth
 		 * @param agentMap the agents that may be apart of the grid
 		 * @return the grid that will be sent to the client
 		 */
-		static Packet GridToPacket(const cse491::WorldGrid& grid,
+		static Packet gridToPacket(const cse491::WorldGrid& grid,
 			const cse491::type_options_t& typeOptions,
 			const cse491::item_map_t& itemMap,
 			const cse491::agent_map_t& agentMap)
@@ -155,12 +155,12 @@ namespace netWorth
 			const cse491::agent_map_t& agentMap) override
 		{
 			// send action map to client
-			sf::Packet sendPkt = m_manager->ActionMapToPacket();
+			sf::Packet sendPkt = m_manager->actionMapToPacket();
 			std::cout << "Sending action map to " << m_ip.value().toString() << " on port " << m_port << std::endl;
 			sendPacket(sendPkt, m_ip.value(), m_port);
 
 			// print server-side map (for test purposes)
-			sf::Packet mapPkt = GridToPacket(grid, typeOptions, itemMap, agentMap);
+			sf::Packet mapPkt = gridToPacket(grid, typeOptions, itemMap, agentMap);
 			std::string map;
 			mapPkt >> map;
 			std::cout << map << std::endl;
@@ -174,9 +174,9 @@ namespace netWorth
             // handle leaving client
 			if (actionID == 9999)
 			{
-				m_manager->RemoveInterface(GetID());
-				m_manager->RemoveFromActionMap(GetID());
-				m_manager->RemoveFromUpdatePairs(m_ip.value(), m_world_update_port);
+				m_manager->removeInterface(GetID());
+				m_manager->removeFromActionMap(GetID());
+				m_manager->removeFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}
 
             // return actionId

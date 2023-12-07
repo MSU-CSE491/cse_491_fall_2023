@@ -24,11 +24,11 @@
  * Initial connection for server to client
  * @param serverManager Server manager
  * @param world World to serialize and add interfaces to
- * @param start_x Starting x position of client
- * @param start_y Starting y position of client
- * @param world_type Type of world enum
+ * @param startX Starting x position of client
+ * @param startY Starting y position of client
+ * @param worldType Type of world enum
  */
-void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase &world, int start_x, int start_y, cse491::WorldType world_type) {
+void handleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase &world, int startX, int startY, cse491::WorldType worldType) {
     sf::UdpSocket socket;
     std::optional<sf::IpAddress> sender;
     unsigned short port;
@@ -62,12 +62,12 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         std::string serialized = os.str();
         std::cout << serialized << std::endl;
 
-        serverManager.IncreasePort();
+		serverManager.increasePort();
 
-        // send port of server interface, worldtype, x, y, and world data
+        // send port of server interface, world type, x, y, and world data
         pkt.clear();
-        pkt << serverManager.m_max_client_port << static_cast<int>(world_type);
-        pkt << start_x << start_y << serialized;
+        pkt << serverManager.m_max_client_port << static_cast<int>(worldType);
+        pkt << startX << startY << serialized;
         if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
             std::cerr << "Failed to send" << std::endl;
             exit(0);
@@ -83,17 +83,17 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         auto & serverInterface = dynamic_cast<netWorth::ServerInterface &>(interface);
 
         //Do an atomic check to see if you can add it
-        serverManager.WriteToActionMap(serverInterface.GetID(), 0);
-		serverManager.AddToUpdatePairs(sender.value(), port);
-        serverManager.AddToInterfaceSet(serverInterface.GetID());
-		serverManager.SetNewAgent(true);
+		serverManager.writeToActionMap(serverInterface.GetID(), 0);
+		serverManager.addToUpdatePairs(sender.value(), port);
+		serverManager.addToInterfaceSet(serverInterface.GetID());
+		serverManager.setNewAgent(true);
 
 		// serialize agents and send game updates to all clients
 		std::ostringstream agent_os;
 		world.SerializeAgentSet(agent_os);
 		std::string serialized_agents = agent_os.str();
-		serverManager.SetSerializedAgents(serialized_agents);
-        serverManager.SendGameUpdates();
+		serverManager.setSerializedAgents(serialized_agents);
+		serverManager.sendGameUpdates();
 
         std::cout << "Added thread" << std::endl;
     }
@@ -103,24 +103,24 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
  * Run demo for MazeWorld type
  * @return 0 if successful, 1 if error
  */
-int RunMazeWorldDemo() {
+int runMazeWorldDemo() {
     netWorth::ServerManager manager;
 
     // Load world
     cse491::MazeWorld world;
-    int start_x = 0, start_y = 0;
+    int startX = 0, startY = 0;
 
     // Add agents
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
-    auto & astar_agent =
+    auto & aStarAgent =
             dynamic_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar 1"));
-    astar_agent.SetPosition(7, 3);
-    astar_agent.SetGoalPosition(21, 7);
-    astar_agent.RecalculatePath();
+    aStarAgent.SetPosition(7, 3);
+    aStarAgent.SetGoalPosition(21, 7);
+    aStarAgent.RecalculatePath();
 
     // Ensure client successfully connects
-    std::thread connectionThread(HandleConnection, std::ref(manager), std::ref(world), start_x, start_y, cse491::WorldType::w_maze);
+    std::thread connectionThread(handleConnection, std::ref(manager), std::ref(world), startX, startY, cse491::WorldType::w_maze);
     std::cout << "Handling connection." << std::endl;
 
     world.RunServer(&manager);
@@ -131,12 +131,12 @@ int RunMazeWorldDemo() {
  * Run demo for SecondWorld type
  * @return 0 if successful, 1 if error
  */
-int RunSecondWorldDemo() {
+int runSecondWorldDemo() {
     netWorth::ServerManager manager;
 
     // Load world
     group4::SecondWorld world;
-    int start_x = 0, start_y = 0;
+    int startX = 0, startY = 0;
 
     // Add agents
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
@@ -149,7 +149,7 @@ int RunSecondWorldDemo() {
     world.AddItem(std::move(powerSword));
 
     // Ensure client successfully connects
-    std::thread connectionThread(HandleConnection, std::ref(manager), std::ref(world), start_x, start_y, cse491::WorldType::w_second);
+    std::thread connectionThread(handleConnection, std::ref(manager), std::ref(world), startX, startY, cse491::WorldType::w_second);
     std::cout << "Handling connection." << std::endl;
 
     world.RunServer(&manager);
@@ -160,7 +160,7 @@ int RunSecondWorldDemo() {
  * Run demo for GenerativeWorld type
  * @return 0 if successful, 1 if error
  */
-int RunGenerativeWorldDemo() {
+int runGenerativeWorldDemo() {
     netWorth::ServerManager manager;
 
     // load world
@@ -173,14 +173,14 @@ int RunGenerativeWorldDemo() {
     biomeGenerator.applyPathToGrid(path);
 
     cse491::GenerativeWorld world(SEED);
-    int start_x = 0, start_y = 0;
+    int startX = 0, startY = 0;
 
     // Add agents
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
     world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6,1);
 
     // Ensure client successfully connects
-    std::thread connectionThread(HandleConnection, std::ref(manager), std::ref(world), start_x, start_y, cse491::WorldType::w_generative);
+    std::thread connectionThread(handleConnection, std::ref(manager), std::ref(world), startX, startY, cse491::WorldType::w_generative);
     std::cout << "Handling connection." << std::endl;
 
     world.RunServer(&manager);
@@ -191,12 +191,12 @@ int RunGenerativeWorldDemo() {
  * Run demo for ManualWorld type
  * @return 0 if successful, 1 if error
  */
-int RunManualWorldDemo() {
+int runManualWorldDemo() {
     netWorth::ServerManager manager;
 
     // Load world
     cse491_team8::ManualWorld world;
-    int start_x = 40, start_y = 3;
+    int startX = 40, startY = 3;
 
     // Add agents
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);
@@ -207,7 +207,7 @@ int RunManualWorldDemo() {
     world.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
 
     // Ensure client successfully connects
-    std::thread connectionThread(HandleConnection, std::ref(manager), std::ref(world), start_x, start_y, cse491::WorldType::w_manual);
+    std::thread connectionThread(handleConnection, std::ref(manager), std::ref(world), startX, startY, cse491::WorldType::w_manual);
     std::cout << "Handling connection." << std::endl;
 
     world.RunServer(&manager);
@@ -221,18 +221,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    auto world_type = static_cast<cse491::WorldType>(atoi(argv[1]));
+    auto worldType = static_cast<cse491::WorldType>(atoi(argv[1]));
     std::cout<< sf::IpAddress::getLocalAddress()->toString() << std::endl;
 
     // Run demo based on program args
-    if (world_type == cse491::WorldType::w_maze) {
-        return RunMazeWorldDemo();
-    } else if (world_type == cse491::WorldType::w_second) {
-        return RunSecondWorldDemo();
-    } else if (world_type == cse491::WorldType::w_generative) {
-        return RunGenerativeWorldDemo();
-    } else if (world_type == cse491::WorldType::w_manual) {
-        return RunManualWorldDemo();
+    if (worldType == cse491::WorldType::w_maze) {
+        return runMazeWorldDemo();
+    } else if (worldType == cse491::WorldType::w_second) {
+        return runSecondWorldDemo();
+    } else if (worldType == cse491::WorldType::w_generative) {
+        return runGenerativeWorldDemo();
+    } else if (worldType == cse491::WorldType::w_manual) {
+        return runManualWorldDemo();
     }
 
     // World type not in list
