@@ -49,12 +49,12 @@ namespace netWorth{
             }
         }
 
-        /**
-         * Set receiving socket for action map and IP/port info
-         * @param socket pointer to ClientInterface's socket
-         * @param ip server IP
-         * @param port server port
-         */
+		/**
+		 * Set receiving socket for action map and IP/port info
+		 * @param socket pointer to ClientInterface's socket
+		 * @param ip server IP
+		 * @param port server port
+		 */
         void setupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip) {
             m_socket = socket;
             m_ip = ip;

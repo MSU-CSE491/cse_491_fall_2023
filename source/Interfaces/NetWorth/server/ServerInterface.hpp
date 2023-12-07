@@ -168,10 +168,10 @@ namespace netWorth
 			// receive player input
 			sf::Packet recvPkt;
 			size_t actionID;
-            receivePacket(recvPkt, m_ip, m_port);
+			receivePacket(recvPkt, m_ip, m_port);
 			recvPkt >> actionID;
 
-            // handle leaving client
+			// handle leaving client
 			if (actionID == 9999)
 			{
 				m_manager->removeInterface(GetID());
@@ -179,7 +179,7 @@ namespace netWorth
 				m_manager->removeFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}
 
-            // return actionId
+			// return actionId
 			return actionID;
 		}
 

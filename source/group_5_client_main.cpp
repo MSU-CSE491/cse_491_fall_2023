@@ -170,7 +170,6 @@ int main(int argc, char *argv[]) {
 
     // Request connection to server
     sf::UdpSocket socket;
-	std::cout << socket.getLocalPort();
     sf::Packet sendPkt, recvPkt;
     std::optional<sf::IpAddress> ipAddr = sf::IpAddress::resolve(ipString);
     std::string serialized;
@@ -188,7 +187,6 @@ int main(int argc, char *argv[]) {
     }
 
 	unsigned short initPort = socket.getLocalPort();
-	std::cout << initPort << std::endl;
 
     recvPkt >> port;
     int worldTypeInt, startX, startY;
