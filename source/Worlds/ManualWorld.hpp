@@ -205,21 +205,7 @@ namespace cse491_team8 {
     /// @param agent 
     void MoveSetAction(cse491::AgentBase & agent)
     {
-        agent.Notify("Your Moveset is:");
-        agent.Notify("Move Up: W");
-        agent.Notify("Move Down: S");
-        agent.Notify("Move Left: A");
-        agent.Notify("Move Right: D");
-        agent.Notify("Use Axe: C");
-        agent.Notify("Use Boat: V");
-        agent.Notify("Display Stats: T");
-        agent.Notify("Heal: H");
-        agent.Notify("Attack: F");
-        agent.Notify("Special: G");
-        agent.Notify("Run: R");
-        agent.Notify("Buff: B");
-        agent.Notify("Debuff: X");
-        agent.Notify("Display Moveset: Y");
+        agent.Notify("Your Moveset is:\nMove Up: W\nMove Down: S\nMove Left: A\nMove Right: D\nUse Axe: C\nUse Boat: V\nDisplay Stats: T\nHeal: H\nAttack: F\nSpecial: G\nRun: R\nBuff: B\nDebuff: X\nDisplay Moveset: Y");
     }
 
     /// @brief looks one tile ahead of the agent based on facing direction
