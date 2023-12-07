@@ -111,10 +111,47 @@ set(JSON_SRC_DIR third_party/json)
 set(JSON_BUILD_DIR json_build)
 add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
 
+# Build the test executables, if requested
+if (${BUILD_TESTS})
+
+    # Configure Catch
+    set(CATCH_SRC_DIR third_party/Catch2)
+    set(CATCH_BUILD_DIR catch_build)
+    add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
+
+
+    # Configure only the networking portion of SFML
+    if (NOT ${BUILD_MAIN})
+        set(SFML_BUILD_WINDOW FALSE)
+        set(SFML_BUILD_GRAPHICS FALSE)
+        set(SFML_BUILD_AUDIO FALSE)
+        set(SFML_SRC_DIR third_party/SFML)
+        set(SFML_BUILD_DIR sfml_build)
+        add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
+
+        set(XML_SRC_DIR third_party/tinyxml2)
+        set(XML_BUILD_DIR xml_build)
+        add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
+
+    endif ()
+
+
+    # Setup CTest
+    include(CTest)
+    enable_testing()
+
+    # Tunnel into test directory CMake infrastructure
+    add_subdirectory(tests)
+endif ()
+
 if (${BUILD_MAIN})
 #    line to set santizers
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=[sanitizer]")
 #     can be set to address, undefined, thread, memory, or leak
+
+# Enable the SFML interface (graphics unavailable for tests on GitHub)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SFML_INTERFACE")
 
   # Configure all of SFML
   set(SFML_SRC_DIR third_party/SFML)
@@ -165,36 +202,3 @@ if (${BUILD_MAIN})
   endforeach ()
 endif ()
 
-# Build the test executables, if requested
-if (${BUILD_TESTS})
-
-    # Configure Catch
-    set(CATCH_SRC_DIR third_party/Catch2)
-    set(CATCH_BUILD_DIR catch_build)
-    add_subdirectory(${CATCH_SRC_DIR} ${CATCH_BUILD_DIR})
-
-
-    # Configure only the networking portion of SFML
-    if (NOT ${BUILD_MAIN})
-        set(SFML_BUILD_WINDOW FALSE)
-        set(SFML_BUILD_GRAPHICS FALSE)
-        set(SFML_BUILD_AUDIO FALSE)
-        set(SFML_SRC_DIR third_party/SFML)
-        set(SFML_BUILD_DIR sfml_build)
-        add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
-
-        set(XML_SRC_DIR third_party/tinyxml2)
-        set(XML_BUILD_DIR xml_build)
-        add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
-
-
-    endif ()
-
-
-    # Setup CTest
-    include(CTest)
-    enable_testing()
-
-    # Tunnel into test directory CMake infrastructure
-    add_subdirectory(tests)
-endif ()

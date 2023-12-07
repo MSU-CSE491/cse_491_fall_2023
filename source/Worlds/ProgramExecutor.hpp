@@ -14,6 +14,10 @@
 #include "core/AgentBase.hpp"
 #include "Interfaces/TrashInterface.hpp"
 
+#ifdef USE_SFML_INTERFACE
+#include "Interfaces/MainInterface.hpp"
+#endif
+
 using cse491::AgentBase;
 using cse491::Entity;
 using cse491::CellType;
@@ -161,7 +165,14 @@ namespace worldlang {
 				if (type == "Player"){
 					agent = &world.AddAgent<cse491::TrashInterface>(name, "symbol", symbol[0]);
 					agent->SetPosition(x, y);
-				} else {
+				} 
+#ifdef USE_SFML_INTERFACE
+        else if (type == "Player2D") {
+					agent = &world.AddAgent<i_2D::MainInterface>(name, "symbol", symbol[0]);
+					agent->SetPosition(x, y);
+        } 
+#endif 
+        else {
 					error("Unknown agent type!"); return;
 				}
 				
