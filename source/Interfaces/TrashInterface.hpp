@@ -40,9 +40,10 @@ namespace cse491 {
           char c = '+';
           if (item_ptr->HasProperty("symbol")) {
             c = item_ptr->GetProperty<char>("symbol");
-        }
-        if (grid.IsValid(pos)){
+          }
+          if (grid.IsValid(pos)){
             symbol_grid[pos.CellY()][pos.CellX()] = c;
+          }
         }
       }
 
