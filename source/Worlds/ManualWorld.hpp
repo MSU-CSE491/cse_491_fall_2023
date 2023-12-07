@@ -2,6 +2,10 @@
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A World that consists of trees, water, and grass cells.
  * @note Status: PROPOSAL
+ * @author Evan Orvis
+ * @author Grant Carr
+ * @author Lauren Garvey
+ * @author Nate Gu
  **/
 
 /// REVIEW UPDATES
@@ -15,6 +19,7 @@
 #include <tuple>
 
 #include "../core/WorldBase.hpp"
+#include "../core/AgentBase.hpp"
 
 namespace cse491_team8 {
 
@@ -705,7 +710,11 @@ namespace cse491_team8 {
         return false;
     }
 
-    /// Allow the agents to move around the maze.
+    /// @brief Central function for an agent to take any action
+    /// @param agent The specific agent taking the action
+    /// @param action The id of the action to take
+    /// @return The result of this action (usually 0/1 to indicate success)
+    /// @note Thus function must be overridden in any derived world.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
       
       cse491::GridPosition new_position = DoActionFindNewPosition(agent, action_id);
@@ -793,6 +802,13 @@ namespace cse491_team8 {
       agent.SetPosition(new_position);
 
       return true;
+    }
+
+    /// @brief Determine if this tile can be walked on, defaults to every tile is walkable
+    /// @param pos The grid position we are checking
+    /// @return If an agent should be allowed on this square
+    [[nodiscard]] bool IsTraversable(const cse491::AgentBase & /*agent*/, cse491::GridPosition pos) const override {
+      return main_grid.At(pos) == grass_id;
     }
 
   };

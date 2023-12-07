@@ -2,6 +2,10 @@
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A simplistic main file to demonstrate a system.
  * @note Status: PROPOSAL
+ * @author Grant Carr
+ * @author Evan Orvis
+ * @author Nate Gu
+ * @author Lauren Garvey
  **/
 
 // Include the modules that we will be using.
@@ -34,8 +38,10 @@ int main()
   world.AddAgent<cse491::PacingAgent>("Pacer 7").SetPosition(38, 10);
   world.AddAgent<cse491::PacingAgent>("Pacer 3").SetPosition(18,3);
   world.AddAgent<cse491::PacingAgent>("Pacer 4").SetPosition(45,17);
-  // need to set goal position
-  world.AddAgent<walle::AStarAgent>("AStar Agent 1").SetPosition(80, 111);
+
+  auto & a_star_agent = static_cast<walle::AStarAgent&>(world.AddAgent<walle::AStarAgent>("AStar 1"));
+  a_star_agent.SetPosition(80, 111);
+  a_star_agent.SetGoalPosition(80, 63);
 
   world.AddAgent<cse491::PacingAgent>("Shark", "OnlyWater", 1).SetPosition(125, 140);
 
