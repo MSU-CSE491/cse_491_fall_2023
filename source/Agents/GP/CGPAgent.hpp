@@ -127,6 +127,21 @@ namespace cowboys {
       assert(dynamic_cast<const CGPAgent *>(&other) != nullptr);
       Configure(dynamic_cast<const CGPAgent &>(other));
     }
+
+    /// @brief The complexity of this agent. Used for fitness.
+    /// @return The complexity of this agent.
+    double GetComplexity() const {
+      double connection_complexity =
+          static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
+
+      double functional_nodes = genotype.GetNumFunctionalNodes();
+
+      // Just needed some function such that connection_complexity + node_complexity grows as the number of nodes grows, this function makes the increase more gradual.
+      double node_complexity = std::log(functional_nodes) / 5;
+
+      double complexity = connection_complexity + node_complexity;
+      return complexity;
+    }
   };
 
 } // End of namespace cowboys

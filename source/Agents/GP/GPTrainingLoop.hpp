@@ -283,15 +283,7 @@ namespace cowboys {
 
           // Agent complexity, temporarily doing this in a bad way
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)) {
-            auto genotype = cgp->GetGenotype();
-            double connection_complexity =
-                    static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
-
-            double functional_nodes = genotype.GetNumFunctionalNodes();
-            double node_complexity = functional_nodes / (functional_nodes + 1);
-
-            double complexity = connection_complexity + node_complexity;
-            fitness -= complexity;
+            fitness -= cgp->GetComplexity();
           }
 
           return fitness;
@@ -316,15 +308,7 @@ namespace cowboys {
           cse491::AgentBase &agent = *agents[arena][a];
           // Agent complexity, temporarily doing this in a bad way
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)){
-            auto genotype = cgp->GetGenotype();
-            double connection_complexity =
-                    static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
-
-            double functional_nodes = genotype.GetNumFunctionalNodes();
-            double node_complexity = functional_nodes / (functional_nodes + 1);
-
-            double complexity = connection_complexity + node_complexity;
-            fitness -= complexity;
+            fitness -= cgp->GetComplexity();
           }
 
           return fitness;
