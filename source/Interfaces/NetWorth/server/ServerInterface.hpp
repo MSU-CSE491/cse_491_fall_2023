@@ -113,23 +113,23 @@ namespace netWorth{
                 }
 
                 // Print out the symbol_grid with a box around it.
-//                std::ostringstream oss;
-//                oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
-//                for (const auto & row : packet_grid) {
-//                    oss << "|";
-//                    for (char cell : row) {
-//                        oss << cell;
-//                    }
-//                    oss << "|\n";
-//                }
-//                oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
-//                oss << "\nYour move? ";
-//                std::string gridString = oss.str();
-//
-//                Packet gridPacket;
-//                gridPacket << gridString;
-//
-//                return gridPacket;
+                std::ostringstream oss;
+                oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
+                for (const auto & row : packet_grid) {
+                    oss << "|";
+                    for (char cell : row) {
+                        oss << cell;
+                    }
+                    oss << "|\n";
+                }
+                oss << '+' << std::string(grid.GetWidth(),'-') << "+\n";
+                oss << "\nYour move? ";
+                std::string gridString = oss.str();
+
+                Packet gridPacket;
+                gridPacket << gridString;
+
+                return gridPacket;
             }
 
             /**
