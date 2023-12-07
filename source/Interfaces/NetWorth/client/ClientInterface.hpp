@@ -101,7 +101,7 @@ namespace netWorth{
              * @param packet packet from server
              */
             void ProcessPacket(Packet packet) override {
-                size_t data_size, data;
+                uint64_t data_size, data;
                 packet >> data_size;
                 std::cout << data_size << " agents" << std::endl;
                 for (size_t i = 0; i < data_size; i++) {
