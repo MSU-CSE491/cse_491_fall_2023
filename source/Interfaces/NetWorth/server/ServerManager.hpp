@@ -139,9 +139,8 @@ namespace netWorth{
             m_action_map.insert_or_assign(key, val);
         }
 
-        void AddToThreadMap(size_t agent_id){
+        void AddToInterfaceSet(size_t agent_id){
             std::lock_guard<std::mutex> threadLock(m_connectionThreadMutex);
-            //m_clientThreads.insert_or_assign(agent_id, std::move(thread));
             m_interface_set.insert(agent_id);
             interfacesPresent = true;
         }

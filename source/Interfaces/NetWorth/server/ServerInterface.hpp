@@ -60,15 +60,12 @@ namespace netWorth
 			Packet send_pkt, recv_pkt;
 			std::string str;
 
-			std::cout << sf::IpAddress::getLocalAddress().value() << std::endl;
 			BindSocket(m_socket, GetProperty<unsigned short>("server_port"));
 
 			// Await client
 			if (!ReceivePacket(recv_pkt, sender, port))
 				return false;
 
-			recv_pkt >> str;
-			std::cout << str << std::endl;
 			std::cout << sender.value() << " has connected successfully." << std::endl;
 
 			// Acknowledge client
@@ -77,16 +74,9 @@ namespace netWorth
 				return false;
 
 			recv_pkt.clear();
-			std::string str2;
 			// await request for map
 			if (!ReceivePacket(recv_pkt, sender, m_port))
 				return false;
-
-			recv_pkt >> str2;
-			std::cout << str2 << std::endl;
-
-			// set non-blocking for gameplay
-			//m_socket.setBlocking(false);
 
 			GetWorld().IsWorldRunning(true);
 			return true;
@@ -149,7 +139,6 @@ namespace netWorth
 				oss << "|\n";
 			}
 			oss << '+' << std::string(grid.GetWidth(), '-') << "+\n";
-			oss << "\nYour move? ";
 			std::string gridString = oss.str();
 
 			Packet gridPacket;
@@ -171,8 +160,6 @@ namespace netWorth
 			const cse491::item_map_t& item_set,
 			const cse491::agent_map_t& agent_set) override
 		{
-
-
 			// send action map to client
 			sf::Packet send_pkt = m_manager->ActionMapToPacket();
 			std::cout << "Sending action map to " << m_ip.value().toString() << " on port " << m_port << std::endl;
@@ -187,13 +174,10 @@ namespace netWorth
 			// receive player input
 			sf::Packet recv_pkt;
 			size_t action_id;
-
-			// comment this out for speed
-			ReceivePacket(recv_pkt, m_ip, m_port);
+            ReceivePacket(recv_pkt, m_ip, m_port);
 			recv_pkt >> action_id;
 
-			// TODO: Figure out how to quit (client-side exit(0) in MainInterface upon q/esc)
-			//            if (input == "quit") exit(0);
+            // handle leaving client
 			if (action_id == 9999)
 			{
                 m_manager->JoinClient(GetID());
@@ -201,11 +185,12 @@ namespace netWorth
 				m_manager->RemoveFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}
 
+            // return action_id
 			return action_id;
 		}
 
 		/**
-		 * Process client input packet (just print action for now)
+		 * Process client input packet (just print action for now, testing purposes)
 		 * @param packet packet from client
 		 */
 		void ProcessPacket(Packet packet)
