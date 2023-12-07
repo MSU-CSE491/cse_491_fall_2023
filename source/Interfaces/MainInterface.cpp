@@ -64,8 +64,9 @@ namespace i_2D {
             if (item_ptr->HasProperty("symbol")) {
                 c = item_ptr->GetProperty<char>("symbol");
             }
-            if(pos.CellX() >= 0 && pos.CellY() <= 0 && 
-                pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight()){
+            if(pos.CellX() >= 0 && pos.CellY() >= 0 && 
+                pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight() && 
+                !item_ptr->IsOwned()){
               symbol_grid[pos.CellY()][pos.CellX()] = c;
             }
         }
@@ -77,7 +78,9 @@ namespace i_2D {
             if (agent_ptr->HasProperty("symbol")) {
                 c = agent_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if (!agent_ptr->HasProperty("deleted")){
+                symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
         return symbol_grid;
     }
@@ -379,6 +382,33 @@ namespace i_2D {
             case sf::Keyboard::Right:
                 action_id = GetActionID("right");
                 break;
+            case sf::Keyboard::H:
+                action_id = GetActionID("heal");
+                break;
+            case sf::Keyboard::T:
+                action_id = GetActionID("stats");
+                break;
+            case sf::Keyboard::C:
+                action_id = GetActionID("use_axe");
+                break;
+            case sf::Keyboard::V:
+                action_id = GetActionID("use_boat");
+                break;
+            case sf::Keyboard::F:
+                action_id = GetActionID("attack");
+                break;
+            case sf::Keyboard::G:
+                action_id = GetActionID("special");
+                break;
+            case sf::Keyboard::B:
+                action_id = GetActionID("buff");
+                break;
+            case sf::Keyboard::R:
+                action_id = GetActionID("run");
+                break;
+            case sf::Keyboard::Y:
+                action_id = GetActionID("help");
+                break;
             default:
                 break; // The user pressed an unknown key.
         }
@@ -483,10 +513,10 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)){
-                mGridSizeLarge = true;
+            if (mMenu.GetMenu()[4]->isMouseOver(mWindow)){
+                SetLargeGrid(true);
             } else if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
-                mGridSizeLarge = false;
+                SetLargeGrid(false);
             } else {
                 // Handle mouse button press for the general menu
                 mMenu.HandleMouseButtonPressed(mWindow);

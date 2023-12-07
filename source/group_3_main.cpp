@@ -61,8 +61,8 @@ int main() {
     world_2.Run();
 
     cse491_team8::ManualWorld world_3;
-    world_3.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
-    world_3.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
+    world_3.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(37, 3);
+    world_3.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
     world_3.AddAgent<i_2D::MainInterface>("Interface3", "Strength", 15, "Health", 15, "Max_Health", 40, "Direction",
                                           0).SetProperty("symbol", '@').SetPosition(40, 3);
     world_3.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health", 5, "Max_Health", 30, "Direction",
