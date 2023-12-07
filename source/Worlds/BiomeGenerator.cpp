@@ -1,11 +1,11 @@
 /**
+ * This file is part of the Fall 2023, CSE 491 course project.
  * @file BiomeGenerator.cpp
- * @author Paul Schulte, Milan Mihailovic, ChatGPT
+ * @author Paul Schulte, Milan Mihailovic (some code assisted with ChatGPT)
  */
 
 #include "BiomeGenerator.hpp"
 #include "Agents/AgentLibary.hpp"
-#include "../core/AgentBase.hpp"
 
 #include <cmath>
 #include <tuple>
@@ -152,11 +152,6 @@ vector<GridPosition> BiomeGenerator::clearPath() const {
     GridPosition current(0, 0); // Starting point
     path.push_back(current);
 
-    // Random engine for decision making
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, 2); // Three choices: Right, Down, Up
-
     // Continue until we reach the KeyLocation
     while (current != keyLocation) {
         std::vector<GridPosition> possibleMoves;
@@ -178,7 +173,7 @@ vector<GridPosition> BiomeGenerator::clearPath() const {
 
         // Randomly choose one of the possible moves
         if (!possibleMoves.empty()) {
-            GridPosition next = possibleMoves[distrib(gen) % possibleMoves.size()];
+            GridPosition next = possibleMoves[int(worldPtr->GetRandom(0, 2)) % possibleMoves.size()];
 
             // Check if we have made a valid move, if so, update the path and current position
             if (next != current) {

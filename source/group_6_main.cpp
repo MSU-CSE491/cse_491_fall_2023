@@ -113,7 +113,7 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
 }
 
 int main() {
-    auto biome = BiomeType::Maze;          // change world biome type here
+    auto biome = BiomeType::Grasslands;          // change world biome type here
     int width = 70;                       // change world width here
     int height = 24;                       // change world height here
     static const unsigned int SEED = 19;   // change world seed here

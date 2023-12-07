@@ -30,15 +30,15 @@ namespace group6 {
         size_t key_id;        ///< Easy access to key CellTypeID
         size_t door_id;       ///< Easy access to door CellTypeID
         size_t teleporter_id; ///< Easy access to teleporter CellTypeId
-        size_t armory_id; ///< Easy access to armory CellTypeID
+        size_t armory_id;     ///< Easy access to armory CellTypeID
 
-        size_t tree_id;
-        size_t grass_id;
-        size_t dirt_id;
-        size_t hole_id;
+        size_t tree_id;       ///< Easy access to tree CellTypeID
+        size_t grass_id;      ///< Easy access to grass CellTypeID
+        size_t dirt_id;       ///< Easy access to dirt CellTypeID
+        size_t hole_id;       ///< Easy access to hole CellTypeID
 
-        size_t water_id;
-        size_t sand_id;
+        size_t water_id;      ///< Easy access to water CellTypeID
+        size_t sand_id;       ///< Easy access to sand CellTypeID
 
         unsigned int world_width;
         unsigned int world_height;
@@ -114,6 +114,9 @@ namespace group6 {
 
         ~GenerativeWorld() override = default;
 
+        /**
+         * Adds teleporters to map
+         */
         void AddTeleporters() {
             main_grid.At(53, 6) = teleporter_id;
             main_grid.At(18, 18) = teleporter_id;
@@ -133,10 +136,13 @@ namespace group6 {
             }
         }
 
+        /**
+         * Adds armory tiles to grid
+         */
         void AddArmory() {
-            //main_grid.At(5, 5) = armory_id;
             bool counter = false;
             while (!counter) {
+                //generate random location in bottom left quarter of map
                 int random_y = GetRandom(main_grid.GetHeight() / 2, main_grid.GetHeight() - 1);
                 int random_x = GetRandom(0, main_grid.GetWidth() / 2);
 
@@ -148,6 +154,7 @@ namespace group6 {
 
             counter = false;
             while (!counter) {
+                //generate random location in top right quarter of map
                 int random_y = GetRandom(0, main_grid.GetHeight() / 2);
                 int random_x = GetRandom(main_grid.GetWidth() / 2, main_grid.GetWidth() - 1);
 
@@ -241,20 +248,8 @@ namespace group6 {
                 HoleTileHelper(agent, new_position);
             }
 
-            if( agent.GetName() == "AStar1" )
-            {
-                for( const auto &temp_agent : agent_map )
-                {
-                    if( temp_agent.second->GetName() == "Player" )
-                    {
-                        auto &astar_agent = dynamic_cast<walle::AStarAgent&>(agent);
-                        astar_agent.SetGoalPosition(temp_agent.second->GetPosition());
-                        astar_agent.RecalculatePath();
-                        astar_agent.SetActionResult(1);
-                        break;
-                    }
-                }
-            }
+            //recalculate AStarAgent's path when player moves
+            AStarAgentHelper(agent);
 
             //check to see if agent is walking on an item
             ItemHelper(agent, new_position);
@@ -265,6 +260,10 @@ namespace group6 {
             return true;
         }
 
+        /**
+         * Helper function for armory functionality
+         * @param agent agent performing action
+         */
         void ArmoryTileHelper(AgentBase &agent) {
             for (const auto &pair: item_map) {
                 //if agent has the item in its inventory, heal it back to full health
@@ -274,6 +273,10 @@ namespace group6 {
             }
         }
 
+        /**
+         * Helper function for spike tile functionality
+         * @param agent agent performing action
+         */
         void SpikeTileHelper(AgentBase &agent) {
             bool spike_immune = false;
 
@@ -296,6 +299,10 @@ namespace group6 {
             }
         }
 
+        /**
+         * Helper function for tar tile functionality
+         * @param agent agent performing action
+         */
         void TarTileHelper(AgentBase &agent) {
             bool tar_immune = false;
 
@@ -318,6 +325,11 @@ namespace group6 {
             }
         }
 
+        /**
+         * Helper function for armory functionality
+         * @param agent agent performing action
+         * @param new_position new position agent is moving to
+         */
         void TeleporterHelper(GridPosition &new_position) {
             vector<GridPosition> teleporters = FindTiles(main_grid, teleporter_id);
 
@@ -330,6 +342,11 @@ namespace group6 {
             }
         }
 
+        /**
+         * Helper function for key tile functionality
+         * @param agent agent performing action
+         * @param new_position new position agent is moving to
+         */
         void KeyTileHelper(AgentBase &agent, GridPosition &new_position) {
             // Only player can pick up keys
             if (agent.IsInterface()) {
@@ -338,6 +355,10 @@ namespace group6 {
             }
         }
 
+        /**
+         * Helper function for door tile functionality
+         * @param agent agent performing action
+         */
         void DoorTileHelper(AgentBase &agent) {
             // Only player with key can win game
             if (agent.IsInterface() && agent.GetProperty("key_property") == 1.0) {
@@ -345,33 +366,43 @@ namespace group6 {
             }
         }
 
+        /**
+         * Helper function for hole tile functionality
+         * @param agent agent performing action
+         * @param new_position new position agent is moving to
+         */
         void HoleTileHelper(AgentBase &agent, GridPosition &new_position) {
             if (agent.IsInterface()) {
-                std::random_device rd;
-                std::mt19937 gen(rd());
-
-                std::uniform_int_distribution<> distrib3(1, 1000);
-                int randomSeed = distrib3(gen);
-
-                CreateGrid(BiomeType::Maze, world_width, world_height, ++randomSeed, "maze2");
+                CreateGrid(BiomeType::Maze, world_width, world_height, ++seed, "maze2");
                 new_position.Set(0, 0);
             }
         }
 
+        /**
+         * Helper function for item pickup functionality
+         * @param agent agent performing action
+         * @param new_position new position agent is moving to
+         */
         void ItemHelper(AgentBase &agent, GridPosition &new_position) {
             for (const auto &pair: item_map) {
+                //check to see if items position is same as the position the player is moving to
                 if (pair.second->GetPosition() == new_position) {
                     //Add item to inventory
                     agent.AddItem(pair.first);
-
                     break;
                 }
             }
         }
 
+        /**
+         * Collision testing functionality
+         * @param agent agent performing action
+         */
         void AgentCollisionHelper(AgentBase &agent) {
             //if player is on same position as agent, game ends
             for (const auto &temp_agent: agent_map) {
+                //check to see if the two agents positions being compared are equal,
+                //as well as if one agent is a player and one agent is an enemy
                 if (temp_agent.second->GetPosition() == agent.GetPosition() &&
                     ((agent.GetName() == "Player" && temp_agent.second->GetName() != "Player") ||
                      (agent.GetName() != "Player" && temp_agent.second->GetName() == "Player")))
@@ -380,9 +411,33 @@ namespace group6 {
         }
 
 
+        /**
+         * Boolean function for traversable tiles in maze
+         * @param agent agent performing action
+         * @param pos position of tile
+         */
         bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
             size_t tileType = main_grid.At(pos);
             return !(tileType == wall_id || tileType == spike_id || tileType == tar_id || tileType == armory_id || tileType == teleporter_id);
+        }
+
+        void AStarAgentHelper(AgentBase &agent)
+        {
+            if( agent.GetName() == "AStar1" )
+            {
+                for( const auto &temp_agent : agent_map )
+                {
+                    //updating AStarAgent's path to the players current location
+                    if( temp_agent.second->GetName() == "Player" )
+                    {
+                        auto &astar_agent = dynamic_cast<walle::AStarAgent&>(agent);
+                        astar_agent.SetGoalPosition(temp_agent.second->GetPosition());
+                        astar_agent.RecalculatePath();
+                        astar_agent.SetActionResult(1);
+                        break;
+                    }
+                }
+            }
         }
     };
 
