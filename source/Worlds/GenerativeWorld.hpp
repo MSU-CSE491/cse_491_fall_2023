@@ -374,13 +374,7 @@ namespace group6 {
          */
         void HoleTileHelper(AgentBase &agent, GridPosition &new_position) {
             if (agent.IsInterface()) {
-                std::random_device rd;
-                std::mt19937 gen(rd());
-
-                std::uniform_int_distribution<> distrib3(1, 1000);
-                int randomSeed = distrib3(gen);
-
-                CreateGrid(BiomeType::Maze, world_width, world_height, ++randomSeed, "maze2");
+                CreateGrid(BiomeType::Maze, world_width, world_height, ++seed, "maze2");
                 new_position.Set(0, 0);
             }
         }
