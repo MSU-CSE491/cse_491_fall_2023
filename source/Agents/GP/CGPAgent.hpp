@@ -16,13 +16,13 @@
 
 namespace cowboys {
   /// Don't know the maximum size a state can be, arbitrary large number
-  constexpr size_t INPUT_SIZE = 6;
+  constexpr size_t INPUT_SIZE = 9;
 
   /// Number of computational layers for each agent
   constexpr size_t NUM_LAYERS = 3;
 
   /// The number of nodes in each layer
-  constexpr size_t NUM_NODES_PER_LAYER = 5;
+  constexpr size_t NUM_NODES_PER_LAYER = 2;
 
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;

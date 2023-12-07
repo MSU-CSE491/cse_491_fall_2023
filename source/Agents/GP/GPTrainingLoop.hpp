@@ -1040,6 +1040,9 @@ namespace cowboys {
         void RunArena(size_t arena, size_t numberOfTurns) {
           for (size_t startPos_idx = 0; startPos_idx < STARTPOSITIONS.size(); ++startPos_idx) {
             for(size_t a = 0; a < agents[arena].size(); ++a) {
+              // Reset the agent before each run
+              agents[arena][a]->Reset();
+              // Set the starting position
               agents[arena][a]->SetPosition(STARTPOSITIONS[startPos_idx]);
             }
 
@@ -1074,8 +1077,9 @@ namespace cowboys {
 //            TEMPAgentFitness[arena][a] += computeMedian();
               double min = *std::min_element(scores.begin(), scores.end());
             [[maybe_unused]] double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
-//              TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
-              TEMPAgentFitness[arena][a] = min;
+            //  TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
+              // TEMPAgentFitness[arena][a] = min;
+              TEMPAgentFitness[arena][a] = avg;
           }
 
         }

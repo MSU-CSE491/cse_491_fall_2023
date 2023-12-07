@@ -13,7 +13,7 @@
 using namespace cowboys;
 
 struct MockWorld : cse491::WorldBase {
-  int DoAction(cse491::AgentBase &agent, size_t action_id) { return 0; }
+  int DoAction(cse491::AgentBase &, size_t) { return 0; }
 };
 
 MockWorld world;
