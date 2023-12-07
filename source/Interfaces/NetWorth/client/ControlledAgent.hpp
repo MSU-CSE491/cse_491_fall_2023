@@ -35,10 +35,10 @@ class ControlledAgent : public cse491::AgentBase {
                             const cse491::item_map_t & /* item_map*/,
                             const cse491::agent_map_t & /* agent_map*/) override
         {
-            if (!m_manager->IdPresent(id)) {
+            if (!m_manager->iDPresent(id)) {
                 return 0;
             }
-            return m_manager->GetActionID(id);
+            return m_manager->getActionID(id);
         }
 
     };

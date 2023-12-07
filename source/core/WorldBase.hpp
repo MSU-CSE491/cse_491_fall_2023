@@ -303,7 +303,7 @@ public:
     }
 
     // Deserialize agents
-    std::string data = client_manager->GetSerializedAgents();
+    std::string data = client_manager->getSerializedAgents();
     if (data.substr(0, 18) == ":::START agent_set") {
       std::istringstream is(data);
       DeserializeAgentSet(is, client_manager);
@@ -517,7 +517,7 @@ public:
 
     std::string name, x, y, id_string, symbol_string;
     size_t size, id;
-    size_t client_id = manager->GetClientID();
+    size_t client_id = manager->getClientID();
 
     // remove all agents that are NOT the interface
     std::set<size_t> to_delete;

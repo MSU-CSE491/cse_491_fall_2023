@@ -40,8 +40,8 @@ void TerminateClient() {
 bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
 	sf::UdpSocket *socket, unsigned short initport) {
     netWorth::ClientManager manager;
-	manager.SetUpdatePort(initport);
-    manager.SetupGameUpdateSocket(socket);
+	manager.setUpdatePort(initport);
+	manager.setupGameUpdateSocket(socket);
     std::string interface_name = "Interface1";
     cse491::MazeWorld world;
     world.Deserialize(is, &manager);
@@ -55,7 +55,7 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
 
     auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
-    clientKillSocket = clientInterface.GetSocket();
+    clientKillSocket = clientInterface.getSocket();
     world.RunClient(&manager);
     return true;
 }
@@ -71,8 +71,8 @@ bool RunMazeWorldDemo(std::istream &is, const std::string &ip_string, unsigned s
 bool RunSecondWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
 	sf::UdpSocket *socket, unsigned short initport) {
 	netWorth::ClientManager manager;
-	manager.SetUpdatePort(initport);
-	manager.SetupGameUpdateSocket(socket);
+	manager.setUpdatePort(initport);
+	manager.setupGameUpdateSocket(socket);
 	std::string interface_name = "Interface2";
 	group4::SecondWorld world;;
 	world.Deserialize(is, &manager);
@@ -86,7 +86,7 @@ bool RunSecondWorldDemo(std::istream &is, const std::string &ip_string, unsigned
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
-	clientKillSocket = clientInterface.GetSocket();
+	clientKillSocket = clientInterface.getSocket();
 	world.RunClient(&manager);
 	return true;
 }
@@ -102,8 +102,8 @@ bool RunSecondWorldDemo(std::istream &is, const std::string &ip_string, unsigned
 bool RunGenerativeWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x,
 	int start_y, sf::UdpSocket *socket, unsigned short initport) {
 	netWorth::ClientManager manager;
-	manager.SetUpdatePort(initport);
-	manager.SetupGameUpdateSocket(socket);
+	manager.setUpdatePort(initport);
+	manager.setupGameUpdateSocket(socket);
 	std::string interface_name = "Interface3";
 	cse491::GenerativeWorld world;
 	world.Deserialize(is, &manager);
@@ -117,7 +117,7 @@ bool RunGenerativeWorldDemo(std::istream &is, const std::string &ip_string, unsi
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
-	clientKillSocket = clientInterface.GetSocket();
+	clientKillSocket = clientInterface.getSocket();
 	world.RunClient(&manager);
 	return true;
 }
@@ -133,8 +133,8 @@ bool RunGenerativeWorldDemo(std::istream &is, const std::string &ip_string, unsi
 bool RunManualWorldDemo(std::istream &is, const std::string &ip_string, unsigned short port, int start_x, int start_y,
 	sf::UdpSocket *socket, unsigned short initport) {
 	netWorth::ClientManager manager;
-	manager.SetUpdatePort(initport);
-	manager.SetupGameUpdateSocket(socket);
+	manager.setUpdatePort(initport);
+	manager.setupGameUpdateSocket(socket);
 	std::string interface_name = "Interface3";
 	cse491_team8::ManualWorld world;
 	world.Deserialize(is, &manager);
@@ -148,7 +148,7 @@ bool RunManualWorldDemo(std::istream &is, const std::string &ip_string, unsigned
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
 
-	clientKillSocket = clientInterface.GetSocket();
+	clientKillSocket = clientInterface.getSocket();
 	world.RunClient(&manager);
 	return true;
 }

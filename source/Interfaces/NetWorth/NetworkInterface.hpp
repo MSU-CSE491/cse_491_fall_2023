@@ -41,7 +41,7 @@ namespace netWorth{
              * Receives a socket that has been connected between client and server
              * @return the udp socket
              */
-            virtual UdpSocket * GetSocket(){
+            virtual UdpSocket * getSocket(){
                 return &m_socket;
             }
 
@@ -51,7 +51,7 @@ namespace netWorth{
              * @param port Port number
              * @return true if successful
              */
-            virtual bool BindSocket(UdpSocket &socket, unsigned short port) {
+            virtual bool bindSocket(UdpSocket &socket, unsigned short port) {
                 std::cout << "Binding socket on port: " << port << std::endl;
                 if (socket.bind(port) != Socket::Status::Done) {
                     std::cerr << "Failed to bind socket" << std::endl;
@@ -67,7 +67,7 @@ namespace netWorth{
              * @param port the port of the connection
              * @return true if successfully sent
              */
-            virtual bool SendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
+            virtual bool sendPacket(Packet packet, IpAddress destAddr, const unsigned short port){
                 if (m_socket.send(packet, destAddr, port) != Socket::Status::Done) {
                     std::cerr << "Could not connect to" << destAddr << " at port " << port << std::endl;
                     return false;
@@ -81,7 +81,7 @@ namespace netWorth{
              * @param port port number of sending machine
              * @return received packet
              */
-            virtual bool ReceivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
+            virtual bool receivePacket(Packet & pkt, std::optional<IpAddress> &sender, unsigned short &port){
                 if (m_socket.receive(pkt, sender,port) != Socket::Status::Done) {
                     std::cerr << "Failed to receive" << std::endl;
                     return false;

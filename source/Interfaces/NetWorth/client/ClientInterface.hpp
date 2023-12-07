@@ -42,35 +42,34 @@ namespace netWorth{
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
-                m_manager->SetupSocket(&m_socket, m_ip);
-                m_manager->SetClientID(id);
+				m_manager->setupSocket(&m_socket, m_ip);
+				m_manager->setClientID(id);
                 std::cout << "Interface created with ID " << id << std::endl;
 
-                Packet sendPkt, recvPkt;
+                Packet sendPkt, recvPkt,twoPkt;
                 setMInputWaitTime(0.25f);
 
                 // send request message
                 sendPkt << "New client requesting connection.";
-                std::cout << "Requesting connection" << std::endl;
                 auto ip = m_ip.value();
-                if (!SendPacket(sendPkt, ip, m_port)) return false;
+                if (!sendPacket(sendPkt, ip, m_port)) return false;
 
                 // receive from server
-                if (!ReceivePacket(recvPkt, m_ip, m_port)) return false;
-
+                if (!receivePacket(recvPkt, m_ip, m_port)) return false;
                 // print received string (Connection established.)
                 std::string msg;
-				recvPkt >> msg;
+                recvPkt >> msg;
                 std::cout << msg << std::endl;
 
                 // request map to start send/receive loop
-				sendPkt.clear();
-				sendPkt << "Requesting start";
-                if (!SendPacket(sendPkt, m_ip.value(), m_port)) return false;
+                sendPkt.clear();
+                sendPkt << "Requesting start";
+                if (!sendPacket(sendPkt, m_ip.value(), m_port)) return false;
+
 
                 // receive action map from server for previous agents
-                ReceivePacket(recvPkt, m_ip, m_port);
-                m_manager->PacketToActionMap(recvPkt);
+				receivePacket(recvPkt, m_ip, m_port);
+				m_manager->packetToActionMap(recvPkt);
 
                 return true;
             }
@@ -78,37 +77,37 @@ namespace netWorth{
             /**
              * Choose action for player agent
              * @param grid the client-side grid
-             * @param type_options different cell types of the world
+             * @param typeOptions different cell types of the world
              * @param item_map the items that may be apart of the grid
              * @param agent_map the agents that may be apart of the grid
              * @return action ID of the interface
              */
             size_t SelectAction(const cse491::WorldGrid & grid,
-                                const cse491::type_options_t & type_options,
-                                const cse491::item_map_t & item_set,
-                                const cse491::agent_map_t & agent_set) override
+                                const cse491::type_options_t & typeOptions,
+                                const cse491::item_map_t & itemSet,
+                                const cse491::agent_map_t & agentSet) override
             {
                 // Receive and draw map
                 sf::Packet sendPkt, recvPkt;
 
                 // grab action ID from MainInterface
-                size_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
-                            item_set, agent_set);
-                std::cout << action_id << std::endl;
+                size_t actionID = i_2D::MainInterface::SelectAction(grid, typeOptions,
+                            itemSet, agentSet);
+                std::cout << actionID << std::endl;
 
                 // Send instruction to server
-                sendPkt << action_id;
-                SendPacket(sendPkt, m_ip.value(), m_port);
+                sendPkt << actionID;
+				sendPacket(sendPkt, m_ip.value(), m_port);
 
-                m_manager->ClearActionMap();
-                DrawGrid(grid, type_options, item_set, agent_set);
+				m_manager->clearActionMap();
+                DrawGrid(grid, typeOptions, itemSet, agentSet);
 
                 // await action map from server
-                ReceivePacket(recvPkt, m_ip, m_port);
-                m_manager->PacketToActionMap(recvPkt);
+				receivePacket(recvPkt, m_ip, m_port);
+				m_manager->packetToActionMap(recvPkt);
 
                 // Do the action!
-                return action_id;
+                return actionID;
             }
 
     }; // End of ClientInterface

@@ -34,18 +34,18 @@ namespace netWorth{
          */
         ClientManager()= default;
 
-		void SetUpdatePort(unsigned short port) {m_update_port = port;}
+		void setUpdatePort(unsigned short port) {m_update_port = port;}
 
         /**
          * Turn packet from server into action map for ControlledAgents
          * @param pkt received packet
          */
-        void PacketToActionMap(sf::Packet pkt) {
-            size_t data_size, agent_id, action_id;
-            pkt >> data_size;
-            for (size_t i = 0; i < data_size; i++) {
-                pkt >> agent_id >> action_id;
-                m_action_map[agent_id] = action_id;
+        void packetToActionMap(sf::Packet pkt) {
+            size_t dataSize, agentID, actionID;
+            pkt >> dataSize;
+            for (size_t i = 0; i < dataSize; i++) {
+                pkt >> agentID >> actionID;
+                m_action_map[agentID] = actionID;
             }
         }
 
@@ -55,7 +55,7 @@ namespace netWorth{
          * @param ip server IP
          * @param port server port
          */
-        void SetupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip) {
+        void setupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip) {
             m_socket = socket;
             m_ip = ip;
         }
@@ -64,7 +64,7 @@ namespace netWorth{
          * Set socket for game updates
          * @param socket pointer to socket
          */
-        void SetupGameUpdateSocket(sf::UdpSocket *socket) {
+        void setupGameUpdateSocket(sf::UdpSocket *socket) {
             m_game_update_socket = socket;
             m_game_update_socket->setBlocking(false);
 			if (m_game_update_socket->bind(m_update_port) != Socket::Status::Done){
@@ -77,7 +77,7 @@ namespace netWorth{
          * @param id Agent ID
          * @return true if ID is present
          */
-        bool IdPresent(size_t id) {
+        bool iDPresent(size_t id) {
             return m_action_map.contains(id);
         }
 
@@ -86,14 +86,14 @@ namespace netWorth{
          * @param id Agent ID
          * @return action ID
          */
-        size_t GetActionID(size_t id) {
+        size_t getActionID(size_t id) {
             return m_action_map[id];
         }
 
         /**
          * Clear action map after ClientInterface moves
          */
-        void ClearActionMap() {
+        void clearActionMap() {
             m_action_map.clear();
         }
 
@@ -101,26 +101,25 @@ namespace netWorth{
          * Receive serialized agent data for midgame updates
          * @return serialized data (or empty if no update)
          */
-        std::string GetSerializedAgents() {
-            sf::Packet recv_pkt;
-            std::optional<sf::IpAddress> temp_ip;
-            unsigned short temp_port;
+        std::string getSerializedAgents() {
+            sf::Packet recvPkt;
+            std::optional<sf::IpAddress> tempIP;
+            unsigned short tempPort;
 			std::cout << m_game_update_socket->getLocalPort() << std::endl;
-            if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
+            if (m_game_update_socket->receive(recvPkt, tempIP, tempPort) == sf::Socket::Status::Done) {
                 std::string data;
-                recv_pkt >> data;
-                std::cout << "pong!" << std::endl;
+                recvPkt >> data;
                 return data;
             }
             return "";
         }
 
 
-        void SetClientID(size_t id) {
+        void setClientID(size_t id) {
             m_client_id = id;
         }
 
-        size_t GetClientID() const{
+        size_t getClientID() const{
             return m_client_id;
         }
 

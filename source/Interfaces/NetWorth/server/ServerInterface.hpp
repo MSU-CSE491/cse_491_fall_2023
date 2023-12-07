@@ -60,22 +60,22 @@ namespace netWorth
 			Packet sendPkt, recvPkt;
 			std::string str;
 
-			BindSocket(m_socket, GetProperty<unsigned short>("server_port"));
+			bindSocket(m_socket, GetProperty<unsigned short>("server_port"));
 
 			// Await client
-			if (!ReceivePacket(recvPkt, sender, port))
+			if (!receivePacket(recvPkt, sender, port))
 				return false;
 
 			std::cout << sender.value() << " has connected successfully." << std::endl;
 
 			// Acknowledge client
 			sendPkt << "Connection established.";
-			if (!SendPacket(sendPkt, sender.value(), m_port))
+			if (!sendPacket(sendPkt, sender.value(), m_port))
 				return false;
 
 			recvPkt.clear();
 			// await request for map
-			if (!ReceivePacket(recvPkt, sender, m_port))
+			if (!receivePacket(recvPkt, sender, m_port))
 				return false;
 
             GetWorld().SetWorldRunning(true);
@@ -163,7 +163,7 @@ namespace netWorth
 			// send action map to client
 			sf::Packet sendPkt = m_manager->ActionMapToPacket();
 			std::cout << "Sending action map to " << m_ip.value().toString() << " on port " << m_port << std::endl;
-			SendPacket(sendPkt, m_ip.value(), m_port);
+			sendPacket(sendPkt, m_ip.value(), m_port);
 
 			// print server-side map (for test purposes)
 			sf::Packet mapPkt = GridToPacket(grid, typeOptions, itemMap, agentMap);
@@ -174,7 +174,7 @@ namespace netWorth
 			// receive player input
 			sf::Packet recvPkt;
 			size_t actionID;
-            ReceivePacket(recvPkt, m_ip, m_port);
+            receivePacket(recvPkt, m_ip, m_port);
 			recvPkt >> actionID;
 
             // handle leaving client
