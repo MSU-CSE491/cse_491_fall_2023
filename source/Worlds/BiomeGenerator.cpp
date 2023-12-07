@@ -85,8 +85,10 @@ void BiomeGenerator::generate() {
 }
 
 /**
- * Generates random coordinate to place Key tile
- * @param keyTile  Door Tile
+ * Generates random coordinates to place the given tile
+ *
+ * @param tile      The tile being placed
+ * @param spawnTile The type of tile allowed to be replaced
  */
 void BiomeGenerator::placeTileRandom(const size_t &tile, const size_t &spawnTile) {
     bool counter = false;
@@ -130,11 +132,11 @@ void BiomeGenerator::placeSpecialTiles(const size_t &genericTile, const size_t &
         }
     }
 
-    int numSpikes = floorPositions.size() * percentage;
+    int numSpikes = (int)round((int)floorPositions.size() * percentage);
 
     // Convert some generic floor tiles to special tiles
     for (int i = 0; i < numSpikes; ++i) {
-        int pos = (int)round(worldPtr->GetRandom(floorPositions.size() - 1));
+        int pos = (int)round(worldPtr->GetRandom((int)floorPositions.size() - 1));
         grid.At(floorPositions [pos].first, floorPositions[pos].second) = specialTile;
 
         floorPositions.erase(floorPositions.begin() + pos);
@@ -195,7 +197,7 @@ vector<GridPosition> BiomeGenerator::clearPath() const {
  */
 void BiomeGenerator::applyPathToGrid(const vector<GridPosition> &path) {
     for (const GridPosition &p: path) {
-        grid.At(p.GetX(), p.GetY()) = floor_id;
+        grid.At(p) = floor_id;
     }
 }
 
@@ -206,7 +208,6 @@ void BiomeGenerator::applyPathToGrid(const vector<GridPosition> &path) {
 void BiomeGenerator::saveToFile(const std::string &filename) const {
     type_options_t types = type_options_t();
 
-    //TODO: Remove when refactoring
     types.push_back(CellType{"floor", "Floor that you can easily walk over.", ' '});
     types.push_back(CellType{"wall", "Impenetrable wall that you must find a way around.", '#'});
     types.push_back(CellType{"spike", "Dangerous spike that resets the game.", 'X'});
@@ -237,6 +238,9 @@ void BiomeGenerator::setTiles(const size_t &firstTile, const size_t &secondTile)
     tiles.push_back(secondTile);
 }
 
+/**
+ * Places trees on the grid
+ */
 void BiomeGenerator::placeTrees() {
     // Iterates through each tile in the grid with a margin of 1 tile to prevent out of bounds access
     for (unsigned int y = 1; y < height - 1; ++y) {
@@ -261,6 +265,9 @@ void BiomeGenerator::placeTrees() {
     }
 }
 
+/**
+ * Handles logic for Ocean biome
+ */
 void BiomeGenerator::oceanHandler(){
     for (unsigned int y = 1; y < height - 1; ++y) {
         for (unsigned int x = 1; x < width - 1; ++x) {

@@ -48,7 +48,6 @@ namespace group6 {
 
         GridPosition keyLocation;
 
-        // TODO: Refactor so tiles are passed by reference from actual world class
         std::vector<size_t> tiles;            ///< Vector to store tiles
 
         size_t floor_id = 0;
@@ -85,15 +84,12 @@ namespace group6 {
         [[nodiscard]] BiomeType getBiome() const { return biome; }
 
         void placeDoorTile(const size_t &doorTile);
-        void placeArmoryTile(const size_t &armoryTile);
         void placeTileRandom(const size_t& tile, const size_t& spawnTile);
 
         [[nodiscard]] std::vector<GridPosition> clearPath() const;
         void applyPathToGrid(const std::vector<GridPosition>& path);
 
         void placeTrees();
-
-//        bool isKeyReachable();
 
         void oceanHandler();
     };

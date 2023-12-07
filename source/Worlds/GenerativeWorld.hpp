@@ -43,7 +43,10 @@ namespace group6 {
         unsigned int world_width;
         unsigned int world_height;
 
-        /// Provide the agent with movement actions.
+        /**
+         * Provide the agent with movement actions.
+         * @param agent The agent being configured
+         */
         void ConfigAgent(AgentBase &agent) override {
             agent.AddAction("up", MOVE_UP);
             agent.AddAction("down", MOVE_DOWN);
@@ -143,8 +146,8 @@ namespace group6 {
             bool counter = false;
             while (!counter) {
                 //generate random location in bottom left quarter of map
-                int random_y = GetRandom(main_grid.GetHeight() / 2, main_grid.GetHeight() - 1);
-                int random_x = GetRandom(0, main_grid.GetWidth() / 2);
+                int random_y = (int)GetRandom((double)main_grid.GetHeight() / 2, (double)main_grid.GetHeight() - 1);
+                int random_x = (int)GetRandom(0, (double)main_grid.GetWidth() / 2);
 
                 if (main_grid.At(random_x, random_y) == floor_id) {
                     main_grid.At(random_x, random_y) = armory_id;
@@ -155,8 +158,8 @@ namespace group6 {
             counter = false;
             while (!counter) {
                 //generate random location in top right quarter of map
-                int random_y = GetRandom(0, main_grid.GetHeight() / 2);
-                int random_x = GetRandom(main_grid.GetWidth() / 2, main_grid.GetWidth() - 1);
+                int random_y = (int)GetRandom(0, (double)main_grid.GetHeight() / 2);
+                int random_x = (int)GetRandom((double)main_grid.GetWidth() / 2, (double)main_grid.GetWidth() - 1);
 
                 if (main_grid.At(random_x, random_y) == floor_id) {
                     main_grid.At(random_x, random_y) = armory_id;
@@ -179,7 +182,12 @@ namespace group6 {
             return result;
         }
 
-        /// Allow the agents to move around the maze.
+        /**
+         * Handles logic for agent movement
+         * @param agent      The agent attempting to do an action
+         * @param action_id  The action being performed
+         * @return 1 if the action was successful. 0 if it was not
+         */
         int DoAction(AgentBase &agent, size_t action_id) override {
             AgentCollisionHelper(agent);
 
@@ -217,33 +225,27 @@ namespace group6 {
             if (main_grid.At(new_position) == armory_id) {
                 ArmoryTileHelper(agent);
             }
-
             // check to see if player is moving onto spike tile
             if (main_grid.At(new_position) == spike_id) {
                 SpikeTileHelper(agent);
             }
-
-                // check to see if player is moving onto a tar tile
+            // check to see if player is moving onto a tar tile
             else if (main_grid.At(new_position) == tar_id) {
                 TarTileHelper(agent);
             }
-
-                // check to see if player is moving onto teleporter
+            // check to see if player is moving onto teleporter
             else if (main_grid.At(new_position) == teleporter_id) {
                 TeleporterHelper(new_position);
             }
-
-                // check to see if player is moving onto key tile
+            // check to see if player is moving onto key tile
             else if (main_grid.At(new_position) == key_id) {
                 KeyTileHelper(agent, new_position);
             }
-
-                // check to see if the player is moving onto door tile
+            // check to see if the player is moving onto door tile
             else if (main_grid.At(new_position) == door_id) {
                 DoorTileHelper(agent);
             }
-
-                // check to see if player is moving onto a hole tile
+            // check to see if player is moving onto a hole tile
             else if (main_grid.At(new_position) == hole_id) {
                 HoleTileHelper(agent, new_position);
             }
