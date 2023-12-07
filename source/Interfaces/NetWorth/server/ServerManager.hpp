@@ -7,6 +7,7 @@
 #pragma once
 #include <map>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 #include "SFML/Network/Packet.hpp"
 
@@ -47,9 +48,9 @@ namespace netWorth{
          */
         sf::Packet ActionMapToPacket() {
             sf::Packet pkt;
-            pkt << static_cast<std::uint64_t>(m_action_map.size());
-            for (auto pair : m_action_map) {
-                pkt << static_cast<std::uint64_t>(pair.first) << static_cast<std::uint64_t>(pair.second);
+            pkt << static_cast<uint64_t>(m_action_map.size());
+            for (auto [agent_id, action_id] : m_action_map) {
+                pkt <<static_cast<uint64_t>(agent_id) << static_cast<uint64_t>(action_id);
             }
             //std::cout << m_action_map.size();
             return pkt;

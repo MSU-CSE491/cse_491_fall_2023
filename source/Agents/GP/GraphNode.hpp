@@ -282,7 +282,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double LessThan(const GraphNode &node, const cse491::AgentBase &) {
     std::vector<double> vals = node.GetInputValues();
-    return std::ranges::is_sorted(vals, std::less{});
+    return std::is_sorted(vals.begin(), vals.end(), std::less{});
   }
 
   /// @brief Returns 1 if all inputs are in ascending, 0 otherwise. If only one input, then defaults to 1.
@@ -290,7 +290,7 @@ namespace cowboys {
   /// @return The function result as a double.
   double GreaterThan(const GraphNode &node, const cse491::AgentBase &) {
     std::vector<double> vals = node.GetInputValues();
-    return std::ranges::is_sorted(vals, std::greater{});
+    return std::is_sorted(vals.begin(), vals.end(), std::greater{});
   }
 
   /// @brief Returns the maximum value of all inputs.
