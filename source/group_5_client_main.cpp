@@ -7,11 +7,9 @@
 // Include the modules that we will be using.
 
 #include "Interfaces/NetWorth/client/ClientInterface.hpp"
-#include "Interfaces/NetWorth/client/ControlledAgent.hpp"
 #include "Interfaces/NetWorth/client/ClientManager.hpp"
 #include "Worlds/MazeWorld.hpp"
 #include "Worlds/SecondWorld.hpp"
-#include "Worlds/BiomeGenerator.hpp"
 #include "Worlds/GenerativeWorld.hpp"
 #include "Worlds/ManualWorld.hpp"
 

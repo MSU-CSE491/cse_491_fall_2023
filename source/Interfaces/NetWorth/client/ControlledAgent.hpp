@@ -15,13 +15,12 @@ namespace netWorth {
 
 class ControlledAgent : public cse491::AgentBase {
     private:
-        ClientManager *m_manager;       /// Client manager to access agent action map
+        ClientManager *m_manager = nullptr;       /// Client manager to access agent action map
 
     protected:
 
     public:
         ControlledAgent(size_t id, const std::string & name) : AgentBase(id, name) { }
-        ~ControlledAgent() = default;
 
         /// @brief This agent needs a specific set of actions to function.
         /// @return Success.
