@@ -150,10 +150,8 @@ namespace cse491 {
     Entity & RemoveItem(size_t id);
     Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
 
-    /**
-     * Serialize entity (pure virtual)
-     * @param os ostream
-     */
+    /// @brief Serialize entity (pure virtual)
+    /// @param ostream
     virtual void Serialize(std::ostream &os) = 0;
   };
 

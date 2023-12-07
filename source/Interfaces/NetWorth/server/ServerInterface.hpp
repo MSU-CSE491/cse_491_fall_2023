@@ -78,7 +78,7 @@ namespace netWorth
 			if (!ReceivePacket(recv_pkt, sender, m_port))
 				return false;
 
-			GetWorld().IsWorldRunning(true);
+            GetWorld().SetWorldRunning(true);
 			return true;
 		}
 

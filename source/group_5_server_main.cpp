@@ -50,7 +50,7 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         }
 
         // stop agents from running while dealing with new client
-		world.IsWorldRunning(false);
+        world.SetWorldRunning(false);
 
         std::cout << "Connection received from IP Address: " << sender->toString() << " on port: " << port << std::endl;
         pkt >> str;

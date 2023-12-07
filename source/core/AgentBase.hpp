@@ -100,17 +100,15 @@ namespace cse491 {
     virtual void Notify(const std::string & /*message*/,
                         const std::string & /*msg_type*/="none") { }
 
-    /**
-     * Serialize agent (assume no properties)
-     * @param os ostream
-     */
+    /// @brief Serialize agent (assume no properties)
+    /// @param os ostream
     void Serialize(std::ostream &os) override {
-        os << name << '\n';
-        os << id << '\n';
-        os << position.GetX() << '\n';
-        os << position.GetY() << '\n';
-        if (HasProperty("symbol")) os << GetProperty<char>("symbol") << '\n';
-        else os << '*' << std::endl;
+      os << name << '\n';
+      os << id << '\n';
+      os << position.GetX() << '\n';
+      os << position.GetY() << '\n';
+      if (HasProperty("symbol")) os << GetProperty<char>("symbol") << '\n';
+      else os << '*' << std::endl;
     }
 
   };
