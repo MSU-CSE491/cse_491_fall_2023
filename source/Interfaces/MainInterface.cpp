@@ -64,7 +64,10 @@ namespace i_2D {
             if (item_ptr->HasProperty("symbol")) {
                 c = item_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if(pos.CellX() >= 0 && pos.CellY() <= 0 && 
+                pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight()){
+              symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
 
         // Add in the agents
