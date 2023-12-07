@@ -168,10 +168,11 @@ int main(int argc, char *argv[]) {
 	unsigned short init_port = socket.getLocalPort();
 	std::cout << init_port  << std::endl;
 
-    recv_pkt >> port >> serialized;
-    std::istringstream is(serialized);
+    recv_pkt >> port;
     int world_type_int, start_x, start_y;
-    is >> world_type_int >> start_x >> start_y;
+    recv_pkt >> world_type_int >> start_x >> start_y;
+    recv_pkt >> serialized;
+    std::istringstream is(serialized);
     auto world_type = static_cast<cse491::WorldType>(world_type_int);
 
     // TODO: Find a better way to deal with worlds other than commenting/uncommenting

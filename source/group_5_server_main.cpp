@@ -79,7 +79,6 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
 
         // Serialize world into string
         std::ostringstream os;
-        os << static_cast<int>(cse491::WorldType::w_maze) << ' ' << start_x << ' ' << start_y;
         world.Serialize(os);
         std::string serialized = os.str();
 
@@ -88,7 +87,8 @@ void HandleConnection(netWorth::ServerManager &serverManager, cse491::WorldBase 
         serverManager.IncreasePort();
 
         pkt.clear();
-        pkt << serverManager.m_maxClientPort << serialized;
+        pkt << serverManager.m_maxClientPort << static_cast<int>(cse491::WorldType::w_maze);
+        pkt << start_x << start_y << serialized;
         if (socket.send(pkt, sender.value(), port) != sf::Socket::Status::Done) {
             std::cerr << "Failed to send" << std::endl;
             exit(0);
