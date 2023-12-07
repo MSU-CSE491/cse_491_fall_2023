@@ -69,6 +69,8 @@ void BiomeGenerator::generate() {
         vector<GridPosition> path = clearPath();
         applyPathToGrid(path);
         placeDoorTile(door_id); // placing door tile
+        grid.At(keyLocation) = key_id;
+
     }
 
     if (biome == BiomeType::Grasslands) {
@@ -78,6 +80,9 @@ void BiomeGenerator::generate() {
 
     if (biome == BiomeType::Ocean) {
         oceanHandler();
+        placeTileRandom(hole_id, sand_id);
+        placeSpecialTiles(tile1, spike_id, 0.01); // Placing spike tiles
+        placeSpecialTiles(tile1, tar_id, 0.04); // Placing tar tiles
     }
 
 //    bool reachable = isKeyReachable();
@@ -153,29 +158,42 @@ void BiomeGenerator::placeSpecialTiles(const size_t &genericTile, const size_t &
 vector<GridPosition> BiomeGenerator::clearPath() const {
     vector<GridPosition> path;
 
-    GridPosition current(0, 0);
+    GridPosition current(0, 0); // Starting point
     path.push_back(current);
 
-    while (current.GetX() < width - 1) {
-        int randDirection = (int)worldPtr->GetRandom(1, 4) % 3; // 0: Right, 1: Up, 2: Down
+    // Random engine for decision making
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 2); // Three choices: Right, Down, Up
 
-        // Choose next point based on random direction
-        GridPosition next = current;
-        if (randDirection == 0) {
-            next = next.ToRight();
-        } else if (randDirection == 1) {
-            if (next.GetY() > 0) // Ensure within grid bounds
-                next = next.Above();
-        } else {
-            if (next.GetY() < height - 1) // Ensure within grid bounds
-                next = next.Below();
+    // Continue until we reach the KeyLocation
+    while (current != keyLocation) {
+        std::vector<GridPosition> possibleMoves;
+
+        // Always add right movement if not aligned horizontally
+        if (current.GetX() < keyLocation.GetX()) {
+            possibleMoves.push_back(current.ToRight());
         }
 
-        // If the next point is the same as the current, then we chose an invalid direction
-        // (like trying to go up at the top edge), so just skip this iteration.
-        if (next != current) {
-            path.push_back(next);
-            current = next;
+        // Add down movement if above the target and within grid bounds
+        if (current.GetY() < keyLocation.GetY() && current.GetY() < height - 1) {
+            possibleMoves.push_back(current.Below());
+        }
+
+        // Add up movement if below the target and within grid bounds
+        if (current.GetY() > keyLocation.GetY() && current.GetY() > 0) {
+            possibleMoves.push_back(current.Above());
+        }
+
+        // Randomly choose one of the possible moves
+        if (!possibleMoves.empty()) {
+            GridPosition next = possibleMoves[distrib(gen) % possibleMoves.size()];
+
+            // Check if we have made a valid move, if so, update the path and current position
+            if (next != current) {
+                path.push_back(next);
+                current = next;
+            }
         }
     }
 

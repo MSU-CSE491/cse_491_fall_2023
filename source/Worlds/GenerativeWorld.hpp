@@ -10,6 +10,7 @@
 
 #include "BiomeGenerator.hpp"
 #include "../core/WorldBase.hpp"
+#include "../Agents/AStarAgent.hpp"
 
 namespace group6 {
     using namespace cse491;
@@ -115,8 +116,8 @@ namespace group6 {
 
         void AddTeleporters() {
             // TODO: remove hard-coded positions
-            main_grid.At(2, 5) = teleporter_id;
-            main_grid.At(95, 15) = teleporter_id;
+            main_grid.At(53, 6) = teleporter_id;
+            main_grid.At(18, 18) = teleporter_id;
         }
 
         /**
@@ -131,10 +132,32 @@ namespace group6 {
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
+            std::exit(0);
         }
 
         void AddArmory() {
-            main_grid.At(5, 5) = armory_id;
+            //main_grid.At(5, 5) = armory_id;
+            bool counter = false;
+            while (!counter) {
+                int random_y = GetRandom(main_grid.GetHeight() / 2, main_grid.GetHeight() - 1);
+                int random_x = GetRandom(0, main_grid.GetWidth() / 2);
+
+                if (main_grid.At(random_x, random_y) == floor_id) {
+                    main_grid.At(random_x, random_y) = armory_id;
+                    counter = true;
+                }
+            }
+
+            counter = false;
+            while (!counter) {
+                int random_y = GetRandom(0, main_grid.GetHeight() / 2);
+                int random_x = GetRandom(main_grid.GetWidth() / 2, main_grid.GetWidth() - 1);
+
+                if (main_grid.At(random_x, random_y) == floor_id) {
+                    main_grid.At(random_x, random_y) = armory_id;
+                    counter = true;
+                }
+            }
         }
 
         [[nodiscard]] static vector<GridPosition> FindTiles(WorldGrid grid, size_t tile_id) {
@@ -218,6 +241,21 @@ namespace group6 {
                 // check to see if player is moving onto a hole tile
             else if (main_grid.At(new_position) == hole_id) {
                 HoleTileHelper(agent, new_position);
+            }
+
+            if( agent.GetName() == "AStar1" )
+            {
+                for( const auto &temp_agent : agent_map )
+                {
+                    if( temp_agent.second->GetName() == "Player" )
+                    {
+                        auto &astar_agent = dynamic_cast<walle::AStarAgent&>(agent);
+                        astar_agent.SetGoalPosition(temp_agent.second->GetPosition());
+                        astar_agent.RecalculatePath();
+                        astar_agent.SetActionResult(1);
+                        break;
+                    }
+                }
             }
 
             //check to see if agent is walking on an item
@@ -337,10 +375,10 @@ namespace group6 {
             }
         }
 
-        /// Can walk on all tiles except for walls
+
         bool IsTraversable(const AgentBase & /*agent*/, cse491::GridPosition pos) const override {
             size_t tileType = main_grid.At(pos);
-            return !(tileType == wall_id || tileType == spike_id || tileType == tar_id);
+            return !(tileType == wall_id || tileType == spike_id || tileType == tar_id || tileType == armory_id || tileType == teleporter_id);
         }
     };
 

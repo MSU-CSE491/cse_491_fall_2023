@@ -76,8 +76,9 @@ class AStarAgent : public cse491::AgentBase {
     }
     // Return whatever action gets us closer to our goal
     if (!path.empty()) {
+        path.pop_back();
       auto pos = path.back();
-      path.pop_back();
+      //path.pop_back();
       if (pos == position.Above())
         return action_map["up"];
       if (pos == position.Below())

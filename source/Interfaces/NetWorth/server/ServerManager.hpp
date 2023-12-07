@@ -47,9 +47,9 @@ namespace netWorth{
          */
         sf::Packet ActionMapToPacket() {
             sf::Packet pkt;
-            pkt << m_action_map.size();
+            pkt << static_cast<std::uint64_t>(m_action_map.size());
             for (auto pair : m_action_map) {
-                pkt << pair.first << pair.second;
+                pkt << static_cast<std::uint64_t>(pair.first) << static_cast<std::uint64_t>(pair.second);
             }
             //std::cout << m_action_map.size();
             return pkt;
