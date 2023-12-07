@@ -73,7 +73,7 @@ bool runSecondWorldDemo(std::istream &is, const std::string &ipString, unsigned 
 	netWorth::ClientManager manager;
 	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
-	std::string interfaceName = "Interface2";
+	std::string interfaceName = "Interface";
 	group4::SecondWorld world;;
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
@@ -104,7 +104,7 @@ bool runGenerativeWorldDemo(std::istream &is, const std::string &ipString, unsig
 	netWorth::ClientManager manager;
 	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
-	std::string interfaceName = "Interface3";
+	std::string interfaceName = "Interface2";
 	cse491::GenerativeWorld world;
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
