@@ -355,6 +355,7 @@ namespace cse491_team8 {
             if (agent.GetProperty<int>("Health") <= 0)
             {
                 won = false;
+                // run_over = true;
             }
         }
 
@@ -370,38 +371,21 @@ namespace cse491_team8 {
           {
             agent.Notify("You ran away, this means you don't gain health or strength and any battle damage stays!\n");
           }
-          if (agent.GetName() == "Interface" && agent.GetProperty<int>("Health") <= 0)
+          std::cout << agent.GetName()  << ": " <<  agent.GetProperty<int>("Health") << std::endl;
+          if (agent.IsInterface() && agent.GetProperty<int>("Health") <= 0)
           {
             agent.Notify(other_agent_name + " has beat " + agent.GetName() + "\nYou Lost...\n");
-            while (true)
-            {
-              agent.Notify("Would You Like To Continue? Y or N? ");
-              char repeat_input;
-              std::cin >> repeat_input;
-              if (repeat_input == 'N' || repeat_input == 'n')
-              {
-                run_over = true;
-                break;
-              }
-              else if (repeat_input == 'Y' || repeat_input == 'y')
-              {
-                DropItems(agent, agent);
+            
+            DropItems(agent, agent);
 
-                agent.SetProperty<int>("Health", 100);
-                agent.SetProperty<int>("Direction", 0);
-                
-                agent.SetProperty<bool>("Battling", false);
-                other_agent.SetProperty<bool>("Battling", false);
+            agent.SetProperty<int>("Health", 100);
+            agent.SetProperty<int>("Direction", 0);
+            
+            agent.SetProperty<bool>("Battling", false);
+            other_agent.SetProperty<bool>("Battling", false);
 
-                agent.SetPosition(40, 3);
-                break;
-              }
-              else
-              {
-                agent.Notify("Invalid Input!\n");
-                continue;
-              }
-            }
+            agent.SetPosition(80, 63);
+            agent.Notify("You Have died and dropped all your items");
           }
         }
         else
@@ -489,10 +473,6 @@ namespace cse491_team8 {
         char move = ' ';
 
         bool battling = agent.GetProperty<bool>("Battling");
-        if (battling)
-        {
-            agent.Notify("You are in a battle! Use Y and choose battling moves!");
-        }
         // Update Direction property and get new position.
         switch (action_id) {
         case REMAIN_STILL:
@@ -651,6 +631,10 @@ namespace cse491_team8 {
 
       if (move != ' ')
       {
+          if (agent.GetProperty<bool>("Battling") == false)
+          {
+              agent.Notify("You are in a battle! Use Y and choose battling moves!");
+          }
           auto agents = FindAgentsNear(agent.GetPosition(), 1);
           for (auto agent_id : agents)
           {
