@@ -43,7 +43,7 @@ namespace netWorth{
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
                 m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
-                m_manager->SetupSocket(&m_socket, m_ip, m_port);
+                m_manager->SetupSocket(&m_socket, m_ip);
                 m_manager->SetClientID(id);
                 std::cout << "Interface created with ID " << id << std::endl;
 

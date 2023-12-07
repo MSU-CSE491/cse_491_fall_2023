@@ -17,25 +17,24 @@ namespace netWorth{
      */
     class ClientManager {
     private:
-        sf::UdpSocket *m_socket;                /// Socket shared with ClientInterface
-        sf::UdpSocket *m_game_update_socket;    /// Game update socket (for agent updates)
+        sf::UdpSocket *m_socket = nullptr;                /// Socket shared with ClientInterface
+        sf::UdpSocket *m_game_update_socket = nullptr;    /// Game update socket (for agent updates)
         std::optional<sf::IpAddress> m_ip;      /// Server IP address
-        unsigned short m_port;                  /// Server port
-
+		unsigned short m_update_port = 0; ///Port to update the game
         std::unordered_map<size_t, size_t> m_action_map;     ///Map of agent IDs to most recent action selected
-        size_t m_client_id = 0;
-
+        size_t m_client_id = 0;		///Id of client
     protected:
 
     public:
 
-		unsigned short m_update_port;
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
          * @param name agent name
          */
         ClientManager()= default;
+
+		void SetUpdatePort(unsigned short port) {m_update_port = port;}
 
         /**
          * Turn packet from server into action map for ControlledAgents
@@ -56,10 +55,9 @@ namespace netWorth{
          * @param ip server IP
          * @param port server port
          */
-        void SetupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip, unsigned short port) {
+        void SetupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip) {
             m_socket = socket;
             m_ip = ip;
-            m_port = port;
         }
 
         /**
@@ -69,19 +67,9 @@ namespace netWorth{
         void SetupGameUpdateSocket(sf::UdpSocket *socket) {
             m_game_update_socket = socket;
             m_game_update_socket->setBlocking(false);
-			m_game_update_socket->bind(m_update_port);
-        }
-
-        /**
-         * Wait until server sends action map
-         */
-        void RequestActionMap() {
-            sf::Packet recv_pkt;
-            if (m_socket->receive(recv_pkt, m_ip, m_port) != sf::Socket::Status::Done) {
-                std::cerr << "Failed to receive map" << std::endl;
-                return;
-            }
-            PacketToActionMap(recv_pkt);
+			if (m_game_update_socket->bind(m_update_port) != Socket::Status::Done){
+				std::cerr << "Failed to setup game update socket" << std::endl;
+			}
         }
 
         /**
@@ -117,7 +105,6 @@ namespace netWorth{
             sf::Packet recv_pkt;
             std::optional<sf::IpAddress> temp_ip;
             unsigned short temp_port;
-//			m_game_update_socket->bind(m_port - 1);
 			std::cout << m_game_update_socket->getLocalPort() << std::endl;
             if (m_game_update_socket->receive(recv_pkt, temp_ip, temp_port) == sf::Socket::Status::Done) {
                 std::string data;
@@ -133,7 +120,7 @@ namespace netWorth{
             m_client_id = id;
         }
 
-        size_t GetClientID() {
+        size_t GetClientID() const{
             return m_client_id;
         }
 
