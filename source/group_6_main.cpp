@@ -57,9 +57,6 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
             }
         }
 
-        //world.AddItem("Boots", "symbol", 'B').SetPosition(1, 3).SetName("Boots").SetProperty("Health", 4.0);
-        //world.AddItem("Shield", "symbol", 'S').SetPosition(1, 4).SetName("Shield").SetProperty("Health", 4.0);
-
         world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(5, int(world.GetRandom(0, height-1)));
         world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(8, int(world.GetRandom(0, height-1)));
         world.AddAgent<cse491::PacingAgent>("Pacer 3").SetPosition(10, int(world.GetRandom(0, height-1)));
@@ -113,7 +110,7 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
 }
 
 int main() {
-    auto biome = BiomeType::Grasslands;          // change world biome type here
+    auto biome = BiomeType::Maze;          // change world biome type here
     int width = 70;                       // change world width here
     int height = 24;                       // change world height here
     static const unsigned int SEED = 19;   // change world seed here

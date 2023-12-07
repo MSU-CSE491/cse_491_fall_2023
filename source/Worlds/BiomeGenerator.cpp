@@ -73,7 +73,6 @@ void BiomeGenerator::generate() {
     }
 
     if (biome == BiomeType::Grasslands) {
-//        placeTrees(); // Placing tree tiles
         placeTileRandom(hole_id, grass_id); // placing hole tile
     }
 

@@ -137,6 +137,7 @@ namespace group6 {
             } else {
                 std::cout << "Game over, try again!" << std::endl;
             }
+            std::exit(0);
         }
 
         /**
