@@ -84,23 +84,7 @@ namespace netWorth{
          */
         void IncreasePort(){++m_maxClientPort;}
 
-        /**
-         * Joins all client threads at the end of the server's lifespan
-         */
-        void JoinAllClients(){
-//            for (auto &thread_pair: m_clientThreads){
-//                thread_pair.second.join();
-//            }
-            m_interface_set.clear();
-            interfacesPresent = false;
-        }
-
         void JoinClient(size_t id){
-//            m_clientThreads.at(id).join();
-//            m_clientThreads.erase(id);
-//            if (m_clientThreads.empty()){
-//                interfacesPresent = false;
-//            }
             m_interface_set.erase(id);
             if (m_interface_set.empty()) interfacesPresent = false;
         }

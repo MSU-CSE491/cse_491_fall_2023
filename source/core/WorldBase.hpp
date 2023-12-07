@@ -531,14 +531,21 @@ public:
 
     last_entity_id = 0;
 
-    // how many agents?
+    // last entity id in server agent map?
     std::getline(is, read, '\n');
     size = stoi(read);
 
-    // read each agent (only deserialize name, x, and y for now)
+    // client id NOT in agent map yet if ID = 0
+    // append to end of set
+    if (client_id == 0) client_id = size;
+
+    // read each agent (only deserialize name, id, x, y for now)
     for (size_t i = 0; i < size; i++) {
         std::getline(is, name, '\n');
-        if (name == ":::END agent_set") return;
+        if (name == ":::END agent_set") {
+            last_entity_id = client_id;
+            return;
+        }
 
         std::getline(is, id_string, '\n');
         std::getline(is, x, '\n');
@@ -551,7 +558,7 @@ public:
 		}
 
         // is this new agent NOT the client interface
-        if (last_entity_id + 1 != manager->GetClientID()) {
+        if (last_entity_id + 1 != client_id) {
             AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
         } else {
             last_entity_id++;

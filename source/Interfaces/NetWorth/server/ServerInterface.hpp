@@ -196,6 +196,7 @@ namespace netWorth
 			//            if (input == "quit") exit(0);
 			if (action_id == 9999)
 			{
+                m_manager->JoinClient(GetID());
 				m_manager->RemoveFromActionMap(GetID());
 				m_manager->RemoveFromUpdatePairs(m_ip.value(), m_world_update_port);
 			}
