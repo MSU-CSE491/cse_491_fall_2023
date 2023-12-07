@@ -32,7 +32,7 @@ void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, i
 
     if (biome == BiomeType::Grasslands) {
         // Using TrashInterface since MainInterface does not support Grasslands biome
-        world.AddAgent<cse491::TrashInterface>("Interface").SetProperty("symbol", '@');
+        world.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@').SetName("Player");
     }
 
     else if (biome == BiomeType::Maze) {

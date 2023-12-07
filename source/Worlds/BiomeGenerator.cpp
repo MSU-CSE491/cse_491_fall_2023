@@ -63,7 +63,6 @@ void BiomeGenerator::generate() {
     if (biome == BiomeType::Maze) {
         placeSpecialTiles(tile1, spike_id, 0.05); // Placing spike tiles
         placeSpecialTiles(tile1, tar_id, 0.08); // Placing tar tiles
-//        placeDoorTile(door_id); // placing door tile
         placeTileRandom(key_id, floor_id); // placing key tile
 
         vector<GridPosition> path = clearPath();
@@ -74,22 +73,14 @@ void BiomeGenerator::generate() {
     }
 
     if (biome == BiomeType::Grasslands) {
-        placeTrees(); // Placing tree tiles
+//        placeTrees(); // Placing tree tiles
         placeTileRandom(hole_id, grass_id); // placing hole tile
     }
 
     if (biome == BiomeType::Ocean) {
         oceanHandler();
         placeTileRandom(hole_id, sand_id);
-        placeSpecialTiles(tile1, spike_id, 0.01); // Placing spike tiles
-        placeSpecialTiles(tile1, tar_id, 0.04); // Placing tar tiles
     }
-
-//    bool reachable = isKeyReachable();
-//    if (reachable)
-//    {
-//        std::cout << "Key is reachable" << std::endl;
-//    }
 
 }
 
@@ -200,6 +191,8 @@ vector<GridPosition> BiomeGenerator::clearPath() const {
     return path;
 }
 
+
+
 /**
  * Clears the walls out of the grid, guaranteeing a path from the
  * left of the grid, to any point on the rightmost side of the map
@@ -272,19 +265,6 @@ void BiomeGenerator::placeTrees() {
         }
     }
 }
-
-// not working
-//bool BiomeGenerator::isKeyReachable() {
-//
-//    auto agent = AgentBase(234183294, "agent_test");
-//    auto startingPoint = GridPosition(0, 0);
-//    worldPtr->SetGrid(grid);  // deleted this function
-//    auto path = walle::GetShortestPath(startingPoint, keyLocation, *worldPtr, agent);
-//
-//    return true;
-//}
-
-
 
 void BiomeGenerator::oceanHandler(){
     for (unsigned int y = 1; y < height - 1; ++y) {
