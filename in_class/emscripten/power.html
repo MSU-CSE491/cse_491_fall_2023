@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Power Calculator</title>
+</head>
+<body>
+    <h1>Power Calculator</h1>
+    Enter a base: <input id="base" type="number" min="0" value="2.0"/>
+    Enter an exponent: <input id="exponent" type="number" min="0" value="10.0"/>
+    <button onclick="calculatePower()">Calculate Power</button>
+    <div id="result"></div>
+
+    <script>
+        function calculatePower() {
+          var base = document.getElementById('base').value;
+          var exp = document.getElementById('exponent').value;
+          var result = Module.ccall('power', 'number', ['number', 'number'], [base, exp]);
+          document.getElementById('result').innerText = 'Result: ' + result;
+        }
+    </script>
+
+    <!-- Load the compiled JavaScript file -->
+    <script src="power.js"></script>
+</body>
+</html>
