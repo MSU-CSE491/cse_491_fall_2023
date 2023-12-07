@@ -9,7 +9,8 @@ water_id = addCellType("water","Water that distinguishes fire.","w",CELL_WATER)
 loadWorld("../assets/grids/group4_maze.grid")
 
 # Place the player agent into the world
-player=addAgent("Player2D","PlayerAgent","@",0,0)
+# Name is interface to play nicely with the 2D interface
+player=addAgent("Player2D","Interface","@",0,0)
 setProperty(player,"Health",100.0)
 setProperty(player,"Strength",7.0)
 setProperty(player,"Defense",7.0)

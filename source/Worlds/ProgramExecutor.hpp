@@ -168,7 +168,7 @@ namespace worldlang {
 				} 
 #ifdef USE_SFML_INTERFACE
         else if (type == "Player2D") {
-					agent = &world.AddAgent<i_2D::MainInterface>("Interface", "symbol", symbol[0]);
+					agent = &world.AddAgent<i_2D::MainInterface>(name, "symbol", symbol[0]);
 					agent->SetPosition(x, y);
         } 
 #endif 
