@@ -42,11 +42,11 @@ namespace netWorth{
 
         unsigned short m_max_client_port = 55000; ///Port that is incremented for client thread handoff
 
-        /**
-         * Default constructor (AgentBase)
-         * @param id agent ID
-         * @param name agent name
-         */
+		/**
+		 * Default constructor (AgentBase)
+		 * @param id agent ID
+		 * @param name agent name
+		 */
         ServerManager() = default;
 
 		/**

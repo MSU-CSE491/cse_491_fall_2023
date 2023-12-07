@@ -33,10 +33,10 @@ namespace netWorth{
                                                                    NetworkingInterface(id, name),
                                                                    i_2D::MainInterface(id, name) {}
 
-            /**
-             * Establish connection with server, initializing interface
-             * @return True if successful, false if error
-             */
+		/**
+		 * Establish connection with server, initializing interface
+		 * @return True if successful, false if error
+		 */
             bool Initialize() override {
                 // resolve port and IP from entity properties
                 m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
@@ -44,7 +44,6 @@ namespace netWorth{
                 m_manager = GetProperty<netWorth::ClientManager *>("manager");
 				m_manager->setupSocket(&m_socket, m_ip);
 				m_manager->setClientID(id);
-                std::cout << "Interface created with ID " << id << std::endl;
 
                 Packet sendPkt, recvPkt,twoPkt;
                 setMInputWaitTime(0.25f);
