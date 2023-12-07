@@ -109,6 +109,8 @@ namespace cse491 {
         os << id << '\n';
         os << position.GetX() << '\n';
         os << position.GetY() << '\n';
+        if (HasProperty("symbol")) os << GetProperty<char>("symbol") << '\n';
+        else os << '*' << std::endl;
     }
 
   };

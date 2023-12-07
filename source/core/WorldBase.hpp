@@ -528,7 +528,7 @@ public:
       return;
     }
 
-    std::string name, x, y, id_string;
+    std::string name, x, y, id_string, symbol_string;
     size_t size, id;
     size_t client_id = manager->GetClientID();
 
@@ -560,6 +560,7 @@ public:
         std::getline(is, id_string, '\n');
         std::getline(is, x, '\n');
         std::getline(is, y, '\n');
+        std::getline(is, symbol_string, '\n');
 
         id = stoi(id_string);
 
@@ -569,7 +570,7 @@ public:
 
         // is this new agent NOT the client interface
         if (last_entity_id + 1 != client_id) {
-            AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y));
+            AddAgent<netWorth::ControlledAgent>(name, "manager", manager).SetPosition(stoi(x), stoi(y)).SetProperty("symbol", symbol_string[0]);
         } else {
             last_entity_id++;
         }
