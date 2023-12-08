@@ -105,7 +105,11 @@ bool runGenerativeWorldDemo(std::istream &is, const std::string &ipString, unsig
 	manager.setUpdatePort(initPort);
 	manager.setupGameUpdateSocket(socket);
 	std::string interfaceName = "Interface2";
-	cse491::GenerativeWorld world;
+  auto biome = group6::BiomeType::Maze;       // change world biome type here
+  int width = 110;                            // change world width here
+  int height = 25;                            // change world height here
+  static const unsigned int SEED = 973;       // change world seed here
+  group6::GenerativeWorld world(biome, width, height, SEED);
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
 	clientKillIP = ipString;

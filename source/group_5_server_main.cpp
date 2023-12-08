@@ -165,14 +165,14 @@ int runGenerativeWorldDemo() {
 
     // load world
     static const unsigned int SEED = 973;
-    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
+    group6::BiomeGenerator biomeGenerator(group6::BiomeType::Maze, 110, 25, SEED);
     biomeGenerator.generate();
 
     srand(time(NULL));
     auto path = biomeGenerator.clearPath();
     biomeGenerator.applyPathToGrid(path);
 
-    cse491::GenerativeWorld world(SEED);
+    group6::GenerativeWorld world(group6::BiomeType::Maze, 110, 25, SEED);
     int startX = 0, startY = 0;
 
     // Add agents
