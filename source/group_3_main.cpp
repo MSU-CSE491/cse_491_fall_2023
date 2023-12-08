@@ -14,6 +14,7 @@
 #include "Worlds/GenerativeWorld.hpp"
 
 int main() {
+
 //    cse491::MazeWorld world;
 //    world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
 //    world.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
@@ -42,7 +43,7 @@ int main() {
     daedricArmor->SetProperties("Health", 99, "Extra Inv. Space", 5);
     daedricArmor->SetPosition(5, 0);
     world_1.AddItem(std::move(daedricArmor));
-    world_1.Run();
+    //world_1.Run();
 
     static const unsigned int SEED = 973;
     group6::BiomeGenerator biomeGenerator(group6::BiomeType::Maze, 110, 25, SEED);
@@ -53,12 +54,12 @@ int main() {
     biomeGenerator.applyPathToGrid(path);
     biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
-//    cse491::GenerativeWorld world_2(SEED);
-//    world_2.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
-//    world_2.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
-//    world_2.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
-//
-//    world_2.Run();
+    group6::GenerativeWorld world_2(group6::BiomeType::Maze, 110, 25, SEED);
+    world_2.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
+    world_2.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
+    world_2.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
+
+    //world_2.Run();
 
     cse491_team8::ManualWorld world_3;
     world_3.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(37, 3);

@@ -1,10 +1,10 @@
 /**
- * @author : Team - 3
+ * @file MessageBoard.cpp
+ * @authors Gaya Kanagaraj, Vincenzo Felici, Mui Pham
  * @date: 11/03/2023
  * MessageBoard class communicate messages to the interface entity
  */
-#ifndef CSE_491_MESSAGEBOARD_H
-#define CSE_491_MESSAGEBOARD_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -13,10 +13,12 @@
 #include <chrono>
 
 namespace i_2D {
+
     /**
-     * @class The MessagebBoard is where the backend and users communicate by words
+     * @class The MessageBoard is where the backend and users communicate by words
      */
     class MessageBoard {
+
     private:
         /// The text displayed
         std::unique_ptr<sf::Text> mText;
@@ -25,18 +27,18 @@ namespace i_2D {
 
     public:
         explicit MessageBoard(sf::Font &font);
+
         void DrawTo(sf::RenderWindow &window);
+
         /**
          * @brief Set the text of the message board
          *
          * @param message The message to set the text to
          */
-        void Send(const std::string &message){
+        void Send(const std::string &message) {
             mText->setString(message);
             mStartTime = std::chrono::system_clock::now();
         }
     };
 }
 
-
-#endif //CSE_491_MESSAGEBOARD_H
