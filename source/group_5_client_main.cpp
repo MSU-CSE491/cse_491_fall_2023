@@ -147,6 +147,7 @@ bool runManualWorldDemo(std::istream &is, const std::string &ipString, unsigned 
 		.SetPosition(startX, startY);
 
 	auto & clientInterface = dynamic_cast<netWorth::ClientInterface &>(interface);
+  dynamic_cast<i_2D::MainInterface&>(interface).SetLargeGrid(true);
 
 	clientKillSocket = clientInterface.getSocket();
 	world.RunClient(&manager);
