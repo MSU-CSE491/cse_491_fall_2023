@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Jim Harbaugh",
+        "x": 7,
+        "y": 8,
+        "entities": [
+            "invisibility_cloak"
+        ],
+        "hasInventory": false,
+        "properties":{
+          "Health":1.0,
+          "Defense":24.0,
+          "Strength":36.0,
+          "Boss":1.0
+        }
+    }
+]

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../../core/AgentBase.hpp"
+#include "../AgentLibary.hpp"
 #include "GraphNode.hpp"
 
 namespace cowboys {
@@ -115,7 +116,7 @@ namespace cowboys {
   /// @return A vector of doubles for the decision graph.
   std::vector<double> EncodeState(const cse491::WorldGrid &grid, const cse491::type_options_t & /*type_options*/,
                                   const cse491::item_map_t & /*item_set*/, const cse491::agent_map_t & /*agent_set*/,
-                                  const cse491::Entity *agent,
+                                  const cse491::AgentBase *agent,
                                   const std::unordered_map<std::string, double> &extra_agent_state) {
     /// TODO: Implement this function properly.
     std::vector<double> inputs;
@@ -129,8 +130,13 @@ namespace cowboys {
     double right_state = grid.IsValid(current_position.ToRight()) ? grid.At(current_position.ToRight()) : 0.;
 
     double prev_action = extra_agent_state.at("previous_action");
+    double starting_x = extra_agent_state.at("starting_x");
+    double starting_y = extra_agent_state.at("starting_y");
+    auto starting_pos = cse491::GridPosition(starting_x, starting_y);
+    auto path = walle::GetShortestPath(agent->GetPosition(), starting_pos, agent->GetWorld(), *agent);
+    double distance_from_start = path.size();
 
-    inputs.insert(inputs.end(), {prev_action, current_state, above_state, below_state, left_state, right_state});
+    inputs.insert(inputs.end(), {prev_action, starting_x, starting_y, distance_from_start, current_state, above_state, below_state, left_state, right_state});
 
     return inputs;
   }

@@ -1,7 +1,6 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief An Agent based on genetic programming.
- * @note Status: PROPOSAL
  **/
 
 #pragma once
@@ -17,13 +16,13 @@
 
 namespace cowboys {
   /// Don't know the maximum size a state can be, arbitrary large number
-  constexpr size_t INPUT_SIZE = 6;
+  constexpr size_t INPUT_SIZE = 9;
 
   /// Number of computational layers for each agent
   constexpr size_t NUM_LAYERS = 3;
 
   /// The number of nodes in each layer
-  constexpr size_t NUM_NODES_PER_LAYER = 5;
+  constexpr size_t NUM_NODES_PER_LAYER = 2;
 
   /// The number of layers preceding a node's layer that the node can reference
   constexpr size_t LAYERS_BACK = 2;
@@ -65,8 +64,6 @@ namespace cowboys {
         genotype = CGPGenotype({INPUT_SIZE, action_map.size(), NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
       }
 
-      genotype.SetSeed(rand());
-
       // Mutate the beginning genotype, might not want this.
       MutateAgent(0.2);
 
@@ -80,8 +77,11 @@ namespace cowboys {
       return action_to_take;
     }
 
-
-    void Serialize(tinyxml2::XMLDocument& doc, tinyxml2::XMLElement* parentElem, double fitness = -1) override {
+    /// @brief Serialize this agent to XML.
+    /// @param doc The XML document to serialize to.
+    /// @param parentElem The parent element to serialize to.
+    /// @param fitness The fitness of this agent to write to the XML.
+    void SerializeGP(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) override {
       auto agentElem = doc.NewElement("CGPAgent");
       parentElem->InsertEndChild(agentElem);
 
@@ -96,6 +96,16 @@ namespace cowboys {
 
     }
 
+    /// @brief Export the genotype for this agent.
+    /// @return The string representation of the genotype for this agent.
+    std::string Export() override { return genotype.Export(); }
+
+    /// @brief Load in the string representation of a genotype and configure this agent based on it.
+    /// @param genotype The string representation of a genotype.
+    void Import(const std::string &genotype) override {
+      this->genotype.Configure(genotype);
+      decision_graph = GraphBuilder().CartesianGraph(this->genotype, FUNCTION_SET, this);
+    }
 
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
@@ -114,6 +124,21 @@ namespace cowboys {
     void Copy(const GPAgentBase &other) override {
       assert(dynamic_cast<const CGPAgent *>(&other) != nullptr);
       Configure(dynamic_cast<const CGPAgent &>(other));
+    }
+
+    /// @brief The complexity of this agent. Used for fitness.
+    /// @return The complexity of this agent.
+    double GetComplexity() const {
+      double connection_complexity =
+          static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
+
+      double functional_nodes = genotype.GetNumFunctionalNodes();
+
+      // Just needed some function such that connection_complexity + node_complexity grows as the number of nodes grows, this function makes the increase more gradual.
+      double node_complexity = std::log(functional_nodes) / 5;
+
+      double complexity = connection_complexity + node_complexity;
+      return complexity;
     }
   };
 

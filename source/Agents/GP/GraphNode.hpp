@@ -387,6 +387,14 @@ namespace cowboys {
   /// @param agent The agent that the node belongs to.
   /// @return The distance to the grid position using A*
   double AStarDistance(const GraphNode &node, const cse491::AgentBase &agent) {
+    //
+    // The outputs of the first two connections are the x and y coordinates of the goal position. It'd probably be rare
+    // for agents to randomly use it in a useful way. Most of the time when it IS used, there is no input connections
+    // and thus the default output is used, so it isn't REALLY being used. Other times when it does have input
+    // connections, the agent has a lower fitness, so it probably wasn't making good use of it.
+    //
+    // Decided to make an easier way A* can be used by agents by giving the A* distance from the agent's start position
+    // as an input. This can still be used in the off chance it is useful.
     auto vals = node.GetInputValues<2>(std::array<size_t, 2>{0, 1});
     if (!vals.has_value())
       return node.GetDefaultOutput();

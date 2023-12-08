@@ -83,6 +83,7 @@ namespace i_2D {
 
         void ChooseTexture();
 
+
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
         void MouseClickEvent(const sf::Event &event,const size_t entity_id, const item_map_t &item_map);
@@ -99,9 +100,6 @@ namespace i_2D {
         void DrawTimer();
 
         void DrawHealthInfo();
-
-        void setMInputWaitTime(double mInputWaitTime);
-
 
     public:
         MainInterface(size_t id, const std::string &name);
@@ -120,6 +118,9 @@ namespace i_2D {
 
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_map_t &item_map, const agent_map_t &agent_map);
+        
+        void setMInputWaitTime(double mInputWaitTime);
+        void SetLargeGrid(bool b){ mGridSizeLarge = b; } 
 
         /**
          * @brief Initializes the main interface.

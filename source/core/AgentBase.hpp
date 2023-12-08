@@ -72,7 +72,7 @@ namespace cse491 {
     /// @return None
     void UpdateAgentState(cse491::AgentBase & agent) {
       if(agent.HasProperty("Health")){
-        if(agent.GetProperty<int>("Health") <= agent.GetProperty<int>("Max_Health") 
+        if(agent.GetProperty<int>("Health") <= agent.GetProperty<int>("Max_Health")
         && agent.GetProperty<int>("Health") > 3){
           agent.agent_state = Healthy;
         }
@@ -90,10 +90,10 @@ namespace cse491 {
       }
     }
 
-    /// @brief If the agent is in State::Taking_Damage, decrease the health 
+    /// @brief If the agent is in State::Taking_Damage, decrease the health
     /// by the damage factor once per timestep.
     void TakeDamage(cse491::AgentBase & agent){
-        agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") - 
+        agent.SetProperty<int>("Health", agent.GetProperty<int>("Health") -
         agent.GetProperty<int>("Taking_Damage"));
         UpdateAgentState(agent);
     }
@@ -144,33 +144,26 @@ namespace cse491 {
     /// Update the result from the most recent action.
     void SetActionResult(int result) { action_result = result; }
 
-
     /// @brief Send a notification to this agent, typically from the world.
     /// @param message Contents of the notification
     /// @param msg_type Category of message, such as "item_alert", "damage", or "enemy"
     /// This function is useful to notify users of events in the world, such as them taking
     /// damage, finding an item, etc.  The message type can potentially also provide
     /// information to an autonomous agent assuming we come up with a standard list of types.
-    virtual void Notify(const std::string & /*message*/,
-                        const std::string & /*msg_type*/="none") { }
+    virtual void Notify(const std::string & /*message*/,const std::string & /*msg_type*/="none") { }
 
     /**
      * Serialize agent (assume no properties)
      * @param os ostream
      */
     void Serialize(std::ostream &os) override {
-        os << name << '\n';
-        os << position.GetX() << '\n';
-        os << position.GetY() << '\n';
+      os << name << '\n';
+      os << id << '\n';
+      os << position.GetX() << '\n';
+      os << position.GetY() << '\n';
+      if (HasProperty("symbol")) os << GetProperty<char>("symbol") << '\n';
+      else os << '*' << std::endl;
     }
-
-//    virtual void Serialize(std::ostream & os) {};
-//
-//    virtual void deserialize(std::istream & is) {};
-//
-//    void storeAgentData(std::string name) {
-//
-//    }
 
   };
 

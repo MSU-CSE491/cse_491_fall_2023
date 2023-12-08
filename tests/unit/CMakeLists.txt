@@ -1,4 +1,9 @@
 set(TEST_PREFIX "${TEST_PREFIX}-unit")
+set(PEGTL_INCLUDE_DIR ../${PEGTL_INCLUDE_DIR})
+
+# Setup json library in tests
+set(JSON_SRC_DIR ../third_party/json)
+set(JSON_BUILD_DIR json_build)
 
 # Helper function to simplify CMake files in test directories
 function(create_tests NAME_PREFIX)
@@ -30,13 +35,14 @@ function(create_tests NAME_PREFIX)
 
     # Add includes and libraries
     target_include_directories(${EXE_NAME}
-      PRIVATE ${CMAKE_SOURCE_DIR}/source
+      PRIVATE ${CMAKE_SOURCE_DIR}/source ${PEGTL_INCLUDE_DIR}
       PRIVATE ${CMAKE_SOURCE_DIR}/third_party/SFML/include
       )
     target_link_libraries(${EXE_NAME}
-      PRIVATE Catch2::Catch2WithMain
+      PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json
       PRIVATE  sfml-network
       PRIVATE tinyxml2
+      PRIVATE nlohmann_json::nlohmann_json
       )
 
     # Add to ctest

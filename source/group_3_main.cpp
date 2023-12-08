@@ -46,7 +46,7 @@ int main() {
     //world_1.Run();
 
     static const unsigned int SEED = 973;
-    BiomeGenerator biomeGenerator(BiomeType::Maze, 110, 25, SEED);
+    group6::BiomeGenerator biomeGenerator(group6::BiomeType::Maze, 110, 25, SEED);
     biomeGenerator.generate();
 
     srand(time(NULL));
@@ -54,7 +54,7 @@ int main() {
     biomeGenerator.applyPathToGrid(path);
     biomeGenerator.saveToFile("../assets/grids/generated_maze.grid");
 
-    cse491::GenerativeWorld world_2(SEED);
+    group6::GenerativeWorld world_2(group6::BiomeType::Maze, 110, 25, SEED);
     world_2.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3, 1);
     world_2.AddAgent<cse491::PacingAgent>("Pacer 2").SetPosition(6, 1);
     world_2.AddAgent<i_2D::MainInterface>("Interface2").SetProperty("symbol", '@');
@@ -62,8 +62,8 @@ int main() {
     //world_2.Run();
 
     cse491_team8::ManualWorld world_3;
-    world_3.AddItem("Axe", "Chop", 5, "symbol", 'P').SetPosition(37, 3);
-    world_3.AddItem("Boat", "Swim", 7, "symbol", 'U').SetPosition(18, 4);
+    world_3.AddItem("Axe", "Uses", 5, "symbol", 'P').SetPosition(37, 3);
+    world_3.AddItem("Boat", "Uses", 7, "symbol", 'U').SetPosition(18, 4);
     world_3.AddAgent<i_2D::MainInterface>("Interface3", "Strength", 15, "Health", 15, "Max_Health", 40, "Direction",
                                           0).SetProperty("symbol", '@').SetPosition(40, 3);
     world_3.AddAgent<cse491::PacingAgent>("Pacer 1", "Strength", 30, "Health", 5, "Max_Health", 30, "Direction",

@@ -72,7 +72,11 @@ namespace i_2D {
             if (item_ptr->HasProperty("symbol")) {
                 c = item_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if(pos.CellX() >= 0 && pos.CellY() >= 0 && 
+                pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight() && 
+                !item_ptr->IsOwned()){
+              symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
 
         // Add in the agents
@@ -82,7 +86,9 @@ namespace i_2D {
             if (agent_ptr->HasProperty("symbol")) {
                 c = agent_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if (!agent_ptr->HasProperty("deleted")){
+                symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
         return symbol_grid;
     }
@@ -295,7 +301,7 @@ namespace i_2D {
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
-                    exit(0);
+                    exitCleanup();
 
                 } else if (event.type == sf::Event::TextEntered) {
                     if (mTextBox->IsSelected()) {
@@ -342,6 +348,7 @@ namespace i_2D {
      * @return size_t The action ID corresponding to the key event.
      */
     size_t MainInterface::HandleKeyEvent(const sf::Event &event) {
+        size_t action_id = 0;
         if (mTextBox->IsSelected()) {
             // TextBox is selected, handle specific cases
             switch (event.key.code) {
@@ -349,7 +356,6 @@ namespace i_2D {
                     mMessageBoard->Send(mTextBox->GetText());
                     mTextBox->SetString("");
                     mTextBox->SetSelected(false);
-
                     break;
                 case sf::Keyboard::Escape:
                     mTextBox->SetString("");
@@ -361,29 +367,71 @@ namespace i_2D {
         } else {
             // TextBox is not selected, handle movement keys
             switch (event.key.code) {
-                case sf::Keyboard::W:
-                    return GetActionID("up");
-                case sf::Keyboard::A:
-                    return GetActionID("left");
-                case sf::Keyboard::S:
-                    return GetActionID("down");
-                case sf::Keyboard::D:
-                    return GetActionID("right");
-                case sf::Keyboard::Up:
-                    return GetActionID("up");
-                case sf::Keyboard::Left:
-                    return GetActionID("left");
-                case sf::Keyboard::Down:
-                    return GetActionID("down");
-                case sf::Keyboard::Right:
-                    return GetActionID("right");
-                default:
-                    std::cout << "Unknown key." << std::endl;
-                    break; // The user pressed an unknown key.
+              case sf::Keyboard::W:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("up");
+                  break;
+              case sf::Keyboard::A:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("left");
+                  break;
+              case sf::Keyboard::S:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("down");
+                  break;
+              case sf::Keyboard::D:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("right");
+                  break;
+              case sf::Keyboard::Up:
+                  action_id = GetActionID("up");
+                  break;
+              case sf::Keyboard::Left:
+                  action_id = GetActionID("left");
+                  break;
+              case sf::Keyboard::Down:
+                  action_id = GetActionID("down");
+                  break;
+              case sf::Keyboard::Right:
+                  action_id = GetActionID("right");
+                  break;
+              case sf::Keyboard::H:
+                  action_id = GetActionID("heal");
+                  break;
+              case sf::Keyboard::T:
+                  action_id = GetActionID("stats");
+                  break;
+              case sf::Keyboard::C:
+                  action_id = GetActionID("use_axe");
+                  break;
+              case sf::Keyboard::V:
+                  action_id = GetActionID("use_boat");
+                  break;
+              case sf::Keyboard::F:
+                  action_id = GetActionID("attack");
+                  break;
+              case sf::Keyboard::G:
+                  action_id = GetActionID("special");
+                  break;
+              case sf::Keyboard::B:
+                  action_id = GetActionID("buff");
+                  break;
+              case sf::Keyboard::R:
+                  action_id = GetActionID("run");
+                  break;
+              case sf::Keyboard::Y:
+                  action_id = GetActionID("help");
+                  break;
+              default:
+                  break; // The user pressed an unknown key.
             }
         }
+        // If we waited for input, but don't understand it, notify the user.
+        if (action_id == 0 && !mTextBox->IsSelected()) {
+            std::cout << "Unknown key." << std::endl;
+        }
         // No action performed
-        return 0;
+        return action_id;
     }
 
 
@@ -482,9 +530,9 @@ namespace i_2D {
 
             // Check if the mouse is over specific menu items
             if (mMenu.GetMenu()[4]->IsMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)) {
-                mGridSizeLarge = true;
+                SetLargeGrid(true);
             } else if (mMenu.GetMenu()[3]->IsMouseOver(mWindow)) {
-                mGridSizeLarge = false;
+                SetLargeGrid(false);
             } else {
                 // Handle mouse button press for the general menu
                 mAgentInventory.clear();
