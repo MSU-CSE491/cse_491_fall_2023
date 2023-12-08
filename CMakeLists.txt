@@ -78,24 +78,27 @@ if (BUILD_GP_ONLY)
     set(BUILD_MAIN 0)
     set(BUILD_TESTS 0)
 
-    # Configure all of tinyxml2
     set(XML_SRC_DIR third_party/tinyxml2)
     set(XML_BUILD_DIR xml_build)
     add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
 
-    #added the executable
-    add_executable(gp_train_main source/gp_train_main.cpp)
+    # List of executables
+    set(EXECUTABLES gp_train_main gp_selective_runner_main gp_train_cgp_main gp_train_lgp_main)
 
-    #linking the targets
-    target_sources(gp_train_main PRIVATE source/core/Entity.cpp)
-    target_include_directories(gp_train_main
-            PRIVATE ${CMAKE_SOURCE_DIR}/source/core
-            ${CMAKE_SOURCE_DIR}/source/Agents
-    )
-    target_link_libraries(gp_train_main
-            PRIVATE tinyxml2
-            PRIVATE pthread
-    )
+    # Common source files and include directories
+    set(COMMON_SOURCES source/core/Entity.cpp)
+    set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/source/core ${CMAKE_SOURCE_DIR}/source/Agents)
+
+    # Common libraries to link with
+    set(COMMON_LIBRARIES tinyxml2 pthread)
+
+    # Loop to configure each executable
+    foreach(EXECUTABLE IN LISTS EXECUTABLES)
+        add_executable(${EXECUTABLE} source/${EXECUTABLE}.cpp)
+        target_sources(${EXECUTABLE} PRIVATE ${COMMON_SOURCES})
+        target_include_directories(${EXECUTABLE} PRIVATE ${COMMON_INCLUDE_DIRS})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIBRARIES})
+    endforeach()
 
 endif ()
 

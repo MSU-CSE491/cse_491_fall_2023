@@ -11,6 +11,12 @@
 
 using namespace cowboys;
 
+struct MockWorld : cse491::WorldBase {
+  int DoAction(cse491::AgentBase &, size_t) { return 0; }
+};
+
+MockWorld world;
+
 TEST_CASE("CGPAgent construction", "[group7][agent]") {
   SECTION("CGPAgent construction") {
     CGPAgent agent(0, "agent");
