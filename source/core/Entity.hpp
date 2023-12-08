@@ -26,7 +26,7 @@ class Entity {
 
  protected:
     const size_t id=0;      ///< Unique ID for this entity (zero is use for "no ID")
-    std::string name;       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
+    std::string name = "";       ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
     GridPosition position;  ///< Where on the grid is this entity?
 
     std::vector<size_t> inventory;
@@ -154,10 +154,8 @@ class Entity {
     Entity & RemoveItem(size_t id);
     Entity & RemoveItem(Entity & item) { return RemoveItem(item.GetID()); }
 
-    /**
-     * Serialize entity (pure virtual)
-     * @param os ostream
-     */
+    /// @brief Serialize entity (pure virtual)
+    /// @param ostream
     virtual void Serialize(std::ostream &os) = 0;
 
     [[nodiscard]] std::vector<size_t> GetInventory() const { return inventory; }
