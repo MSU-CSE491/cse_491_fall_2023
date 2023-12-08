@@ -145,7 +145,7 @@ namespace i_2D {
         } else {
             symbol_grid = default_grid;
         }
-
+        CheckLargerGrid();
         // Create a render texture to draw the grid
         sf::RenderTexture renderTexture;
         renderTexture.create({static_cast<unsigned int>(drawSpaceWidth), static_cast<unsigned int>(drawSpaceHeight)});
@@ -529,7 +529,7 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[4]->IsMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)) {
+            if (mMenu.GetMenu()[4]->IsMouseOver(mWindow) ) {
                 SetLargeGrid(true);
             } else if (mMenu.GetMenu()[3]->IsMouseOver(mWindow)) {
                 SetLargeGrid(false);
@@ -596,9 +596,21 @@ namespace i_2D {
         cellRect.setTexture(&wallTexture);
         renderTexture.draw(cellRect);
     }
-
+    /**
+     * Sets the inputwait time for netwrok interface
+     *
+     * @param waitTime
+     */
     void MainInterface::setMInputWaitTime(double waitTime) {
         MainInterface::mInputWaitTime = waitTime;
+    }
+
+    void MainInterface::CheckLargerGrid()
+    {
+        if (mGridWidth == mGridHeight)
+        {
+            mGridSizeLarge = true;
+        }
     }
 
 

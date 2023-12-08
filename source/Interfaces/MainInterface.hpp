@@ -65,7 +65,7 @@ namespace i_2D {
         sf::Vector2i mPlayerPosition = sf::Vector2i(0, 0); ///< xy world grid location of the player
         bool mGridSizeLarge = false; ///< flag for the largegrid
         int const ROW = 9; ///< row to enlarge te grid
-        int const COL = 23; ///< column to enlarge the grid
+        int const COL = 20; ///< column to enlarge the grid
 
         int mGridWidth = 0; ///< for the gridwidth
         int mGridHeight = 0; ///< for the gridheight
@@ -146,6 +146,8 @@ namespace i_2D {
             std::cout << message << std::endl;
             mMessageBoard->Send(message);
         }
+
+        void CheckLargerGrid();
     };
 
 } // End of namespace 2D
