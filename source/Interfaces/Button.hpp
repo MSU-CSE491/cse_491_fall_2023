@@ -15,12 +15,13 @@ namespace i_2D {
      * @class Button
      *
      * @brief Simple RectangleShape and a Text inside the shape
-     *
      * Responsive rectangles on the Renderwindow that handles mouse's hover and click events
      */
     class Button {
     private:
+        /// The Rectangle that the button resides in
         sf::RectangleShape button;
+        /// The String printed onto the button
         std::unique_ptr<sf::Text> text;
 
 
@@ -30,7 +31,6 @@ namespace i_2D {
 
         /**
          * @brief set the string of the button
-         *
          * @param s label of the button
          */
         void SetString(const std::string &s){
@@ -41,7 +41,6 @@ namespace i_2D {
 
         /**
          * @brief set the font of the button
-         *
          * @param font
          */
         void SetFont(const sf::Font &font) {
@@ -50,7 +49,6 @@ namespace i_2D {
 
         /**
          * @brief set the button size
-         *
          * @param size
          */
         void SetButtonSize(sf::Vector2f size){
@@ -59,7 +57,6 @@ namespace i_2D {
 
         /**
          * @brief set the background color of the button
-         *
          * @param color
          */
         void SetBackColor(sf::Color color){
@@ -68,7 +65,6 @@ namespace i_2D {
 
         /**
          * @brief set the text color of the string
-         *
          * @param color
          */
         void SetTextColor(sf::Color color){
@@ -79,7 +75,6 @@ namespace i_2D {
 
         /**
          * @brief draws the button onto the window
-         *
          * @param window
          */
         void DrawTo(sf::RenderWindow &window){

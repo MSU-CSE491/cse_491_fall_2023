@@ -309,8 +309,11 @@ namespace i_2D {
                     HandleResize(event, grid);
 
                 } else if (event.type == sf::Event::MouseMoved) {
-                    mMenu.HandleMouseMove(mWindow);
-
+                    auto c = mMenu.HandleMouseMove(mWindow);
+                    if(c!="null"){
+                        auto texture = mTextureHolder.GetTexture(c);
+                        mMenu.SetInventoryItemDisplay(texture);
+                    }
                 } else if (event.type == sf::Event::MouseButtonPressed) {
                     MouseClickEvent(event, GetID(), item_map);
 
@@ -552,6 +555,4 @@ namespace i_2D {
     void MainInterface::setMInputWaitTime(double waitTime) {
         MainInterface::mInputWaitTime = waitTime;
     }
-
-
 }

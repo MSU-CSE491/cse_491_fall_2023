@@ -17,7 +17,7 @@ namespace i_2D {
  * @param font the font style
  */
     Button::Button(const std::string &t, sf::Vector2f size, sf::Color bgColor,
-                         sf::Color textColor, const sf::Font &font) {
+                   sf::Color textColor, const sf::Font &font) {
         text = std::make_unique<sf::Text>(font);
 
         text->setString(t);
@@ -36,7 +36,6 @@ namespace i_2D {
 
 /**
  * @brief set the position of the button
- *
  * @param pos position on the window
  */
     void Button::SetPosition(sf::Vector2f pos) {
@@ -48,9 +47,7 @@ namespace i_2D {
 
 /**
  * @brief checks if mouse position is in a button
- *
  * @param window
- *
  * @return returns turn if mouse position is in the button
  */
     bool Button::IsMouseOver(sf::RenderWindow &window) {

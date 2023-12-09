@@ -58,7 +58,8 @@ namespace i_2D {
      *
      * @param window the main window of the graphic interface
      */
-    void Menu::HandleMouseMove(sf::RenderWindow &window) {
+    std::string Menu::HandleMouseMove(sf::RenderWindow &window) {
+        std::string s1 = "null";
         for (int i = 0; i < mMenuBar.size(); ++i) {
             if (mMenuBar[i]->IsMouseOver(window)) {
                 mMenuBar[i]->SetBackColor(sf::Color::Magenta);
@@ -67,8 +68,9 @@ namespace i_2D {
             }
         }
         if(mInventory){
-            mInventory->HandleMouseMove(window);
+            s1 = mInventory->HandleMouseMove(window);
         }
+        return s1;
     }
     /**
      * @brief check if the mouse click the exit button
@@ -89,7 +91,6 @@ namespace i_2D {
         }
 
     }
-
 }
 
 
