@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Imp",
+        "x": 3,
+        "y": 1,
+        "entities": [
+            "chocolate_bar"
+        ],
+        "hasInventory": false,
+        "properties":{
+          "Health":30.0,
+          "Defense":5.0,
+          "Strength":3.0
+        }
+    },
+    {
+        "name": "Pinky",
+        "x": 11,
+        "y": 2,
+        "entities": [
+            
+        ],
+        "hasInventory": false,
+        "properties":{
+          "Health":70.0,
+          "Defense":15.0,
+          "Strength":10.0
+        }
+    }
+]

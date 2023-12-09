@@ -8,7 +8,6 @@
 #include <map>
 #include <sstream>
 #include <vector>
-#include "Interfaces/NetWorth/NetworkInterface.hpp"
 
 namespace netWorth{
     using namespace sf;
@@ -18,14 +17,16 @@ namespace netWorth{
      */
     class ClientManager {
     private:
-        sf::UdpSocket *m_socket;                /// Socket shared with ClientInterface
+        sf::UdpSocket *m_socket = nullptr;                /// Socket shared with ClientInterface
+        sf::UdpSocket *m_game_update_socket = nullptr;    /// Game update socket (for agent updates)
         std::optional<sf::IpAddress> m_ip;      /// Server IP address
-        unsigned short m_port;                  /// Server port
+		unsigned short m_update_port = 0; ///Port to update the game
         std::unordered_map<size_t, size_t> m_action_map;     ///Map of agent IDs to most recent action selected
-
+        size_t m_client_id = 0;		///Id of client
     protected:
 
     public:
+
         /**
          * Default constructor (AgentBase)
          * @param id agent ID
@@ -33,41 +34,42 @@ namespace netWorth{
          */
         ClientManager()= default;
 
+		void setUpdatePort(unsigned short port) {m_update_port = port;}
+
         /**
          * Turn packet from server into action map for ControlledAgents
          * @param pkt received packet
          */
-        void PacketToActionMap(sf::Packet pkt) {
-            uint64_t data_size, agent_id, action_id;
-            pkt >> data_size;
-            for (size_t i = 0; i < data_size; i++) {
-                pkt >> agent_id >> action_id;
-                m_action_map[agent_id] = action_id;
+        void packetToActionMap(sf::Packet pkt) {
+            size_t dataSize, agentID, actionID;
+            pkt >> dataSize;
+            for (size_t i = 0; i < dataSize; i++) {
+                pkt >> agentID >> actionID;
+                m_action_map[agentID] = actionID;
             }
         }
 
-        /**
-         * Set receiving socket for action map and IP/port info
-         * @param socket pointer to ClientInterface's socket
-         * @param ip server IP
-         * @param port server port
-         */
-        void SetupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip, unsigned short port) {
+		/**
+		 * Set receiving socket for action map and IP/port info
+		 * @param socket pointer to ClientInterface's socket
+		 * @param ip server IP
+		 * @param port server port
+		 */
+        void setupSocket(sf::UdpSocket *socket, std::optional<sf::IpAddress> ip) {
             m_socket = socket;
             m_ip = ip;
-            m_port = port;
         }
 
         /**
-         * Wait until server sends action map
+         * Set socket for game updates
+         * @param socket pointer to socket
          */
-        void RequestActionMap() {
-            sf::Packet recv_pkt;
-            if (m_socket->receive(recv_pkt, m_ip, m_port) != sf::Socket::Status::Done) {
-                std::cerr << "Failed to receive" << std::endl;
-                return;
-            }
-            PacketToActionMap(recv_pkt);
+        void setupGameUpdateSocket(sf::UdpSocket *socket) {
+            m_game_update_socket = socket;
+            m_game_update_socket->setBlocking(false);
+			if (m_game_update_socket->bind(m_update_port) != Socket::Status::Done){
+				std::cerr << "Failed to setup game update socket" << std::endl;
+			}
         }
 
         /**
@@ -75,8 +77,8 @@ namespace netWorth{
          * @param id Agent ID
          * @return true if ID is present
          */
-        bool IdPresent(size_t id) {
-            return m_action_map.find(id) == m_action_map.end();
+        bool iDPresent(size_t id) {
+            return m_action_map.contains(id);
         }
 
         /**
@@ -84,15 +86,40 @@ namespace netWorth{
          * @param id Agent ID
          * @return action ID
          */
-        size_t GetActionID(size_t id) {
+        size_t getActionID(size_t id) {
             return m_action_map[id];
         }
 
         /**
          * Clear action map after ClientInterface moves
          */
-        void ClearActionMap() {
+        void clearActionMap() {
             m_action_map.clear();
+        }
+
+        /**
+         * Receive serialized agent data for midgame updates
+         * @return serialized data (or empty if no update)
+         */
+        std::string getSerializedAgents() {
+            sf::Packet recvPkt;
+            std::optional<sf::IpAddress> tempIP;
+            unsigned short tempPort;
+            if (m_game_update_socket->receive(recvPkt, tempIP, tempPort) == sf::Socket::Status::Done) {
+                std::string data;
+                recvPkt >> data;
+                return data;
+            }
+            return "";
+        }
+
+
+        void setClientID(size_t id) {
+            m_client_id = id;
+        }
+
+        size_t getClientID() const{
+            return m_client_id;
         }
 
     }; // End of class ClientManager

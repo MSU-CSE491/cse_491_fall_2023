@@ -65,7 +65,7 @@ namespace i_2D {
         sf::Vector2i mPlayerPosition = sf::Vector2i(0, 0); ///< xy world grid location of the player
         bool mGridSizeLarge = false; ///< flag for the largegrid
         int const ROW = 9; ///< row to enlarge te grid
-        int const COL = 23; ///< column to enlarge the grid
+        int const COL = 20; ///< column to enlarge the grid
 
         int mGridWidth = 0; ///< for the gridwidth
         int mGridHeight = 0; ///< for the gridheight
@@ -82,6 +82,7 @@ namespace i_2D {
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
 
         void ChooseTexture();
+
 
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
@@ -100,9 +101,6 @@ namespace i_2D {
 
         void DrawHealthInfo();
 
-        void setMInputWaitTime(double mInputWaitTime);
-
-
     public:
         MainInterface(size_t id, const std::string &name);
 
@@ -120,6 +118,9 @@ namespace i_2D {
 
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_map_t &item_map, const agent_map_t &agent_map);
+        
+        void setMInputWaitTime(double mInputWaitTime);
+        void SetLargeGrid(bool b){ mGridSizeLarge = b; } 
 
         /**
          * @brief Initializes the main interface.
@@ -145,6 +146,8 @@ namespace i_2D {
             std::cout << message << std::endl;
             mMessageBoard->Send(message);
         }
+
+        void CheckLargerGrid();
     };
 
 } // End of namespace 2D
