@@ -42,6 +42,7 @@ function(create_tests NAME_PREFIX)
       PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json
       PRIVATE  sfml-network
       PRIVATE tinyxml2
+      PRIVATE nlohmann_json::nlohmann_json
       )
 
     # Add to ctest

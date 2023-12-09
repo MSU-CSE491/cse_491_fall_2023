@@ -2,6 +2,10 @@
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A World that consists of trees, water, and grass cells.
  * @note Status: PROPOSAL
+ * @author Evan Orvis
+ * @author Grant Carr
+ * @author Lauren Garvey
+ * @author Nate Gu
  **/
 
 /// REVIEW UPDATES
@@ -15,6 +19,7 @@
 #include <tuple>
 
 #include "../core/WorldBase.hpp"
+#include "../core/AgentBase.hpp"
 
 namespace cse491_team8 {
 
@@ -63,9 +68,8 @@ namespace cse491_team8 {
       portal_id_b = AddCellType("portal_b", "Portal that teleports player to another b-portal spot.", '{');
       portal_id_c = AddCellType("portal_c", "Portal that teleports player to another c-portal spot.", '(');
       portal_id_d = AddCellType("portal_d", "Portal that teleports player to another d-portal spot.", ')');
-      main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
+      main_grid.Read("../assets/grids/team8_grid_v2.grid", type_options);
     }
-
     ~ManualWorld() = default;
 
     /// @brief Generates move sets for all the agents
@@ -75,31 +79,31 @@ namespace cse491_team8 {
     {
         for (auto & [id, agent_ptr] : agent_map)
         {
-            auto agent_strength = agent_ptr->GetProperty<int>("Strength");
-            if (agent_ptr->GetName() == "Interface")
-            {
-                std::map<std::string, std::tuple<char, double>> move_set = {
-                    {"Attack", std::make_tuple('d', 1.0)},
-                    {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
-                    {"Heal", std::make_tuple('h', 0.25)}};
-                // agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
-                agent_ptr->SetProperty("MoveSet", move_set);
-                continue;
-            }
-            std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)}};
-            if (agent_strength >= 10)
-            {
-                move_set["Special"] = std::make_tuple('d', 1.5);
-            }
-            if (agent_strength >= 15)
-            {
-                move_set["Heal"] = std::make_tuple('h', 0);
-            }
-            if (agent_strength >= 20)
-            {
-                move_set["Buff"] = std::make_tuple('s', 0.5);
-            }
-            agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+          auto agent_strength = agent_ptr->GetProperty<int>("Strength");
+          if (agent_ptr->GetName() == "Interface")
+          {
+            std::map<std::string, std::tuple<char, double>> move_set = {
+                {"Attack", std::make_tuple('d', 1.0)},
+                {"Special", std::make_tuple('d', 1.5)}, {"Run", std::make_tuple('d', 0.0)},
+                {"Heal", std::make_tuple('h', 0.25)}};
+            // agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
+            agent_ptr->SetProperty("MoveSet", move_set);
+            continue;
+          }
+          std::map<std::string, std::tuple<char, double>> move_set = {{"Attack", std::make_tuple('d', 1.0)}};
+          if (agent_strength >= 10)
+          {
+            move_set["Special"] = std::make_tuple('d', 1.5);
+          }
+          if (agent_strength >= 15)
+          {
+            move_set["Heal"] = std::make_tuple('h', 0);
+          }
+          if (agent_strength >= 20)
+          {
+            move_set["Buff"] = std::make_tuple('s', 0.5);
+          }
+          agent_ptr->SetProperty<std::map<std::string, std::tuple<char, double>>>("MoveSet", move_set);
         }
     }
 
@@ -156,8 +160,9 @@ namespace cse491_team8 {
         if (healing_req >= healing) {
           agent.Notify("You healed " + std::to_string(healing) + " health!\n");
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing);
+          agent.RemoveItem(can_heal);
           RemoveItem(can_heal);
-        } 
+        }
         else if (healing_req == 0) {
           agent.Notify("You already have max health");
         } else {
@@ -165,12 +170,14 @@ namespace cse491_team8 {
           agent.SetProperty("Health", agent.GetProperty<int>("Health") + healing_req);
           item_map[can_heal]->SetProperty("Healing", healing - healing_req);
         }
+      } else {
+        agent.Notify("You do not have any health potions!\n");
       }
 
     }
 
-    /// @brief Displays the items aand properties that the player has
-    /// @param agent 
+    /// @brief Displays the items and properties that the player has
+    /// @param agent Agent stats being showed.
     void StatsAction(cse491::AgentBase & agent)
     {
         std::string output = "";
@@ -201,29 +208,15 @@ namespace cse491_team8 {
         agent.Notify(output);
     }
 
-    /// @brief displays the 
-    /// @param agent 
+    /// @brief Displays the moveset for the agent.
+    /// @param agent Agent moveset being displayed.
     void MoveSetAction(cse491::AgentBase & agent)
     {
-        agent.Notify("Your Moveset is:");
-        agent.Notify("Move Up: W");
-        agent.Notify("Move Down: S");
-        agent.Notify("Move Left: A");
-        agent.Notify("Move Right: D");
-        agent.Notify("Use Axe: C");
-        agent.Notify("Use Boat: V");
-        agent.Notify("Display Stats: T");
-        agent.Notify("Heal: H");
-        agent.Notify("Attack: F");
-        agent.Notify("Special: G");
-        agent.Notify("Run: R");
-        agent.Notify("Buff: B");
-        agent.Notify("Debuff: X");
-        agent.Notify("Display Moveset: Y");
+        agent.Notify("Your Moveset is:\nMove Up: W\nMove Down: S\nMove Left: A\nMove Right: D\nUse Axe: C\nUse Boat: V\nDisplay Stats: T\nHeal: H\nAttack: F\nSpecial: G\nRun: R\nBuff: B\nDebuff: X\nDisplay Moveset: Y");
     }
 
     /// @brief looks one tile ahead of the agent based on facing direction
-    /// @param agent 
+    /// @param agent Agent that is looking ahead
     /// @return the grid position
     cse491::GridPosition LookAhead(cse491::AgentBase & agent)
     {
@@ -244,7 +237,7 @@ namespace cse491_team8 {
         case (3):
           look_position = agent.GetPosition().ToLeft();
           break;
-        
+
         default:
           agent.Notify("Invalid Position: Returning Current Position");
           look_position = agent.GetPosition();
@@ -255,8 +248,8 @@ namespace cse491_team8 {
     }
 
     /// @brief Removes all items from other agent
-    /// @param agent 
-    /// @param other_agent 
+    /// @param agent Agent that won the battle
+    /// @param other_agent Agent that is dropping items
     void DropItems(cse491::AgentBase & agent, cse491::AgentBase & other_agent)
     {
         for (const auto& [id, item] : item_map)
@@ -269,7 +262,7 @@ namespace cse491_team8 {
                     auto item_strength = item->GetProperty<int>("Strength");
                     other_agent.SetProperty<int>("Strength", (int)(agent_health - item_strength));
                 }
-                item->SetUnowned();
+                other_agent.RemoveItem(item->GetID());
                 item->SetPosition(other_agent.GetPosition());
                 agent.Notify(other_agent.GetName() + " dropped their " + item->GetName() + "!");
             }
@@ -314,17 +307,6 @@ namespace cse491_team8 {
         return other_damage;
     }
 
-    /// @brief Generates the battling boolean
-    /// Sets the battling boolean as a property for each agent
-    /// @return None
-    void SetBattling()
-    {
-        for (auto & [id, agent_ptr] : agent_map)
-        {
-            agent_ptr->SetProperty<bool>("Battling", false);
-        }
-    }
-
     /// @brief Checks the strength between two agents
     /// @param other_agent The autonomous agent to compare
     /// @param agent The interface (player) agent to compare
@@ -366,6 +348,7 @@ namespace cse491_team8 {
             if (agent.GetProperty<int>("Health") <= 0)
             {
                 won = false;
+                // run_over = true;
             }
         }
 
@@ -375,44 +358,28 @@ namespace cse491_team8 {
                 "Enemy Strength: " + std::to_string(other_agent.GetProperty<int>("Strength")));
 
         std::string other_agent_name = other_agent.GetName();
+        DataCollection::DataManager::GetInstance().GetAgentInteractionCollector().RecordInteraction(other_agent_name);
 
         if (!won) {
           if (run)
           {
             agent.Notify("You ran away, this means you don't gain health or strength and any battle damage stays!\n");
           }
-          if (agent.GetName() == "Interface" && agent.GetProperty<int>("Health") <= 0)
+          std::cout << agent.GetName()  << ": " <<  agent.GetProperty<int>("Health") << std::endl;
+          if (agent.IsInterface() && agent.GetProperty<int>("Health") <= 0)
           {
             agent.Notify(other_agent_name + " has beat " + agent.GetName() + "\nYou Lost...\n");
-            while (true)
-            {
-              agent.Notify("Would You Like To Continue? Y or N? ");
-              char repeat_input;
-              std::cin >> repeat_input;
-              if (repeat_input == 'N' || repeat_input == 'n')
-              {
-                run_over = true;
-                break;
-              }
-              else if (repeat_input == 'Y' || repeat_input == 'y')
-              {
-                DropItems(agent, agent);
 
-                agent.SetProperty<int>("Health", 100);
-                agent.SetProperty<int>("Direction", 0);
-                
-                agent.SetProperty<bool>("Battling", false);
-                other_agent.SetProperty<bool>("Battling", false);
+            DropItems(agent, agent);
 
-                agent.SetPosition(40, 3);
-                break;
-              }
-              else
-              {
-                agent.Notify("Invalid Input!\n");
-                continue;
-              }
-            }
+            agent.SetProperty<int>("Health", 100);
+            agent.SetProperty<int>("Direction", 0);
+
+            agent.SetProperty<bool>("Battling", false);
+            other_agent.SetProperty<bool>("Battling", false);
+
+            agent.SetPosition(80, 63);
+            agent.Notify("You Have died and dropped all your items");
           }
         }
         else
@@ -421,37 +388,39 @@ namespace cse491_team8 {
           agent.SetProperty<bool>("Battling", false);
           other_agent.SetProperty<bool>("Battling", false);
           DropItems(agent, other_agent);
-          other_agent.SetProperty<bool>("Deleted", true);
+          other_agent.SetProperty<bool>("deleted", true);
         }
     }
 
     /// @brief Looks for adjacencies
     void UpdateWorld() override
     {
-      
+
     }
 
-    /// Runs agents, updates the world.
+    /// @brief Runs agents, updates the world.
     void Run() override
     {
       run_over = false;
       while (!run_over) {
         RunAgents();
+        CollectData();
         UpdateWorld();
       }
     }
 
-      void RunAgents() override {
-        for (auto & [id, agent_ptr] : agent_map) {
-          if (agent_ptr->HasProperty("Deleted")) {
-            continue;
-          }
-          size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
-          agent_ptr->storeActionMap(agent_ptr->GetName());
-          int result = DoAction(*agent_ptr, action_id);
-          agent_ptr->SetActionResult(result);
+    /// @brief Step through each agent giving them a chance to take an action.
+    void RunAgents() override {
+      for (auto & [id, agent_ptr] : agent_map) {
+        if (agent_ptr->HasProperty("deleted")) {
+          continue;
         }
+        size_t action_id = agent_ptr->SelectAction(main_grid, type_options, item_map, agent_map);
+        agent_ptr->storeActionMap(agent_ptr->GetName());
+        int result = DoAction(*agent_ptr, action_id);
+        agent_ptr->SetActionResult(result);
       }
+    }
 
     /// @brief Attempt to pick up an item for the agent.
     /// @param agent The agent that is picking up the item.
@@ -478,12 +447,13 @@ namespace cse491_team8 {
             }
           }
 
+          DataCollection::DataManager::GetInstance().GetItemUseCollector().IncrementItemUsage(item_ptr->GetName());
           agent.Notify("Picked up the " + item_ptr->GetName() + "!\nYou gained " +
                         std::to_string(item_ptr->GetProperty<int>(uses_property)) + " " +
                         uses_property + "!\n");
 
           // remove it from the board
-          item_ptr->SetOwner(agent);
+          agent.AddItem(item_ptr->GetID());
           break;
         }
       }
@@ -500,10 +470,6 @@ namespace cse491_team8 {
         char move = ' ';
 
         bool battling = agent.GetProperty<bool>("Battling");
-        if (battling)
-        {
-            agent.Notify("You are in a battle! Use Y and choose battling moves!");
-        }
         // Update Direction property and get new position.
         switch (action_id) {
         case REMAIN_STILL:
@@ -611,7 +577,6 @@ namespace cse491_team8 {
             else
             {
                 HealAction(agent);
-                agent.Notify("You have healed!\nYour health is now: " + std::to_string(agent.GetProperty<int>("Health")));
             }
             break;
         }
@@ -624,11 +589,11 @@ namespace cse491_team8 {
             }
             new_position = agent.GetPosition();
             agent.SetProperty<bool>("Battling", false);
-            
+
             auto agents = FindAgentsNear(agent.GetPosition(), 1);
             for (auto agent_id : agents)
             {
-                if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
+                if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("deleted"))
                 {
                     agent.Notify("You are running away");
                     agent_map[agent_id]->SetProperty<bool>("Battling", false);
@@ -662,11 +627,15 @@ namespace cse491_team8 {
 
       if (move != ' ')
       {
+          if (agent.GetProperty<bool>("Battling") == false)
+          {
+              agent.Notify("You are in a battle! Use Y and choose battling moves!");
+          }
           auto agents = FindAgentsNear(agent.GetPosition(), 1);
           for (auto agent_id : agents)
           {
               // Battle other agent near the player
-              if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("Deleted"))
+              if (!agent_map[agent_id]->IsInterface() && !agent_map[agent_id]->HasProperty("deleted"))
               {
                   agent.SetProperty<bool>("Battling", true);
                   agent_map[agent_id]->SetProperty<bool>("Battling", true);
@@ -679,7 +648,7 @@ namespace cse491_team8 {
 
       // assume new position is valid
       return new_position;
-    
+
     }
 
     /// @brief Check if an agent owns an item
@@ -710,11 +679,12 @@ namespace cse491_team8 {
         {
           agent.Notify("You have used your Axe to chop down this tree. You have " +
                         std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
-          
+
           // decrement uses by 1, change the tree to grass
           item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
           if (item_map[item_id]->GetProperty<int>("Uses") == 0)
           {
+            agent.RemoveItem(item_id);
             RemoveItem(item_id);
           }
           main_grid[new_position] = grass_id;
@@ -730,13 +700,14 @@ namespace cse491_team8 {
         size_t item_id = FindItem(agent, "Boat");
         if (item_id != SIZE_MAX)
         {
-            agent.Notify("You have used your Boat to float on the water. You have " + 
+            agent.Notify("You have used your Boat to float on the water. You have " +
                           std::to_string(item_map[item_id]->GetProperty<int>("Uses") - 1) + " uses remaining");
-            
+
             // decrement uses by 1
             item_map[item_id]->SetProperty("Uses", item_map[item_id]->GetProperty<int>("Uses") - 1);
             if (item_map[item_id]->GetProperty<int>("Uses") == 0)
             {
+                agent.RemoveItem(item_id);
                 RemoveItem(item_id);
             }
             return true;
@@ -744,9 +715,13 @@ namespace cse491_team8 {
         return false;
     }
 
-    /// Allow the agents to move around the maze.
+    /// @brief Central function for an agent to take any action
+    /// @param agent The specific agent taking the action
+    /// @param action The id of the action to take
+    /// @return The result of this action (usually 0/1 to indicate success)
+    /// @note Thus function must be overridden in any derived world.
     int DoAction(cse491::AgentBase & agent, size_t action_id) override {
-      
+
       cse491::GridPosition new_position = DoActionFindNewPosition(agent, action_id);
 
       // Don't let the agent move off the world or into a wall.
@@ -834,6 +809,13 @@ namespace cse491_team8 {
       return true;
     }
 
+    /// @brief Determine if this tile can be walked on, defaults to every tile is walkable
+    /// @param pos The grid position we are checking
+    /// @return If an agent should be allowed on this square
+    [[nodiscard]] bool IsTraversable(const cse491::AgentBase & /*agent*/, cse491::GridPosition pos) const override {
+      return main_grid.At(pos) == grass_id;
+    }
+
   };
 
-} // End of namespace cse491
+} // End of namespace cse491_team8

@@ -8,6 +8,7 @@
 
 
 #include "CGPAgent.hpp"
+#include "LGPAgent.hpp"
 
 #include <thread>
 #include <iostream>
@@ -21,7 +22,7 @@
 
 
 #include "tinyxml2.h"
-
+#include "GPAgentAnalyze.h"
 
 
 namespace cowboys {
@@ -36,6 +37,7 @@ namespace cowboys {
         std::vector<std::vector<cowboys::GPAgentBase *>> agents;
         std::vector<std::vector<double>> TEMPAgentFitness;
 
+        GPAgentAnalyzer analyzer;
 
         tinyxml2::XMLDocument topAgentsDoc;
         tinyxml2::XMLDocument lastGenerationsTopAgentsDoc; // <- Saves the last 5 generations
@@ -75,18 +77,25 @@ namespace cowboys {
         std::vector<std::vector<std::vector<cse491::GridPosition>>> endPositions = std::vector<std::vector<std::vector<cse491::GridPosition>>>();
         std::vector<std::vector<std::vector<double>>> independentAgentFitness = std::vector<std::vector<std::vector<double>>>();
 
+        int global_max_threads = std::thread::hardware_concurrency();
+        int rollingRandomSeed = 0;
+
+        double ELITE_POPULATION_PERCENT = 0.1;
+        double UNFIT_POPULATION_PERCENT = 0.2;
+
     public:
+        bool ScavengerQueuing = false;
 
         /**
          * @brief: constructor
          */
-        GPTrainingLoop() {
+        GPTrainingLoop(const bool scavengerQueuing = false) : ScavengerQueuing(scavengerQueuing) {
 
           topAgentsDoc.InsertFirstChild(rootTopAllGenerations);
 
           rootMetaData = metaData.NewElement("GPLoopMetaData");
           metaData.InsertFirstChild(rootMetaData);
-
+          srand(TRAINING_SEED);
           ResetMainTagLastGenerations();
         }
 
@@ -146,17 +155,112 @@ namespace cowboys {
 
           }
 
+          loadLastGeneration();
+
           Printgrid(STARTPOSITIONS);
 
 
           const size_t numAgents = numArenas * NumAgentsForArena;
 
           std::stringstream ss;
-          ss.imbue(std::locale(""));
+          // ss.imbue(std::locale(""));
           ss << std::fixed << numAgents;
 
           std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
 
+        }
+
+
+        void loadLastGeneration() {
+          if (ScavengerQueuing)
+          {
+
+            auto lastFile = FullLoadGrabLatestGeneration();
+
+            if (lastFile == "NOTTAFILE")
+            {
+              std::cout << "No last file found" << std::endl;
+              return;
+            }
+
+            allOfLastGeneration.LoadFile(lastFile.string().c_str());
+            rootAllOfLastGeneration = allOfLastGeneration.FirstChildElement("GPLoopAllOfLastGeneration");
+
+            std::cout << "Loaded last file" << std::endl;
+
+//            if (auto agentType = dynamic_cast<CGPAgent *>(&agents[0][0])) {
+//              std::cout << "Agent Type is CGPAgent" << std::endl;
+//              agentType->Import(lastFile.string());
+//            }
+//            else if (auto agentType = dynamic_cast<LGPAgent *>(&agents[0][0])) {
+//              std::cout << "Agent Type is LGPAgent" << std::endl;
+//              agentType->Import(lastFile.string());
+//            }
+//            else {
+//              std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
+//            }
+//              use typetraits to check the type of the agent
+            if (std::is_same<AgentType, CGPAgent>::value) {
+              std::cout << "Agent Type is CGPAgent" << std::endl;
+            }
+            else if (std::is_same<AgentType, LGPAgent>::value) {
+              std::cout << "Agent Type is LGPAgent" << std::endl;
+              assert(false); //TODO: Agent not implemented for import
+            }
+            else {
+              std::cout << "Agent Type is not CGPAgent or LGPAgent" << std::endl;
+            }
+
+
+            auto *latestGenerationElem = rootAllOfLastGeneration->FirstChildElement();
+            std::cout << latestGenerationElem->Name() << std::endl;
+            auto *agentElem = latestGenerationElem->FirstChildElement();
+            tinyxml2::XMLElement* generationElem = nullptr;
+
+            std::cout << agentElem->Name() << std::endl;
+            size_t numArenas = agents.size();
+            size_t NumAgentsForArena = agents.at(0).size();
+            for (size_t i = 0; i < numArenas; ++i) {
+              for (size_t j = 0; j < NumAgentsForArena; ++j) {
+
+                generationElem = agentElem->FirstChildElement();
+                const char *genotypeData = generationElem->GetText();
+                agents.at(i).at(j)->Import(genotypeData);
+                agentElem = agentElem->NextSiblingElement();
+              }
+            }
+
+            std::cout << "Agents LoadComplete" << std::endl;
+
+          }
+        }
+
+        std::filesystem::path FullLoadGrabLatestGeneration() {
+          std::filesystem::path normalizedAbsolutePath = getSystemPath();
+
+          std::string lastGenerationsPrefix = "allAgentData_";
+          std::string lastGenerationsFilenameExtension = ".xml";
+
+          std::vector<std::filesystem::path> matchingFiles;
+          for (const auto & entry : std::filesystem::directory_iterator(normalizedAbsolutePath))
+          {
+            if (entry.path().extension() == lastGenerationsFilenameExtension && entry.path().filename().string().find(lastGenerationsPrefix) != std::string::npos)
+            {
+              matchingFiles.push_back(entry.path());
+            }
+          }
+          std::sort(matchingFiles.begin(), matchingFiles.end());
+
+          if (matchingFiles.empty())
+          {
+            return "NOTTAFILE";
+          }
+
+          std::filesystem::path lastFile = matchingFiles.back();
+
+          std::cout << "Last File: " << lastFile << std::endl;
+
+          return lastFile;
         }
 
 
@@ -180,15 +284,32 @@ namespace cowboys {
 
           // Agent complexity, temporarily doing this in a bad way
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)) {
-            auto genotype = cgp->GetGenotype();
-            double connection_complexity =
-                    static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
+            fitness -= cgp->GetComplexity();
+          }
 
-            double functional_nodes = genotype.GetNumFunctionalNodes();
-            double node_complexity = functional_nodes / (functional_nodes + 1);
+          return fitness;
+        }
 
-            double complexity = connection_complexity + node_complexity;
-            fitness -= complexity;
+//        STARTPOSITIONS[startPos_idx], agents[arena][a]->GetPosition(), arena, a
+        double AStarFitnessFunction(const cse491::GridPosition  & startpos, const cse491::GridPosition & endpos, int arena, int a)
+        {
+          double fitness = 0;
+
+          // Euclidean distance
+          cse491::GridPosition currentPosition = endpos;
+          double distance = static_cast<double>(
+                  Get_A_StarDistance(startpos, currentPosition, arena, a)
+                  );
+
+
+          double score = distance;
+
+          fitness += score;
+
+          cse491::AgentBase &agent = *agents[arena][a];
+          // Agent complexity, temporarily doing this in a bad way
+          if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)){
+            fitness -= cgp->GetComplexity();
           }
 
           return fitness;
@@ -234,6 +355,8 @@ namespace cowboys {
           size_t threadsComplete = 0;
 
 
+
+
           for (size_t arena = 0; arena < environments.size(); ++arena) {
             if (maxThreads == 0 || threads.size() < maxThreads) {
               threads.emplace_back(&GPTrainingLoop::RunArena, this, arena, numberOfTurns);
@@ -274,6 +397,8 @@ namespace cowboys {
 
         }
 
+
+
         /**
          * @brief: runs the Genetic Programming training loop for a number of generations to evolve the agents
          *
@@ -287,15 +412,50 @@ namespace cowboys {
 
           auto startTime = std::chrono::high_resolution_clock::now();
 
+          global_max_threads = maxThreads;
+
+
           SaveDataParams saveDataParams(0);
           saveDataParams.save = saveData;
           saveDataParams.saveMetaData = true;
-//          saveDataParams.saveAllAgentData = true;
+          saveDataParams.saveAllAgentData = true;
 //
 //          saveDataParams.saveTopAgents = true;
 //          saveDataParams.saveLastGenerations = true;
 
-          for (size_t generation = 0; generation < numGenerations; ++generation) {
+
+
+//          check to see if meta data exists
+          std::filesystem::path normalizedAbsolutePath = getSystemPath();
+          std::string metaDataFilename = "metaData.xml";
+//          check to see if the file exists
+          std::filesystem::path metaDataFullPath = normalizedAbsolutePath / metaDataFilename;
+
+
+          size_t generation = 0; // <- the generation to start at
+
+          if (std::filesystem::exists(metaDataFullPath) && ScavengerQueuing) {
+            std::cout << "MetaData file exists" << std::endl;
+            metaData.LoadFile(metaDataFullPath.string().c_str());
+            rootMetaData = metaData.FirstChildElement("GPLoopMetaData");
+            auto *generationTag = rootMetaData->FirstChildElement();
+            generation = generationTag->UnsignedAttribute("generation") + 1;
+            rollingRandomSeed = generationTag->UnsignedAttribute("randSeed");
+            std::cout << "Starting at generation " << generation << std::endl;
+
+          } else {
+            if (ScavengerQueuing)
+            {
+              std::cout << "MetaData file does not exist Starting a new Scavenger Queue" << std::endl;
+            }
+            rollingRandomSeed = TRAINING_SEED;
+            rootMetaData = metaData.NewElement("GPLoopMetaData");
+            metaData.InsertFirstChild(rootMetaData);
+          }
+
+          for (; generation < numGenerations; ++generation) {
+            srand(rollingRandomSeed);
+            rollingRandomSeed = rand();
 
             auto generationStartTime = std::chrono::high_resolution_clock::now();
             saveDataParams.updateGeneration(generation);
@@ -313,6 +473,7 @@ namespace cowboys {
             saveDataParams.countMaxAgents = countMaxAgents;
             SaveDataCheckPoint(saveDataParams);
 
+
             GpLoopMutateHelper();
             resetEnvironments();
 
@@ -321,6 +482,7 @@ namespace cowboys {
                     generationEndTime - generationStartTime);
             std::cout << "Generation " << generation << " took " << generationDuration.count() / 1000000.0 << " seconds"
                       << std::endl;
+          analyzer.saveToFile();
 
           }
 
@@ -423,6 +585,7 @@ namespace cowboys {
 
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
+//            analyzer.saveToFile(getSystemPath() / "fitness.csv");
           lastGenerationsTopAgentsDoc.Clear();
           ResetMainTagLastGenerations();
         }
@@ -440,6 +603,15 @@ namespace cowboys {
           return ss.str();
         }
 
+        size_t Get_A_StarDistance(const cse491::GridPosition & startpos, const cse491::GridPosition & endpos, int arenaIDX, int agentIDX) {
+          auto& agent = agents[arenaIDX][agentIDX];
+          auto& world = environments[arenaIDX];
+
+
+          auto distance = walle::GetShortestPath(startpos, endpos, *world, *agent).size() - 1;
+          assert(distance >= 0);
+          return distance;
+        }
 
 
         /**
@@ -480,15 +652,22 @@ namespace cowboys {
 
           std::cout << "Generation " << generation << " complete" << std::endl;
           std::cout << "Average fitness: " << averageFitness << " ";
+          analyzer.addAverageFitness(averageFitness);
+
           std::cout << "Max fitness: " << maxFitness << std::endl;
+          analyzer.addMaxFitness(maxFitness);
 
-          const char *tagName = ("generation_" + std::to_string(generation)).c_str();
 
-          auto *generationTag = metaData.NewElement(tagName);
+
+          std::string tagName = "generation_" + std::to_string(generation);
+          auto *generationTag = metaData.NewElement(tagName.c_str());
+          generationTag->SetAttribute("generation", generation);
 
           generationTag->SetAttribute("averageFitness", averageFitness);
           generationTag->SetAttribute("maxFitness", maxFitness);
           generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
+
+          generationTag->SetAttribute("Rand", rollingRandomSeed);
 
           rootMetaData->InsertFirstChild(generationTag);
 
@@ -501,6 +680,11 @@ namespace cowboys {
 
           Printgrid(endPositions[bestAgent.first][bestAgent.second], 'A');
 
+          auto& agent = agents[bestAgent.first][bestAgent.second];
+          auto& startPosition = STARTPOSITIONS;
+          auto& endPosition = endPositions[bestAgent.first][bestAgent.second];
+
+          auto& world = environments[bestAgent.first];
 
 
           auto calculateDistance = [](const cse491::GridPosition& startPosition, const cse491::GridPosition & currentPosition) {
@@ -512,25 +696,33 @@ namespace cowboys {
 
           std::cout << std::left << std::setw(columnWidth) << "Start"
                     << std::setw(columnWidth) << "Final"
-                    << "Distance\n";
+                  << std::setw(columnWidth) << "Distance"
+                  << "A* Distance\n";
           for (size_t i = 0; i < STARTPOSITIONS.size(); ++i) {
             std::cout << std::setw(columnWidth) << FormatPosition(STARTPOSITIONS[i])
                       << std::setw(columnWidth) << FormatPosition(endPositions[bestAgent.first][bestAgent.second][i]);
 
 
-              double distance = calculateDistance(STARTPOSITIONS[i], endPositions[bestAgent.first][bestAgent.second][i]);
-              std::cout << std::fixed << std::setprecision(2) << std::setw(6) << distance;
+            // Calculate and print Euclidean distance
+            double distance = calculateDistance(STARTPOSITIONS[i], endPositions[bestAgent.first][bestAgent.second][i]);
+            std::cout << std::fixed << std::setprecision(2) << std::setw(12) << distance;
+
+
+            // Calculate and print A* distance
+            size_t astarDistance = Get_A_StarDistance(startPosition[i], endPosition[i], bestAgent.first, bestAgent.second);
+            std::cout << std::setw(12) << astarDistance;
 
 
             std::cout << std::endl;
           }
 
-          std::cout << "with an average score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
+          std::cout << "with best agent weighted score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
           std::cout << std::endl;
-
+          analyzer.addAverageScore(TEMPAgentFitness[bestAgent.first][bestAgent.second]);
 
           std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
           std::cout << "------------------------------------------------------------------" << std::endl;
+          analyzer.addNumAgentsWithMaxFitness(countMaxAgents);
           return countMaxAgents;
         }
 
@@ -573,15 +765,15 @@ namespace cowboys {
         void SerializeAgents(int generation, tinyxml2::XMLElement *rootElement, tinyxml2::XMLDocument &paramDocument,
                              size_t topN = 5) {
 
-          const char *tagName = ("generation_" + std::to_string(generation)).c_str();
+          std::string tagName = "generation_" + std::to_string(generation);
+          auto *generationTag = paramDocument.NewElement(tagName.c_str());
 
-          auto *generationTag = paramDocument.NewElement(tagName);
 
           rootElement->InsertFirstChild(generationTag);
 
           for (size_t i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->Serialize(paramDocument, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
+            agents[arenaIDX][agentIDX]->SerializeGP(paramDocument, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
           }
 
 
@@ -653,8 +845,8 @@ namespace cowboys {
          */
         void GpLoopMutateHelper() {
 
-          constexpr double ELITE_POPULATION_PERCENT = 0.1;
-          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
+//          constexpr double ELITE_POPULATION_PERCENT = 0.1;
+//          constexpr double UNFIT_POPULATION_PERCENT = 0.2;
 
 
           const int ELITE_POPULATION_SIZE = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
@@ -668,13 +860,14 @@ namespace cowboys {
           averageEliteFitness /= ELITE_POPULATION_SIZE;
 
           std::cout << " --- average elite score " << averageEliteFitness << "------ " << std::endl;
-
+          analyzer.addEliteScore(averageEliteFitness);
 
           const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * (1 - UNFIT_POPULATION_PERCENT));
           const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
 
           // Determine the number of threads to use
-          const int num_threads = std::thread::hardware_concurrency();
+          const int num_threads = global_max_threads;
+//          const int num_threads = std::min(static_cast<int>(std::thread::hardware_concurrency()), global_max_threads);
 
           std::vector<std::thread> threads;
 
@@ -831,6 +1024,9 @@ namespace cowboys {
         void RunArena(size_t arena, size_t numberOfTurns) {
           for (size_t startPos_idx = 0; startPos_idx < STARTPOSITIONS.size(); ++startPos_idx) {
             for(size_t a = 0; a < agents[arena].size(); ++a) {
+              // Reset the agent before each run
+              agents[arena][a]->Reset();
+              // Set the starting position
               agents[arena][a]->SetPosition(STARTPOSITIONS[startPos_idx]);
             }
 
@@ -839,7 +1035,8 @@ namespace cowboys {
               environments[arena]->UpdateWorld();
             }
             for (size_t a = 0; a < agents[arena].size(); ++a) {
-              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[startPos_idx]);
+//              double tempscore = SimpleFitnessFunction(*agents[arena][a], STARTPOSITIONS[startPos_idx]);
+              double tempscore = AStarFitnessFunction(STARTPOSITIONS[startPos_idx], agents[arena][a]->GetPosition(), arena, a);
               auto tempEndPosition = agents[arena][a]->GetPosition();
               endPositions[arena][a][startPos_idx] = tempEndPosition;
               independentAgentFitness[arena][a][startPos_idx] = tempscore;
@@ -863,9 +1060,10 @@ namespace cowboys {
 //            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
 //            TEMPAgentFitness[arena][a] += computeMedian();
               double min = *std::min_element(scores.begin(), scores.end());
-              double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
-//              TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
-              TEMPAgentFitness[arena][a] = min;
+            [[maybe_unused]] double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
+            //  TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
+              // TEMPAgentFitness[arena][a] = min;
+              TEMPAgentFitness[arena][a] = avg;
           }
 
         }

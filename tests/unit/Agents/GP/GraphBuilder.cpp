@@ -50,7 +50,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
     size_t iterations = 100;
     for (size_t i = 0; i < iterations; ++i) {
       CGPGenotype genotype({INPUT_SIZE, NUM_OUTPUTS, NUM_LAYERS, NUM_NODES_PER_LAYER, LAYERS_BACK});
-      genotype.SetSeed(i).MutateDefault(1, mock_agent, NODE_FUNCTION_SET.size());
+      genotype.MutateDefault(1, mock_agent, NODE_FUNCTION_SET.size());
       auto graph = builder.CartesianGraph(genotype, NODE_FUNCTION_SET);
       auto new_action = graph->MakeDecision(inputs, actions);
       choose_same_action = choose_same_action && (new_action == action);
@@ -75,7 +75,7 @@ TEST_CASE("Cartesian Graph", "[group7][graph][cartesian]") {
     size_t iterations = 100;
     for (size_t i = 0; i < iterations; ++i) {
       auto copy = base;
-      copy.SetSeed(i).MutateHeader(1, mock_agent);
+      copy.MutateHeader(1, mock_agent);
       CHECK_FALSE(copy == base);
       auto expanded_graph = builder.CartesianGraph(copy, NODE_FUNCTION_SET);
       auto new_action = expanded_graph->MakeDecision(inputs, actions);
