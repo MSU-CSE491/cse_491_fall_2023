@@ -1,6 +1,12 @@
 # Filename should match the application's, just swapping .cpp with .cmake
 # Example: The CMake file for my_main.cpp would be my_main.cmake in the same directory
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
+
+if (CMAKE_BUILD_TYPE STREQUAL  "")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
+endif()
+
 # Here, add one .cpp per line. Only the strings should
 add_source_to_target(${EXE_NAME} "source/Interfaces/MainInterface.cpp")
 add_source_to_target(${EXE_NAME} "source/Interfaces/TextureHolder.cpp")
