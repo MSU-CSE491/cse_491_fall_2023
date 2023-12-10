@@ -16,8 +16,12 @@
 #pragma once
 
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <map>
+#include <sstream>
 #include <string>
+#include <unordered_map>
 
 /**
  * @author @amantham20
@@ -38,6 +42,18 @@
 #endif
 
 namespace cse491 {
+
+// Type trait to determine if we are working with a vector.
+template <typename T> struct is_vector : std::false_type {};
+template <typename T> struct is_vector<std::vector<T>> : std::true_type {};
+
+// Type trait to determine if we are working with any type of map.
+template <typename T>
+struct is_any_map : std::false_type {};
+template <typename KEY_T, typename VALUE_T>
+struct is_any_map<std::map<KEY_T, VALUE_T>> : std::true_type {};
+template <typename KEY_T, typename VALUE_T>
+struct is_any_map<std::unordered_map<KEY_T, VALUE_T>> : std::true_type {};
 
 /// @class WorldGrid
 /// @brief A common interface class for core objects that sets up required functionality.
@@ -102,8 +118,128 @@ protected:
     return true;
   }
 
+  /// @brief Helper function to serialize a single member variable.
+  /// @param os Output stream to write to.
+  /// @param var Variable to serialize.
+  template <typename T>
+  void SerializeValue(std::ostream & os, const T & var) const {
+    if constexpr (std::is_enum<T>()) {
+      os << static_cast<int>(var) << std::endl;
+    } else if constexpr (is_vector<T>()) {
+      SerializeValue_Vector(os, var);
+    } else if constexpr (is_any_map<T>()) {
+      SerializeValue_Map(os, var);
+    } else {
+      os << var << '\n';
+    }
+  }
+
+  /// @brief Helper specialty function to serialize a vector-based member variable.
+  /// @param os Output stream to write to.
+  /// @param var Variable to serialize.
+  template <typename T>
+  void SerializeValue_Vector(std::ostream & os, const std::vector<T> & var) const {
+    SerializeValue(os, var.size());
+    for (const auto & x : var) {
+      SerializeValue(os, x);
+    }
+  }
+
+  /// @brief Helper specialty function to serialize a unordered_map member variable.
+  /// @param os Output stream to write to.
+  /// @param var Variable to serialize.
+  template <typename T>
+  void SerializeValue_Map(std::ostream & os, const T & var) const {
+    SerializeValue(os, var.size());
+    for (const auto & [key, value] : var) {
+      SerializeValue(os, key);
+      SerializeValue(os, value);
+    }
+  }
+
+  /// @brief Helper function to serialize a single member variable.
+  /// @param os Output stream to write to.
+  /// @param var Variable to deserialize.
+  template <typename T>
+  void DeserializeValue(std::istream & is, T & var) const {
+    static_assert(!std::is_const<T>(), "Cannot deserialize const variables.");
+
+    // If we are loading a string, load it directly.
+    if constexpr (std::is_same<std::decay_t<T>, std::string>()) {
+      std::getline(is, var, '\n');
+    } else if constexpr (is_vector<T>()) {
+      DeserializeValue_Vector(is, var);
+    } else if constexpr (is_any_map<T>()) {
+      DeserializeValue_Map(is, var);
+    } else {
+      // @CAO: This can be streamlined to use only the original is, and based on type.
+      //       For example, "is << var" followed by "is.peek()" to make sure we have a
+      //       newline, and then "is.ignore()" to skip the newline.
+      std::string str;
+      std::getline(is, str, '\n');
+      std::stringstream ss(str);
+      if constexpr (std::is_enum<T>()) { // enums must be converted properly.
+        int enum_val;
+        ss >> enum_val;
+        var = static_cast<T>(enum_val);
+      } else {
+        ss >> var;
+      }
+    }
+  }
+
+  /// @brief Helper function to serialize a member variables from a function
+  /// @param os Output stream to write to.
+  /// @param var Variable to serialize.
+  template <typename T>
+  void DeserializeFunction(std::istream & is, std::function<void(T)> set_fun) const {
+    std::string str;
+    std::getline(is, str, '\n');
+    if constexpr (std::is_same<std::decay_t<T>, std::string>()) {
+      set_fun(str);
+    } else if constexpr (std::is_same<std::decay_t<T>, int>()) {
+      set_fun(stoi(str));
+    } else if constexpr (std::is_same<std::decay_t<T>, double>()) {
+      set_fun(stod(str));
+    } else {
+      T var;
+      std::stringstream ss(str);
+      ss >> var;
+      set_fun(var);
+    }
+  }
+
+  /// @brief Helper specialty function to deserialize a vector-based member variable.
+  /// @param os Input stream to read from.
+  /// @param var Variable to deserialize.
+  template <typename T>
+  void DeserializeValue_Vector(std::istream & is, std::vector<T> & var) const {
+    DeserializeFunction<size_t>(is, [&var](size_t in_size){ var.resize(in_size); } );
+    for (auto & x : var) {
+      DeserializeValue(is, x);
+    }
+  }
+
+  /// @brief Helper specialty function to deserialize a unordered_map member variable.
+  /// @param is Input stream to read from.
+  /// @param var Variable to deserialize.
+  template <typename MAP_T>
+  void DeserializeValue_Map(std::istream & is, MAP_T & var) const {
+    size_t map_size = 0;
+    typename MAP_T::key_type key;
+    typename MAP_T::mapped_type value;
+    DeserializeValue(is, map_size);
+    for (size_t i = 0; i < map_size; ++i) {
+      DeserializeValue(is, key);
+      DeserializeValue(is, value);
+      var[key] = value;
+    }
+  }
+
 public:
   virtual ~CoreObject() {}
+
+  auto operator<=>(const CoreObject &) const = default;
 
   /// @brief  Access the derived name for this type.
   /// @return A unique typename, ideally the exact name for this class (with scope)
