@@ -8,11 +8,14 @@
 
 #include <algorithm>
 #include <cassert>
+#include <istream>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "CoreObject.hpp"
 #include "Data.hpp"
 #include "GridPosition.hpp"
 
@@ -20,12 +23,12 @@ namespace cse491 {
 
 class WorldBase;
 
-class Entity {
+class Entity : public CoreObject {
 private:
   WorldBase *world_ptr = nullptr;  ///< Track world this entity is in
 
 protected:
-  const size_t id = 0;    ///< Unique ID for this entity (0 is used for "no ID")
+  size_t id = 0;          ///< Unique ID for this entity (0 is used for "no ID")
   std::string name = "";  ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
 
   size_t grid_id = 0;     ///< Which grid is this entity on?
@@ -38,6 +41,10 @@ protected:
     virtual PropertyType GetType() const = 0;
     virtual std::string GetTypeName() const = 0;
     virtual std::string ToString() const = 0;
+    virtual char ToChar() const = 0;
+    virtual double ToDouble() const = 0;
+    virtual int ToInt() const = 0;
+    virtual GridPosition ToGridPosition() const = 0;
   };
 
   // For the moment, properties can be char, int, double, string, or GridPosition
@@ -72,6 +79,42 @@ protected:
       if constexpr (std::is_same<T, std::string>())  return value;
       if constexpr (std::is_same<T, GridPosition>()) return value.ToString();
       return "unknown";
+    }
+
+    char ToChar() const override {
+      if constexpr (std::is_same<T, char>())         return value;
+      if constexpr (std::is_same<T, int>())          return static_cast<char>(value);
+      if constexpr (std::is_same<T, double>())       return static_cast<char>(value);
+      if constexpr (std::is_same<T, std::string>())  return value.size() ? value[0] : '\0';
+      if constexpr (std::is_same<T, GridPosition>()) return '\0'; // No conversion.
+      return '\0';
+    }
+
+    double ToDouble() const override {
+      if constexpr (std::is_same<T, char>())         return static_cast<double>(value);
+      if constexpr (std::is_same<T, int>())          return static_cast<double>(value);
+      if constexpr (std::is_same<T, double>())       return value;
+      if constexpr (std::is_same<T, std::string>())  return std::stod(value);
+      if constexpr (std::is_same<T, GridPosition>()) return std::nan("nan"); // No conversion.
+      return std::nan("nan");
+    }
+
+    int ToInt() const override {
+      if constexpr (std::is_same<T, char>())         return static_cast<int>(value);
+      if constexpr (std::is_same<T, int>())          return value;
+      if constexpr (std::is_same<T, double>())       return static_cast<int>(value);
+      if constexpr (std::is_same<T, std::string>())  return std::stoi(value);
+      if constexpr (std::is_same<T, GridPosition>()) return 0; // No conversion.
+      return 0;
+    }
+
+    GridPosition ToGridPosition() const override {
+      if constexpr (std::is_same<T, char>())         return GridPosition::Invalid();
+      if constexpr (std::is_same<T, int>())          return GridPosition::Invalid();
+      if constexpr (std::is_same<T, double>())       return GridPosition::Invalid();
+      if constexpr (std::is_same<T, std::string>())  return GridPosition(value);
+      if constexpr (std::is_same<T, GridPosition>()) return value;
+      return GridPosition::Invalid();
     }
   };
 
@@ -189,10 +232,93 @@ public:
   Entity &RemoveItem(size_t id);
   Entity &RemoveItem(Entity &item) { return RemoveItem(item.GetID()); }
 
-  /// @brief Serialize entity (pure virtual)
-  /// @param ostream
-  virtual void Serialize(std::ostream &os) = 0;
+  /// @brief Serialize entity-specific values.
+  /// @param os ostream to write contents to.
+  void Serialize_impl(std::ostream &os) const override {
+    SerializeValue(os, id);
+    SerializeValue(os, name);
+    SerializeValue(os, grid_id);
+    SerializeValue(os, position.GetX());
+    SerializeValue(os, position.GetY());
+    SerializeValue(os, inventory);
+
+    SerializeValue(os, property_map.size());
+    for (const auto & [name, ptr] : property_map) {
+      SerializeValue(os, name);
+      PropertyType type = ptr->GetType();
+      SerializeValue(os, static_cast<int>(type));
+
+      switch (type) {
+        using enum PropertyType;
+      case t_char:
+        SerializeValue(os, ptr->ToChar());
+        break;
+      case t_double:
+        SerializeValue(os, ptr->ToDouble());
+        break;
+      case t_int:
+        SerializeValue(os, ptr->ToInt());
+        break;
+      case t_string:
+        SerializeValue(os, ptr->ToString());
+        break;
+      case t_position:
+        ptr->ToGridPosition().Serialize(os);
+        break;
+      case t_other:
+        assert(false); // Cannot serialize this type...
+      }
+    }
+  }
+
+  /// @brief Serialize entity-specific values.
+  /// @param os ostream to write contents to.
+  void Deserialize_impl(std::istream &is) override {
+    DeserializeValue(is, id);
+    DeserializeValue(is, name);
+    DeserializeValue(is, grid_id);
+    DeserializeFunction<double>(is, [this](double x){ position.SetX(x); });
+    DeserializeFunction<double>(is, [this](double y){ position.SetX(y); });
+    DeserializeValue(is, inventory);
+
+    size_t num_properties = 0;
+    property_map.clear();
+    std::string name;
+    PropertyType type;
+    char val_c; double val_d; int val_i; std::string val_s; GridPosition val_g;
+    DeserializeValue(is, num_properties);
+    for (size_t i = 0; i < num_properties; ++i) {
+      DeserializeValue(is, name);
+      DeserializeValue(is, type);
+      switch (type) {
+        using enum PropertyType;
+      case t_char:
+        DeserializeValue(is, val_c);
+        SetProperty(name, val_c);
+        break;
+      case t_double:
+        DeserializeValue(is, val_d);
+        SetProperty(name, val_d);
+        break;
+      case t_int:
+        DeserializeValue(is, val_i);
+        SetProperty(name, val_i);
+        break;
+      case t_string:
+        DeserializeValue(is, val_s);
+        SetProperty(name, val_s);
+        break;
+      case t_position:
+        val_g.Deserialize(is);
+        SetProperty(name, val_g);
+        break;
+      case t_other:
+        assert(false); // Cannot deserialize this type...
+      }
+    }
+  }
 
   [[nodiscard]] std::vector<size_t> GetInventory() const { return inventory; }
 };
+
 }  // End of namespace cse491
