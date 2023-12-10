@@ -13,6 +13,8 @@
 #include <sstream>  // For std::stringstream
 #include <string>
 
+#include "CoreObject.hpp"
+
 namespace cse491 {
 
 /// @class GridPosition
@@ -20,7 +22,7 @@ namespace cse491 {
 /// This class provides utilities to manage a position in 2D space.
 /// The position is stored as floating-point values (to allow for smooth motion through
 /// a grid), but is easily converted to size_t for grid-cell identification.
-class GridPosition {
+class GridPosition : public CoreObject {
 private:
   double x = 0.0;
   double y = 0.0;
@@ -28,6 +30,7 @@ private:
 public:
   GridPosition() = default;
   GridPosition(double x, double y) : x(x), y(y) {}
+  GridPosition(const std::string & str) { FromString(str); }
   GridPosition(const GridPosition &) = default;
 
   ~GridPosition() = default;
@@ -54,6 +57,9 @@ public:
     y = in_y;
     return *this;
   }
+  GridPosition &SetX(double in) { x = in; return *this; }
+  GridPosition &SetY(double in) { y = in; return *this; }
+  
   GridPosition &Shift(double shift_x, double shift_y) {
     x += shift_x;
     y += shift_y;
@@ -63,9 +69,17 @@ public:
   GridPosition &operator+=(const GridPosition &in) { return Shift(in.x, in.y); }
   GridPosition &operator-=(const GridPosition &in) { return Shift(-in.x, -in.y); }
 
+  /// @brief  Make this grid position invalid, by setting both coords to "not-a-number"
+  /// @return This object.
   GridPosition &MakeInvalid() {
     x = y = std::nan("NAN(0)");
     return *this;
+  }
+
+  // A static function to request an invalid grid position.
+  static const GridPosition & Invalid() {
+    static GridPosition invalid_pos(std::nan("NAN(0)"), std::nan("NAN(0)"));
+    return invalid_pos;
   }
 
   // -- Const Operations --
@@ -139,6 +153,21 @@ public:
     std::stringstream ss(in_str);
     return FromStream(ss); 
   }
+
+
+  // -- CoreObject Operations --
+  std::string GetTypeName_impl() const override { return "cse491::GridPosition"; }
+
+  void Serialize_impl(std::ostream & os) const override {
+    SerializeValue(os, x);
+    SerializeValue(os, y);
+  };
+
+  void Deserialize_impl(std::istream & is) override {
+    DeserializeValue(is, x);
+    DeserializeValue(is, y);
+  };
+
 };
 
 }  // End of namespace cse491
