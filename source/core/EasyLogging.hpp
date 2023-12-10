@@ -293,11 +293,11 @@ class Logger {
 class Logger {
  public:
   template <typename T>
-  Logger &operator<<(const T &value) {
+  Logger &operator<<(const T & /*value*/) {
     return *this;
   }
 
-  Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
+  Logger &operator<<(std::ostream &(* /*manipulator*/)(std::ostream &)) {
     return *this;
   }
 

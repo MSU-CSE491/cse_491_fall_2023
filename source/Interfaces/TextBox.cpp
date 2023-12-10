@@ -61,9 +61,9 @@ void i_2D::TextBox::TypedOn(sf::Event input) {
         int charTyped = static_cast<int>(input.text.unicode);
         if(charTyped < 128){
             if(hasLimit){
-                if(static_cast<int>(mText.str().length()) <= MAX_CHAR){
+                if (mText.str().length() <= MAX_CHAR){
                     InputLogic(charTyped);
-                }else if( static_cast<int>(mText.str().length()) > MAX_CHAR && charTyped == DELETE_KEY){
+                } else if ( mText.str().length() > MAX_CHAR && charTyped == DELETE_KEY){
                     DeleteLastChar();
                 }
             }else{

@@ -26,7 +26,7 @@ namespace i_2D {
         bool isSelected = false; /// Flag for checking text mode
         bool hasLimit = false; /// Flag for checking limit mode
         int limit = 10000; /// The limit of characters allowed
-        const int MAX_CHAR = 60; ///< max character per line in the textbox
+        const size_t MAX_CHAR = 60; ///< max character per line in the textbox
         // Draw the border around the TextBox
         sf::RectangleShape mBorderRect;
 

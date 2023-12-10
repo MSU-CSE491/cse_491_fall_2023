@@ -64,9 +64,9 @@ class GPAgentRegisters {
    * @brief Get the number of registers
    * @return size of the registers
    */
-  int getNumRegisters() { return registers.size(); }
+  size_t getNumRegisters() { return registers.size(); }
 
-  int size() { return registers.size(); }
+  size_t size() { return registers.size(); }
 
   /**
    * @brief Iterator class for GPAgentRegisters

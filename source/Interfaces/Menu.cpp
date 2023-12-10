@@ -59,7 +59,7 @@ namespace i_2D {
      * @param window the main window of the graphic interface
      */
     void Menu::HandleMouseMove(sf::RenderWindow &window) {
-        for (int i = 0; i < mMenuBar.size(); ++i) {
+        for (size_t i = 0; i < mMenuBar.size(); ++i) {
             if (mMenuBar[i]->isMouseOver(window)) {
                 mMenuBar[i]->setBackColor(sf::Color::Magenta);
             } else {
