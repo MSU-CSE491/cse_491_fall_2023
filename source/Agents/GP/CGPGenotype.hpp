@@ -714,12 +714,13 @@ namespace cowboys {
         // Check if everything is correct
         assert(nodes.size() == params.GetFunctionalNodeCount());
         for (size_t i = 1; i < params.num_layers + 1; ++i) {
-          size_t layer_start = (i - 1) * params.num_nodes_per_layer;
+          [[maybe_unused]] size_t layer_start = (i - 1) * params.num_nodes_per_layer;
           size_t layer_size = i == params.num_layers + 1 ? params.num_outputs : params.num_nodes_per_layer;
           size_t valid_layers_back = std::min(params.layers_back, i);
           for (size_t j = 0; j < layer_size; ++j) {
             // Check that the number of connections is correct
-            size_t num_connections = valid_layers_back * params.num_nodes_per_layer;
+            [[maybe_unused]] size_t num_connections =
+              valid_layers_back * params.num_nodes_per_layer;
             if (i <= params.layers_back) {
               num_connections -= params.num_nodes_per_layer;
               num_connections += params.num_inputs;
