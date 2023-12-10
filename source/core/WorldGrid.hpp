@@ -22,7 +22,7 @@ namespace cse491 {
 /// @brief Represents a 2D grid of cells.
 /// This class provides utilities to manage, access, and modify cells within a grid.
 class WorldGrid : public CoreObject {
- protected:
+protected:
   size_t width = 0;           ///< Number of cells in each row of the grid.
   size_t height = 0;          ///< Number of rows of cells in the grid.
   std::vector<size_t> cells;  ///< All cells, grouped by full rows, top to bottom
@@ -59,7 +59,7 @@ class WorldGrid : public CoreObject {
     is.seekg(curr_pos + 1);
   }
 
- public:
+public:
   WorldGrid() = default;
   WorldGrid(size_t width, size_t height, size_t default_type = 0)
       : width(width), height(height), cells(width * height, default_type) {}

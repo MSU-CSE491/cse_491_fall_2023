@@ -28,23 +28,16 @@ enum State  /// States that an agent can be in.
 };
 
 class AgentBase : public Entity {
- protected:
-  size_t grid_id = 0;  ///< Which grid is this agent on?
-
-  /// A map of names to IDs for each available action
-  std::unordered_map<std::string, size_t> action_map;
+protected:
+  std::unordered_map<std::string, size_t> action_map;  ///< Map of names to action ids.
+  int action;             ///< Action that agent is currently performing
   int action_result = 0;  ///< Usually a one (success) or zero (failure).
-
-  int action;  // The action that the agent is currently performing
 
   State agent_state = Healthy;  /// Default value upon initialization
 
- public:
+public:
   AgentBase(size_t id, const std::string &name) : Entity(id, name) {}
   ~AgentBase() = default;  // Already virtual from Entity
-
-  [[nodiscard]] size_t GetGridID() const { return grid_id; }
-  [[nodiscard]] bool IsOnGrid(size_t in_grid_id) const { return grid_id == in_grid_id; }
 
   // -- World Interactions --
 

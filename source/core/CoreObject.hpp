@@ -47,7 +47,7 @@ namespace cse491 {
 /// This class ensures that objects can be serialized (saved), deserialized (restored)
 /// and provides helper functions.
 class CoreObject {
- protected:
+protected:
   // -- Required functionality in all core classes --
   // These functions are core functionality that must be implemented in all derived
   // classes.  They will enable the public interface to behave correctly.
@@ -105,7 +105,7 @@ class CoreObject {
     return true;
   }
 
- public:
+public:
   virtual ~CoreObject() {}
 
   /// @brief  Access the derived name for this type.

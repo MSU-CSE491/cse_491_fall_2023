@@ -15,13 +15,13 @@
 namespace cse491 {
 
 class InterfaceBase : public AgentBase {
- protected:
+protected:
   static void exitCleanup() {
     DataCollection::DataManager::GetInstance().WriteToJson();
     exit(0);
   }
 
- public:
+public:
   InterfaceBase(size_t id, const std::string& name) : AgentBase(id, name) {}
   ~InterfaceBase() = default;  // Already virtual from Entity
 

@@ -16,12 +16,12 @@
 namespace cse491 {
 
 class ItemBase : public Entity {
- protected:
+protected:
   enum OwnerType { NONE = 0, GRID, ITEM, AGENT };
   OwnerType owner_type = OwnerType::NONE;
   size_t owner_id = 0;
 
- public:
+public:
   ItemBase(size_t id, const std::string &name) : Entity(id, name) {}
   ~ItemBase() = default;  // Already virtual from Entity
 

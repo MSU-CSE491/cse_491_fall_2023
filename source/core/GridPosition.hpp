@@ -19,11 +19,11 @@ namespace cse491 {
 /// The position is stored as floating-point values (to allow for smooth motion through
 /// a grid), but is easily converted to size_t for grid-cell identification.
 class GridPosition {
- private:
+private:
   double x = 0.0;
   double y = 0.0;
 
- public:
+public:
   GridPosition() = default;
   GridPosition(double x, double y) : x(x), y(y) {}
   GridPosition(const GridPosition &) = default;
@@ -106,6 +106,11 @@ class GridPosition {
     const double dist1 = x - pos2.x;
     const double dist2 = y - pos2.y;
     return (dist1 * dist1 + dist2 * dist2) <= (max_dist * max_dist);
+  }
+
+  [[nodiscard]] std::string AsString() const {
+    std::stringstream ss;
+    ss << '(' << x << ',' << y << ')';
   }
 };
 

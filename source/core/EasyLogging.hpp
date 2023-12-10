@@ -69,7 +69,7 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
  * the console.
  */
 class Logger {
- public:
+public:
   /**
    * @brief Sets the Team name for the current log
    *
@@ -214,7 +214,7 @@ class Logger {
     return os;
   }
 
- private:
+private:
   /// @brief Current team for that is going to log
   Team currentTeam = Team::NA;
 
@@ -281,7 +281,7 @@ class Logger {
 // #define log Log()
 
 class Logger {
- public:
+public:
   template <typename T>
   Logger &operator<<(const T & /*value*/) {
     return *this;

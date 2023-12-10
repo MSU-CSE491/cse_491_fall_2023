@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A base class for all items or agents that can exist on the grid.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  **/
 
 #pragma once
@@ -21,31 +21,63 @@ namespace cse491 {
 class WorldBase;
 
 class Entity {
- private:
-  WorldBase *world_ptr =
-      nullptr;  ///< Track the world this entity is in (private to protect pointer)
+private:
+  WorldBase *world_ptr = nullptr;  ///< Track world this entity is in
 
- protected:
-  const size_t id = 0;    ///< Unique ID for this entity (zero is use for "no ID")
+protected:
+  const size_t id = 0;    ///< Unique ID for this entity (0 is used for "no ID")
   std::string name = "";  ///< Name for this entity (E.g., "Player 1" or "+2 Sword")
+
+  size_t grid_id = 0;     ///< Which grid is this entity on?
   GridPosition position;  ///< Where on the grid is this entity?
 
-  std::vector<size_t> inventory;
+  std::vector<size_t> inventory; ///< What entity ids are held by this entity?
 
   struct PropertyBase {
     virtual ~PropertyBase() {}
+    virtual PropertyType GetType() const = 0;
+    virtual std::string GetTypeName() const = 0;
+    virtual std::string AsString() const = 0;
   };
 
+  // For the moment, properties can be char, int, double, string, or GridPosition
   template <typename T>
   struct Property : public PropertyBase {
     T value;
     Property(const T &in) : value(in) {}
     Property(T &&in) : value(in) {}
+
+    PropertyType GetType() const override {
+      if constexpr (std::is_same<T, char>())         return PropertyType::t_char;
+      if constexpr (std::is_same<T, int>())          return PropertyType::t_int;
+      if constexpr (std::is_same<T, double>())       return PropertyType::t_double;
+      if constexpr (std::is_same<T, std::string>())  return PropertyType::t_string;
+      if constexpr (std::is_same<T, GridPosition>()) return PropertyType::t_position;
+      return PropertyType::t_other;
+    }
+
+    std::string GetTypeName() const override {
+      if constexpr (std::is_same<T, char>())         return "char";
+      if constexpr (std::is_same<T, int>())          return "int";
+      if constexpr (std::is_same<T, double>())       return "double";
+      if constexpr (std::is_same<T, std::string>())  return "string";
+      if constexpr (std::is_same<T, GridPosition>()) return "GridPosition";
+      return "unknown";
+    }
+
+    std::string AsString() const override {
+      if constexpr (std::is_same<T, char>())         return std::string(1, value);
+      if constexpr (std::is_same<T, int>())          return std::to_string(value);
+      if constexpr (std::is_same<T, double>())       return std::to_string(value);
+      if constexpr (std::is_same<T, std::string>())  return value;
+      if constexpr (std::is_same<T, GridPosition>()) return value.AsString();
+      return "unknown";
+    }
   };
 
   /// Every entity can have a simple set of properties (with values) associated with it.
-  std::unordered_map<std::string, std::unique_ptr<PropertyBase>> property_map;
-  std::unordered_map<std::string, PropertyType> property_type_map;
+  using property_map_t = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
+  property_map_t property_map;
 
   // -- Helper Functions --
 
@@ -58,7 +90,7 @@ class Entity {
     return *property_ptr;
   }
 
- public:
+public:
   Entity(size_t id, const std::string &name) : id(id), name(name) {}
   Entity(const Entity &) = delete;  // Entities must be unique and shouldn't be copied.
   Entity(Entity &&) = default;
@@ -75,6 +107,8 @@ class Entity {
     assert(world_ptr);
     return *world_ptr;
   }
+  [[nodiscard]] size_t GetGridID() const { return grid_id; }
+  [[nodiscard]] bool IsOnGrid(size_t in_grid_id) const { return grid_id == in_grid_id; }
 
   [[nodiscard]] bool HasWorld() const { return world_ptr != nullptr; }
   Entity &SetName(const std::string in_name) {
@@ -107,22 +141,10 @@ class Entity {
     return AsProperty<T>(name).value;
   }
 
-  [[nodiscard]] PropertyType GetPropertyType(const std::string &key) const {
-    return property_type_map.at(key);
-  }
-
-  template <typename T>
-  void SetPropertyType(const std::string &name) {
-    if (std::is_same<T, double>::value)
-      property_type_map[name] = PropertyType::t_double;
-    else if (std::is_same<T, int>::value)
-      property_type_map[name] = PropertyType::t_int;
-    else if (std::is_same<T, char>::value)
-      property_type_map[name] = PropertyType::t_char;
-    else if (std::is_same<T, std::string>::value)
-      property_type_map[name] = PropertyType::t_string;
-    else
-      property_type_map[name] = PropertyType::t_other;
+  [[nodiscard]] PropertyType GetPropertyType(const std::string &name) const {
+    auto it = property_map.find(name);
+    if (it == property_map.end()) return PropertyType::t_other;
+    return it->second->GetType();
   }
 
   /// Change the value of the specified property (will create if needed)
@@ -132,7 +154,6 @@ class Entity {
       AsProperty<T>(name).value = value;
     } else {
       property_map[name] = std::make_unique<Property<T>>(value);
-      SetPropertyType<T>(name);
     }
     return *this;
   }
@@ -149,12 +170,11 @@ class Entity {
   /// Completely remove a property from an Entity.
   Entity &RemoveProperty(const std::string &name) {
     property_map.erase(name);
-    property_type_map.erase(name);
     return *this;
   }
 
   /// return the property map for the entity
-  std::unordered_map<std::string, std::unique_ptr<cse491::Entity::PropertyBase>> &GetProprtyMap() {
+  property_map_t &GetPropertyMap() {
     return property_map;
   }
 

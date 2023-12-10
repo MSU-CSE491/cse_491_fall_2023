@@ -35,7 +35,7 @@ namespace cse491 {
 class DataReceiver;
 
 class WorldBase {
- public:
+public:
   static constexpr size_t npos = static_cast<size_t>(-1);
   netWorth::ServerManager *server_manager = nullptr;  /// Server manager for world if used
   netWorth::ClientManager *client_manager = nullptr;  /// Client manager for world if used
@@ -45,7 +45,7 @@ class WorldBase {
   /// setup.
   virtual void ConfigAgent(AgentBase & /* agent */) const {}
 
- protected:
+protected:
   /// Derived worlds may choose to have more than one grid.
   std::unordered_map<size_t, WorldGrid> grids;
 
@@ -87,7 +87,7 @@ class WorldBase {
     return type_options.size() - 1;
   }
 
- public:
+public:
   /// Initializes world with cell types and random generator
   /// @param seed Seed used for RNG. Use 0 for a non-deterministic result.
   WorldBase(unsigned int seed = 0) : grids(), main_grid(grids[0]), seed(seed) {
