@@ -37,7 +37,7 @@ protected:
     virtual ~PropertyBase() {}
     virtual PropertyType GetType() const = 0;
     virtual std::string GetTypeName() const = 0;
-    virtual std::string AsString() const = 0;
+    virtual std::string ToString() const = 0;
   };
 
   // For the moment, properties can be char, int, double, string, or GridPosition
@@ -65,12 +65,12 @@ protected:
       return "unknown";
     }
 
-    std::string AsString() const override {
+    std::string ToString() const override {
       if constexpr (std::is_same<T, char>())         return std::string(1, value);
       if constexpr (std::is_same<T, int>())          return std::to_string(value);
       if constexpr (std::is_same<T, double>())       return std::to_string(value);
       if constexpr (std::is_same<T, std::string>())  return value;
-      if constexpr (std::is_same<T, GridPosition>()) return value.AsString();
+      if constexpr (std::is_same<T, GridPosition>()) return value.ToString();
       return "unknown";
     }
   };

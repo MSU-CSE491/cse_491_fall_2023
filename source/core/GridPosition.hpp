@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A mechanism of identifying a grid cell, as well as a position within the cell.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  **/
 
 #pragma once
@@ -10,6 +10,8 @@
 #include <cmath>    // For sqrt and std::nan()
 #include <compare>  // For operator<=>
 #include <cstddef>  // For size_t
+#include <sstream>  // For std::stringstream
+#include <string>
 
 namespace cse491 {
 
@@ -42,7 +44,8 @@ public:
   /// Enable all comparison operators (==, !=, <, <=, >, >=)
   auto operator<=>(const GridPosition &) const = default;
 
-  [[nodiscard]] bool IsValid() const { return !(std::isnan(x) || std::isnan(y)); }
+  [[nodiscard]] bool IsInvalid() const { return std::isnan(x) || std::isnan(y); }
+  [[nodiscard]] bool IsValid() const { return !IsInvalid(); }
 
   // -- Modifiers --
 
@@ -108,9 +111,33 @@ public:
     return (dist1 * dist1 + dist2 * dist2) <= (max_dist * max_dist);
   }
 
-  [[nodiscard]] std::string AsString() const {
+  [[nodiscard]] std::string ToString() const {
     std::stringstream ss;
     ss << '(' << x << ',' << y << ')';
+    return ss.str();
+  }
+
+  GridPosition & FromStream(std::istream & ss) {
+    // Format should be "(x,y)" with values filled in.
+    // Any deviation from this format produces an undefined position.
+    char c = '\0';    
+    ss >> c;
+    if (c != '(') return MakeInvalid();
+    ss >> x;
+    ss >> c;
+    if (c != ',') return MakeInvalid();
+    ss >> y;
+    ss >> c;
+    if (c != ')') return MakeInvalid();
+
+    return *this;
+  }
+
+  GridPosition & FromString(std::string in_str) {
+    // Format should be "(x,y)" with values filled in.
+    // Any deviation from this format produces an undefined position.
+    std::stringstream ss(in_str);
+    return FromStream(ss); 
   }
 };
 
