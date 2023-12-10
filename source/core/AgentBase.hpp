@@ -142,19 +142,26 @@ public:
   /// information to an autonomous agent assuming we come up with a standard list of types.
   virtual void Notify(const std::string & /*message*/, const std::string & /*msg_type*/ = "none") {}
 
-  /**
-   * Serialize agent (assume no properties)
-   * @param os ostream
-   */
-  void Serialize(std::ostream &os) override {
-    os << name << '\n';
-    os << id << '\n';
-    os << position.GetX() << '\n';
-    os << position.GetY() << '\n';
-    if (HasProperty("symbol"))
-      os << GetProperty<char>("symbol") << '\n';
-    else
-      os << '*' << std::endl;
+  std::string GetTypeName_impl() const override { return "cse491::AgentBase"; }
+
+  /// @brief Serialize item-specific values and call Entity's Serialize_impl.
+  /// @param os ostream to write contents to.
+  void Serialize_impl(std::ostream &os) const override {
+    Entity::Serialize_impl(os);
+    SerializeValue(os, action_map);
+    SerializeValue(os, action);
+    SerializeValue(os, action_result);
+    SerializeValue(os, agent_state);
+  }
+
+  /// @brief Deserialize item-specific values and call Entity's Deserialize_impl.
+  /// @param is istream to read contents from.
+  void Deserialize_impl(std::istream &is) override {
+    Entity::Deserialize_impl(is);
+    DeserializeValue(is, action_map);
+    DeserializeValue(is, action);
+    DeserializeValue(is, action_result);
+    DeserializeValue(is, agent_state);
   }
 };
 
