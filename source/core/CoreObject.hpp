@@ -1,29 +1,33 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A common interface class for core objects that sets up required functionality.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  *
  * This CoreObject class builds an interface for all of the core object, ensuring that
  * they can be properly serialized.
  *
  * Derived classes must implement:
- *  GetTypeName_impl() - To return the qualified type name.
- *  Serialize_impl() - To store the object in a stream.
- *  Deserialize_impl() - To restore the object from a stream.
+ *  GetTypeName_impl()               - Return the qualified type name.
+ *  Serialize_impl(std::ostream &)   - Store the object in a stream.
+ *  Deserialize_impl(std::istream &) - Restore the object from a stream.
  **/
+
+
+#pragma once
+
+#include <fstream>
+#include <iostream>
+#include <string>
 
 /**
  * @author @amantham20
- * uses as attibute to mark experimental classes and functions
+ * uses as attribute to mark experimental classes and functions
  */
 #ifndef NDEBUG
-
 #define EXPERIMENTAL_FUNCTION __attribute__((annotate("experimental_function")))
-
 #define EXPERIMENTAL_CLASS __attribute__((annotate("experimental_class")))
 
-#else
-
+#else // NDEBUG *not* set, so debug mode.
 #define EXPERIMENTAL_CLASS                       \
   __attribute__((annotate("experimental_class"), \
                  warning("This is an experimental class and should be used with caution.")))
@@ -31,14 +35,7 @@
   __attribute__((annotate("experimental_function"),                        \
                  warning("This is an experimental function and should be " \
                          "used with caution.")))
-
 #endif
-
-#pragma once
-
-#include <fstream>
-#include <iostream>
-#include <string>
 
 namespace cse491 {
 
