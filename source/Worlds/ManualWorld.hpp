@@ -186,7 +186,7 @@ namespace cse491_team8 {
         {
             if (item->IsOwnedBy(agent.GetID()))
             {
-                for (const auto & [name, entity] : item->GetProprtyMap())
+                for (const auto & [name, entity] : item->GetPropertyMap())
                 {
                     if (name == "Uses" || name == "Strength" || name == "Healing")
                     {
@@ -197,7 +197,7 @@ namespace cse491_team8 {
             }
         }
         output += "\nProperties of the player:\n";
-        for (const auto & [name, entity] : agent.GetProprtyMap())
+        for (const auto & [name, entity] : agent.GetPropertyMap())
         {
             if (name == "Strength" || name == "Health" || name == "Max_Health")
             {
