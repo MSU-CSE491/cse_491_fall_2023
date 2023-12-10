@@ -113,7 +113,7 @@ namespace i_2D {
 
         void ChooseTexture();
 
-        bool SetLargeGrid(bool b){ mGridSizeLarge = b; } 
+        void SetLargeGrid(bool b){ mGridSizeLarge = b; } 
 
         void Notify(const std::string & message,
                     const std::string & /*msg_type*/="none") override

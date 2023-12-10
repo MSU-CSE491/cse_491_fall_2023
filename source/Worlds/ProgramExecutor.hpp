@@ -465,7 +465,7 @@ namespace worldlang {
 			} while (!(has<Identifier>(values.back()) 
 					&& static_cast<std::string>(as<Identifier>(values.back())) == "__INTERNAL_ENDARGS"));
 			values.pop_back(); // don't keep that one
-			std::ranges::reverse(values);
+			std::reverse(values.begin(), values.end());
 			return values;
 		}
 		
@@ -657,8 +657,12 @@ namespace worldlang {
 							}
 							// Convert to identifiers specifically
 							std::vector< Identifier > identifiers;
-							std::ranges::transform(identifier_values, std::back_inserter(identifiers), [this](const Value& v){ return as<Identifier>(v); });
-							//ex. a,b,c=1,2,3 becomes the follwoing units
+							std::transform(
+                identifier_values.begin(), identifier_values.end(),
+                std::back_inserter(identifiers),
+                [this](const Value& v){ return as<Identifier>(v); }
+              );
+							//ex. a,b,c=1,2,3 becomes the following units
 							// . a b c . 1 2 3 =
 							// v: 3 2 1
 							// i: c b a

@@ -167,7 +167,7 @@ namespace netWorth
 
 			// receive player input
 			sf::Packet recvPkt;
-			size_t actionID;
+			uint64_t actionID;
 			receivePacket(recvPkt, m_ip, m_port);
 			recvPkt >> actionID;
 

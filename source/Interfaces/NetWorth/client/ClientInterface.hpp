@@ -94,7 +94,7 @@ namespace netWorth{
                             itemMap, agentMap);
 
                 // Send instruction to server
-                sendPkt << actionID;
+                sendPkt << static_cast<uint64_t>(actionID);
 				sendPacket(sendPkt, m_ip.value(), m_port);
 
 				m_manager->clearActionMap();
