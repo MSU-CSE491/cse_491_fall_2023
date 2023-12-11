@@ -9,6 +9,7 @@
 #include "Interfaces/NetWorth/NetworkInterface.hpp"
 #include "Interfaces/TrashInterface.hpp"
 #include "Interfaces/MainInterface.hpp"
+#include "ClientManager.hpp"
 
 namespace netWorth{
     /**
@@ -18,6 +19,7 @@ namespace netWorth{
 
     class ClientInterface : public NetworkingInterface, i_2D::MainInterface {
         private:
+            netWorth::ClientManager *m_manager = nullptr;
 
         protected:
 
@@ -31,33 +33,42 @@ namespace netWorth{
                                                                    NetworkingInterface(id, name),
                                                                    i_2D::MainInterface(id, name) {}
 
-            /**
-             * Establish connection with server, initializing interface
-             * @return True if successful, false if error
-             */
+		/**
+		 * Establish connection with server, initializing interface
+		 * @return True if successful, false if error
+		 */
             bool Initialize() override {
                 // resolve port and IP from entity properties
-                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("ip"));
-                m_port = NetworkingInterface::GetProperty<unsigned short>("port");
+                m_ip = sf::IpAddress::resolve(NetworkingInterface::GetProperty<std::string>("server_ip"));
+                m_port = NetworkingInterface::GetProperty<unsigned short>("server_port");
+                m_manager = GetProperty<netWorth::ClientManager *>("manager");
+				m_manager->setupSocket(&m_socket, m_ip);
+				m_manager->setClientID(id);
 
-                Packet send_pkt, recv_pkt;
-                std::string str;
+                Packet sendPkt, recvPkt,twoPkt;
+                setMInputWaitTime(0.25f);
 
                 // send request message
-                send_pkt << "New client requesting connection.";
-                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
+                sendPkt << "New client requesting connection.";
+                auto ip = m_ip.value();
+                if (!sendPacket(sendPkt, ip, m_port)) return false;
 
                 // receive from server
-                if (!ReceivePacket(recv_pkt, m_ip, m_port)) return false;
-
+                if (!receivePacket(recvPkt, m_ip, m_port)) return false;
                 // print received string (Connection established.)
-                recv_pkt >> str;
-                std::cout << str << std::endl;
+                std::string msg;
+                recvPkt >> msg;
+                std::cout << msg << std::endl;
 
                 // request map to start send/receive loop
-                send_pkt.clear();
-                send_pkt << "Requesting map";
-                if (!SendPacket(send_pkt, m_ip.value(), m_port)) return false;
+                sendPkt.clear();
+                sendPkt << "Requesting start";
+                if (!sendPacket(sendPkt, m_ip.value(), m_port)) return false;
+
+
+                // receive action map from server for previous agents
+				receivePacket(recvPkt, m_ip, m_port);
+				m_manager->packetToActionMap(recvPkt);
 
                 return true;
             }
@@ -65,44 +76,36 @@ namespace netWorth{
             /**
              * Choose action for player agent
              * @param grid the client-side grid
-             * @param type_options different cell types of the world
+             * @param typeOptions different cell types of the world
              * @param item_map the items that may be apart of the grid
              * @param agent_map the agents that may be apart of the grid
              * @return action ID of the interface
              */
             size_t SelectAction(const cse491::WorldGrid & grid,
-                                const cse491::type_options_t & type_options,
-                                const cse491::item_map_t & item_set,
-                                const cse491::agent_map_t & agent_set) override
+                                const cse491::type_options_t & typeOptions,
+                                const cse491::item_map_t & itemMap,
+                                const cse491::agent_map_t & agentMap) override
             {
                 // Receive and draw map
-                sf::Packet send_pkt, recv_pkt;
-                std::string map;
-
-                ReceivePacket(recv_pkt, m_ip, m_port);
-                ProcessPacket(recv_pkt);
+                sf::Packet sendPkt, recvPkt;
 
                 // grab action ID from MainInterface
-              std::uint32_t action_id = i_2D::MainInterface::SelectAction(grid, type_options,
-                                                                     item_set, agent_set);
-                std::cout << action_id << std::endl;
+                size_t actionID = i_2D::MainInterface::SelectAction(grid, typeOptions,
+                            itemMap, agentMap);
 
                 // Send instruction to server
-                send_pkt << action_id;
-                SendPacket(send_pkt, m_ip.value(), m_port);
+                sendPkt << static_cast<uint64_t>(actionID);
+				sendPacket(sendPkt, m_ip.value(), m_port);
+
+				m_manager->clearActionMap();
+                DrawGrid(grid, typeOptions, itemMap, agentMap);
+
+                // await action map from server
+				receivePacket(recvPkt, m_ip, m_port);
+				m_manager->packetToActionMap(recvPkt);
 
                 // Do the action!
-                return action_id;
-            }
-
-            /**
-             * Process packet from server (just print map for now)
-             * @param packet packet from server
-             */
-            void ProcessPacket(Packet packet) override {
-                std::string str;
-                packet >> str;
-                std::cout << str;
+                return actionID;
             }
 
     }; // End of ClientInterface

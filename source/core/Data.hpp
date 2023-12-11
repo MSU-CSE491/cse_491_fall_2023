@@ -38,8 +38,8 @@ namespace cse491 {
       return properties.count(property);
     }
     
-    constexpr static std::string CELL_WALL = "wall";
-    constexpr static std::string CELL_WATER = "water";
+    constexpr static char CELL_WALL[] = "wall";
+    constexpr static char CELL_WATER[] = "water";
   };
 
   /// @brief Available CellTypes will be passed around as a vector of options.
@@ -52,5 +52,11 @@ namespace cse491 {
   class AgentBase;
   /// @brief Maps of agent IDs to agent pointers
   using agent_map_t = std::map<size_t, std::unique_ptr<AgentBase>>;
+
+  /// @brief Common types of properties in network serialization
+  enum class PropertyType {t_double, t_int, t_char, t_string, t_other};
+
+  /// @brief Enum for World types in network serialization
+  enum class WorldType {w_maze, w_second, w_generative, w_manual};
 
 }

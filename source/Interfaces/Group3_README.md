@@ -51,7 +51,136 @@ The function ensures that the user's interactions with the maze application are 
 
 ## <span style="color: aqua;">Description
 
+The `Button` class is responsible for drawing rectangles on the RenderWindow and handling mouse's hover and click events
+
 <details> <summary>Functionalities:</summary>
 
+
 ### <span style="color: orange;"> Button Constructor
+
+Construct the text with the font in the asset folder. Set the text to be displayed by the button and set the properties of the text and rectangleshape by the parameters passed to the constructor.
+
+### <span style="color: orange;"> Setters
+SetString : 
+SetFont : 
+SetButtonSize : 
+SetBackGroundColor : 
+SetTextColor : 
+SetPosition
+
+### <span style="color: orange;"> DrawTo
+
+Draws itself onto the RenderWindow
+
+### <span style="color: orange;"> IsMouseOver
+
+Check mouse position and return true if it's on the button
+
 </details>
+
+
+
+
+
+
+
+
+
+
+# <span style="color: green;">TextureHolder Class</span>
+
+
+## <span style="color: aqua;">Description
+
+The `TextureHolder` class is responsible for creating and storing references to sf::Texture objects. It is given a file, generates an sf::Texture, and readily gives a reference to the generated texture when asked.
+<details> <summary> Functionalities </summary>
+
+###  <span style="color: orange;">LoadTexture Function
+
+The `LoadTexture` function is a part of the `TextureHolder` class and is responsible for generating sf::Textures from a given file path. 
+
+The `LoadTexture` function consists of the following main functionalities:
+- Attempt to generate sf::Texture using given file path
+- Store the generated sf::Texture in a map using the id as a key
+
+The function allows new sf::Textures to be instantiated and stored to the class for future reference calling by id.
+
+
+###  <span style="color: orange;">GetTexture Function
+
+The `GetTexture` function is a part of the `TextureHolder` class and is responsible for getting a reference to the initialized sf::Texture with the matching id. 
+
+The `GetTexture` function performs the following key tasks:
+- Determine if there is a loaded texture with the given id
+- Return the dereferenced sf::Texture that matches the id
+
+The function allows for easy reference to any of the loaded sf::Textures without having to instantiate new ones for each use. 
+
+</details>
+
+# <span style="color: green;">MessageBoard Class</span>
+
+## <span style="color: aqua;">Description
+
+<details> <summary>Functionalities:</summary>
+
+### <span style="color: orange;"> MessageBoard Constructor
+
+The `MessageBoard` class is responsible for managing and displaying messages on the interface entity.
+Parameters: - **font:** The font used by the message board.
+
+### <span style="color: orange;"> DrawTo Method
+
+Draws the message board onto the render window. If the elapsed time since the last message exceeds 10 seconds, the message board will be cleared.
+Parameters:- **window:** The render window to be drawn on.
+
+</details>
+
+# <span style="color: green;">TextBox Class</span>
+
+## <span style="color: aqua;">Description
+
+<details> <summary>Functionalities:</summary>
+
+### <span style="color: orange;"> TextBox Constructor
+
+The `TextBox` class enables the interface entity to send messages to the `MessageBoard` and `World`. It provides functionality for handling text input, setting the string, and drawing the text to the render window.
+
+#### Parameters:
+- **font:** The font used by TextBox.
+- **size:** The size of the text.
+- **color:** The color of the text.
+- **sel:** Set the activity of TextBox.
+
+### <span style="color: orange;"> SetString Method
+
+Sets the string of the text in the TextBox.
+Parameters:- **s:** The string to be set.
+
+### <span style="color: orange;"> SetSelected Method
+
+Setter for isSelected, updates the text displayed in the box based on selection status.
+Parameters:- **sel:** Whether the TextBox is to be set selected or not.
+
+### <span style="color: orange;"> TypedOn Method
+
+TypedOn event handler, processes new text that has been typed into the TextBox.
+Parameters:- **input:** The new text event.
+
+### <span style="color: orange;"> InputLogic Method
+
+Determines what actions to take with different key presses.
+Parameters:- **charTyped:** The character that has just been entered into the TextBox.
+
+### <span style="color: orange;"> DeleteLastChar Method
+
+Removes the last character from the TextBox's current string.
+
+### <span style="color: orange;"> DrawTo Method
+
+Draws the text and border to the render window.
+Parameters:- **window:** The render window to be drawn on.
+
+</details>
+
+

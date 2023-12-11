@@ -16,7 +16,7 @@ function(add_source_to_target TARGET_NAME SOURCE_PATH)
     message(STATUS "Loading source: ${SOURCE_PATH}")
     target_sources(${TARGET_NAME}
             PRIVATE ${CMAKE_SOURCE_DIR}/${SOURCE_PATH}
-            )
+    )
 endfunction()
 
 # Set the necessary C++ flags, some of which are configuration-specific
@@ -59,11 +59,11 @@ if (SANITIZE_MEMORY)
     target_include_directories(gp_train_main
             PRIVATE ${CMAKE_SOURCE_DIR}/source/core
             ${CMAKE_SOURCE_DIR}/source/Agents
-            )
+    )
     target_link_libraries(gp_train_main
             PRIVATE tinyxml2
             PRIVATE pthread
-            )
+    )
 
 
 endif ()
@@ -78,79 +78,37 @@ if (BUILD_GP_ONLY)
     set(BUILD_MAIN 0)
     set(BUILD_TESTS 0)
 
-    # Configure all of tinyxml2
     set(XML_SRC_DIR third_party/tinyxml2)
     set(XML_BUILD_DIR xml_build)
     add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
 
-    #added the executable
-    add_executable(gp_train_main source/gp_train_main.cpp)
+    # List of executables
+    set(EXECUTABLES gp_train_main gp_selective_runner_main gp_train_cgp_main gp_train_lgp_main)
 
-    #linking the targets
-    target_sources(gp_train_main PRIVATE source/core/Entity.cpp)
-    target_include_directories(gp_train_main
-            PRIVATE ${CMAKE_SOURCE_DIR}/source/core
-            ${CMAKE_SOURCE_DIR}/source/Agents
-            )
-    target_link_libraries(gp_train_main
-            PRIVATE tinyxml2
-            PRIVATE pthread
-            )
+    # Common source files and include directories
+    set(COMMON_SOURCES source/core/Entity.cpp)
+    set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/source/core ${CMAKE_SOURCE_DIR}/source/Agents)
+
+    # Common libraries to link with
+    set(COMMON_LIBRARIES tinyxml2 pthread)
+
+    # Loop to configure each executable
+    foreach(EXECUTABLE IN LISTS EXECUTABLES)
+        add_executable(${EXECUTABLE} source/${EXECUTABLE}.cpp)
+        target_sources(${EXECUTABLE} PRIVATE ${COMMON_SOURCES})
+        target_include_directories(${EXECUTABLE} PRIVATE ${COMMON_INCLUDE_DIRS})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIBRARIES})
+    endforeach()
 
 endif ()
 
-
-# Build the main application executables, if requested
-if (${BUILD_MAIN})
-#    line to set santizers
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=[sanitizer]")
-#     can be set to address, undefined, thread, memory, or leak
-
-    # Configure all of SFML
-    set(SFML_SRC_DIR third_party/SFML)
-    set(SFML_BUILD_DIR sfml_build)
-    add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
-
-
-    #configure the xml library
-    set(XML_SRC_DIR third_party/tinyxml2)
-    set(XML_BUILD_DIR xml_build)
-    add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
-
-
-    # Find all the main files for the various applications
-    # Currently this means any *.cpp file in the root of source
-    file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
-    message(STATUS "List of main files to build: ${EXE_SOURCES}")
-
-
-
-    # Loop through each executable and build it!
-    foreach (EXE_SOURCE ${EXE_SOURCES})
-        # Rip the .cpp off the end of the string
-        string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
-        # Create list of source files (currently just the one .cpp file)
-        # Create executable and link to includes / libraries
-        add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
-        target_include_directories(${EXE_NAME}
-                PRIVATE ${CMAKE_SOURCE_DIR}/source
-                )
-        target_link_libraries(${EXE_NAME}
-                PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
-                )
-
-        target_link_libraries(${EXE_NAME}
-                PRIVATE tinyxml2
-                )
-
-        if (EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
-            message(STATUS "Loading ${EXE_NAME}.cmake")
-            include(${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
-        else ()
-            message(WARNING "Cannot find ${EXE_NAME}.cmake")
-        endif ()
-    endforeach ()
-endif ()
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+# Configure json
+set(JSON_SRC_DIR third_party/json)
+set(JSON_BUILD_DIR json_build)
+add_subdirectory(${JSON_SRC_DIR} ${JSON_BUILD_DIR})
 
 # Build the test executables, if requested
 if (${BUILD_TESTS})
@@ -184,4 +142,61 @@ if (${BUILD_TESTS})
 
     # Tunnel into test directory CMake infrastructure
     add_subdirectory(tests)
+endif ()
+
+if (${BUILD_MAIN})
+#    line to set santizers
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=[sanitizer]")
+#     can be set to address, undefined, thread, memory, or leak
+
+# Enable the SFML interface (graphics unavailable for tests on GitHub)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SFML_INTERFACE")
+
+  # Configure all of SFML
+  set(SFML_SRC_DIR third_party/SFML)
+  set(SFML_BUILD_DIR sfml_build)
+  add_subdirectory(${SFML_SRC_DIR} ${SFML_BUILD_DIR})
+
+  # Configure PEGTL
+  set(PEGTL_INCLUDE_DIR third_party/PEGTL/include)
+
+  #configure the xml library
+  set(XML_SRC_DIR third_party/tinyxml2)
+  set(XML_BUILD_DIR xml_build)
+  add_subdirectory(${XML_SRC_DIR} ${XML_BUILD_DIR})
+
+
+  # Find all the main files for the various applications
+  # Currently this means any *.cpp file in the root of source
+  file(GLOB EXE_SOURCES CONFIGURE_DEPENDS RELATIVE ${CMAKE_SOURCE_DIR}/source source/*.cpp)
+  message(STATUS "List of main files to build: ${EXE_SOURCES}")
+
+
+
+  # Loop through each executable and build it!
+  foreach (EXE_SOURCE ${EXE_SOURCES})
+      # Rip the .cpp off the end of the string
+      string(REPLACE ".cpp" "" EXE_NAME ${EXE_SOURCE})
+      # Create list of source files (currently just the one .cpp file)
+      # Create executable and link to includes / libraries
+      add_executable(${EXE_NAME} ${CMAKE_SOURCE_DIR}/source/${EXE_SOURCE} ${CMAKE_SOURCE_DIR}/source/core/Entity.cpp)
+      target_include_directories(${EXE_NAME}
+              PRIVATE ${CMAKE_SOURCE_DIR}/source ${PEGTL_INCLUDE_DIR}
+              )
+      target_link_libraries(${EXE_NAME}
+              PRIVATE sfml-window sfml-audio sfml-graphics sfml-system sfml-network
+    nlohmann_json::nlohmann_json
+              )
+
+      target_link_libraries(${EXE_NAME}
+              PRIVATE tinyxml2
+              )
+
+      if (EXISTS ${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
+          message(STATUS "Loading ${EXE_NAME}.cmake")
+          include(${CMAKE_SOURCE_DIR}/source/${EXE_NAME}.cmake)
+      else ()
+          message(WARNING "Cannot find ${EXE_NAME}.cmake")
+      endif ()
+  endforeach ()
 endif ()

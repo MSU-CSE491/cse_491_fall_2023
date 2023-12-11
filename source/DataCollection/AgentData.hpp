@@ -94,5 +94,9 @@ namespace DataCollection
         std::string GetName() const {
             return name;
         }
+
+        std::vector<cse491::GridPosition> GetPositions() const {
+            return position;
+        }
     };
 } // namespace DataCollection

@@ -66,6 +66,71 @@ namespace cse491 {
       return *this;
     }
     ItemBase & SetUnowned() { owner_type = OwnerType::NONE; return *this; }
+
+    /// @brief Serialize item
+    /// @param ostream
+    void Serialize(std::ostream &os) override {
+      os << name << '\n';
+      os << position.GetX() << '\n';
+      os << position.GetY() << '\n';
+      os << property_map.size() << '\n';
+      for (const auto & property : property_map) {
+        os << property.first << '\n';
+
+        // Get property type
+        PropertyType type = GetPropertyType(property.first);
+        os << static_cast<int>(type) << '\n';
+
+        // serialize property value
+        if (type == PropertyType::t_double) {
+          os << AsProperty<double>(property.first).value << '\n';
+        } else if (type == PropertyType::t_int) {
+          os << AsProperty<int>(property.first).value << '\n';
+        } else if (type == PropertyType::t_char) {
+          os << AsProperty<char>(property.first).value << '\n';
+        } else if (type == PropertyType::t_string) {
+          os << AsProperty<std::string>(property.first).value << '\n';
+        } else {
+          // unknown type, do nothing
+          os << '\n';
+        }
+      }
+    }
+
+    /// @brief Deserialize item
+    /// @param istream
+    void Deserialize(std::istream &is) {
+      std::string x_str, y_str;
+      std::getline(is, name, '\n');
+      std::getline(is, x_str, '\n');
+      std::getline(is, y_str, '\n');
+      int x = -1;
+      int y = -1;
+      if(x_str != "nan") x = stoi(x_str);
+      if(y_str != "nan") y = stoi(y_str);
+      position.Set(x, y);
+
+      std::string property, type_str, value_str;
+      std::getline(is, property, '\n');
+      int num_properties = stoi(property);
+      for (int i = 0; i < num_properties; i++) {
+        std::getline(is, property, '\n');
+        std::getline(is, type_str, '\n');
+        std::getline(is, value_str, '\n');
+
+        // Set property based on type
+        auto type = static_cast<PropertyType>(stoi(type_str));
+        if (type == PropertyType::t_double) {
+          SetProperty(property, stod(value_str));
+        } else if (type == PropertyType::t_int) {
+          SetProperty(property, stoi(value_str));
+        } else if (type == PropertyType::t_char) {
+          SetProperty(property, value_str[0]);
+        } else if (type == PropertyType::t_string) {
+          SetProperty(property, value_str);
+        }
+      }
+    }
   };
 
 } // End of namespace cse491
