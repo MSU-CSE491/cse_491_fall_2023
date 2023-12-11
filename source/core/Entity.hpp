@@ -18,6 +18,7 @@
 #include "CoreObject.hpp"
 #include "Data.hpp"
 #include "GridPosition.hpp"
+#include "Property.hpp"
 
 namespace cse491 {
 
@@ -35,88 +36,6 @@ protected:
   GridPosition position;  ///< Where on the grid is this entity?
 
   std::vector<size_t> inventory; ///< What entity ids are held by this entity?
-
-  struct PropertyBase {
-    virtual ~PropertyBase() {}
-    virtual PropertyType GetType() const = 0;
-    virtual std::string GetTypeName() const = 0;
-    virtual std::string ToString() const = 0;
-    virtual char ToChar() const = 0;
-    virtual double ToDouble() const = 0;
-    virtual int ToInt() const = 0;
-    virtual GridPosition ToGridPosition() const = 0;
-  };
-
-  // For the moment, properties can be char, int, double, string, or GridPosition
-  template <typename T>
-  struct Property : public PropertyBase {
-    T value;
-    Property(const T &in) : value(in) {}
-    Property(T &&in) : value(in) {}
-
-    PropertyType GetType() const override {
-      if constexpr (std::is_same<T, char>())         return PropertyType::t_char;
-      if constexpr (std::is_same<T, int>())          return PropertyType::t_int;
-      if constexpr (std::is_same<T, double>())       return PropertyType::t_double;
-      if constexpr (std::is_same<T, std::string>())  return PropertyType::t_string;
-      if constexpr (std::is_same<T, GridPosition>()) return PropertyType::t_position;
-      return PropertyType::t_other;
-    }
-
-    std::string GetTypeName() const override {
-      if constexpr (std::is_same<T, char>())         return "char";
-      if constexpr (std::is_same<T, int>())          return "int";
-      if constexpr (std::is_same<T, double>())       return "double";
-      if constexpr (std::is_same<T, std::string>())  return "string";
-      if constexpr (std::is_same<T, GridPosition>()) return "GridPosition";
-      return "unknown";
-    }
-
-    std::string ToString() const override {
-      if constexpr (std::is_same<T, char>())         return std::string(1, value);
-      if constexpr (std::is_same<T, int>())          return std::to_string(value);
-      if constexpr (std::is_same<T, double>())       return std::to_string(value);
-      if constexpr (std::is_same<T, std::string>())  return value;
-      if constexpr (std::is_same<T, GridPosition>()) return value.ToString();
-      return "unknown";
-    }
-
-    char ToChar() const override {
-      if constexpr (std::is_same<T, char>())         return value;
-      if constexpr (std::is_same<T, int>())          return static_cast<char>(value);
-      if constexpr (std::is_same<T, double>())       return static_cast<char>(value);
-      if constexpr (std::is_same<T, std::string>())  return value.size() ? value[0] : '\0';
-      if constexpr (std::is_same<T, GridPosition>()) return '\0'; // No conversion.
-      return '\0';
-    }
-
-    double ToDouble() const override {
-      if constexpr (std::is_same<T, char>())         return static_cast<double>(value);
-      if constexpr (std::is_same<T, int>())          return static_cast<double>(value);
-      if constexpr (std::is_same<T, double>())       return value;
-      if constexpr (std::is_same<T, std::string>())  return std::stod(value);
-      if constexpr (std::is_same<T, GridPosition>()) return std::nan("nan"); // No conversion.
-      return std::nan("nan");
-    }
-
-    int ToInt() const override {
-      if constexpr (std::is_same<T, char>())         return static_cast<int>(value);
-      if constexpr (std::is_same<T, int>())          return value;
-      if constexpr (std::is_same<T, double>())       return static_cast<int>(value);
-      if constexpr (std::is_same<T, std::string>())  return std::stoi(value);
-      if constexpr (std::is_same<T, GridPosition>()) return 0; // No conversion.
-      return 0;
-    }
-
-    GridPosition ToGridPosition() const override {
-      if constexpr (std::is_same<T, char>())         return GridPosition::Invalid();
-      if constexpr (std::is_same<T, int>())          return GridPosition::Invalid();
-      if constexpr (std::is_same<T, double>())       return GridPosition::Invalid();
-      if constexpr (std::is_same<T, std::string>())  return GridPosition(value);
-      if constexpr (std::is_same<T, GridPosition>()) return value;
-      return GridPosition::Invalid();
-    }
-  };
 
   /// Every entity can have a simple set of properties (with values) associated with it.
   using property_map_t = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
@@ -245,29 +164,8 @@ public:
     SerializeValue(os, property_map.size());
     for (const auto & [name, ptr] : property_map) {
       SerializeValue(os, name);
-      PropertyType type = ptr->GetType();
-      SerializeValue(os, static_cast<int>(type));
-
-      switch (type) {
-        using enum PropertyType;
-      case t_char:
-        SerializeValue(os, ptr->ToChar());
-        break;
-      case t_double:
-        SerializeValue(os, ptr->ToDouble());
-        break;
-      case t_int:
-        SerializeValue(os, ptr->ToInt());
-        break;
-      case t_string:
-        SerializeValue(os, ptr->ToString());
-        break;
-      case t_position:
-        ptr->ToGridPosition().Serialize(os);
-        break;
-      case t_other:
-        assert(false); // Cannot serialize this type...
-      }
+      SerializeValue(os, ptr->GetType());
+      SerializeValue(os, ptr->ToString());
     }
   }
 
@@ -285,33 +183,17 @@ public:
     property_map.clear();
     std::string name;
     PropertyType type;
-    char val_c; double val_d; int val_i; std::string val_s; GridPosition val_g;
     DeserializeValue(is, num_properties);
     for (size_t i = 0; i < num_properties; ++i) {
       DeserializeValue(is, name);
       DeserializeValue(is, type);
       switch (type) {
         using enum PropertyType;
-      case t_char:
-        DeserializeValue(is, val_c);
-        SetProperty(name, val_c);
-        break;
-      case t_double:
-        DeserializeValue(is, val_d);
-        SetProperty(name, val_d);
-        break;
-      case t_int:
-        DeserializeValue(is, val_i);
-        SetProperty(name, val_i);
-        break;
-      case t_string:
-        DeserializeValue(is, val_s);
-        SetProperty(name, val_s);
-        break;
-      case t_position:
-        val_g.Deserialize(is);
-        SetProperty(name, val_g);
-        break;
+      case t_char:     SetProperty(name, DeserializeAs<char>(is));         break;
+      case t_double:   SetProperty(name, DeserializeAs<double>(is));       break;
+      case t_int:      SetProperty(name, DeserializeAs<int>(is));          break;
+      case t_string:   SetProperty(name, DeserializeAs<std::string>(is));  break;
+      case t_position: SetProperty(name, DeserializeAs<GridPosition>(is)); break;
       case t_other:
         assert(false); // Cannot deserialize this type...
       }
