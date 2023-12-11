@@ -1,3 +1,9 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief Tools for debug-logging that can be easily controlled.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
 #include <fstream>
@@ -9,13 +15,11 @@ namespace clogged {
 
 /**
  * @brief Log levels for logging
- *
  */
 enum class LogLevel { DEBUG, INFO, WARNING, ERR, NA };
 
 /**
  * @brief Teams Names for logging
- *
  */
 enum class Team {
   TEAM_1,
@@ -179,7 +183,7 @@ public:
    * Changes requested from Dr.@ofria
    *
    * @authors @mercere99
-   * @return
+   * @return a unique Logger instance
    */
   static Logger &Log() {
     static Logger instance;  // Guaranteed to be initialized only once.
@@ -191,7 +195,8 @@ public:
    * Changes requested from Dr.@ofria
    *
    * @authors @mercere99
-   * @return
+   * @param arg1 Set of values that you want to have logged.
+   * @return Unique Logger instance
    */
   template <typename T, typename... EXTRA_Ts>
   static Logger &Log(T &&arg1, EXTRA_Ts &&...extra_args) {
