@@ -157,8 +157,7 @@ public:
     SerializeValue(os, id);
     SerializeValue(os, name);
     SerializeValue(os, grid_id);
-    SerializeValue(os, position.GetX());
-    SerializeValue(os, position.GetY());
+    SerializeValue(os, position);
     SerializeValue(os, inventory);
 
     SerializeValue(os, property_map.size());
@@ -175,8 +174,7 @@ public:
     DeserializeValue(is, id);
     DeserializeValue(is, name);
     DeserializeValue(is, grid_id);
-    DeserializeFunction<double>(is, [this](double x){ position.SetX(x); });
-    DeserializeFunction<double>(is, [this](double y){ position.SetX(y); });
+    DeserializeValue(is, position);
     DeserializeValue(is, inventory);
 
     size_t num_properties = 0;
