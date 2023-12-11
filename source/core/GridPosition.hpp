@@ -155,7 +155,7 @@ public:
   }
 
 
-  // -- CoreObject Operations --
+  // -- CoreObject Functionality --
   std::string GetTypeName_impl() const override { return "cse491::GridPosition"; }
 
   void Serialize_impl(std::ostream & os) const override {

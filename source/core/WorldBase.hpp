@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A base class for all World modules.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  **/
 
 #pragma once
@@ -56,8 +56,7 @@ protected:
   agent_map_t agent_map;      ///< Map of IDs to pointers to agent entities
   size_t last_entity_id = 0;  ///< The last Entity ID used; increment at each creation
 
-  bool run_over = false;  ///< Should the run end?
-
+  bool run_over = false;      ///< Should the run end?
   bool world_running = true;  ///< Is the world currently running?
 
   std::string action;  ///< The action that the agent is currently performing

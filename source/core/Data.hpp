@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief Set of types used throughout the codebase
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  **/
 
 #pragma once
