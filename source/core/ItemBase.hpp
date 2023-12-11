@@ -104,7 +104,11 @@ namespace cse491 {
       std::getline(is, name, '\n');
       std::getline(is, x_str, '\n');
       std::getline(is, y_str, '\n');
-      position.Set(stoi(x_str), stoi(y_str));
+      int x = -1;
+      int y = -1;
+      if(x_str != "nan") x = stoi(x_str);
+      if(y_str != "nan") y = stoi(y_str);
+      position.Set(x, y);
 
       std::string property, type_str, value_str;
       std::getline(is, property, '\n');

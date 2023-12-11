@@ -101,6 +101,24 @@ class Entity {
       return property_type_map.at(key);
     }
 
+    /// Checks to see if a property is of the template type
+    /// Returns false if there is an ambiguity
+    template <typename T>
+    bool PropertyIsType(const std::string & name){
+        assert(HasProperty(name));
+        if (std::is_same<T, double>::value){
+            return property_type_map[name] == PropertyType::t_double;
+        }
+        else if (std::is_same<T, int>::value){
+            return property_type_map[name] == PropertyType::t_int;
+        }
+        else if (std::is_same<T, char>::value){
+            return property_type_map[name] == PropertyType::t_char;
+        }
+        else if (std::is_same<T, std::string>::value) return false;
+
+    }
+
     template <typename T>
     void SetPropertyType(const std::string & name) {
         if (std::is_same<T, double>::value) property_type_map[name] = PropertyType::t_double;

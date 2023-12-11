@@ -77,6 +77,15 @@ namespace i_2D
         LoadTexture("chestTexture", "../assets/weapons/chest_closed.png");
         LoadTexture("flagTexture", "../assets/weapons/flag.png");
         LoadTexture("pathTexture", "../assets/Ground_tiles/Grass2.png");
+        LoadTexture("sword of PowerTexture", "../assets/weapons/longsword.png");
+        LoadTexture("axe of HealthTexture", "../assets/weapons/w_axe_war.png");
+        LoadTexture("inferno SlicerTexture", "../assets/weapons/dagger.png");
+        LoadTexture("electric DaggerTexture", "../assets/weapons/dagger.png");
+        LoadTexture("fire DaggerTexture", "../assets/weapons/dagger.png");
+        LoadTexture("daedric ArmorTexture", "../assets/weapons/leather_armor.png");
+        LoadTexture("leather ArmorTexture", "../assets/weapons/leather_armor.png");
+        LoadTexture("hammerTexture", "../assets/weapons/w_axe_war.png");
+        LoadTexture("waterTexture", "../assets/Ground_tiles/water.jpg");
 
         textures['#'] = GetTexture("wallTexture");
         textures['*'] = GetTexture("trollTexture");
@@ -88,6 +97,8 @@ namespace i_2D
         textures['C'] = GetTexture("chestTexture");
         textures['g'] = GetTexture("flagTexture");
         textures[' '] = GetTexture("pathTexture");
+        textures['w'] = GetTexture("waterTexture");
+        textures['u'] = GetTexture("waterTexture");
 
         return textures;
     }

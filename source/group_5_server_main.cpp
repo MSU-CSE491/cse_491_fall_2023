@@ -166,13 +166,14 @@ int runGenerativeWorldDemo() {
     // load world
     static const unsigned int SEED = 973;
     group6::BiomeGenerator biomeGenerator(group6::BiomeType::Maze, 110, 25, SEED);
+    group6::GenerativeWorld world(group6::BiomeType::Maze, 110, 25, SEED);
+    biomeGenerator.setWorld(&world);
     biomeGenerator.generate();
 
     srand(time(NULL));
     auto path = biomeGenerator.clearPath();
     biomeGenerator.applyPathToGrid(path);
 
-    group6::GenerativeWorld world(group6::BiomeType::Maze, 110, 25, SEED);
     int startX = 0, startY = 0;
 
     // Add agents
@@ -196,7 +197,7 @@ int runManualWorldDemo() {
 
     // Load world
     cse491_team8::ManualWorld world;
-    int startX = 40, startY = 3;
+    int startX = 80, startY = 63;
 
     // Add agents
     world.AddAgent<cse491::PacingAgent>("Pacer 1").SetPosition(3,1);

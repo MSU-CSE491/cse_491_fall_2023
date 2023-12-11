@@ -4,8 +4,8 @@
 * Menu class creates a menu and displays it in the render window
 */
 
-#ifndef CSE_491_MENU_HPP
-#define CSE_491_MENU_HPP
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include "Button.hpp"
 #include <vector>
@@ -13,7 +13,7 @@
 #include "Inventory.hpp"
 
 namespace i_2D {
-const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
+    const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
 
     class Menu {
     private:
@@ -25,10 +25,18 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         sf::Vector2f mWorldSize; ///< The world size
 
     public:
+        /**
+         *
+         * @param texture
+         */
+        void SetInventoryItemDisplay(sf::Texture &texture){
+            if(mInventory) mInventory->SetItemDisplay(texture);
+        }
         void initialize(sf::Font &font,sf::Vector2f size);
         void drawto(sf::RenderWindow &window);
-        void HandleMouseMove(sf::RenderWindow &window);
-        void HandleMouseButtonPressed(sf::RenderWindow &window);
+        std::string HandleMouseMove(sf::RenderWindow &window);
+        void HandleMouseButtonPressed(sf::RenderWindow &window,
+                                      const std::vector<std::string> &interfaceAgentInventory);
         /**
          * @brief Getter for MenuBar
          * @return MenuBar
@@ -39,7 +47,6 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         }
         /**
          * @brief Keep track of the world's size
-         *
          * @param size Size of the world
          */
         void SetWorldSize(sf::Vector2f size){
@@ -48,7 +55,6 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
 
         /**
          * @brief Check if the inventory interface is open
-         *
          * @return True if inventory interface is on, otherwise false
          */
         bool IsInventoryOpen(){
@@ -60,9 +66,9 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
         /**
          * @brief Builds an inventory
          */
-        void ConstructInventory(){
+        void ConstructInventory(const std::vector<std::string> &interfaceAgentInventory){
             mInventory = std::make_unique<Inventory>(mWorldSize);
-            mInventory->ConstructInventory(*mFont);
+            mInventory->ConstructInventory(*mFont, interfaceAgentInventory);
         }
 
         /**
@@ -74,4 +80,3 @@ const int MAX_NUMBER_OF_ITEMS_MENU_ITEMS = 3;
 
     };
 }
-#endif //CSE_491_MENU_HPP
