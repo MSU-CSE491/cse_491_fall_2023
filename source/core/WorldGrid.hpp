@@ -41,22 +41,17 @@ protected:
 
   /// Write the current state of this grid into the provided stream.
   void Serialize_impl(std::ostream &os) const override {
-    os << width << " " << height;
-    for (size_t state : cells) os << ' ' << state;
-    os << std::endl;
+    SerializeValue(os, width);
+    SerializeValue(os, height);
+    for (size_t state : cells) SerializeValue(os, state);
   }
 
   /// Read the state of the grid out of the provided stream.
   void Deserialize_impl(std::istream &is) override {
-    is >> width >> height;
+    DeserializeValue(is, width);
+    DeserializeValue(is, height);
     cells.resize(width * height);
-    for (size_t &state : cells) is >> state;
-
-    // add one to the position
-    // EndDeserialize seems to be getting the end of the current line
-    // but, it expects the next line
-    int curr_pos = is.tellg();
-    is.seekg(curr_pos + 1);
+    for (size_t &state : cells) DeserializeValue(is, state);
   }
 
 public:
