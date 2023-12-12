@@ -38,25 +38,25 @@ struct is_any_map<std::unordered_map<KEY_T, VALUE_T>> : std::true_type {};
 /// Concept to identify if a type can be sent into an ostream.
 template <typename STREAM_T, typename OBJ_T>
 concept CanStreamTo = requires(STREAM_T & stream, OBJ_T value) {
-    { stream << value } -> std::convertible_to<std::ostream&>;
+  { stream << value } -> std::convertible_to<std::ostream&>;
 };
 
 /// Concept to identify if a type can be set from an istream.
 template <typename STREAM_T, typename OBJ_T>
 concept CanStreamFrom = requires(STREAM_T & stream, OBJ_T value) {
-    { stream >> value } -> std::convertible_to<std::istream&>;
+  { stream >> value } -> std::convertible_to<std::istream&>;
 };
 
 /// Concept to identify if a type has a Serialize() member function.
 template <typename OBJ_T>
 concept HasSerialize = requires(OBJ_T value) {
-    { value.Serialize(std::cout) } -> std::same_as<void>;
+  { value.Serialize(std::cout) } -> std::same_as<void>;
 };
 
 /// Concept to identify if a type has a Deserialize() member function.
 template <typename OBJ_T>
 concept HasDeserialize = requires(OBJ_T value) {
-    { value.Deserialize(std::cout) } -> std::same_as<void>;
+  { value.Deserialize(std::cin) } -> std::same_as<void>;
 };
 
 /// @brief Helper function to serialize a single member variable.
@@ -130,8 +130,11 @@ static void DeserializeValue(std::istream & is, T & var) {
       var = static_cast<T>(enum_val);
     } else if constexpr (CanStreamFrom<std::stringstream, T>) {
       ss >> var;
+    } else if constexpr (std::is_pointer<T>()) {
+      std::cerr << "Warning: Attempting to deserialize pointer." << std::endl;
     } else { 
       // Finally, ignore this value?  Most likely a pointer.
+      std::cerr << "Warning: Attempting to deserialize unknown type." << std::endl;
     }
   }
 }
