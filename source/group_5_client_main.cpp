@@ -23,7 +23,7 @@ void terminateClient() {
     // Request connection to server
     sf::Packet sendPkt;
     std::optional<sf::IpAddress> ipAddr = sf::IpAddress::resolve(clientKillIP);
-    sendPkt << static_cast<size_t>(9999);
+    sendPkt << static_cast<uint64_t>(9999);
     if (clientKillSocket->send(sendPkt, ipAddr.value(), clientKillPort) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send" << std::endl;
     }

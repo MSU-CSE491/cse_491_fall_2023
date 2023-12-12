@@ -18,7 +18,7 @@ void timer(group6::GenerativeWorld& world, int duration) {
     world.EndGame(false);
 }
 
-void runWorld(group6::BiomeType biome, int width, int height, const unsigned int SEED, int timerDuration = -1) {
+void runWorld(group6::BiomeType biome, int width, int height, const unsigned int /*SEED*/, int timerDuration = -1) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distribution(0, 1000000);

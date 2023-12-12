@@ -83,7 +83,6 @@ namespace i_2D {
 
         void ChooseTexture();
 
-
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
         void MouseClickEvent(const sf::Event &event,const size_t entity_id, const item_map_t &item_map);

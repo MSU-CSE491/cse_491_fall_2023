@@ -106,7 +106,10 @@ namespace netWorth
 			for (const auto& [id, entityPtr] : itemMap)
 			{
 				cse491::GridPosition pos = entityPtr->GetPosition();
-				packetGrid[pos.CellY()][pos.CellX()] = '+';
+        if(!std::isnan(pos.GetX()) && !std::isnan(pos.GetY())
+            && pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight()){
+          packetGrid[pos.CellY()][pos.CellX()] = '+';
+        }
 			}
 
 			for (const auto& [id, agent_ptr] : agentMap)
@@ -117,7 +120,10 @@ namespace netWorth
 				{
 					c = agent_ptr->GetProperty<char>("symbol");
 				}
-				packetGrid[pos.CellY()][pos.CellX()] = c;
+        if(!std::isnan(pos.GetX()) && !std::isnan(pos.GetY())
+            && pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight()){
+				  packetGrid[pos.CellY()][pos.CellX()] = c;
+        }
 			}
 
 			// Print out the symbol_grid with a box around it.
@@ -167,7 +173,7 @@ namespace netWorth
 
 			// receive player input
 			sf::Packet recvPkt;
-			size_t actionID;
+			uint64_t actionID;
 			receivePacket(recvPkt, m_ip, m_port);
 			recvPkt >> actionID;
 

@@ -60,7 +60,7 @@ namespace i_2D {
      */
     std::string Menu::HandleMouseMove(sf::RenderWindow &window) {
         std::string s1 = "null";
-        for (int i = 0; i < mMenuBar.size(); ++i) {
+        for (size_t i = 0; i < mMenuBar.size(); ++i) {
             if (mMenuBar[i]->IsMouseOver(window)) {
                 mMenuBar[i]->SetBackColor(sf::Color::Magenta);
             } else {
@@ -80,9 +80,7 @@ namespace i_2D {
      */
     void Menu::HandleMouseButtonPressed(sf::RenderWindow &window,
                                         const std::vector<std::string> &interfaceAgentInventory) {
-        if(mMenuBar[2]->IsMouseOver(window)){
-            exit(0);
-        }else if(mMenuBar[1]->IsMouseOver(window)){
+        if(mMenuBar[1]->IsMouseOver(window)){
             if(mInventory){
                 DeconstructInventory();
             }else {

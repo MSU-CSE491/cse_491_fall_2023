@@ -1,16 +1,3 @@
 {
-    "items": [
-        {
-            "amountOfUses": 3,
-            "name": "Stick"
-        },
-        {
-            "amountOfUses": 2,
-            "name": "Boat"
-        },
-        {
-            "amountOfUses": 2,
-            "name": "Axe"
-        }
-    ]
+    "items": []
 }
