@@ -22,14 +22,14 @@ namespace i_2D {
     class Inventory {
     private:
         /// Projected inventory screen
-        std::unique_ptr<sf::RectangleShape> mInventoryWindow;
+        std::unique_ptr<sf::RectangleShape> mCanvas;
         /// 2D array of buttons representing items
-        std::vector<std::vector<std::unique_ptr<Button>>> mInventoryList;
+        std::vector<std::vector<std::unique_ptr<Button>>> mListOfButtons;
         sf::Vector2f mWorldSize; ///< Size of the world
         int mCol=0; ///< Number of columns enumerating the inventory list
         int mRow=0; ///< Number of rows enumerating the inventory list
 
-        std::vector<std::string> mInventoryItems; ///< List of items in an inventory
+        std::vector<std::string> mItems; ///< List of items in an inventory
         std::unique_ptr<sf::Texture> mItemDisplay; ///< The image of the items currently on display
 
     public:

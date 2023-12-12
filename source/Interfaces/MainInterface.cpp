@@ -34,7 +34,7 @@ namespace i_2D {
         mTextBox = std::make_unique<TextBox>(mFont);
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
-        mMenu.initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
+        mMenu.Initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
         ChooseTexture();
     }
 
@@ -178,7 +178,7 @@ namespace i_2D {
         // Display everything
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
-        mMenu.drawto(mWindow);
+        mMenu.DrawTo(mWindow);
         mWindow.display();
     }
 
@@ -315,9 +315,9 @@ namespace i_2D {
                     HandleResize(event, grid);
 
                 } else if (event.type == sf::Event::MouseMoved) {
-                    auto c = mMenu.HandleMouseMove(mWindow);
-                    if(c!="null"){
-                        auto texture = mTextureHolder.GetTexture(c);
+                    auto textureName = mMenu.HandleMouseMove(mWindow);
+                    if(textureName!="null"){
+                        auto texture = mTextureHolder.GetTexture(textureName);
                         mMenu.SetInventoryItemDisplay(texture);
                     }
                 } else if (event.type == sf::Event::MouseButtonPressed) {
