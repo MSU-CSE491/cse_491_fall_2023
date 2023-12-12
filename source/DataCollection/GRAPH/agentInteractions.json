@@ -1,20 +1,3 @@
 {
-    "agentInteractions": [
-        {
-            "interactionCount": 1,
-            "name": "Pacer 4"
-        },
-        {
-            "interactionCount": 1,
-            "name": "Pacer 3"
-        },
-        {
-            "interactionCount": 1,
-            "name": "Pacer 2"
-        },
-        {
-            "interactionCount": 2,
-            "name": "Pacer 1"
-        }
-    ]
+    "agentInteractions": []
 }

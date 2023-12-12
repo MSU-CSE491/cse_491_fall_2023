@@ -212,7 +212,7 @@ namespace cse491_team8 {
     /// @param agent Agent moveset being displayed.
     void MoveSetAction(cse491::AgentBase & agent)
     {
-        agent.Notify("Your Moveset is:\nMove Up: W\nMove Down: S\nMove Left: A\nMove Right: D\nUse Axe: C\nUse Boat: V\nDisplay Stats: T\nHeal: H\nAttack: F\nSpecial: G\nRun: R\nBuff: B\nDebuff: X\nDisplay Moveset: Y");
+        agent.Notify("Your Moveset is:\nMove Up: W\nMove Down: S\nMove Left: A\nMove Right: D\nUse Axe: C\nUse Boat: V\nDisplay Stats: T\nHeal: H\nAttack: F\nSpecial: G\nRun: R\nBuff: B\nDisplay Moveset: Y");
     }
 
     /// @brief looks one tile ahead of the agent based on facing direction
