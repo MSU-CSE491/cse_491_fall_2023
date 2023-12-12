@@ -191,6 +191,21 @@ public:
 
   // -- Agent Management --
 
+  /// @brief Add an already-created agent.
+  AgentBase &AddConfiguredAgent(std::unique_ptr<AgentBase> agent_ptr) {
+    std::mutex agent_map_lock;
+    agent_map_lock.lock();
+    agent_ptr->SetWorld(*this);
+    if (agent_ptr->Initialize() == false) {
+      std::cerr << "Failed to initialize agent '" << agent_ptr->GetName() << "'." << std::endl;
+    }
+    AgentBase & agentReturn = *agent_map[agent_ptr->GetID()];
+    agent_map[agent_ptr->GetID()] = std::move(agent_ptr);
+    agent_map_lock.unlock();
+    return agentReturn;
+  }
+
+
   /// @brief Build a new agent of the specified type
   /// @tparam AGENT_T The type of agent to build
   /// @tparam PROPERTY_Ts Types for any properties to set at creation
@@ -496,10 +511,10 @@ public:
   /// @param os ostream
   void SerializeAgentSet(std::ostream &os) {
     os << ":::START agent_set\n";
-    os << last_entity_id << '\n';
+    SerializeValue(os, agent_map.size());
 
-    for (const auto &agent : agent_map) {
-      agent.second->Serialize(os);
+    for (const auto &[agent_id, agent_ptr] : agent_map) {
+      SerializeValue(os, *agent_ptr);
     }
     os << ":::END agent_set\n";
   }
@@ -516,14 +531,12 @@ public:
       return;
     }
 
-    std::string name, x, y, id_string, symbol_string;
-    size_t size, id;
     size_t client_id = manager->getClientID();
 
-    // remove all agents that are NOT the interface
-    std::set<size_t> to_delete;
-    for (auto &pair : agent_map) {
-      if (pair.first != client_id) to_delete.insert(pair.first);
+    // Remove all agents other than the interface
+    std::vector<size_t> to_delete;
+    for (auto & [agent_id, agent_ptr] : agent_map) {
+      if (agent_id != client_id) to_delete.push_back(agent_id);
     }
 
     for (size_t agent_id : to_delete) {
@@ -533,44 +546,25 @@ public:
     // reset last_entity_id; start from the beginning
     last_entity_id = 0;
 
-    // last entity id in server agent map
-    std::getline(is, read, '\n');
-    size = stoi(read);
+    // Load the number of agents saved.
+    size_t size = DeserializeAs<size_t>(is);
 
     // client id NOT in agent map yet if ID = 0
     // append to end of set
     if (client_id == 0) client_id = size;
 
-    // read each agent (only deserialize name, id, x, y for now)
+    // Load back in all agents.
     for (size_t i = 0; i < size; i++) {
-      // read name (may incidentally reach end of set)
-      std::getline(is, name, '\n');
-      if (name == ":::END agent_set") {
-        last_entity_id = client_id;
-        return;
-      }
+      auto agent_ptr = std::make_unique<netWorth::ControlledAgent>(0, "temp");
+      DeserializeValue(is, *agent_ptr);
+      agent_ptr->SetProperty("manager", manager);
 
-      // read id, x, y, and symbol
-      std::getline(is, id_string, '\n');
-      std::getline(is, x, '\n');
-      std::getline(is, y, '\n');
-      std::getline(is, symbol_string, '\n');
+      if (agent_ptr->GetID() >= last_entity_id) last_entity_id = agent_ptr->GetID() + 1;
 
-      // may be gaps between IDs
-      id = stoi(id_string);
-      while (last_entity_id + 1 != id) {
-        last_entity_id++;
-      }
+      // If this agent is the client interface, skip it (we already have it).
+      if (agent_ptr->GetID() == client_id) { continue; }
 
-      // is this new agent NOT the client interface
-      if (last_entity_id + 1 != client_id) {
-        AddAgent<netWorth::ControlledAgent>(name, "manager", manager)
-            .SetPosition(stoi(x), stoi(y))
-            .SetProperty("symbol", symbol_string[0]);
-      } else {
-        // client interface still exists; do nothing
-        last_entity_id++;
-      }
+      AddConfiguredAgent(std::move(agent_ptr));
     }
 
     // find end of agent_set deserialization
@@ -585,7 +579,7 @@ public:
   /// @param os ostream
   void SerializeItemSet(std::ostream &os) {
     os << ":::START item_set\n";
-    os << item_map.size() << '\n';
+    SerializeValue(os, item_map.size());
 
     for (const auto &item : item_map) {
       item.second->Serialize(os);
@@ -606,13 +600,12 @@ public:
 
     // how many items?
     size_t size;
-    std::getline(is, read, '\n');
-    size = stoi(read);
+    DeserializeValue(is, size);
 
     // read each item
     for (size_t i = 0; i < size; i++) {
       auto item = std::make_unique<ItemBase>(agent_map.size() + i, "");
-      item->Deserialize(is);
+      DeserializeValue(is, *item);
       AddItem(std::move(item));
     }
 
