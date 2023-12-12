@@ -96,6 +96,9 @@ public:
   /// Does this agent have a property with the specified name?
   [[nodiscard]] bool HasProperty(const std::string &name) const { return property_map.count(name); }
 
+  /// How many properties does this entity have?
+  [[nodiscard]] size_t GetNumProperties() const { return property_map.size(); }
+
   /// Return the current value of the specified property.
   template <typename T = double>
   [[nodiscard]] const T &GetProperty(const std::string &name) const {
@@ -193,7 +196,7 @@ public:
       case t_string:   SetProperty(name, DeserializeAs<std::string>(is));  break;
       case t_position: SetProperty(name, DeserializeAs<GridPosition>(is)); break;
       case t_other:
-        assert(false); // Cannot deserialize this type...
+        std::cerr << "Warning: Cannot deserialize property'" << name << "'." << std::endl;
       }
     }
   }
