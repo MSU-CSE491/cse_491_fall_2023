@@ -36,6 +36,7 @@ struct Property : public PropertyBase {
   PropertyType GetType() const override {
     if constexpr (std::is_same<T, char>())         return PropertyType::t_char;
     if constexpr (std::is_same<T, int>())          return PropertyType::t_int;
+    if constexpr (std::is_same<T, bool>())         return PropertyType::t_bool;
     if constexpr (std::is_same<T, double>())       return PropertyType::t_double;
     if constexpr (std::is_same<T, std::string>())  return PropertyType::t_string;
     if constexpr (std::is_same<T, GridPosition>()) return PropertyType::t_position;
@@ -45,6 +46,7 @@ struct Property : public PropertyBase {
   std::string GetTypeName() const override {
     if constexpr (std::is_same<T, char>())         return "char";
     if constexpr (std::is_same<T, int>())          return "int";
+    if constexpr (std::is_same<T, bool>())         return "bool";
     if constexpr (std::is_same<T, double>())       return "double";
     if constexpr (std::is_same<T, std::string>())  return "string";
     if constexpr (std::is_same<T, GridPosition>()) return "GridPosition";
