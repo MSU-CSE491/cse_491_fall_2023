@@ -1,3 +1,9 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief A data collector class to quantify agent interactions.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
 #include <string>

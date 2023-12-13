@@ -1,3 +1,9 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief A receiver specifically designed to handle game-related data.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
 #include <fstream>

@@ -1,3 +1,9 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief A data collector class for usage amount of game items.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
 #include <algorithm>

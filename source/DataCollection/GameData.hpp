@@ -1,9 +1,17 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief A master GameData object, to store all game data.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
 #include <vector>
 
 #include "../core/GridPosition.hpp"
+
 namespace DataCollection {
+
 class GameData {
 private:
   /* number of collisions */

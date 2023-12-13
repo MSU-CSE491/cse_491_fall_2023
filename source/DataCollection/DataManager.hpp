@@ -1,3 +1,9 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief A data control system to hold all related receivers and collectors.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
 #include "AgentInteractionCollector.hpp"
