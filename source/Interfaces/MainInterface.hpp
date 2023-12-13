@@ -1,7 +1,11 @@
 /**
- * @author : Team - 3
+ * @file MainInterface.hpp
+ * @author :Gaya Kanagaraj, Vincenzo Felici, Mui Pham
  * @date: 10/03/2023
- * MainInterface class creates a window and displays the default maze grid
+ * @brief MainInterface class manages the game's user interface, including the menu, textbox,
+ *        message box, inventory, and texture holder. It serves as the main class responsible
+ *        for creating and managing the game window, drawing the grid, handling player movements,
+ *        and displaying menu and inventory details.
  */
 
 #pragma once
@@ -19,7 +23,7 @@
 #include "../core/InterfaceBase.hpp"
 #include "TextureHolder.hpp"
 #include "TextBox.hpp"
-#include "MessageBoard.h"
+#include "MessageBoard.hpp"
 
 
 namespace i_2D {
@@ -38,68 +42,35 @@ namespace i_2D {
     */
     class MainInterface : public virtual InterfaceBase {
 
-    protected:
-
+    private:
         sf::RenderWindow mWindow; ///< render window
         float const MIN_SIZE_CELL = 16; ///< Pixels
 
         // Menu and message vars
         Menu mMenu; ///< for menu class
         sf::Font mFont; ///< one font for all objects using font
-        std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
-        std::unique_ptr<MessageBoard> mMessageBoard;
-//        std::unique_ptr<Button> mTestButton;
+        std::unique_ptr<TextBox> mTextBox; ///< for chatting and possible event handling by text
+        std::unique_ptr<MessageBoard> mMessageBoard; ///< message box object
+        std::vector<std::string> mAgentInventory;
 
         // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder
-        std::map<char, sf::Texture> mTexturesDefault;
-        std::map<char, sf::Texture> mTexturesSecondWorld;
-        std::map<char, sf::Texture> mTexturesManualWorld;
-        std::map<char, sf::Texture> mTexturesGenerativeWorld;
-        std::map<char, sf::Texture> mTexturesCurrent;
+        std::map<char, sf::Texture> mTexturesDefault; ///< for the texture holder default grid
+        std::map<char, sf::Texture> mTexturesSecondWorld; ///< for the texture holder SecondWorld grid
+        std::map<char, sf::Texture> mTexturesManualWorld; ///< for the texture holder Manualworld grid
+        std::map<char, sf::Texture> mTexturesGenerativeWorld; ///< for the texture holder GenerativeWorld grid
+        std::map<char, sf::Texture> mTexturesCurrent; ///< for the texture holder current world grid
 
         // Render range vars
-        sf::Vector2i mPlayerPosition = sf::Vector2i(0,0); ///< xy world grid location of the player
-        bool mGridSizeLarge = false;
-        int const ROW = 9;
-        int const COL = 23;
+        sf::Vector2i mPlayerPosition = sf::Vector2i(0, 0); ///< xy world grid location of the player
+        bool mGridSizeLarge = false; ///< flag for the largegrid
+        int const ROW = 9; ///< row to enlarge te grid
+        int const COL = 20; ///< column to enlarge the grid
 
-        int mGridWidth  = 0;
-        int mGridHeight = 0;
+        int mGridWidth = 0; ///< for the gridwidth
+        int mGridHeight = 0; ///< for the gridheight
 
-        bool mPlayerHasMoved = false;
-
-    public:
-
-        MainInterface(size_t id, const std::string &name) ;
-
-        /**
-         * @brief Destructor for the `MainInterface` class.
-         */
-        ~MainInterface() = default;
-
-
-        std::vector<std::string> CreateVectorMaze(
-                const WorldGrid &grid,
-                const type_options_t &type_options,
-                const item_map_t &item_map,
-                const agent_map_t &agent_map) ;
-
-        void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
-                      const item_map_t &item_map, const agent_map_t &agent_map);
-
-        /**
-         * @brief Initializes the main interface.
-         *
-         * @return True if initialization is successful; otherwise, false.
-         */
-        bool Initialize() override {
-            return true;
-        }
-        size_t SelectAction(const WorldGrid &grid,
-                            const type_options_t &type_options,
-                            const item_map_t &item_map,
-                            const agent_map_t &agent_map) override;
+        double mInputWaitTime = 0.5f;  ///< for the waittime of the player
 
         size_t HandleKeyEvent(const sf::Event &event);
 
@@ -112,15 +83,9 @@ namespace i_2D {
 
         void ChooseTexture();
 
-        void Notify(const std::string & message,
-                    const std::string & /*msg_type*/="none") override
-        {
-            std::cout << message << std::endl;
-            mMessageBoard->Send(message);
-        }
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
-        void MouseClickEvent(const sf::Event &event);
+        void MouseClickEvent(const sf::Event &event,const size_t entity_id, const item_map_t &item_map);
 
         void DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
                            sf::Texture &agent);
@@ -132,6 +97,56 @@ namespace i_2D {
         void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
 
         void DrawTimer();
+
+        void DrawHealthInfo();
+
+    public:
+        MainInterface(size_t id, const std::string &name);
+
+        /**
+         * @brief Destructor for the `MainInterface` class.
+         */
+        ~MainInterface() = default;
+
+
+        std::vector<std::string> CreateVectorMaze(
+                const WorldGrid &grid,
+                const type_options_t &type_options,
+                const item_map_t &item_map,
+                const agent_map_t &agent_map);
+
+        void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
+                      const item_map_t &item_map, const agent_map_t &agent_map);
+        
+        void setMInputWaitTime(double mInputWaitTime);
+        void SetLargeGrid(bool b){ mGridSizeLarge = b; } 
+
+        /**
+         * @brief Initializes the main interface.
+         *
+         * @return True if initialization is successful; otherwise, false.
+         */
+        bool Initialize() override {
+            return true;
+        }
+
+        size_t SelectAction(const WorldGrid &grid,
+                            const type_options_t &type_options,
+                            const item_map_t &item_map,
+                            const agent_map_t &agent_map) override;
+
+
+        /**
+         * @brief notifies the world if the player have any progress message
+         * @param message that notifies the world
+         */
+        void Notify(const std::string &message,
+                    const std::string & /*msg_type*/= "none") override {
+            std::cout << message << std::endl;
+            mMessageBoard->Send(message);
+        }
+
+        void CheckLargerGrid();
     };
 
 } // End of namespace 2D

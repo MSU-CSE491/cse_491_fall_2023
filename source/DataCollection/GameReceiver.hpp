@@ -5,6 +5,9 @@
 #include "DataReceiver.hpp"
 #include "../core/GridPosition.hpp"
 #include <unordered_map>
+#include <fstream>
+#include "JsonBuilder.hpp"
+
 namespace DataCollection {
 
     /**

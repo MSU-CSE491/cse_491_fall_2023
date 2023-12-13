@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Factorial Calculator</title>
+</head>
+<body>
+    <h1>Factorial Calculator</h1>
+    Enter a number: <input id="number" type="number" min="0" value="5"/>
+    <button onclick="calculateFactorial()">Calculate Factorial</button>
+    <div id="result"></div>
+
+    <script>
+        function calculateFactorial() {
+            var num = document.getElementById('number').value;
+            var result = Module.ccall('factorial', 'number', ['number'], [num]);
+            document.getElementById('result').innerText = 'Factorial: ' + result;
+        }
+    </script>
+
+    <!-- Load the compiled JavaScript file -->
+    <script src="factorial.js"></script>
+</body>
+</html>

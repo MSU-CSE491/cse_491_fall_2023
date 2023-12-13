@@ -48,7 +48,7 @@ TEST_CASE("Agent initialization", "[gp_agents]")
 
 
   SECTION("Check initial values") {
-        for (int i = 0; i < registers.getNumRegisters(); ++i) {
+        for (size_t i = 0; i < registers.getNumRegisters(); ++i) {
             CHECK(registers.getRegister(i) == 0); // All registers should be initialized to 0
         }
     }

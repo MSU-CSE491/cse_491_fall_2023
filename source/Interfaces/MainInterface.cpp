@@ -1,16 +1,21 @@
 /**
- * @author : Team - 3
- * @date: 10/03/2023
- * MainInterface class creates a window and displays the default maze grid
+ * @file MainInterface.cpp
+ * @authors Gaya Kanagaraj, Vincenzo Felici, Mui Pham
+ * @date 10/03/2023
+ * @brief MainInterface class manages the game's user interface, including the menu, textbox,
+ *        message box, inventory, and texture holder. It serves as the main class responsible
+ *        for creating and managing the game window, drawing the grid, handling player movements,
+ *        and displaying menu and inventory details.
+ *
  */
+
 #include <map>
 #include "MainInterface.hpp"
 
 namespace i_2D {
 
-    sf::Clock timer;
-    float elapsedTime = 0.0f;
-    bool showReminder = false;
+    sf::Clock timer; // To drawTimer function
+    float elapsedTime = 0.0f; // Sets elapsed time  = 0.0
 
     /**
      * @brief Constructs a `MainInterface` object.
@@ -29,12 +34,7 @@ namespace i_2D {
         mTextBox = std::make_unique<TextBox>(mFont);
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
-        mMenu.initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
-//        mTestButton = std::make_unique<Button>("test",
-//                                               sf::Vector2f (200,50),sf::Color::Black,
-//                                               sf::Color::White,mFont);
-//        mTestButton->setPosition(sf::Vector2f (200,50));
-
+        mMenu.Initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
         ChooseTexture();
     }
 
@@ -49,12 +49,14 @@ namespace i_2D {
      * @return A vector of strings representing the maze grid.
      */
     std::vector<std::string> MainInterface::CreateVectorMaze(
-
             const WorldGrid &grid, const type_options_t &type_options,
             const item_map_t &item_map, const agent_map_t &agent_map) {
+
         std::vector<std::string> symbol_grid(grid.GetHeight());
+
         mGridHeight = grid.GetHeight();
         mGridWidth = grid.GetWidth();
+
         // Load the world into the symbol_grid;
         for (size_t y = 0; y < grid.GetHeight(); ++y) {
             symbol_grid[y].resize(grid.GetWidth());
@@ -70,7 +72,11 @@ namespace i_2D {
             if (item_ptr->HasProperty("symbol")) {
                 c = item_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if(pos.CellX() >= 0 && pos.CellY() >= 0 && 
+                pos.CellX() < grid.GetWidth() && pos.CellY() < grid.GetHeight() && 
+                !item_ptr->IsOwned()){
+              symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
 
         // Add in the agents
@@ -80,7 +86,9 @@ namespace i_2D {
             if (agent_ptr->HasProperty("symbol")) {
                 c = agent_ptr->GetProperty<char>("symbol");
             }
-            symbol_grid[pos.CellY()][pos.CellX()] = c;
+            if (!agent_ptr->HasProperty("deleted")){
+                symbol_grid[pos.CellY()][pos.CellX()] = c;
+            }
         }
         return symbol_grid;
     }
@@ -92,6 +100,7 @@ namespace i_2D {
      * @return sf::Vector2f The size of each cell as a 2D vector.
      */
     sf::Vector2f MainInterface::CalculateCellSize(const WorldGrid &grid) {
+
         float cellSizeWide, cellSizeTall;
         if (mGridSizeLarge) {
             cellSizeWide = mWindow.getSize().x / COL;
@@ -136,10 +145,12 @@ namespace i_2D {
         } else {
             symbol_grid = default_grid;
         }
-
+        //CheckLargerGrid();
         // Create a render texture to draw the grid
         sf::RenderTexture renderTexture;
-        renderTexture.create({static_cast<unsigned int>(drawSpaceWidth), static_cast<unsigned int>(drawSpaceHeight)});
+        [[maybe_unused]] bool success =
+          renderTexture.create({static_cast<unsigned int>(drawSpaceWidth), static_cast<unsigned int>(drawSpaceHeight)});
+        
         renderTexture.clear(sf::Color::White);
 
         for (size_t iterY = 0; iterY < symbol_grid.size(); ++iterY) {
@@ -159,6 +170,8 @@ namespace i_2D {
         }
         renderTexture.display();
         DrawTimer();
+        DrawHealthInfo();
+
         // Draw the texture to the window
         sf::Sprite sprite(renderTexture.getTexture());
         sprite.setPosition({drawCenterX, drawCenterY});
@@ -167,47 +180,54 @@ namespace i_2D {
         // Display everything
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
-        mMenu.drawto(mWindow);
+        mMenu.DrawTo(mWindow);
         mWindow.display();
     }
 
     /**
-     * @brief this function draws timer and checks the elapsed time and
-     * shows remainder if the timer exceed above 5 seconds. and sestart the timer every move
-     * the player makes.
-     */
+    * @brief this function draws timer and checks the elapsed time
+    * if the timer exceed above 0.5 seconds, it returns 0 to the netwrok interface
+    * and restart the timer every move player makes
+    */
     void MainInterface::DrawTimer() {
         // Get elapsed time in seconds
         elapsedTime = timer.getElapsedTime().asSeconds();
-        if (mPlayerHasMoved) {
-            timer.restart();
-            showReminder = false; // Clear the reminder flag
-            mPlayerHasMoved = false;
 
-        }
-        // Display timer or reminder based on elapsed time
+        // Set up font and location
         sf::Text timerText(mFont);
         timerText.setCharacterSize(24);
         timerText.setPosition({750.0f, 75.0f}); // Adjust position as needed
 
+        // Format the elapsed time with 2 decimal points
+        std::ostringstream stream;
+        stream << "Time: " << std::fixed << std::setprecision(2) << elapsedTime << " S";
+        std::string formattedTime = stream.str();
 
-        if (elapsedTime <= 5.0f) {
-            timerText.setString("Time: " + std::to_string(elapsedTime) + " S");
-            timerText.setFillColor(sf::Color::Blue);
-            mWindow.draw(timerText);
-        } else {
-            timerText.setCharacterSize(34);
-            timerText.setString("Make a Move!!!");
-            timerText.setFillColor(sf::Color::Red);
-            mWindow.draw(timerText);
-        }
+        // Create text for current value
+        timerText.setString(formattedTime);
+        timerText.setFillColor(sf::Color::Blue);
+        mWindow.draw(timerText);
+    }
+
+    void MainInterface::DrawHealthInfo() {
+        if(!HasProperty("Health")) return;
+
+        int health = property_map.at("Health")->ToInt();
+
+        // Set text properties and draw
+        sf::Text healthText(mFont);
+        healthText.setCharacterSize(24);
+        healthText.setPosition({20.0f, 75.0f});
+        healthText.setFillColor(sf::Color::Green);
+        healthText.setString("Hp: " + std::to_string(health));
+        mWindow.draw(healthText);
     }
 
     /**
      * @brief Creates a 9x23 window of the symbol grid centered around the player's position.
      *
      * @param symbol_grid   The original symbol grid.
-     * @return              A new symbol grid representing the 9x23 window.
+     * @return std::vector<std::string> A new symbol grid representing the 9x23 window.
      */
     std::vector<std::string> MainInterface::LargeDisplayGrid(const std::vector<std::string> &symbol_grid) {
         // Determine the top-left corner of the 9x23 window
@@ -217,9 +237,9 @@ namespace i_2D {
 
         // Create a new symbol grid for the 9x23 display window
         std::vector<std::string> display_grid;
-        for (size_t iterY = 0; iterY < ROW; ++iterY) {
+        for (int iterY = 0; iterY < ROW; ++iterY) {
             std::string row;
-            for (size_t iterX = 0; iterX < COL; ++iterX) {
+            for (int iterX = 0; iterX < COL; ++iterX) {
                 int posX = topLeftX + iterX;
                 int posY = topLeftY + iterY;
 
@@ -257,7 +277,6 @@ namespace i_2D {
     }
 
     /**
-
     * @brief Handles user input for selecting actions.
     *
     * @param grid         The WorldGrid representing the maze.
@@ -269,26 +288,19 @@ namespace i_2D {
                                        const type_options_t &type_options,
                                        const item_map_t &item_map,
                                        const agent_map_t &agent_map) {
+        // Initialize action_id and timer
+        size_t action_id = 0;
+        timer.restart();
 
-        while (mWindow.isOpen()) {
+        // While the timer is going
+        while (mWindow.isOpen() && timer.getElapsedTime().asSeconds() < mInputWaitTime) {
             sf::Event event;
 
-//            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
-//                if(!mTextBox->IsSelected()) {
-//                    mTextBox->SetSelected(true);
-//                }else{
-//                    mMessageBoard->Send(mTextBox->GetText());
-//                    mTextBox->SetString("");
-//                    mTextBox->SetSelected(false);
-//                }
-//            }else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
-//                mTextBox->SetSelected(false);
-//            }
-
+            // Check through all events generated in this frame
             while (mWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     mWindow.close();
-                    exit(0);
+                    exitCleanup();
 
                 } else if (event.type == sf::Event::TextEntered) {
                     if (mTextBox->IsSelected()) {
@@ -296,28 +308,33 @@ namespace i_2D {
                     }
 
                 } else if (event.type == sf::Event::KeyPressed) {
-                    mPlayerHasMoved = true;
-                    return HandleKeyEvent(event);
+                    action_id = HandleKeyEvent(event);
 
                 } else if (event.type == sf::Event::Resized) {
                     HandleResize(event, grid);
 
                 } else if (event.type == sf::Event::MouseMoved) {
-                    mMenu.HandleMouseMove(mWindow);
-
+                    auto textureName = mMenu.HandleMouseMove(mWindow);
+                    if(textureName!="null"){
+                        auto texture = mTextureHolder.GetTexture(textureName);
+                        mMenu.SetInventoryItemDisplay(texture);
+                    }
                 } else if (event.type == sf::Event::MouseButtonPressed) {
-                    MouseClickEvent(event);
+                    MouseClickEvent(event, GetID(), item_map);
 
-
-                } else if (event.type == sf::Event::MouseWheelScrolled) {
-//                    HandleScroll(event);
                 }
-
             }
+
+            // Check if a valid action was taken and return that if so
+            if (action_id != 0) {
+                return action_id;
+            }
+
+            // Otherwise update the screen drawing again...
             DrawGrid(grid, type_options, item_map, agent_map);
 
         }
-
+        // The timer has ended or the window has been closed
         return 0;
     }
 
@@ -334,64 +351,96 @@ namespace i_2D {
      */
     size_t MainInterface::HandleKeyEvent(const sf::Event &event) {
         size_t action_id = 0;
-        switch (event.key.code) {
-            case sf::Keyboard::Enter:
-                if (!mTextBox->IsSelected()) {
-                    mTextBox->SetSelected(true);
-                } else {
+        if (mTextBox->IsSelected()) {
+            // TextBox is selected, handle specific cases
+            switch (event.key.code) {
+                case sf::Keyboard::Enter:
                     mMessageBoard->Send(mTextBox->GetText());
                     mTextBox->SetString("");
                     mTextBox->SetSelected(false);
-                }
-                break;
-            case sf::Keyboard::Escape:
-                if (mTextBox->IsSelected()) {
-                    mTextBox->SetSelected(false);
+                    break;
+                case sf::Keyboard::Escape:
                     mTextBox->SetString("");
-                }
-                break;
-            case sf::Keyboard::W:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("up");
-                break;
-            case sf::Keyboard::A:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("left");
-                break;
-            case sf::Keyboard::S:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("down");
-                break;
-            case sf::Keyboard::D:
-                if (mTextBox->IsSelected())break;
-                action_id = GetActionID("right");
-                break;
-            case sf::Keyboard::Up:
-                action_id = GetActionID("up");
-                break;
-            case sf::Keyboard::Left:
-                action_id = GetActionID("left");
-                break;
-            case sf::Keyboard::Down:
-                action_id = GetActionID("down");
-                break;
-            case sf::Keyboard::Right:
-                action_id = GetActionID("right");
-                break;
-            default:
-                break; // The user pressed an unknown key.
+                    mTextBox->SetSelected(false);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            // TextBox is not selected, handle movement keys
+            switch (event.key.code) {
+              case sf::Keyboard::W:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("up");
+                  break;
+              case sf::Keyboard::A:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("left");
+                  break;
+              case sf::Keyboard::S:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("down");
+                  break;
+              case sf::Keyboard::D:
+                  if (mTextBox->IsSelected())break;
+                  action_id = GetActionID("right");
+                  break;
+              case sf::Keyboard::Up:
+                  action_id = GetActionID("up");
+                  break;
+              case sf::Keyboard::Left:
+                  action_id = GetActionID("left");
+                  break;
+              case sf::Keyboard::Down:
+                  action_id = GetActionID("down");
+                  break;
+              case sf::Keyboard::Right:
+                  action_id = GetActionID("right");
+                  break;
+              case sf::Keyboard::H:
+                  action_id = GetActionID("heal");
+                  break;
+              case sf::Keyboard::T:
+                  /// TODO: make this more robust (AJF)
+                  if (GetName() == "Interface") action_id = GetActionID("drop");
+                  else if (GetName() == "Interface3") action_id = GetActionID("stats");
+                  break;
+              case sf::Keyboard::C:
+                  action_id = GetActionID("use_axe");
+                  break;
+              case sf::Keyboard::V:
+                  action_id = GetActionID("use_boat");
+                  break;
+              case sf::Keyboard::F:
+                  action_id = GetActionID("attack");
+                  break;
+              case sf::Keyboard::G:
+                  action_id = GetActionID("special");
+                  break;
+              case sf::Keyboard::B:
+                  action_id = GetActionID("buff");
+                  break;
+              case sf::Keyboard::R:
+                  action_id = GetActionID("run");
+                  break;
+              case sf::Keyboard::Y:
+                  action_id = GetActionID("help");
+                  break;
+              default:
+                  break; // The user pressed an unknown key.
+            }
         }
         // If we waited for input, but don't understand it, notify the user.
-        if (action_id == 0) {
+        if (action_id == 0 && !mTextBox->IsSelected()) {
             std::cout << "Unknown key." << std::endl;
         }
-        // Do the action!
+        // No action performed
         return action_id;
     }
 
+
     /**
      * @brief Handles the window resize event
-     *
      * Restricts window resizing if below a minimum size.
      * Matches the window's view to the new size of the window.
      *
@@ -416,8 +465,9 @@ namespace i_2D {
 
         mMenu.SetWorldSize(sf::Vector2f(widthWindow, heightWindow));
         if (mMenu.IsInventoryOpen()) {
+
             mMenu.DeconstructInventory();
-            mMenu.ConstructInventory();
+            mMenu.ConstructInventory(mAgentInventory);
         }
         // Restrict window size if necessary
         if (widthWindow <= widthMin || heightWindow <= heightMin) {
@@ -436,10 +486,11 @@ namespace i_2D {
 
             // Calculate the actual position based on percentages
             float xPos = (widthWindow * xPosPercentage);
-            float yPos = (heightWindow* yPosPercentage);
+            float yPos = (heightWindow * yPosPercentage);
 
             // Set the position of your textbox
-            mTextBox->SetPosition({ xPos, yPos});
+            mTextBox->SetPosition({xPos, yPos});
+
         }
     }
 
@@ -468,7 +519,7 @@ namespace i_2D {
      * this function handles mouseclick event
      * @param event for mouse click
      */
-    void MainInterface::MouseClickEvent(const sf::Event &event) {
+    void MainInterface::MouseClickEvent(const sf::Event &event, const size_t /*entity_id*/, const item_map_t &item_map) {
         if (event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2f mousePos(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
 
@@ -482,13 +533,21 @@ namespace i_2D {
             }
 
             // Check if the mouse is over specific menu items
-            if (mMenu.GetMenu()[4]->isMouseOver(mWindow) or (mGridWidth == mGridHeight and mGridWidth > ROW)){
-                mGridSizeLarge = true;
-            } else if (mMenu.GetMenu()[3]->isMouseOver(mWindow)) {
-                mGridSizeLarge = false;
+            if (mMenu.GetMenu()[4]->IsMouseOver(mWindow) ) {
+                SetLargeGrid(true);
+            } else if (mMenu.GetMenu()[3]->IsMouseOver(mWindow)) {
+                SetLargeGrid(false);
+            } else if (mMenu.GetMenu()[2]->IsMouseOver(mWindow)) {
+                exitCleanup();
             } else {
                 // Handle mouse button press for the general menu
-                mMenu.HandleMouseButtonPressed(mWindow);
+                mAgentInventory.clear();
+                for(const auto &[x,y]:item_map){
+                    if(GetID() == y->GetOwnerID()){
+                        mAgentInventory.push_back(y->GetName());
+                    }
+                }
+                mMenu.HandleMouseButtonPressed(mWindow, mAgentInventory);
             }
         }
     }
@@ -537,11 +596,27 @@ namespace i_2D {
      * @param wallTexture The texture for the wall.
      * @param renderTexture The Texture for the whole grid
     */
+    void MainInterface::DrawWall(sf::RenderTexture &renderTexture,
+                                 sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
 
-    void
-    MainInterface::DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture) {
         cellRect.setTexture(&wallTexture);
         renderTexture.draw(cellRect);
+    }
+    /**
+     * Sets the inputwait time for netwrok interface
+     *
+     * @param waitTime
+     */
+    void MainInterface::setMInputWaitTime(double waitTime) {
+        MainInterface::mInputWaitTime = waitTime;
+    }
+
+    void MainInterface::CheckLargerGrid()
+    {
+        if (mGridWidth == mGridHeight)
+        {
+            mGridSizeLarge = true;
+        }
     }
 
 
