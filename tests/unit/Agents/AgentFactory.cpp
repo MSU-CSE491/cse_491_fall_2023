@@ -9,11 +9,12 @@
 
 // class project
 #include <vector>
-#include "Agents/AgentFactory.hpp"
+
 #include "Agents/AStarAgent.hpp"
+#include "Agents/AgentFactory.hpp"
 #include "Agents/PacingAgent.hpp"
-#include "Agents/TrackingAgent.hpp"
 #include "Agents/PathAgent.hpp"
+#include "Agents/TrackingAgent.hpp"
 
 using namespace walle;
 
@@ -22,8 +23,8 @@ class MockWorld : public cse491::WorldBase {
   int DoAction(cse491::AgentBase &, size_t) override { return 0; }
 };
 
-TEST_CASE("Adding a AStarAgent", "[Agents]") {
-
+TEST_CASE("Adding a AStarAgent", "[Agents]")
+{
   // create a fake world and factory
   MockWorld world;
   AgentFactory factory(world);
@@ -39,7 +40,8 @@ TEST_CASE("Adding a AStarAgent", "[Agents]") {
   // factory creates correct agent
   auto &agent = factory.AddAStarAgent(agentData);
 
-  SECTION("Properties") {
+  SECTION("Properties")
+  {
     // test properties of created agent
     REQUIRE(agent.GetName() == agentData.name);
     REQUIRE(agent.GetPosition() == agentData.position);
@@ -48,14 +50,15 @@ TEST_CASE("Adding a AStarAgent", "[Agents]") {
     REQUIRE(agent.GetRecalculateValue() == agentData.recalculate_after_x_turns);
   }
 
-  SECTION("Type") {
+  SECTION("Type")
+  {
     // test type of created agent
     REQUIRE(dynamic_cast<walle::AStarAgent *>(&agent) != nullptr);
   }
 }
 
-TEST_CASE("Adding a PacingAgent", "[Agents]") {
-
+TEST_CASE("Adding a PacingAgent", "[Agents]")
+{
   // create a fake world and factory
   MockWorld world;
   AgentFactory factory(world);
@@ -69,7 +72,8 @@ TEST_CASE("Adding a PacingAgent", "[Agents]") {
 
   auto &agent = factory.AddPacingAgent(agentData);
 
-  SECTION("Properties") {
+  SECTION("Properties")
+  {
     // factory creates correct agent
     REQUIRE(agent.GetName() == agentData.name);
     REQUIRE(agent.GetPosition() == agentData.position);
@@ -77,14 +81,15 @@ TEST_CASE("Adding a PacingAgent", "[Agents]") {
     REQUIRE(agent.GetVertical() == agentData.vertical);
   }
 
-  SECTION("Type") {
+  SECTION("Type")
+  {
     // test type of created agent
     REQUIRE(dynamic_cast<cse491::PacingAgent *>(&agent) != nullptr);
   }
 }
 
-TEST_CASE("Adding a TrackingAgent (no alerter)", "[Agents]") {
-
+TEST_CASE("Adding a TrackingAgent (no alerter)", "[Agents]")
+{
   // create a fake world and factory
   MockWorld world;
   cse491::Entity *targ = nullptr;
@@ -103,7 +108,8 @@ TEST_CASE("Adding a TrackingAgent (no alerter)", "[Agents]") {
 
   auto &agent = factory.AddTrackingAgent(agentData);
 
-  SECTION("Properties") {
+  SECTION("Properties")
+  {
     // factory creates correct agent
     REQUIRE(agent.GetName() == agentData.name);
     REQUIRE(agent.GetPosition() == agentData.position);
@@ -112,14 +118,15 @@ TEST_CASE("Adding a TrackingAgent (no alerter)", "[Agents]") {
     REQUIRE(agent.GetAlerter() == nullptr);
   }
 
-  SECTION("Type") {
+  SECTION("Type")
+  {
     // test type of created agent
     REQUIRE(dynamic_cast<TrackingAgent *>(&agent) != nullptr);
   }
 }
 
-TEST_CASE("Adding a TrackingAgent (alerter)", "[Agents]") {
-
+TEST_CASE("Adding a TrackingAgent (alerter)", "[Agents]")
+{
   // create a fake world and factory
   MockWorld world;
   cse491::AgentBase a{0, "dummy"};
@@ -140,7 +147,8 @@ TEST_CASE("Adding a TrackingAgent (alerter)", "[Agents]") {
 
   auto &agent_first = factory.AddTrackingAgent(agentData);
 
-  SECTION("Properties") {
+  SECTION("Properties")
+  {
     // factory creates correct agent
     REQUIRE(agent_first.GetName() == agentData.name);
     REQUIRE(agent_first.GetPosition() == agentData.position);
@@ -153,21 +161,24 @@ TEST_CASE("Adding a TrackingAgent (alerter)", "[Agents]") {
   agentData.name = "Second";
   auto &agent_second = factory.AddTrackingAgent(agentData);
 
-  SECTION("Properties [other]") {
+  SECTION("Properties [other]")
+  {
     REQUIRE(agent_second.GetTarget() == &a);
     REQUIRE(agent_second.GetTarget() == agent_first.GetTarget());
     REQUIRE(agent_second.GetAlerter() == agent_first.GetAlerter());
   }
 
   auto alerter = agent_first.GetAlerter();
-  SECTION("Alerter properties") {
-    auto const& set = alerter->GetNetworkSet();
+  SECTION("Alerter properties")
+  {
+    auto const &set = alerter->GetNetworkSet();
     REQUIRE(set.contains(agent_first.GetID()));
     REQUIRE(set.contains(agent_second.GetID()));
   }
 
-  SECTION("Alerter properties [removal]") {
-    auto const& set = alerter->GetNetworkSet();
+  SECTION("Alerter properties [removal]")
+  {
+    auto const &set = alerter->GetNetworkSet();
 
     agent_first.RemoveFromAlerter();
     REQUIRE(!set.contains(agent_first.GetID()));
@@ -181,8 +192,8 @@ TEST_CASE("Adding a TrackingAgent (alerter)", "[Agents]") {
   }
 }
 
-TEST_CASE("Adding a PathAgent", "[Agents]") {
-
+TEST_CASE("Adding a PathAgent", "[Agents]")
+{
   // create a fake world and factory
   MockWorld world;
   AgentFactory factory(world);
@@ -199,7 +210,8 @@ TEST_CASE("Adding a PathAgent", "[Agents]") {
 
   auto &agent = factory.AddPathAgent(agentData);
 
-  SECTION("Properties") {
+  SECTION("Properties")
+  {
     // factory creates correct agent
     REQUIRE(agent.GetName() == agentData.name);
     REQUIRE(agent.GetPosition() == agentData.position);
@@ -207,7 +219,8 @@ TEST_CASE("Adding a PathAgent", "[Agents]") {
     REQUIRE(agent.GetPath() == agentData.vector_path);
   }
 
-  SECTION("Type") {
+  SECTION("Type")
+  {
     // test type of created agent
     REQUIRE(dynamic_cast<PathAgent *>(&agent) != nullptr);
   }
