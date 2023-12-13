@@ -40,7 +40,7 @@ window with our specific parameters.
 We can call the window whatever we want and determine how big the window
 will end up being.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image1.png){width="6.5in"
+![](media/image1.png){width="6.5in"
 height="3.2111111111111112in"}
 
 With a Frame class and an Initialize function made, we can now start
@@ -48,7 +48,7 @@ making a new frame to try and make a popup window. The show function is
 apart of the wxWindows class from the library that lets us show the
 window.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image2.png){width="6.5in"
+![](media/image2.png){width="6.5in"
 height="3.6861100174978128in"}
 
 With that being set, we can now run our program. wxWidgets makes it very
@@ -56,14 +56,14 @@ easy to run without needing a main function. In our main.cpp, we just
 need to call wxIMPLEMENT_APP with our class name and that will run the
 program.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image3.png){width="4.041666666666667in"
+![](media/image3.png){width="4.041666666666667in"
 height="1.0416666666666667in"}
 
 With that running we will get a popup window! We have officially ditched
 the terminal and have a whole new world to display our code and make new
 and exciting programs.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image4.png){width="6.5in"
+![](media/image4.png){width="6.5in"
 height="5.026388888888889in"}
 
 We are now able to use our imaginations and create whatever scene we
@@ -86,7 +86,7 @@ needs to be painted over again." The wxAutoBufferedPaintDC is a huge
 object. This will act as our canvas and make it so we can add things to
 the screen. We then ask it to set the background to yellow.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image5.png){width="6.5in"
+![](media/image5.png){width="6.5in"
 height="3.1777777777777776in"}
 
 After declaring these functions, let's go back to our frame class and
@@ -96,13 +96,13 @@ initialize the view with the InitializeT function we made in the view
 class. The "this" parameter for the InitializeT function just indicates
 that we are working with a pointer to the frame that is in the function.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image6.png){width="5.933333333333334in"
+![](media/image6.png){width="5.933333333333334in"
 height="2.183332239720035in"}
 
 Once this is all done and we run again, we can now see that the entire
 background is yellow!
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image7.png){width="6.5in"
+![](media/image7.png){width="6.5in"
 height="5.184722222222222in"}
 
 The last thing I want to show you is to draw something onto our
@@ -111,12 +111,12 @@ pen and set that pen to a color. Then we just need to call the Drawline
 function with the parameters of how long to make the line and where to
 place the line
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image8.png){width="3.466666666666667in"
+![](media/image8.png){width="3.466666666666667in"
 height="0.5916655730533683in"}
 
 Here is the results.
 
-![](vertopal_c01dba067fb240a2a3aa6a8771d3219c/media/image9.png){width="3.3916666666666666in"
+![](media/image9.png){width="3.3916666666666666in"
 height="2.716666666666667in"}
 
 That is just the surface of what this library can accomplish. We can

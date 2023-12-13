@@ -36,7 +36,7 @@ CMakeLists.txt might look like just to get started, we could be updating
 
 this.
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image1.png){width="6.5in"
+![](media/image1.png){width="6.5in"
 height="7.337498906386702in"}
 
 As you can see, it's very simple to be able to fetch the library from
@@ -52,7 +52,7 @@ Here's a simple main function that creates 2 players and binds them to 2
 sockets. Once the sockets have been bound, the client begins polling for
 incoming messages.
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image2.png){width="5.665277777777778in"
+![](media/image2.png){width="5.665277777777778in"
 height="4.234721128608924in"}
 
 Here you can see a simple main function that shows the instantiation of
@@ -63,7 +63,7 @@ where the handler for incoming messages is called.
 
 Here's what we might do when we get a message:
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image3.png){width="6.2in"
+![](media/image3.png){width="6.2in"
 height="3.5861111111111112in"}
 
 This function here describes the behavior we might execute when the
@@ -71,10 +71,10 @@ manager receives a message from its peers. This allows us to measure the
 length of the message and then, if the message is not empty, display the
 received message.
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image4.png){width="6.5in"
+![](media/image4.png){width="6.5in"
 height="7.111111111111111in"}
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image5.png){width="6.5in"
+![](media/image5.png){width="6.5in"
 height="2.313888888888889in"}
 
 Here, you can see the above implementation of what a client might look
@@ -86,7 +86,7 @@ has an infinite loop to poll for pings.
 
 Here is our output from the server.
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image6.png){width="3.738888888888889in"
+![](media/image6.png){width="3.738888888888889in"
 height="1.0208333333333333in"}
 
 These are very basic examples, however, and a true client should include
@@ -110,13 +110,13 @@ Here's the most recent CVE report on the vulnerability score of the GNS
 library for anyone considering using this library in a personal game or
 other project.
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image7.png){width="6.5in"
+![](media/image7.png){width="6.5in"
 height="1.6291666666666667in"}
 
 It currently features a score of 7.5, a high vulnerability score. Let's
 break it down.
 
-![](vertopal_3eee16fa15614c64b48b72bb0ea40d59/media/image8.png){width="6.5in"
+![](media/image8.png){width="6.5in"
 height="1.386111111111111in"}
 
 As you can see here, this flaw features a low attack complexity and a
