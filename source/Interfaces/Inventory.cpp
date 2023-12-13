@@ -13,14 +13,14 @@ namespace i_2D {
  * @param font The font used by the inventory list
  */
     void Inventory::ConstructInventory(sf::Font &font, const std::vector<std::string> &interfaceAgentInventory) {
-        mInventoryWindow = std::make_unique<sf::RectangleShape>();
-        mInventoryWindow->setSize({mWorldSize.x, mWorldSize.y / 2});
-        mInventoryWindow->setFillColor(sf::Color::Black);
-        mInventoryWindow->setPosition(sf::Vector2f{0.f, 50.f});
+        mCanvas = std::make_unique<sf::RectangleShape>();
+        mCanvas->setSize({mWorldSize.x, mWorldSize.y / 2});
+        mCanvas->setFillColor(sf::Color::Black);
+        mCanvas->setPosition(sf::Vector2f{0.f, 50.f});
 
-        mInventoryItems.clear();
-        mInventoryItems.resize(interfaceAgentInventory.size());
-        std::copy(interfaceAgentInventory.begin(), interfaceAgentInventory.end(), mInventoryItems.begin());
+        mItems.clear();
+        mItems.resize(interfaceAgentInventory.size());
+        std::ranges::copy(interfaceAgentInventory,mItems.begin());
 
         // Set row & col sizes
         if (mWorldSize.x > 1800) {
@@ -38,8 +38,8 @@ namespace i_2D {
                 v1.push_back(std::make_unique<Button>(
                         "", sf::Vector2f{(mWorldSize.x) / mCol, (mWorldSize.y / 2 - 50) / mRow},
                         sf::Color::Black, sf::Color::White, font));
-                if (Index < mInventoryItems.size()) {
-                    v1[j]->SetString(mInventoryItems[Index]);
+                if (Index < mItems.size()) {
+                    v1[j]->SetString(mItems[Index]);
                     ++Index;
                 } else {
                     v1[j]->SetString("empty");
@@ -47,7 +47,7 @@ namespace i_2D {
                 v1[j]->SetPosition(sf::Vector2f{j * (mWorldSize.x / mCol),
                                                 mWorldSize.y / 2 + 50 + i * (mWorldSize.y / 2 - 50) / mRow});
             }
-            mInventoryList.push_back(std::move(v1));
+            mListOfButtons.push_back(std::move(v1));
         }
     }
 
@@ -56,8 +56,8 @@ namespace i_2D {
  * @param window The render window of the world
  */
     void Inventory::DrawTo(sf::RenderWindow &window) {
-        window.draw(*mInventoryWindow);
-        for (const auto &x: mInventoryList) {
+        window.draw(*mCanvas);
+        for (const auto &x: mListOfButtons) {
             for (const auto &y: x) {
                 y->DrawTo(window);
             }
@@ -77,12 +77,12 @@ namespace i_2D {
  */
     std::string Inventory::HandleMouseMove(sf::RenderWindow &window) {
         std::string s1 = "null";
-        for(size_t i = 0; i < mInventoryList.size(); ++i){
-            for(size_t j = 0; j < mInventoryList.size(); ++j){
-                if(mInventoryList[i][j]->IsMouseOver(window)){
-                    mInventoryList[i][j]->SetBackColor(sf::Color::Magenta);
-                    if(i*mCol+j < mInventoryItems.size()){
-                        s1 = (mInventoryItems[i*mCol+j]);
+        for(int i = 0; i < mListOfButtons.size(); ++i){
+            for(int j = 0; j < mListOfButtons.size(); ++j){
+                if(mListOfButtons[i][j]->IsMouseOver(window)){
+                    mListOfButtons[i][j]->SetBackColor(sf::Color::Magenta);
+                    if(i*mCol+j < mItems.size()){
+                        s1 = (mItems[i*mCol+j]);
                         if(s1 == "Boots"){
                             s1 = s1.substr(0,s1.size()-1);
                         }
@@ -90,7 +90,7 @@ namespace i_2D {
                         s1 += "Texture";
                     }
                 }else{
-                    mInventoryList[i][j]->SetBackColor(sf::Color::Black);
+                    mListOfButtons[i][j]->SetBackColor(sf::Color::Black);
                 }
             }
         }

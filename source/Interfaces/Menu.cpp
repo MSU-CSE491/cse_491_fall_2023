@@ -14,7 +14,7 @@ namespace i_2D {
     /**
      * @brief initialize the buttons at the top of the window
      */
-    void Menu::initialize(sf::Font &font, sf::Vector2f size) {
+    void Menu::Initialize(sf::Font &font, sf::Vector2f size) {
         sf::Color backgroundcolor = sf::Color::Black;
         sf::Color textcolor = sf::Color::White;
         mFont = &font;
@@ -43,7 +43,7 @@ namespace i_2D {
      *
      * @param window the main window of the graphic interface
      */
-    void Menu::drawto(sf::RenderWindow &window) {
+    void Menu::DrawTo(sf::RenderWindow &window) {
         for( const auto &button : mMenuBar){
             button->DrawTo(window);
         }

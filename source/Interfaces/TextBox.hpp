@@ -24,12 +24,11 @@ namespace i_2D {
 
     private:
         /// The string of the text
-        std::unique_ptr<sf::Text> mTextBox;
-        std::ostringstream mText; ///< Use to take in string
+        std::unique_ptr<sf::Text> mText;
+        std::ostringstream mStreamText; ///< Use to take in string
         bool isSelected = false; /// Flag for checking text mode
-        bool hasLimit = false; /// Flag for checking limit mode
-        int limit = 10000; /// The limit of characters allowed
-        const size_t MAX_CHAR = 60; ///< max character per line in the textbox
+        bool hasLimit = true; /// Flag for checking limit mode
+        int limit = 60; /// The limit of characters allowed
         // Draw the border around the TextBox
         sf::RectangleShape mBorderRect;
 
@@ -50,7 +49,7 @@ namespace i_2D {
          * @param font The font to be set to
          */
         void SetFont(const sf::Font &font) {
-            mTextBox->setFont(font);
+            mText->setFont(font);
         }
 
         /**
@@ -59,7 +58,7 @@ namespace i_2D {
          * @param pos The position to be set to
          */
         void SetPosition(sf::Vector2f pos) {
-            mTextBox->setPosition(pos);
+            mText->setPosition(pos);
         }
 
         /**
@@ -79,7 +78,7 @@ namespace i_2D {
          */
         void SetLimit(bool ToF, int lim) {
             hasLimit = ToF;
-            limit = lim - 1;
+            limit = lim;
         }
 
         void SetSelected(bool sel);
@@ -90,7 +89,7 @@ namespace i_2D {
          * @return Return the string
          */
         std::string GetText() {
-            return mText.str();
+            return mStreamText.str();
         }
 
         void DrawTo(sf::RenderWindow &window);
@@ -114,7 +113,6 @@ namespace i_2D {
         bool Contains(sf::Vector2f point) const {
             return mBorderRect.getGlobalBounds().contains(point);
         }
-
 
     };
 }
