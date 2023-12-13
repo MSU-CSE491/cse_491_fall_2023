@@ -20,7 +20,8 @@ namespace i_2D {
 
         mItems.clear();
         mItems.resize(interfaceAgentInventory.size());
-        std::ranges::copy(interfaceAgentInventory,mItems.begin());
+        std::copy(interfaceAgentInventory.begin(), interfaceAgentInventory.end(), 
+            mItems.begin());
 
         // Set row & col sizes
         if (mWorldSize.x > 1800) {
