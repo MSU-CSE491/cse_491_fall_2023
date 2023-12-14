@@ -10,144 +10,134 @@
 
 #pragma once
 
-#include "SFML/Graphics.hpp"
-#include "SFML/Graphics/Transformable.hpp"
 #include <iostream>
-#include <vector>
-#include <sstream>
-#include "Button.hpp"
-#include "Menu.hpp"
 #include <memory>
+#include <sstream>
+#include <vector>
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
-#include "TextureHolder.hpp"
-#include "TextBox.hpp"
+#include "Button.hpp"
+#include "Menu.hpp"
 #include "MessageBoard.hpp"
-
+#include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Transformable.hpp"
+#include "TextBox.hpp"
+#include "TextureHolder.hpp"
 
 namespace i_2D {
 
-    using namespace cse491;
+using namespace cse491;
 
+/**
+ * @class MainInterface
+ *
+ * @brief Represents the main interface for a 2D maze game.
+ *
+ * This class inherits from `InterfaceBase` and provides functionality
+ * for creating and displaying a 2D maze game world, handling user input,
+ * and updating the graphical representation of the game.
+ */
+class MainInterface : public virtual InterfaceBase {
+private:
+  sf::RenderWindow mWindow;        ///< render window
+  float const MIN_SIZE_CELL = 16;  ///< Pixels
 
-    /**
-    * @class MainInterface
-    *
-    * @brief Represents the main interface for a 2D maze game.
-    *
-    * This class inherits from `InterfaceBase` and provides functionality
-    * for creating and displaying a 2D maze game world, handling user input,
-    * and updating the graphical representation of the game.
-    */
-    class MainInterface : public virtual InterfaceBase {
+  // Menu and message vars
+  Menu mMenu;                         ///< for menu class
+  sf::Font mFont;                     ///< one font for all objects using font
+  std::unique_ptr<TextBox> mTextBox;  ///< for chatting and possible event handling by text
+  std::unique_ptr<MessageBoard> mMessageBoard;  ///< message box object
+  std::vector<std::string> mAgentInventory;
 
-    private:
-        sf::RenderWindow mWindow; ///< render window
-        float const MIN_SIZE_CELL = 16; ///< Pixels
+  // Texture vars
+  TextureHolder mTextureHolder;                      ///< for the texture holder
+  std::map<char, sf::Texture> mTexturesDefault;      ///< for the texture holder default grid
+  std::map<char, sf::Texture> mTexturesSecondWorld;  ///< for the texture holder SecondWorld grid
+  std::map<char, sf::Texture> mTexturesManualWorld;  ///< for the texture holder Manualworld grid
+  std::map<char, sf::Texture>
+      mTexturesGenerativeWorld;                  ///< for the texture holder GenerativeWorld grid
+  std::map<char, sf::Texture> mTexturesCurrent;  ///< for the texture holder current world grid
 
-        // Menu and message vars
-        Menu mMenu; ///< for menu class
-        sf::Font mFont; ///< one font for all objects using font
-        std::unique_ptr<TextBox> mTextBox; ///< for chatting and possible event handling by text
-        std::unique_ptr<MessageBoard> mMessageBoard; ///< message box object
-        std::vector<std::string> mAgentInventory;
+  // Render range vars
+  sf::Vector2i mPlayerPosition = sf::Vector2i(0, 0);  ///< xy world grid location of the player
+  bool mGridSizeLarge = false;                        ///< flag for the largegrid
+  int const ROW = 9;                                  ///< row to enlarge te grid
+  int const COL = 20;                                 ///< column to enlarge the grid
 
-        // Texture vars
-        TextureHolder mTextureHolder; ///< for the texture holder
-        std::map<char, sf::Texture> mTexturesDefault; ///< for the texture holder default grid
-        std::map<char, sf::Texture> mTexturesSecondWorld; ///< for the texture holder SecondWorld grid
-        std::map<char, sf::Texture> mTexturesManualWorld; ///< for the texture holder Manualworld grid
-        std::map<char, sf::Texture> mTexturesGenerativeWorld; ///< for the texture holder GenerativeWorld grid
-        std::map<char, sf::Texture> mTexturesCurrent; ///< for the texture holder current world grid
+  int mGridWidth = 0;   ///< for the gridwidth
+  int mGridHeight = 0;  ///< for the gridheight
 
-        // Render range vars
-        sf::Vector2i mPlayerPosition = sf::Vector2i(0, 0); ///< xy world grid location of the player
-        bool mGridSizeLarge = false; ///< flag for the largegrid
-        int const ROW = 9; ///< row to enlarge te grid
-        int const COL = 20; ///< column to enlarge the grid
+  double mInputWaitTime = 0.5f;  ///< for the waittime of the player
 
-        int mGridWidth = 0; ///< for the gridwidth
-        int mGridHeight = 0; ///< for the gridheight
+  size_t HandleKeyEvent(const sf::Event &event);
 
-        double mInputWaitTime = 0.5f;  ///< for the waittime of the player
+  void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth,
+                          float &drawSpaceHeight, float &drawCenterX, float &drawCenterY);
 
-        size_t HandleKeyEvent(const sf::Event &event);
+  sf::Vector2f CalculateCellSize(const WorldGrid &grid);
 
-        void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth, float &drawSpaceHeight,
-                                float &drawCenterX, float &drawCenterY);
+  void HandleResize(const sf::Event &event, const WorldGrid &grid);
 
-        sf::Vector2f CalculateCellSize(const WorldGrid &grid);
+  void ChooseTexture();
 
-        void HandleResize(const sf::Event &event, const WorldGrid &grid);
+  std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
-        void ChooseTexture();
+  void MouseClickEvent(const sf::Event &event, const size_t entity_id, const item_map_t &item_map);
 
-        std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
+  void DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                     sf::RectangleShape &cell, sf::Texture &agent);
 
-        void MouseClickEvent(const sf::Event &event,const size_t entity_id, const item_map_t &item_map);
+  void SwitchCellSelect(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                        sf::RectangleShape &cell, char symbol);
 
-        void DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
-                           sf::Texture &agent);
+  void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect,
+                sf::Texture &wallTexture);
 
-        void
-        SwitchCellSelect(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
-                         char symbol);
+  void DrawTimer();
 
-        void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
+  void DrawHealthInfo();
 
-        void DrawTimer();
+public:
+  MainInterface(size_t id, const std::string &name);
 
-        void DrawHealthInfo();
+  /**
+   * @brief Destructor for the `MainInterface` class.
+   */
+  ~MainInterface() = default;
 
-    public:
-        MainInterface(size_t id, const std::string &name);
+  std::vector<std::string> CreateVectorMaze(const WorldGrid &grid,
+                                            const type_options_t &type_options,
+                                            const item_map_t &item_map,
+                                            const agent_map_t &agent_map);
 
-        /**
-         * @brief Destructor for the `MainInterface` class.
-         */
-        ~MainInterface() = default;
+  void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
+                const item_map_t &item_map, const agent_map_t &agent_map);
 
+  void setMInputWaitTime(double mInputWaitTime);
+  void SetLargeGrid(bool b) { mGridSizeLarge = b; }
 
-        std::vector<std::string> CreateVectorMaze(
-                const WorldGrid &grid,
-                const type_options_t &type_options,
-                const item_map_t &item_map,
-                const agent_map_t &agent_map);
+  /**
+   * @brief Initializes the main interface.
+   *
+   * @return True if initialization is successful; otherwise, false.
+   */
+  bool Initialize() override { return true; }
 
-        void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
-                      const item_map_t &item_map, const agent_map_t &agent_map);
-        
-        void setMInputWaitTime(double mInputWaitTime);
-        void SetLargeGrid(bool b){ mGridSizeLarge = b; } 
+  size_t SelectAction(const WorldGrid &grid, const type_options_t &type_options,
+                      const item_map_t &item_map, const agent_map_t &agent_map) override;
 
-        /**
-         * @brief Initializes the main interface.
-         *
-         * @return True if initialization is successful; otherwise, false.
-         */
-        bool Initialize() override {
-            return true;
-        }
+  /**
+   * @brief notifies the world if the player have any progress message
+   * @param message that notifies the world
+   */
+  void Notify(const std::string &message, const std::string & /*msg_type*/ = "none") override
+  {
+    std::cout << message << std::endl;
+    mMessageBoard->Send(message);
+  }
 
-        size_t SelectAction(const WorldGrid &grid,
-                            const type_options_t &type_options,
-                            const item_map_t &item_map,
-                            const agent_map_t &agent_map) override;
+  void CheckLargerGrid();
+};
 
-
-        /**
-         * @brief notifies the world if the player have any progress message
-         * @param message that notifies the world
-         */
-        void Notify(const std::string &message,
-                    const std::string & /*msg_type*/= "none") override {
-            std::cout << message << std::endl;
-            mMessageBoard->Send(message);
-        }
-
-        void CheckLargerGrid();
-    };
-
-} // End of namespace 2D
-
+}  // namespace i_2D
