@@ -1,5 +1,5 @@
 /**
- * @author : Team - 3
+ * @authors Gaya Kanagaraj, Vincenzo Felici, Mui Pham
  * @date: 11/02/2023
  * Button class creates a SF::Rectangle and SF::Text on top
  */
