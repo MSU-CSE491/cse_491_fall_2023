@@ -17,26 +17,26 @@
  */
 namespace cowboys {
 
-static constexpr int WALL =
-    2;  // TODO: work with world teams to better define impenetrable objects
+static constexpr int WALL = 2;  // TODO: work with world teams to better define impenetrable objects
 // FIXME: Group 1 has made a class that can check if a position is penetrable
 // or not. We This will be used instead
 
 enum SensorDirection { LEFT, RIGHT, ABOVE, BELOW };
 
 class Sensors {
- private:
+private:
   /**
    * @brief print the positions of the agent only during debug mode
    * @param printstring
    */
-  [[maybe_unused]] static void debugPosition(const std::string &/*printstring*/) {
+  [[maybe_unused]] static void debugPosition(const std::string & /*printstring*/)
+  {
 #ifndef NDEBUG
 //    std::cout << printstring << std::endl;
 #endif
   }
 
- public:
+public:
   /// Constructor
   Sensors() = default;
 
@@ -51,9 +51,9 @@ class Sensors {
    * @param direction direction to find the distance (LEFT, RIGHT, ABOVE, BELOW)
    * @return distance to the wall
    */
-  static int wallDistance(const cse491::WorldGrid &grid,
-                          const cse491::AgentBase &agent,
-                          SensorDirection direction) {
+  static int wallDistance(const cse491::WorldGrid &grid, const cse491::AgentBase &agent,
+                          SensorDirection direction)
+  {
     int distance = 0;
     cse491::GridPosition position = agent.GetPosition();
 
@@ -81,14 +81,14 @@ class Sensors {
       directionStr = "bottom";
     }
 
-    debugPosition(directionStr +
-                  " distance to the wall:  " + std::to_string(distance - 1));
+    debugPosition(directionStr + " distance to the wall:  " + std::to_string(distance - 1));
 
     return distance - 1;
   }
 
   // make a function that takes in a string and maps the SensorDirectionEnum
-  static SensorDirection getSensorDirectionEnum(const std::string &direction) {
+  static SensorDirection getSensorDirectionEnum(const std::string &direction)
+  {
     if (direction == "getLeft") {
       return SensorDirection::LEFT;
     } else if (direction == "getRight") {

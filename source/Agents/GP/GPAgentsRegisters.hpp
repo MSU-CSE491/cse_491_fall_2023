@@ -14,13 +14,13 @@ namespace cowboys {
  *
  */
 class GPAgentRegisters {
- private:
+private:
   /// Vector of registers
   std::vector<size_t> registers;
 
   /// Number of registers Default is 16
 
- public:
+public:
   /**
    * Constructor for GPAgentRegisters
    * @param numRegisters
@@ -37,7 +37,8 @@ class GPAgentRegisters {
    * @param value
    * @return
    */
-  bool setRegister(size_t index, size_t value) {
+  bool setRegister(size_t index, size_t value)
+  {
     if (index >= registers.size()) {
       assert(index >= registers.size());
       return false;
@@ -53,7 +54,8 @@ class GPAgentRegisters {
    * @return std::optional<size_t> Returns the value of the register if it
    * exists
    */
-  std::optional<size_t> getRegister(size_t index) {
+  std::optional<size_t> getRegister(size_t index)
+  {
     if (index >= registers.size()) {
       return std::nullopt;  // Indicates that the value is absent
     }
@@ -73,21 +75,20 @@ class GPAgentRegisters {
    * TODO: Just pass in the vector Iterator
    */
   class iterator {
-   private:
+  private:
     /// Index of the iterator
     size_t index;
 
     /// Reference to the registers
     GPAgentRegisters &registers;
 
-   public:
+  public:
     /**
      * Constructor for iterator
      * @param index
      * @param regs
      */
-    iterator(size_t index, GPAgentRegisters &regs)
-        : index(index), registers(regs) {}
+    iterator(size_t index, GPAgentRegisters &regs) : index(index), registers(regs) {}
 
     /**
      * Overload dereference operator
@@ -99,7 +100,8 @@ class GPAgentRegisters {
      * Overload pre-increment operator
      * @return
      */
-    iterator &operator++() {
+    iterator &operator++()
+    {
       ++index;
       return *this;
     }
@@ -109,18 +111,14 @@ class GPAgentRegisters {
      * @param other
      * @return
      */
-    bool operator==(const iterator &other) const {
-      return index == other.index;
-    }
+    bool operator==(const iterator &other) const { return index == other.index; }
 
     /**
      * @brief Overload not equal operator
      * @param other
      * @return
      */
-    bool operator!=(const iterator &other) const {
-      return index != other.index;
-    }
+    bool operator!=(const iterator &other) const { return index != other.index; }
   };
 
   // Begin iterator

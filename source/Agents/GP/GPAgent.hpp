@@ -28,7 +28,7 @@
 namespace cowboys {
 
 class GPAgent : public cse491::AgentBase {
- protected:
+protected:
   const std::vector<std::string> predefinedMovement = {
       "down",  "down",  "down",  "down",  "right", "right", "up",    "up",
       "up",    "up",    "right", "right", "right", "right", "right", "right",
@@ -36,8 +36,9 @@ class GPAgent : public cse491::AgentBase {
 
   size_t movementIndex = 0;  ///< current move of the agent
 
- public:
-  GPAgent(size_t id, const std::string &name) : AgentBase(id, name) {
+public:
+  GPAgent(size_t id, const std::string &name) : AgentBase(id, name)
+  {
     std::random_device rd;
     std::mt19937 gen(rd());
 
@@ -52,11 +53,11 @@ class GPAgent : public cse491::AgentBase {
   bool Initialize() override { return true; }
 
   /// Choose the action to take a step in the appropriate direction.
-  size_t SelectAction(
-      [[maybe_unused]] const cse491::WorldGrid &grid,
-      [[maybe_unused]] const cse491::type_options_t &type_options,
-      [[maybe_unused]] const cse491::item_map_t &item_map,
-      [[maybe_unused]] const cse491::agent_map_t &agent_map) override {
+  size_t SelectAction([[maybe_unused]] const cse491::WorldGrid &grid,
+                      [[maybe_unused]] const cse491::type_options_t &type_options,
+                      [[maybe_unused]] const cse491::item_map_t &item_map,
+                      [[maybe_unused]] const cse491::agent_map_t &agent_map) override
+  {
     if (movementIndex >= predefinedMovement.size()) {
       return 0;  // do nothing if it is out of bound for defined movement
     }
