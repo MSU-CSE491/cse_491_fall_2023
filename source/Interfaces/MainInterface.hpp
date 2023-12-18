@@ -48,7 +48,6 @@ namespace i_2D {
         sf::Font mFont; ///< one font for all objects using font
         std::unique_ptr<TextBox> mTextBox; /// for chatting and possible event handling by text
         std::unique_ptr<MessageBoard> mMessageBoard;
-//        std::unique_ptr<Button> mTestButton;
 
         // Texture vars
         TextureHolder mTextureHolder; ///< for the texture holder
@@ -64,6 +63,13 @@ namespace i_2D {
         int const ROW = 9;
         int const COL = 23;
 
+        int mGridWidth  = 0;
+        int mGridHeight = 0;
+
+        double mInputWaitTime = 0.5f;
+    public:
+        void setMInputWaitTime(double mInputWaitTime);
+
     public:
 
         MainInterface(size_t id, const std::string &name) ;
@@ -75,10 +81,10 @@ namespace i_2D {
 
 
         std::vector<std::string> CreateVectorMaze(
-          const WorldGrid &grid,
-          const type_options_t &type_options,
-          const item_map_t &item_map,
-          const agent_map_t &agent_map) ;
+                const WorldGrid &grid,
+                const type_options_t &type_options,
+                const item_map_t &item_map,
+                const agent_map_t &agent_map) ;
 
         void DrawGrid(const WorldGrid &grid, const type_options_t &type_options,
                       const item_map_t &item_map, const agent_map_t &agent_map);
@@ -98,12 +104,6 @@ namespace i_2D {
 
         size_t HandleKeyEvent(const sf::Event &event);
 
-        void DrawWall(sf::RectangleShape &cellRect, sf::Texture &wallTexture);
-
-
-        void DrawAgentCell(sf::RectangleShape &cellRect, sf::RectangleShape &cell, sf::Texture &agent);
-
-
         void CalculateDrawSpace(const WorldGrid &grid, float cellSize, float &drawSpaceWidth, float &drawSpaceHeight,
                                 float &drawCenterX, float &drawCenterY);
 
@@ -112,7 +112,6 @@ namespace i_2D {
         void HandleResize(const sf::Event &event, const WorldGrid &grid);
 
         void ChooseTexture();
-        void SwitchCellSelect(sf::RectangleShape& cellRect,sf::RectangleShape& cell, char symbol);
 
         void Notify(const std::string & message,
                     const std::string & /*msg_type*/="none") override
@@ -123,6 +122,19 @@ namespace i_2D {
         std::vector<std::string> LargeDisplayGrid(const std::vector<std::string> &symbol_grid);
 
         void MouseClickEvent(const sf::Event &event);
+
+        void DrawAgentCell(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
+                           sf::Texture &agent);
+
+        void
+        SwitchCellSelect(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::RectangleShape &cell,
+                         char symbol);
+
+        void DrawWall(sf::RenderTexture &renderTexture, sf::RectangleShape &cellRect, sf::Texture &wallTexture);
+
+        void DrawTimer();
+
+        void DrawHealthInfo();
     };
 
 } // End of namespace 2D

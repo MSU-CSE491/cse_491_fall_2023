@@ -21,12 +21,12 @@
 
 
 #include "tinyxml2.h"
-
+#include "GPAgentAnalyze.h"
 
 
 namespace cowboys {
 
-    constexpr unsigned int TRAINING_SEED = 10; ///< If this is 0, then a random seed will be used
+    constexpr unsigned int TRAINING_SEED = 0; ///< If this is 0, then a random seed will be used
 
     template<class AgentType, class EnvironmentType>
     class GPTrainingLoop {
@@ -36,6 +36,7 @@ namespace cowboys {
         std::vector<std::vector<cowboys::GPAgentBase *>> agents;
         std::vector<std::vector<double>> TEMPAgentFitness;
 
+        GPAgentAnalyzer analyzer;
 
         tinyxml2::XMLDocument topAgentsDoc;
         tinyxml2::XMLDocument lastGenerationsTopAgentsDoc; // <- Saves the last 5 generations
@@ -161,7 +162,7 @@ namespace cowboys {
           const size_t numAgents = numArenas * NumAgentsForArena;
 
           std::stringstream ss;
-          ss.imbue(std::locale(""));
+          // ss.imbue(std::locale(""));
           ss << std::fixed << numAgents;
 
           std::cout << "number of agents " << std::fixed << ss.str() << std::endl;
@@ -282,15 +283,7 @@ namespace cowboys {
 
           // Agent complexity, temporarily doing this in a bad way
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)) {
-            auto genotype = cgp->GetGenotype();
-            double connection_complexity =
-                    static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
-
-            double functional_nodes = genotype.GetNumFunctionalNodes();
-            double node_complexity = functional_nodes / (functional_nodes + 1);
-
-            double complexity = connection_complexity + node_complexity;
-            fitness -= complexity;
+            fitness -= cgp->GetComplexity();
           }
 
           return fitness;
@@ -315,15 +308,7 @@ namespace cowboys {
           cse491::AgentBase &agent = *agents[arena][a];
           // Agent complexity, temporarily doing this in a bad way
           if (auto *cgp = dynamic_cast<CGPAgent *>(&agent)){
-            auto genotype = cgp->GetGenotype();
-            double connection_complexity =
-                    static_cast<double>(genotype.GetNumConnections()) / genotype.GetNumPossibleConnections();
-
-            double functional_nodes = genotype.GetNumFunctionalNodes();
-            double node_complexity = functional_nodes / (functional_nodes + 1);
-
-            double complexity = connection_complexity + node_complexity;
-            fitness -= complexity;
+            fitness -= cgp->GetComplexity();
           }
 
           return fitness;
@@ -487,6 +472,7 @@ namespace cowboys {
             saveDataParams.countMaxAgents = countMaxAgents;
             SaveDataCheckPoint(saveDataParams);
 
+
             GpLoopMutateHelper();
             resetEnvironments();
 
@@ -495,6 +481,7 @@ namespace cowboys {
                     generationEndTime - generationStartTime);
             std::cout << "Generation " << generation << " took " << generationDuration.count() / 1000000.0 << " seconds"
                       << std::endl;
+          analyzer.saveToFile();
 
           }
 
@@ -597,6 +584,7 @@ namespace cowboys {
 
           std::cout << "@@@@@@@@@@@@@@@@@@@@@@  " << "DataSaved" << "  @@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
+//            analyzer.saveToFile(getSystemPath() / "fitness.csv");
           lastGenerationsTopAgentsDoc.Clear();
           ResetMainTagLastGenerations();
         }
@@ -663,11 +651,17 @@ namespace cowboys {
 
           std::cout << "Generation " << generation << " complete" << std::endl;
           std::cout << "Average fitness: " << averageFitness << " ";
+          analyzer.addAverageFitness(averageFitness);
+
           std::cout << "Max fitness: " << maxFitness << std::endl;
+          analyzer.addMaxFitness(maxFitness);
+
+
 
           std::string tagName = "generation_" + std::to_string(generation);
           auto *generationTag = metaData.NewElement(tagName.c_str());
           generationTag->SetAttribute("generation", generation);
+
           generationTag->SetAttribute("averageFitness", averageFitness);
           generationTag->SetAttribute("maxFitness", maxFitness);
           generationTag->SetAttribute("bestAgentIDX", bestAgent.second);
@@ -721,12 +715,13 @@ namespace cowboys {
             std::cout << std::endl;
           }
 
-          std::cout << "with an average score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
+          std::cout << "with best agent weighted score of " << TEMPAgentFitness[bestAgent.first][bestAgent.second] << std::endl;
           std::cout << std::endl;
-
+          analyzer.addAverageScore(TEMPAgentFitness[bestAgent.first][bestAgent.second]);
 
           std::cout << "Number of agents with max fitness: " << countMaxAgents << std::endl;
           std::cout << "------------------------------------------------------------------" << std::endl;
+          analyzer.addNumAgentsWithMaxFitness(countMaxAgents);
           return countMaxAgents;
         }
 
@@ -769,14 +764,16 @@ namespace cowboys {
         void SerializeAgents(int generation, tinyxml2::XMLElement *rootElement, tinyxml2::XMLDocument &paramDocument,
                              size_t topN = 5) {
 
+
           std::string tagName = "generation_" + std::to_string(generation);
           auto *generationTag = paramDocument.NewElement(tagName.c_str());
+
 
           rootElement->InsertFirstChild(generationTag);
 
           for (size_t i = 0; i < std::min(sortedAgents.size(), topN); ++i) {
             auto [arenaIDX, agentIDX] = sortedAgents[i];
-            agents[arenaIDX][agentIDX]->Serialize(paramDocument, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
+            agents[arenaIDX][agentIDX]->SerializeGP(paramDocument, generationTag, TEMPAgentFitness[arenaIDX][agentIDX]);
           }
 
 
@@ -863,7 +860,7 @@ namespace cowboys {
           averageEliteFitness /= ELITE_POPULATION_SIZE;
 
           std::cout << " --- average elite score " << averageEliteFitness << "------ " << std::endl;
-
+          analyzer.addEliteScore(averageEliteFitness);
 
           const int MIDDLE_MUTATE_ENDBOUND = int(sortedAgents.size() * (1 - UNFIT_POPULATION_PERCENT));
           const int MIDDLE_MUTATE_STARTBOUND = int(ELITE_POPULATION_PERCENT * sortedAgents.size());
@@ -1027,6 +1024,9 @@ namespace cowboys {
         void RunArena(size_t arena, size_t numberOfTurns) {
           for (size_t startPos_idx = 0; startPos_idx < STARTPOSITIONS.size(); ++startPos_idx) {
             for(size_t a = 0; a < agents[arena].size(); ++a) {
+              // Reset the agent before each run
+              agents[arena][a]->Reset();
+              // Set the starting position
               agents[arena][a]->SetPosition(STARTPOSITIONS[startPos_idx]);
             }
 
@@ -1061,8 +1061,9 @@ namespace cowboys {
 //            TEMPAgentFitness[arena][a] += computeMedian();
               double min = *std::min_element(scores.begin(), scores.end());
             [[maybe_unused]] double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
-//              TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
-              TEMPAgentFitness[arena][a] = min;
+            //  TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
+              // TEMPAgentFitness[arena][a] = min;
+              TEMPAgentFitness[arena][a] = avg;
           }
 
         }

@@ -16,12 +16,16 @@ void i_2D::Inventory::ConstructInventory(sf::Font &font) {
     mInventoryWindow->setSize({mWorldSize.x,mWorldSize.y/2});
     mInventoryWindow->setFillColor(sf::Color::Black);
     mInventoryWindow->setPosition(sf::Vector2f{0.f,50.f});
+
+    // Set row & col sizes
     if(mWorldSize.x > 1800){
         mCol = 5;
     }else mCol = 3;
     if(mWorldSize.y > 900){
         mRow = 4;
     }else mRow = 3;
+
+    // Create 2d vector of buttons
     for(int i = 0; i < mRow; i++) {
         std::vector<std::unique_ptr<Button>> v1;
         for (int j = 0; j < mCol; j++) {

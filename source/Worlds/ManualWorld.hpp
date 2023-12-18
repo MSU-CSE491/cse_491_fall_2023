@@ -65,6 +65,7 @@ namespace cse491_team8 {
       portal_id_d = AddCellType("portal_d", "Portal that teleports player to another d-portal spot.", ')');
       main_grid.Read("../assets/grids/team8_grid_large.grid", type_options);
     }
+
     ~ManualWorld() = default;
 
     /// @brief Generates move sets for all the agents
