@@ -18,7 +18,7 @@ namespace i_2D {
 #define ESCAPE_KEY 27 ///< value for the escape key
 
     /**
-     * @class The TextBox is where users write to interface and the world
+     * @class TextBox The TextBox is where users write to interface and the world
      */
     class TextBox {
 
