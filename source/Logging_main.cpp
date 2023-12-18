@@ -10,11 +10,13 @@ void samplefunction() {
 
 
 int main() {
+
     Logger::Log() << Team::TEAM_1 << LogLevel::DEBUG << Color::BLUE << "This is a debug message from Team A." << "aye 2" << std::endl;
     Logger::Log() << Team::TEAM_2 << LogLevel::INFO << Color::GREEN << "This is an info message from Team B." << std::endl;
     Logger::Log() << Team::TEAM_3 << LogLevel::ERR << Color::RED << " RED Error message from Team C." << std::endl;
     Logger::Log() << Team::TEAM_4 << LogLevel::ERR << Color::BLUE << "Error message from Team C. no endl";
     Logger::Log() << "cont no endl Error message from Team";
+
 
     Logger::Log() << std::endl <<  "Warning message standard overload" << std::endl;
 

@@ -15,6 +15,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include <memory>
+#include <algorithm>
+
 #include "CoreObject.hpp"
 #include "Data.hpp"
 #include "GridPosition.hpp"
