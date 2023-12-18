@@ -25,9 +25,9 @@ TEST_CASE("Logger class tests", "[Logger]") {
                   << "This is a debug message from Team A." << "aye 2" << Logger::endl;
     Logger::Log() << Team::TEAM_2 << LogLevel::INFO << Color::GREEN
                   << "This is an info message from Team B." << Logger::endl;
-    Logger::Log() << Team::TEAM_3 << LogLevel::ERROR << Color::RED
+    Logger::Log() << Team::TEAM_3 << LogLevel::ERR << Color::RED
                   << "RED Error message from Team C." << Logger::endl;
-    Logger::Log() << Team::TEAM_4 << LogLevel::ERROR << Color::BLUE
+    Logger::Log() << Team::TEAM_4 << LogLevel::ERR << Color::BLUE
                   << "Error message from Team C. no endl";
     Logger::Log() << "cont no endl Error message from Team";
     Logger::Log() << std::endl << "Warning message standard overload" << std::endl;

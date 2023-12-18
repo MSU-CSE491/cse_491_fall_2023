@@ -1,3 +1,11 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief Tools for debug-logging that can be easily controlled.
+ * @note Status: ALPHA
+ **/
+
+#pragma once
+
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -10,16 +18,14 @@ namespace clogged {
 
 /**
  * @brief Log levels for logging
- *
  */
-    enum class LogLevel {
-        NA = 0, DEBUG = 1, INFO = 2, WARNING = 3, ERROR = 4
-    };
-//enum class LogLevel { DEBUG, INFO, WARNING, ERROR, NA };
+
+enum class LogLevel {
+    NA = 0, DEBUG = 1, INFO = 2, WARNING = 3, ERR = 4
+};
 
 /**
  * @brief Teams Names for logging
- *
  */
     enum class Team {
         TEAM_1,
@@ -53,14 +59,12 @@ namespace clogged {
        ? std::string(file).substr(std::string(file).find_last_of("/\\") + 1) \
        : std::string(file))
 
-#define LOG_RELLINE \
-  "File: " << RELATIVE_PATH(__FILE__) << "::->::Line(" << __LINE__ << ")"
+#define LOG_RELLINE "File: " << RELATIVE_PATH(__FILE__) << "::->::Line(" << __LINE__ << ")"
 
 #define LOG_FNC "Function: " << __func__ << " "
 
 /// Not a fan of this practice
 /// But would prefer not to use parenthesis
-
 
 /**
  * @brief Logger class with colors and team names
@@ -81,6 +85,7 @@ namespace clogged {
         Logger &operator<<(const Team &team) {
           currentTeam = team; // NOLINT(unused)
           metaPrinted = false; // NOLINT(unused)
+
 
           return *this;
         }
@@ -131,6 +136,7 @@ namespace clogged {
               currentLogLevel = LogLevel::DEBUG;
               currentColor = Color::RESET;
 
+
               std::cout << std::endl;
 
               metaPrinted = false;
@@ -166,6 +172,7 @@ namespace clogged {
             std::string colorStart =
                     "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
             std::string colorEnd = "\033[0m";
+
 #else
             std::string colorStart = "";
             std::string colorEnd = "";
@@ -186,36 +193,17 @@ namespace clogged {
           return *this;
         }
 
-
-        /**
-         * Only instance of the logger once
-         * Changes requested from Dr.@ofria
-         *
-         * @authors @mercere99
-         * @return
-         */
-        static Logger &Log() {
-          static Logger instance; // Guaranteed to be initialized only once.
-
-          return instance;
-        }
-
-        /**
-         * Only instance of the logger once
-         * Changes requested from Dr.@ofria
-         *
-         * @authors @mercere99
-         * @return
-         */
-        template<typename T, typename... EXTRA_Ts>
-        static Logger &Log(T &&arg1, EXTRA_Ts &&... extra_args) {
-          Log() << std::forward<T>(arg1);  // Log the first argument.
-          if constexpr (sizeof...(EXTRA_Ts) == 0) {  // No arguments left.
-            return Log() << Logger::endl;  // Trigger a flush.
-          } else {
-            return Log(std::forward<EXTRA_Ts>(extra_args)...);  // Log remaining arguments.
-          }
-        }
+  /**
+   * Only instance of the logger once
+   * Changes requested from Dr.@ofria
+   *
+   * @authors @mercere99
+   * @return a unique Logger instance
+   */
+  static Logger &Log() {
+    static Logger instance;  // Guaranteed to be initialized only once.
+    return instance;
+  }
 
         /**
          * @brief Returns the current time stamp
@@ -232,6 +220,25 @@ namespace clogged {
         }
 
 
+  /**
+   * Only instance of the logger once
+   * Changes requested from Dr.@ofria
+   *
+   * @authors @mercere99
+   * @param arg1 Set of values that you want to have logged.
+   * @return Unique Logger instance
+   */
+  template <typename T, typename... EXTRA_Ts>
+  static Logger &Log(T &&arg1, EXTRA_Ts &&...extra_args) {
+    Log() << std::forward<T>(arg1);            // Log the first argument.
+    if constexpr (sizeof...(EXTRA_Ts) == 0) {  // No arguments left.
+      return Log() << Logger::endl;            // Trigger a flush.
+    } else {
+      return Log(std::forward<EXTRA_Ts>(extra_args)...);  // Log remaining arguments.
+    }
+  }
+
+
         /**
          * @brief Custom endl to reset the values
          *
@@ -243,6 +250,7 @@ namespace clogged {
           return os;
         }
 
+
         /**
          * @brief Sets the minimum log level for the logger
          * @param level
@@ -250,6 +258,8 @@ namespace clogged {
         [[maybe_unused]] static void setMinimumLogLevel(LogLevel level) {
           minLogLevel = level;
         }
+
+
 
         /**
          * @brief Checks if the log level is greater than the minimum log level
@@ -278,14 +288,6 @@ namespace clogged {
 
         /**
          * @brief Sets the global teams for the logger
-         * @param team
-         */
-        [[maybe_unused]] static void setPrintTeams(Team team) {
-          currentPrintTeams.insert(team);
-        }
-
-        /**
-         * @brief Sets the global teams for the logger
          * @param teams
          */
         [[maybe_unused]] static void setPrintTeams(std::initializer_list<Team> teams) {
@@ -300,6 +302,7 @@ namespace clogged {
         [[maybe_unused]] static bool checkTeam(Team team) {
           return currentPrintTeams.find(team) != currentPrintTeams.end();
         }
+
 
 
 
@@ -364,7 +367,7 @@ namespace clogged {
             return "(INFO) ";
           } else if (logLevel == LogLevel::WARNING) {
             return "(WARNING) ";
-          } else if (logLevel == LogLevel::ERROR) {
+          } else if (logLevel == LogLevel::ERR) {
             return "(ERROR) ";
           } else {
             return "";
@@ -387,13 +390,35 @@ namespace clogged {
                                                 Team::NA};
 
 
+
+  /**
+   * @brief Converts LogLevel enum to string
+   *
+   * @param logLevel
+   * @return std::string
+   */
+  std::string logToString(LogLevel logLevel) {
+    if (logLevel == LogLevel::DEBUG) {
+      return "(DEBUG) ";
+    } else if (logLevel == LogLevel::INFO) {
+      return "(INFO) ";
+    } else if (logLevel == LogLevel::WARNING) {
+      return "(WARNING) ";
+    } else if (logLevel == LogLevel::ERR) {
+      return "(ERROR) ";
+    } else {
+      return "";
+    }
+  }
+
+
 #else
 
 #define LOGLINE ""
 #define LOG_RELLINE ""
 #define LOG_FNC ""
 
-#define log Log()
+
 
     class Logger {
      public:
@@ -406,7 +431,9 @@ namespace clogged {
         return *this;
       }
 
+
       static std::ostream &endl(std::ostream &os) { return os; }
+
 
       static Logger& Log() {
         static Logger instance; // Guaranteed to be initialized only once.
@@ -416,6 +443,7 @@ namespace clogged {
     };
 
     //Logger Logger::log;
+
 #endif
 
 }  // namespace clogged
