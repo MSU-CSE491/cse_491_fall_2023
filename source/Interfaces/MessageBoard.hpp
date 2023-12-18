@@ -15,7 +15,7 @@
 namespace i_2D {
 
     /**
-     * @class The MessageBoard is where the backend and users communicate by words
+     * @class MessageBoard The MessageBoard is where the backend and users communicate by words
      */
     class MessageBoard {
 

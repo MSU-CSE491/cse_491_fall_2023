@@ -1,14 +1,45 @@
 site_name: "CSE 491 Documentation"
 site_description: "Documentation for CSE 491 Group 7 GP Agent"
 
+repo_url: https://github.com/MSU-CSE491/cse_491_fall_2023
+repo_name: CSE491 Capstone Project
+
 theme:
   name: material
   palette:
     primary: green
     accent: green
+  icon:
+    repo: fontawesome/brands/git-alt
+
+
+
+nav:
+  - Introduction: 'README.md'
+  - How to Guides:
+      - "Overview": 'HowToOverview.md'
+      - "How to Compile": "HowToCompile.md"
+      - "How to Test": "HowToTest.md"
+      - "How to Assemble a Main": "HowToAssembleAMain.md"
+      - "How to Build a World": "HowToBuildAWorld.md"
+      - "How to Build an Agent": "HowToBuildAnAgent.md"
+      - "How to Build an Interface": "HowToBuildAnInterface.md"
+
+
+
+  - Group Documentation:
+      - "Group 1 Overview": "Group 1 - README.md"
+      - "Group 7 Details": "Group_7.md"
+      - "Group 2 Data Collection": 'DataCollection.md'
+  - ...
+      # Add other projects similarly
+
+
+
 
 plugins:
   - search
+  - awesome-pages
   - mkdoxy:
       projects:
         Core Project: # name of project must be alphanumeric + numbers (without spaces)
@@ -22,13 +53,72 @@ plugins:
             HIDE_SCOPE_NAMES: YES
             EXTRACT_ALL: NO
 
-        GP Agents:
-          src-dirs: ./source/Agents/GP
+        Agent Library(Group 1):
+          src-dirs: ./source/Agents/
           full-doc: True
 
           doxy-cfg:
               FILE_PATTERNS: "*.cpp *.h*"
-              RECURSIVE: True
+              RECURSIVE: False
               HIDE_UNDOC_MEMBERS: YES
               HIDE_SCOPE_NAMES: YES
               EXTRACT_ALL: NO
+
+        Data Collection(Group 2):
+            src-dirs: ./source/DataCollection
+            full-doc: True
+
+            doxy-cfg:
+                FILE_PATTERNS: "*.cpp *.h*"
+                RECURSIVE: True
+                HIDE_UNDOC_MEMBERS: YES
+                HIDE_SCOPE_NAMES: YES
+                EXTRACT_ALL: NO
+
+        2D Interface(Group 3):
+            src-dirs: ./source/Interfaces
+            full-doc: True
+
+            doxy-cfg:
+                FILE_PATTERNS: "*.cpp *.h*"
+                RECURSIVE: False
+                HIDE_UNDOC_MEMBERS: YES
+                HIDE_SCOPE_NAMES: YES
+                EXTRACT_ALL: NO
+
+
+        Networks (Group 5):
+          src-dirs: ./source/Interfaces/NetWorth
+          full-doc: True
+
+          doxy-cfg:
+            FILE_PATTERNS: "*.cpp *.h*"
+            RECURSIVE: True
+            HIDE_UNDOC_MEMBERS: YES
+            HIDE_SCOPE_NAMES: YES
+            EXTRACT_ALL: NO
+
+        Genetic Programing Agents(Group 7):
+          src-dirs: ./source/Agents/GP
+          full-doc: True
+
+          doxy-cfg:
+            FILE_PATTERNS: "*.cpp *.h*"
+            RECURSIVE: True
+            HIDE_UNDOC_MEMBERS: YES
+            HIDE_SCOPE_NAMES: YES
+            EXTRACT_ALL: NO
+
+        Worlds (Group 4, 6, 8):
+          src-dirs: ./source/Worlds
+          full-doc: True
+
+          doxy-cfg:
+            FILE_PATTERNS: "*.cpp *.h*"
+            RECURSIVE: True
+            HIDE_UNDOC_MEMBERS: YES
+            HIDE_SCOPE_NAMES: YES
+            EXTRACT_ALL: NO
+
+
+
