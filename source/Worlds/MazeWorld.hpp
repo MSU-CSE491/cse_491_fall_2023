@@ -28,7 +28,6 @@ class MazeWorld : public WorldBase {
   size_t wall_id;  ///< Easy access to wall CellType ID.
 
  public:
-
   MazeWorld(unsigned int seed = 0) : WorldBase(seed) {
     // Create cell types
 
@@ -36,8 +35,6 @@ class MazeWorld : public WorldBase {
         AddCellType("floor", "Floor that you can easily walk over.", ' ');
     wall_id = AddCellType(
         "wall", "Impenetrable wall that you must find a way around.", '#');
-
-
     // Set cell type properties
     type_options.at(floor_id).SetProperty(CellType::CELL_WALL);
     // Load map

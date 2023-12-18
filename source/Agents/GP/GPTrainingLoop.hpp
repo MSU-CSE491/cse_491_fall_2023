@@ -6,8 +6,9 @@
 //#include "GPAgent.hpp"
 #include "GPAgentBase.hpp"
 
-#include "LGPAgent.hpp"
+
 #include "CGPAgent.hpp"
+#include "LGPAgent.hpp"
 
 #include <thread>
 #include <iostream>
@@ -52,9 +53,9 @@ namespace cowboys {
 
         std::vector<std::pair<int, int>> sortedAgents = std::vector<std::pair<int, int>>();
 
-        /**
-         * Default Grid
-         */
+            /**
+             * Default Grid
+             */
         const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) , cse491::GridPosition(22,1) , cse491::GridPosition(0,8), cse491::GridPosition(22,8)};
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(0,0), cse491::GridPosition(22,5) };
 //        const std::vector<cse491::GridPosition> STARTPOSITIONS = {cse491::GridPosition(22,5) };
@@ -555,7 +556,7 @@ namespace cowboys {
 
 
           if (params.saveMetaData) {
-            const std::string metaDataFilename = "metaData.xml";
+            const std::string metaDataFilename = "metaData_" + dateTimeStr + ".xml";
             auto metaDataFullPath = normalizedAbsolutePath / metaDataFilename;
             saveXMLDoc(metaData, metaDataFullPath.string());
           }
@@ -679,11 +680,11 @@ namespace cowboys {
 
           Printgrid(endPositions[bestAgent.first][bestAgent.second], 'A');
 
-          auto& agent = agents[bestAgent.first][bestAgent.second];
+          // auto& agent = agents[bestAgent.first][bestAgent.second];
           auto& startPosition = STARTPOSITIONS;
           auto& endPosition = endPositions[bestAgent.first][bestAgent.second];
 
-          auto& world = environments[bestAgent.first];
+          // auto& world = environments[bestAgent.first];
 
 
           auto calculateDistance = [](const cse491::GridPosition& startPosition, const cse491::GridPosition & currentPosition) {
@@ -763,7 +764,6 @@ namespace cowboys {
          */
         void SerializeAgents(int generation, tinyxml2::XMLElement *rootElement, tinyxml2::XMLDocument &paramDocument,
                              size_t topN = 5) {
-
 
           std::string tagName = "generation_" + std::to_string(generation);
           auto *generationTag = paramDocument.NewElement(tagName.c_str());
@@ -1048,18 +1048,18 @@ namespace cowboys {
 
           for (size_t a = 0; a < agents[arena].size(); ++a) {
             std::vector<double> scores = independentAgentFitness[arena][a];
-            [[maybe_unused]] auto computeMedian = [&scores]() -> double {
-                std::vector<double> temp(scores);  // Copy the data
-                std::sort(temp.begin(), temp.end());
+            // auto computeMedian = [&scores]() -> double {
+            //     std::vector<double> temp(scores);  // Copy the data
+            //     std::sort(temp.begin(), temp.end());
 
-                size_t n = temp.size();
-                return n % 2 ? temp[n / 2] : (temp[n / 2 - 1] + temp[n / 2]) / 2.0;
-            };
+            //     size_t n = temp.size();
+            //     return n % 2 ? temp[n / 2] : (temp[n / 2 - 1] + temp[n / 2]) / 2.0;
+            // };
 
 
 //            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
 //            TEMPAgentFitness[arena][a] += computeMedian();
-              double min = *std::min_element(scores.begin(), scores.end());
+//            double min = *std::min_element(scores.begin(), scores.end());
             [[maybe_unused]] double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
             //  TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
               // TEMPAgentFitness[arena][a] = min;

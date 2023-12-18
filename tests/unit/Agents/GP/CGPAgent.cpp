@@ -8,7 +8,6 @@
 #include <catch2/catch_all.hpp>
 
 #include "Agents/GP/CGPAgent.hpp"
-#include "core/WorldBase.hpp"
 
 using namespace cowboys;
 
@@ -38,7 +37,7 @@ TEST_CASE("Copying", "[group7][agent][genotype]") {
     CGPAgent agent(0, "agent", genotype);
     CGPAgent agent2(1, "agent2");
     CHECK(agent.GetGenotype() != agent2.GetGenotype());
-
+    
     // Generic references to CGPAgent
     GPAgentBase &agent_ref = agent;
     GPAgentBase &agent2_ref = agent2;
@@ -50,24 +49,13 @@ TEST_CASE("Copying", "[group7][agent][genotype]") {
     CGPAgent agent(0, "agent", genotype);
     CGPAgent agent2(1, "agent2", genotype);
     CHECK(agent.GetGenotype() == agent2.GetGenotype());
-    agent.SetWorld(world);
     agent.MutateAgent(1);
     CHECK(agent.GetGenotype() != agent2.GetGenotype());
-
+    
     // Generic references to CGPAgent
     GPAgentBase &agent_ref = agent;
     GPAgentBase &agent2_ref = agent2;
     agent2_ref.Copy(agent_ref); // Copy agent into agent2
     CHECK(agent.GetGenotype() == agent2.GetGenotype());
   }
-}
-TEST_CASE("Export and Import", "[group7][agent][genotype]") {
-  CGPGenotype genotype({8, 4, 2, 10, 2});
-  CGPAgent agent(0, "agent", genotype);
-  agent.SetWorld(world);
-  agent.MutateAgent(1);
-  std::string export_string = agent.Export();
-  CGPAgent agent2(1, "agent2");
-  agent2.Import(export_string);
-  CHECK(agent.GetGenotype() == agent2.GetGenotype());
 }

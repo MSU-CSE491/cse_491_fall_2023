@@ -11,6 +11,7 @@
 
 #include "../core/Data.hpp"
 #include "../core/InterfaceBase.hpp"
+#include "../DataCollection/DataManager.hpp"
 
 namespace cse491 {
 
@@ -41,7 +42,9 @@ namespace cse491 {
           if (item_ptr->HasProperty("symbol")) {
             c = item_ptr->GetProperty<char>("symbol");
           }
-          symbol_grid[pos.CellY()][pos.CellX()] = c;
+          if (grid.IsValid(pos)){
+            symbol_grid[pos.CellY()][pos.CellX()] = c;
+          }
         }
       }
 
@@ -51,7 +54,7 @@ namespace cse491 {
         if(agent_ptr->HasProperty("symbol")){
           c = agent_ptr->GetProperty<char>("symbol");
         }
-        if (!agent_ptr->HasProperty("Deleted")){
+        if (!agent_ptr->HasProperty("deleted")){
           symbol_grid[pos.CellY()][pos.CellX()] = c;
         }
       }
@@ -81,7 +84,7 @@ namespace cse491 {
       return true;
     }
 
-    size_t SelectAction(const WorldGrid & grid,
+      size_t SelectAction(const WorldGrid & grid,
                         const type_options_t & type_options,
                         const item_map_t & item_map,
                         const agent_map_t & agent_map) override
@@ -102,8 +105,10 @@ namespace cse491 {
         case 'a': case 'A': action_id = GetActionID("left");  break;
         case 's': case 'S': action_id = GetActionID("down");  break;
         case 'd': case 'D': action_id = GetActionID("right"); break;
+        case 't': case 'T': action_id = GetActionID("drop");  break;
         case 'h': case 'H': action_id = GetActionID("heal"); break;
-        case 't': case 'T': action_id = GetActionID("stats"); break;
+        // Can't have 2 cases for T, so we'll have to decide which one to change.
+        //case 't': case 'T': action_id = GetActionID("stats"); break;
         case 'c': case 'C': action_id = GetActionID("use_axe"); break;
         case 'v': case 'V': action_id = GetActionID("use_boat"); break;
         case 'f': case 'F': action_id = GetActionID("attack"); break;
@@ -111,7 +116,7 @@ namespace cse491 {
         case 'b': case 'B': action_id = GetActionID("buff"); break;
         case 'r': case 'R': action_id = GetActionID("run"); break;
         case 'y': case 'Y': action_id = GetActionID("help"); break;
-        case 'q': case 'Q': exit(0); // Quit!
+        case 'q': case 'Q': exitCleanup(); // Quit!
       }
 
       // If we waited for input, but don't understand it, notify the user.
@@ -129,5 +134,6 @@ namespace cse491 {
       std::cout << message << std::endl;
     }
   };
+
 
 } // End of namespace cse491

@@ -4,6 +4,15 @@
 [submodule "third_party/SFML"]
 	path = third_party/SFML
 	url = https://github.com/SFML/SFML.git
+[submodule "third_party/PEGTL"]
+	path = third_party/PEGTL
+	url = https://github.com/taocpp/PEGTL
+[submodule "third_party/json"]
+	path = third_party/json
+	url = https://github.com/nlohmann/json.git
 [submodule "third_party/tinyxml2"]
 	path = third_party/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
+[submodule "third_party/json"]
+	path = third_party/json
+	url = https://github.com/nlohmann/json.git

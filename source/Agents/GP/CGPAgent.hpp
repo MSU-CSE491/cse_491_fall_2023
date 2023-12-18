@@ -36,16 +36,18 @@ namespace cowboys {
     /// The decision graph for this agent.
     std::unique_ptr<Graph> decision_graph;
 
+
+
   public:
     CGPAgent(size_t id, const std::string &name) : GPAgentBase(id, name) {}
     CGPAgent(size_t id, const std::string &name, const CGPGenotype &genotype)
         : GPAgentBase(id, name), genotype(genotype) {}
 
-    /// @brief Print this agent.
-    void PrintAgent() override { std::cout << "Genotype: " << genotype.Export() << std::endl; }
 
-    /// @brief Mutate this agent.
-    /// @param mutation The mutation rate.
+    void PrintAgent() override {
+      std::cout << "Genotype: " << genotype.Export() << std::endl;
+    }
+
     void MutateAgent(double mutation = 0.8) override {
       auto graph_builder = GraphBuilder();
 
@@ -68,12 +70,6 @@ namespace cowboys {
       return true;
     }
 
-    /// @brief Get the action to take.
-    /// @param grid The world grid.
-    /// @param type_options The available types of cells in the grid.
-    /// @param item_set The set of items in the world.
-    /// @param agent_set The set of agents in the world.
-    /// @return
     size_t GetAction(const cse491::WorldGrid &grid, const cse491::type_options_t &type_options,
                      const cse491::item_map_t &item_set, const cse491::agent_map_t &agent_set) override {
       auto inputs = EncodeState(grid, type_options, item_set, agent_set, this, extra_state);
@@ -94,9 +90,10 @@ namespace cowboys {
       if (fitness != -1)
         genotypeElem->SetAttribute("fitness", fitness);
 
-      genotypeElem->SetAttribute("seed", seed);
+      genotypeElem->SetAttribute("seed" , seed);
 
       agentElem->InsertEndChild(genotypeElem);
+
     }
 
     /// @brief Export the genotype for this agent.
@@ -113,6 +110,7 @@ namespace cowboys {
     /// @brief Get the genotype for this agent.
     /// @return A const reference to the genotype for this agent.
     const CGPGenotype &GetGenotype() const { return genotype; }
+
 
     /// @brief Copies the genotype and behavior of another CGPAgent into this agent.
     /// @param other The CGPAgent to copy.

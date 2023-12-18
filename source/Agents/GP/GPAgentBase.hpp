@@ -74,7 +74,6 @@ namespace cowboys {
 
     virtual void SerializeGP(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElem, double fitness = -1) = 0;
 
-    /// TODO: Might have to remove it
     virtual std::string Export() { return ""; }
 
     virtual void Reset(bool /*hard*/ = false) {

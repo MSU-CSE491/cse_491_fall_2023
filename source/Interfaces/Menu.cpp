@@ -14,7 +14,7 @@ namespace i_2D {
     /**
      * @brief initialize the buttons at the top of the window
      */
-    void Menu::initialize(sf::Font &font, sf::Vector2f size) {
+    void Menu::Initialize(sf::Font &font, sf::Vector2f size) {
         sf::Color backgroundcolor = sf::Color::Black;
         sf::Color textcolor = sf::Color::White;
         mFont = &font;
@@ -22,19 +22,19 @@ namespace i_2D {
 
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Menu", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[0]->setPosition({0,0});
+        mMenuBar[0]->SetPosition({0,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Inventory", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[1]->setPosition({200,0});
+        mMenuBar[1]->SetPosition({200,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Exit", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[2]->setPosition({400,0});
+        mMenuBar[2]->SetPosition({400,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Normal", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[3]->setPosition({600,0});
+        mMenuBar[3]->SetPosition({600,0});
         mMenuBar.emplace_back(std::make_unique<Button>(
                 "Enlarge", MENU_BUTTON_SIZE, backgroundcolor, textcolor, font));
-        mMenuBar[4]->setPosition({800,0});
+        mMenuBar[4]->SetPosition({800,0});
 
     }
 
@@ -43,9 +43,9 @@ namespace i_2D {
      *
      * @param window the main window of the graphic interface
      */
-    void Menu::drawto(sf::RenderWindow &window) {
+    void Menu::DrawTo(sf::RenderWindow &window) {
         for( const auto &button : mMenuBar){
-            button->drawTo(window);
+            button->DrawTo(window);
         }
         if(mInventory) {
             mInventory->DrawTo(window);
@@ -58,17 +58,19 @@ namespace i_2D {
      *
      * @param window the main window of the graphic interface
      */
-    void Menu::HandleMouseMove(sf::RenderWindow &window) {
-        for (int i = 0; i < mMenuBar.size(); ++i) {
-            if (mMenuBar[i]->isMouseOver(window)) {
-                mMenuBar[i]->setBackColor(sf::Color::Magenta);
+    std::string Menu::HandleMouseMove(sf::RenderWindow &window) {
+        std::string s1 = "null";
+        for (size_t i = 0; i < mMenuBar.size(); ++i) {
+            if (mMenuBar[i]->IsMouseOver(window)) {
+                mMenuBar[i]->SetBackColor(sf::Color::Magenta);
             } else {
-                mMenuBar[i]->setBackColor(sf::Color::Black);
+                mMenuBar[i]->SetBackColor(sf::Color::Black);
             }
         }
         if(mInventory){
-            mInventory->HandleMouseMove(window);
+            s1 = mInventory->HandleMouseMove(window);
         }
+        return s1;
     }
     /**
      * @brief check if the mouse click the exit button
@@ -76,19 +78,17 @@ namespace i_2D {
      *
      * @param window the main window of the graphic interface
      */
-    void Menu::HandleMouseButtonPressed(sf::RenderWindow &window) {
-        if(mMenuBar[2]->isMouseOver(window)){
-            exit(0);
-        }else if(mMenuBar[1]->isMouseOver(window)){
+    void Menu::HandleMouseButtonPressed(sf::RenderWindow &window,
+                                        const std::vector<std::string> &interfaceAgentInventory) {
+        if(mMenuBar[1]->IsMouseOver(window)){
             if(mInventory){
                 DeconstructInventory();
             }else {
-                ConstructInventory();
+                ConstructInventory(interfaceAgentInventory);
             }
         }
 
     }
-
 }
 
 

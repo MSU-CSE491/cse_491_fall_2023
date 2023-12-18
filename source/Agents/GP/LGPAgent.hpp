@@ -69,6 +69,7 @@ namespace cowboys
             {
                 instructionsList.push_back(std::make_tuple(possibleInstructionsList[dist(gen)], dist2(gen), dist2(gen)));
             }
+
         }
 
         /// @brief Encodes the actions from an agent's action map into a vector of string, representing action names.
@@ -185,7 +186,10 @@ namespace cowboys
 
                     SensorDirection direction = Sensors::getSensorDirectionEnum(sensor);
                     int distance = Sensors::wallDistance(grid, *this, direction);
+
+
                     resultsList[currentInstructionIndex] = distance;
+
 
                 }
                 else

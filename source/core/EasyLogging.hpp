@@ -1,3 +1,11 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief Tools for debug-logging that can be easily controlled.
+ * @note Status: ALPHA
+ **/
+
+#pragma once
+
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -7,13 +15,11 @@ namespace clogged {
 
 /**
  * @brief Log levels for logging
- *
  */
-enum class LogLevel { DEBUG, INFO, WARNING, ERROR, NA };
+enum class LogLevel { DEBUG, INFO, WARNING, ERR, NA };
 
 /**
  * @brief Teams Names for logging
- *
  */
 enum class Team {
   TEAM_1,
@@ -51,14 +57,12 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
        ? std::string(file).substr(std::string(file).find_last_of("/\\") + 1) \
        : std::string(file))
 
-#define LOG_RELLINE \
-  "File: " << RELATIVE_PATH(__FILE__) << "::->::Line(" << __LINE__ << ")"
+#define LOG_RELLINE "File: " << RELATIVE_PATH(__FILE__) << "::->::Line(" << __LINE__ << ")"
 
 #define LOG_FNC "Function: " << __func__ << " "
 
 /// Not a fan of this practice
 /// But would prefer not to use parenthesis
-
 
 /**
  * @brief Logger class with colors and team names
@@ -69,7 +73,7 @@ const LogLevel LOGLEVEL = LogLevel::DEBUG;
  * the console.
  */
 class Logger {
- public:
+public:
   /**
    * @brief Sets the Team name for the current log
    *
@@ -107,7 +111,6 @@ class Logger {
     return *this;
   }
 
-
   /**
    * @brief Manipulator for endl so that we can reset the values when a team is
    * done logging
@@ -119,8 +122,7 @@ class Logger {
     typedef std::ostream &(*EndlManipulator)(std::ostream &);
 
     // Compare the function pointers
-    if (manipulator == static_cast<EndlManipulator>(std::endl) ||
-        manipulator == endl) {
+    if (manipulator == static_cast<EndlManipulator>(std::endl) || manipulator == endl) {
       // Handle std::endl here
       currentTeam = Team::NA;
       currentLogLevel = LogLevel::DEBUG;
@@ -154,8 +156,7 @@ class Logger {
       // added additional flag in case one wants to compile without colors (or)
       // if the terminal does not support colors
 #ifndef D_ANSI_COLOR_CODES
-      std::string colorStart =
-          "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
+      std::string colorStart = "\033[" + std::to_string(static_cast<int>(currentColor)) + "m";
       std::string colorEnd = "\033[0m";
 #else
       std::string colorStart = "";
@@ -177,36 +178,35 @@ class Logger {
     return *this;
   }
 
+  /**
+   * Only instance of the logger once
+   * Changes requested from Dr.@ofria
+   *
+   * @authors @mercere99
+   * @return a unique Logger instance
+   */
+  static Logger &Log() {
+    static Logger instance;  // Guaranteed to be initialized only once.
+    return instance;
+  }
 
-    /**
-     * Only instance of the logger once
-     * Changes requested from Dr.@ofria
-     *
-     * @authors @mercere99
-     * @return
-     */
-    static Logger& Log() {
-      static Logger instance; // Guaranteed to be initialized only once.
-      return instance;
+  /**
+   * Only instance of the logger once
+   * Changes requested from Dr.@ofria
+   *
+   * @authors @mercere99
+   * @param arg1 Set of values that you want to have logged.
+   * @return Unique Logger instance
+   */
+  template <typename T, typename... EXTRA_Ts>
+  static Logger &Log(T &&arg1, EXTRA_Ts &&...extra_args) {
+    Log() << std::forward<T>(arg1);            // Log the first argument.
+    if constexpr (sizeof...(EXTRA_Ts) == 0) {  // No arguments left.
+      return Log() << Logger::endl;            // Trigger a flush.
+    } else {
+      return Log(std::forward<EXTRA_Ts>(extra_args)...);  // Log remaining arguments.
     }
-
-    /**
-     * Only instance of the logger once
-     * Changes requested from Dr.@ofria
-     *
-     * @authors @mercere99
-     * @return
-     */
-    template <typename T, typename... EXTRA_Ts>
-    static Logger & Log(T && arg1, EXTRA_Ts &&... extra_args) {
-      Log() << std::forward<T>(arg1);  // Log the first argument.
-      if constexpr (sizeof...(EXTRA_Ts) == 0) {  // No arguments left.
-        return Log() << Logger::endl;  // Trigger a flush.
-      } else {
-        return Log(std::forward<EXTRA_Ts>(extra_args)...);  // Log remaining arguments.
-      }
-    }
-
+  }
 
   /**
    * @brief Custom endl to reset the values
@@ -219,7 +219,7 @@ class Logger {
     return os;
   }
 
- private:
+private:
   /// @brief Current team for that is going to log
   Team currentTeam = Team::NA;
 
@@ -236,11 +236,10 @@ class Logger {
    *
    */
   std::map<Team, std::string> teamToStringMap = {
-      {Team::TEAM_1, "Team 1"}, {Team::TEAM_2, "Team 2"},
-      {Team::TEAM_3, "Team 3"}, {Team::TEAM_4, "Team 4"},
-      {Team::TEAM_5, "Team 5"}, {Team::TEAM_6, "Team 6"},
-      {Team::TEAM_7, "Team 7"}, {Team::TEAM_8, "Team 8"},
-      {Team::TEAM_9, "Team 9"}, {Team::GENERAL, "General"}};
+      {Team::TEAM_1, "Team 1"},  {Team::TEAM_2, "Team 2"}, {Team::TEAM_3, "Team 3"},
+      {Team::TEAM_4, "Team 4"},  {Team::TEAM_5, "Team 5"}, {Team::TEAM_6, "Team 6"},
+      {Team::TEAM_7, "Team 7"},  {Team::TEAM_8, "Team 8"}, {Team::TEAM_9, "Team 9"},
+      {Team::GENERAL, "General"}};
 
   /**
    * @brief Converts Team enum to string
@@ -270,7 +269,7 @@ class Logger {
       return "(INFO) ";
     } else if (logLevel == LogLevel::WARNING) {
       return "(WARNING) ";
-    } else if (logLevel == LogLevel::ERROR) {
+    } else if (logLevel == LogLevel::ERR) {
       return "(ERROR) ";
     } else {
       return "";
@@ -278,37 +277,32 @@ class Logger {
   }
 };
 
-
-
 #else
 
 #define LOGLINE ""
 #define LOG_RELLINE ""
 #define LOG_FNC ""
 
-#define log Log()
+// #define log Log()
 
 class Logger {
- public:
+public:
   template <typename T>
-  Logger &operator<<(const T &value) {
+  Logger &operator<<(const T & /*value*/) {
     return *this;
   }
 
-  Logger &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
-    return *this;
-  }
+  Logger &operator<<(std::ostream &(* /*manipulator*/)(std::ostream &)) { return *this; }
 
   static std::ostream &endl(std::ostream &os) { return os; }
 
-  static Logger& Log() {
-    static Logger instance; // Guaranteed to be initialized only once.
+  static Logger &Log() {
+    static Logger instance;  // Guaranteed to be initialized only once.
     return instance;
   }
-
 };
 
-//Logger Logger::log;
+// Logger Logger::log;
 #endif
 
 }  // namespace clogged
