@@ -23,6 +23,7 @@ void timer(GenerativeWorld& world, int duration) {
 }
 
 void runWorld(BiomeType biome, int width, int height, const unsigned int SEED, int timerDuration = -1) {
+    (void) SEED;  // Need to plug in seed.
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distribution(0, 1000000);

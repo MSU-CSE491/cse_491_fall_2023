@@ -680,11 +680,11 @@ namespace cowboys {
 
           Printgrid(endPositions[bestAgent.first][bestAgent.second], 'A');
 
-          auto& agent = agents[bestAgent.first][bestAgent.second];
+          // auto& agent = agents[bestAgent.first][bestAgent.second];
           auto& startPosition = STARTPOSITIONS;
           auto& endPosition = endPositions[bestAgent.first][bestAgent.second];
 
-          auto& world = environments[bestAgent.first];
+          // auto& world = environments[bestAgent.first];
 
 
           auto calculateDistance = [](const cse491::GridPosition& startPosition, const cse491::GridPosition & currentPosition) {
@@ -1048,18 +1048,18 @@ namespace cowboys {
 
           for (size_t a = 0; a < agents[arena].size(); ++a) {
             std::vector<double> scores = independentAgentFitness[arena][a];
-            auto computeMedian = [&scores]() -> double {
-                std::vector<double> temp(scores);  // Copy the data
-                std::sort(temp.begin(), temp.end());
+            // auto computeMedian = [&scores]() -> double {
+            //     std::vector<double> temp(scores);  // Copy the data
+            //     std::sort(temp.begin(), temp.end());
 
-                size_t n = temp.size();
-                return n % 2 ? temp[n / 2] : (temp[n / 2 - 1] + temp[n / 2]) / 2.0;
-            };
+            //     size_t n = temp.size();
+            //     return n % 2 ? temp[n / 2] : (temp[n / 2 - 1] + temp[n / 2]) / 2.0;
+            // };
 
 
 //            TEMPAgentFitness[arena][a] /= STARTPOSITIONS.size();
 //            TEMPAgentFitness[arena][a] += computeMedian();
-              double min = *std::min_element(scores.begin(), scores.end());
+//            double min = *std::min_element(scores.begin(), scores.end());
             [[maybe_unused]] double avg = TEMPAgentFitness[arena][a] / STARTPOSITIONS.size();
             //  TEMPAgentFitness[arena][a] = 0.7 * min + 0.3 * avg;
               // TEMPAgentFitness[arena][a] = min;

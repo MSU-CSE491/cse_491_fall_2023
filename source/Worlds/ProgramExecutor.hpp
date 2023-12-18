@@ -114,7 +114,7 @@ namespace worldlang {
 				}
 			});
 			// Log some values
-			registerFunction("print", [this](ProgramExecutor& pe){
+			registerFunction("print", [](ProgramExecutor& pe){
 				auto args = pe.popArgs();
 				for (auto a : args){
 					if (pe.has<double>(a)){

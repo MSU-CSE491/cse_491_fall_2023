@@ -34,7 +34,7 @@ namespace i_2D {
         mTextBox = std::make_unique<TextBox>(mFont);
         auto a = mWindow.getSize().x;
         auto b = mWindow.getSize().y;
-        mMenu.initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
+        mMenu.Initialize(mFont, sf::Vector2f{static_cast<float>(a), static_cast<float>(b)});
         ChooseTexture();
     }
 
@@ -148,7 +148,9 @@ namespace i_2D {
         //CheckLargerGrid();
         // Create a render texture to draw the grid
         sf::RenderTexture renderTexture;
-        renderTexture.create({static_cast<unsigned int>(drawSpaceWidth), static_cast<unsigned int>(drawSpaceHeight)});
+        [[maybe_unused]] bool success =
+          renderTexture.create({static_cast<unsigned int>(drawSpaceWidth), static_cast<unsigned int>(drawSpaceHeight)});
+        
         renderTexture.clear(sf::Color::White);
 
         for (size_t iterY = 0; iterY < symbol_grid.size(); ++iterY) {
@@ -178,7 +180,7 @@ namespace i_2D {
         // Display everything
         mTextBox->DrawTo(mWindow);
         mMessageBoard->DrawTo(mWindow);
-        mMenu.drawto(mWindow);
+        mMenu.DrawTo(mWindow);
         mWindow.display();
     }
 
@@ -208,12 +210,9 @@ namespace i_2D {
     }
 
     void MainInterface::DrawHealthInfo() {
-        if(!HasProperty("Health") || !PropertyIsType<int>("Health"))
-        {
-            return;
-        }
+        if(!HasProperty("Health")) return;
 
-        int health = GetProperty<int>("Health");
+        int health = property_map.at("Health")->ToInt();
 
         // Set text properties and draw
         sf::Text healthText(mFont);
@@ -238,9 +237,9 @@ namespace i_2D {
 
         // Create a new symbol grid for the 9x23 display window
         std::vector<std::string> display_grid;
-        for (size_t iterY = 0; iterY < ROW; ++iterY) {
+        for (int iterY = 0; iterY < ROW; ++iterY) {
             std::string row;
-            for (size_t iterX = 0; iterX < COL; ++iterX) {
+            for (int iterX = 0; iterX < COL; ++iterX) {
                 int posX = topLeftX + iterX;
                 int posY = topLeftY + iterY;
 
@@ -315,9 +314,9 @@ namespace i_2D {
                     HandleResize(event, grid);
 
                 } else if (event.type == sf::Event::MouseMoved) {
-                    auto c = mMenu.HandleMouseMove(mWindow);
-                    if(c!="null"){
-                        auto texture = mTextureHolder.GetTexture(c);
+                    auto textureName = mMenu.HandleMouseMove(mWindow);
+                    if(textureName!="null"){
+                        auto texture = mTextureHolder.GetTexture(textureName);
                         mMenu.SetInventoryItemDisplay(texture);
                     }
                 } else if (event.type == sf::Event::MouseButtonPressed) {
@@ -520,7 +519,7 @@ namespace i_2D {
      * this function handles mouseclick event
      * @param event for mouse click
      */
-    void MainInterface::MouseClickEvent(const sf::Event &event, const size_t entity_id, const item_map_t &item_map) {
+    void MainInterface::MouseClickEvent(const sf::Event &event, const size_t /*entity_id*/, const item_map_t &item_map) {
         if (event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2f mousePos(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
 

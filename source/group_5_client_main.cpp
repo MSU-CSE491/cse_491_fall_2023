@@ -113,8 +113,10 @@ bool runGenerativeWorldDemo(std::istream &is, const std::string &ipString, unsig
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
 	clientKillIP = ipString;
-	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interfaceName, "server_ip", ipString,
-			"server_port", port, "manager", &manager,
+	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interfaceName, 
+      "server_ip", ipString,
+			"server_port", port, 
+      "manager", &manager,
 			"socket", socket)
 		.SetProperty("symbol", '@')
 		.SetPosition(startX, startY);
@@ -144,8 +146,10 @@ bool runManualWorldDemo(std::istream &is, const std::string &ipString, unsigned 
 	world.Deserialize(is, &manager);
 	clientKillPort = port;
 	clientKillIP = ipString;
-	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, "server_ip", ipString,
-			"server_port", port, "manager", &manager,
+	cse491::Entity & interface = world.AddAgent<netWorth::ClientInterface>(interface_name, 
+      "server_ip", ipString,
+			"server_port", port, 
+      "manager", &manager,
 			"socket", socket)
 		.SetProperty("symbol", '@')
 		.SetPosition(startX, startY);

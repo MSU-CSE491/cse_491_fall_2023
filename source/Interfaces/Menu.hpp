@@ -32,8 +32,8 @@ namespace i_2D {
         void SetInventoryItemDisplay(sf::Texture &texture){
             if(mInventory) mInventory->SetItemDisplay(texture);
         }
-        void initialize(sf::Font &font,sf::Vector2f size);
-        void drawto(sf::RenderWindow &window);
+        void Initialize(sf::Font &font,sf::Vector2f size);
+        void DrawTo(sf::RenderWindow &window);
         std::string HandleMouseMove(sf::RenderWindow &window);
         void HandleMouseButtonPressed(sf::RenderWindow &window,
                                       const std::vector<std::string> &interfaceAgentInventory);

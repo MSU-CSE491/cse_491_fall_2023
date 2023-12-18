@@ -90,7 +90,7 @@ namespace cowboys {
             // write the data to the file
             file << "average_fitness,max_fitness,average_elite_score,best_agent_weighted_score,agents_with_max_fitness\n";
 
-            for (int i = 0; i < average_fitness.size(); i++) {
+            for (size_t i = 0; i < average_fitness.size(); i++) {
                 file << average_fitness[i] << "," << max_fitness[i] << "," << elite_score[i] << "," << average_score[i] << "," << max_agents[i] << "\n";
             }
             std::cout << "Saved GP Agent Analyzer data to gp_agent_analyzer.csv" << std::endl;
