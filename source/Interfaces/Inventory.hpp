@@ -1,5 +1,5 @@
 /**
- * @author : Team - 3
+ * @authors Gaya Kanagaraj, Vincenzo Felici, Mui Pham
  * @date: 11/15/2023
  * Inventory class creates an array of buttons and uses it as inventory
  */

@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A networking interface that allows information to be sent across a  network
- * @note Status: PROTOTYPE
+ * @note Status: ALPHA
  **/
 
 #pragma once

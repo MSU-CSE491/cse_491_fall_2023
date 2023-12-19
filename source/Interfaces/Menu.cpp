@@ -1,5 +1,5 @@
 /**
- * @author : Team - 3
+ * @authors Gaya Kanagaraj, Vincenzo Felici, Mui Pham
  * @date: 10/3/2023
  * Menu class creates a menu and displays it in the render window
  */
