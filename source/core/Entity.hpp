@@ -193,10 +193,14 @@ public:
       case t_char:     SetProperty(name, DeserializeAs<char>(is));         break;
       case t_double:   SetProperty(name, DeserializeAs<double>(is));       break;
       case t_int:      SetProperty(name, DeserializeAs<int>(is));          break;
+      case t_bool:     SetProperty(name, DeserializeAs<bool>(is));          break;
       case t_string:   SetProperty(name, DeserializeAs<std::string>(is));  break;
       case t_position: SetProperty(name, DeserializeAs<GridPosition>(is)); break;
       case t_other:
         std::cerr << "Warning: Cannot deserialize property'" << name << "'." << std::endl;
+        std::string tmp_str;
+        std::getline(is, tmp_str, '\n');
+        std::cerr << "  Data for that property: \"" << tmp_str << "\"." << std::endl;
       }
     }
   }

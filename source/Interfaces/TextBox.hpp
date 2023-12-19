@@ -23,16 +23,13 @@ namespace i_2D {
 class TextBox {
 private:
   /// The string of the text
-  std::unique_ptr<sf::Text> mTextBox;
-  std::ostringstream mText;    ///< Use to take in string
-  bool isSelected = false;     /// Flag for checking text mode
-  bool hasLimit = false;       /// Flag for checking limit mode
-  int limit = 10000;           /// The limit of characters allowed
-  const size_t MAX_CHAR = 60;  ///< max character per line in the textbox
+  std::unique_ptr<sf::Text> mText;
+  std::ostringstream mStreamText;  ///< Use to take in string
+  bool isSelected = false;         /// Flag for checking text mode
+  bool hasLimit = true;            /// Flag for checking limit mode
+  int limit = 60;                  /// The limit of characters allowed
   // Draw the border around the TextBox
   sf::RectangleShape mBorderRect;
-
-  void InputLogic(int charTyped);
 
   void DeleteLastChar();
 
@@ -52,18 +49,18 @@ public:
   void SetFont(const sf::Font &font) { mTextBox->setFont(font); }
 
   /**
+   * @brief Set the font of the TextBox
+   *
+   * @param font The font to be set to
+   */
+  void SetFont(const sf::Font &font) { mText->setFont(font); }
+
+  /**
    * @brief The position of the TextBox
    *
    * @param pos The position to be set to
    */
-  void SetPosition(sf::Vector2f pos) { mTextBox->setPosition(pos); }
-
-  /**
-   * @brief Set the limit of the TextBox
-   *
-   * @param ToF True of False
-   */
-  void SetLimit(bool ToF) { hasLimit = ToF; }
+  void SetPosition(sf::Vector2f pos) { mText->setPosition(pos); }
 
   /**
    * @brief Set the limit of the TextBox
@@ -77,7 +74,17 @@ public:
     limit = lim - 1;
   }
 
-  void SetSelected(bool sel);
+  /**
+   * @brief Set the limit of the TextBox
+   *
+   * @param ToF True or False
+   * @param lim The limit of the TextBox
+   */
+  void SetLimit(bool ToF, int lim)
+  {
+    hasLimit = ToF;
+    limit = lim;
+  }
 
   /**
    * @brief Get the string that was input by user
@@ -86,7 +93,14 @@ public:
    */
   std::string GetText() { return mText.str(); }
 
-  void DrawTo(sf::RenderWindow &window);
+  /**
+   * @brief Get the string that was input by user
+   *
+   * @return Return the string
+   */
+  std::string GetText() { return mStreamText.str(); }
+
+  void TypedOn(sf::Event input);
 
   void TypedOn(sf::Event input);
 
@@ -104,4 +118,14 @@ public:
    */
   bool Contains(sf::Vector2f point) const { return mBorderRect.getGlobalBounds().contains(point); }
 };
+}
+
+/**
+ * @brief Checks if a point is within the TextBox
+ * @param point an xy point to check the location of
+ * @return True if the point is in bounds, False otherwise
+ */
+bool Contains(sf::Vector2f point) const { return mBorderRect.getGlobalBounds().contains(point); }
+}
+;
 }  // namespace i_2D

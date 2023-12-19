@@ -20,7 +20,7 @@ class Menu {
 private:
   /// Top menubar on the window
   std::vector<std::unique_ptr<Button>> mMenuBar;
-  /// Interface Entitiy's inventory
+  /// Interface Entity's inventory
   std::unique_ptr<Inventory> mInventory;  ///< The interface to the inventory
   sf::Font *mFont;                        ///< The Font used for the menu
   sf::Vector2f mWorldSize;                ///< The world size
@@ -34,8 +34,8 @@ public:
   {
     if (mInventory) mInventory->SetItemDisplay(texture);
   }
-  void initialize(sf::Font &font, sf::Vector2f size);
-  void drawto(sf::RenderWindow &window);
+  void Initialize(sf::Font &font, sf::Vector2f size);
+  void DrawTo(sf::RenderWindow &window);
   std::string HandleMouseMove(sf::RenderWindow &window);
   void HandleMouseButtonPressed(sf::RenderWindow &window,
                                 const std::vector<std::string> &interfaceAgentInventory);

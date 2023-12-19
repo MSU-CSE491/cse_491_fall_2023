@@ -547,19 +547,29 @@ public:
     last_entity_id = 0;
 
     // Load the number of agents saved.
-    size_t size = DeserializeAs<size_t>(is);
+    size_t server_last_entity_id = DeserializeAs<size_t>(is);
 
     // client id NOT in agent map yet if ID = 0
     // append to end of set
-    if (client_id == 0) client_id = size;
+    if (client_id == 0) client_id = server_last_entity_id;
 
     // Load back in all agents.
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < server_last_entity_id; i++) {
+      // First, check to see if we've hit the end of the agent_set
+      // Because we are looking at last entity id (and not total size), we may have
+      //  gaps in our agent_set
+      auto tmp_pos = is.tellg();
+      std::getline(is, read, '\n');
+      if(read == ":::END agent_set"){
+        if(last_entity_id < client_id) last_entity_id = client_id;
+        return;
+      }
+      else is.seekg(tmp_pos);
       auto agent_ptr = std::make_unique<netWorth::ControlledAgent>(0, "temp");
       DeserializeValue(is, *agent_ptr);
       agent_ptr->SetProperty("manager", manager);
 
-      if (agent_ptr->GetID() >= last_entity_id) last_entity_id = agent_ptr->GetID() + 1;
+      if (agent_ptr->GetID() >= last_entity_id) last_entity_id = agent_ptr->GetID();
 
       // If this agent is the client interface, skip it (we already have it).
       if (agent_ptr->GetID() == client_id) { continue; }
