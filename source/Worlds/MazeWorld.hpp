@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A World that consists only of walls and open cells.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  **/
 
 #pragma once

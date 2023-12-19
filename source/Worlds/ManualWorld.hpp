@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief A World that consists of trees, water, and grass cells.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  * @author Evan Orvis
  * @author Grant Carr
  * @author Lauren Garvey

@@ -1,7 +1,7 @@
 /**
  * This file is part of the Fall 2023, CSE 491 course project.
  * @brief An Agent based on genetic programming.
- * @note Status: PROPOSAL
+ * @note Status: ALPHA
  **/
 
 #pragma once
