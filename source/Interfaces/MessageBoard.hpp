@@ -7,38 +7,37 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <sstream>
-#include <memory>
 #include <chrono>
+#include <iostream>
+#include <memory>
+#include <sstream>
 
 namespace i_2D {
 
-    /**
-     * @class The MessageBoard is where the backend and users communicate by words
-     */
-    class MessageBoard {
+/**
+ * @class The MessageBoard is where the backend and users communicate by words
+ */
+class MessageBoard {
+private:
+  /// The text displayed
+  std::unique_ptr<sf::Text> mText;
+  /// The timer
+  std::chrono::time_point<std::chrono::system_clock> mStartTime;
 
-    private:
-        /// The text displayed
-        std::unique_ptr<sf::Text> mText;
-        /// The timer
-        std::chrono::time_point<std::chrono::system_clock> mStartTime;
+public:
+  explicit MessageBoard(sf::Font &font);
 
-    public:
-        explicit MessageBoard(sf::Font &font);
+  void DrawTo(sf::RenderWindow &window);
 
-        void DrawTo(sf::RenderWindow &window);
-
-        /**
-         * @brief Set the text of the message board
-         *
-         * @param message The message to set the text to
-         */
-        void Send(const std::string &message) {
-            mText->setString(message);
-            mStartTime = std::chrono::system_clock::now();
-        }
-    };
-}
-
+  /**
+   * @brief Set the text of the message board
+   *
+   * @param message The message to set the text to
+   */
+  void Send(const std::string &message)
+  {
+    mText->setString(message);
+    mStartTime = std::chrono::system_clock::now();
+  }
+};
+}  // namespace i_2D

@@ -1,88 +1,79 @@
+/**
+ * This file is part of the Fall 2023, CSE 491 course project.
+ * @brief Builds a JSON object from the data collected for an agent.
+ * @note Status: ALPHA
+ **/
+
 #pragma once
 
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <unordered_map>
-#include <fstream>
+
 #include "../core/GridPosition.hpp"
-#include <nlohmann/json.hpp>
 
-namespace DataCollection{
-    /**
-     * @brief Builds a JSON object from the data collected for an agent.
-     */
-    class JsonBuilder {
-    private:
-        nlohmann::json json;  ///< The JSON object to be built.
-        nlohmann::json json_array;
-    public:
-        /**
-         * @brief Default constructor for JSONBuilder class.
-         */
-        JsonBuilder() = default;
+namespace DataCollection {
+/**
+ * @brief Builds a JSON object from the data collected for an agent.
+ */
+class JsonBuilder {
+private:
+  nlohmann::json json;  ///< The JSON object to be built.
+  nlohmann::json json_array;
 
-        /**
-         * @brief Destructor for JSONBuilder class.
-         */
-        ~JsonBuilder() = default;
+public:
+  /**
+   * @brief Default constructor for JSONBuilder class.
+   */
+  JsonBuilder() = default;
 
-        void StartArray(std::string title) {
-            json_array[title] = nlohmann::json::array();
-        }
+  /**
+   * @brief Destructor for JSONBuilder class.
+   */
+  ~JsonBuilder() = default;
 
-        void InputToArray(std::string title, nlohmann::json input) {
-            json_array[title].push_back(input);
-        }
+  void StartArray(std::string title) { json_array[title] = nlohmann::json::array(); }
 
-        /**
-         * @brief Adds the agent's name to the JSON object.
-         * @param name The agent's name.
-         */
-        void AddName(std::string name) {
-            json["name"] = name;
-        }
+  void InputToArray(std::string title, nlohmann::json input) { json_array[title].push_back(input); }
 
-        void Addagentname(std::string name) {
-            json["agentname"] = name;
-        }
+  /**
+   * @brief Adds the agent's name to the JSON object.
+   * @param name The agent's name.
+   */
+  void AddName(std::string name) { json["name"] = name; }
 
-        /**
-         * @brief Adds a grid position to the JSON object.
-         * @param pos The grid position to be added.
-         */
-        void AddPosition(cse491::GridPosition pos) {
-            json["positions"].push_back({{"x", pos.GetX()}, {"y", pos.GetY()}});
-        }
+  void Addagentname(std::string name) { json["agentname"] = name; }
 
-        void AddDamage(double damage) {
-            json["damage"].push_back(damage);
-        }
+  /**
+   * @brief Adds a grid position to the JSON object.
+   * @param pos The grid position to be added.
+   */
+  void AddPosition(cse491::GridPosition pos)
+  {
+    json["positions"].push_back({{"x", pos.GetX()}, {"y", pos.GetY()}});
+  }
 
-        /**
-         * @brief Retrieves the JSON object.
-         * @return The JSON object.
-         */
-        nlohmann::json GetJSON() {
-            return json;
-        }
+  void AddDamage(double damage) { json["damage"].push_back(damage); }
 
-        void ClearJSON() {
-            json.clear();
-        }
+  /**
+   * @brief Retrieves the JSON object.
+   * @return The JSON object.
+   */
+  nlohmann::json GetJSON() { return json; }
 
-        nlohmann::json GetJSONArray() {
-            return json_array;
-        }
+  void ClearJSON() { json.clear(); }
 
-        void AddInt(std::string title, int usage) {
-            json[title] = usage;
-        }
+  nlohmann::json GetJSONArray() { return json_array; }
 
-        /**
-         * @brief Writes the JSON object to a file.
-         */
-        void WriteToFile(std::ofstream &jsonfilestream, nlohmann::json Json)
-        {
-            jsonfilestream << Json.dump(4);
-        }
-    };
-} // namespace DataCollection
+  void AddInt(std::string title, int usage) { json[title] = usage; }
+
+  /**
+   * @brief Writes the JSON object to a file.
+   */
+  void WriteToFile(std::ofstream &jsonfilestream, nlohmann::json Json)
+  {
+    jsonfilestream << Json.dump(4);
+  }
+};
+}  // namespace DataCollection

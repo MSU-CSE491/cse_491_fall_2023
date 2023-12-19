@@ -5,36 +5,37 @@
 
 // Catch2
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
-
 #include "Agents/TrackingAgent.hpp"
-#include "Worlds/MazeWorld.hpp"
 
+#include <catch2/catch_all.hpp>
 #include <memory>
+
+#include "Worlds/MazeWorld.hpp"
 
 using namespace std;
 using namespace walle;
 using namespace cse491;
 
-TEST_CASE("Tracking Agent Alert", "[Agents]") {
-
+TEST_CASE("Tracking Agent Alert", "[Agents]")
+{
   // Avoid all the hurdles of encapsulation and just add the agents directly
   struct MockWorld : MazeWorld {
     int DoAction(cse491::AgentBase &, size_t) override { return 0; }
-    agent_map_t & GetMap() { return agent_map; }
+    agent_map_t &GetMap() { return agent_map; }
   };
 
-  SECTION("Alerter network") {
+  SECTION("Alerter network")
+  {
     MockWorld world;
-    TrackingAgent target {0, "mock", "x"};
-    auto & map = world.GetMap();
-    auto & first = map[0] = make_unique<TrackingAgent>(0, "first", "x");
-    auto & second = map[1] = make_unique<TrackingAgent>(1, "second", "x");
+    TrackingAgent target{0, "mock", "x"};
+    auto &map = world.GetMap();
+    auto &first = map[0] = make_unique<TrackingAgent>(0, "first", "x");
+    auto &second = map[1] = make_unique<TrackingAgent>(1, "second", "x");
     first->SetWorld(world);
     second->SetWorld(world);
 
-    auto & first_tracking = dynamic_cast<TrackingAgent&>(*first);
-    auto & second_tracking = dynamic_cast<TrackingAgent&>(*second);
+    auto &first_tracking = dynamic_cast<TrackingAgent &>(*first);
+    auto &second_tracking = dynamic_cast<TrackingAgent &>(*second);
 
     first_tracking.SetTarget(&target);
     second_tracking.SetTarget(&target);
@@ -57,4 +58,3 @@ TEST_CASE("Tracking Agent Alert", "[Agents]") {
     REQUIRE(second_tracking.GetState() == TrackingState::TRACKING);
   }
 }
-
