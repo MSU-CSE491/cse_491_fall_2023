@@ -5,9 +5,15 @@
  **/
 
 #pragma once
+
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <vector>
+
+#include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/Packet.hpp>
+#include <SFML/Network/UdpSocket.hpp>
 
 namespace netWorth {
 using namespace sf;

@@ -92,59 +92,5 @@ void Menu::HandleMouseButtonPressed(sf::RenderWindow &window,
     }
   }
 }
-}
 
-/**
- * @brief draws each menu button to the window
- *
- * @param window the main window of the graphic interface
- */
-void Menu::drawto(sf::RenderWindow &window)
-{
-  for (const auto &button : mMenuBar) {
-    button->DrawTo(window);
-  }
-  if (mInventory) {
-    mInventory->DrawTo(window);
-  }
-}
-
-/**
- * @brief check for mouse hoovering over the menu buttons
- * change button color accordingly
- *
- * @param window the main window of the graphic interface
- */
-std::string Menu::HandleMouseMove(sf::RenderWindow &window)
-{
-  std::string s1 = "null";
-  for (size_t i = 0; i < mMenuBar.size(); ++i) {
-    if (mMenuBar[i]->IsMouseOver(window)) {
-      mMenuBar[i]->SetBackColor(sf::Color::Magenta);
-    } else {
-      mMenuBar[i]->SetBackColor(sf::Color::Black);
-    }
-  }
-  if (mInventory) {
-    s1 = mInventory->HandleMouseMove(window);
-  }
-  return s1;
-}
-/**
- * @brief check if the mouse click the exit button
- * closes window accordingly
- *
- * @param window the main window of the graphic interface
- */
-void Menu::HandleMouseButtonPressed(sf::RenderWindow &window,
-                                    const std::vector<std::string> &interfaceAgentInventory)
-{
-  if (mMenuBar[1]->IsMouseOver(window)) {
-    if (mInventory) {
-      DeconstructInventory();
-    } else {
-      ConstructInventory(interfaceAgentInventory);
-    }
-  }
-}
 }  // namespace i_2D
